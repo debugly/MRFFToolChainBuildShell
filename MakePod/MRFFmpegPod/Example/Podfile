@@ -1,0 +1,7 @@
+use_frameworks!
+platform :ios,'8.0'
+
+target 'MRFFmpegPod-iOS' do
+  # pod 'MRFFmpegPod', :path => '../'
+  pod 'MRFFmpegPod', :podspec => 'https://raw.githubusercontent.com/debugly/MRFFmpeg-Libs/master/MRFFmpeg4.2.2.podspec'
+end

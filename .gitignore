@@ -2,3 +2,7 @@ build
 product
 vendor_product
 vendor_source
+MakePod/MRFFmpegPod/Example/Pods
+MakePod/MRFdk-aacPod/Example/Pods
+MakePod/MRLamePod/Example/Pods
+MakePod/MRX264Pod/Example/Pods

@@ -1,0 +1,16 @@
+PODS:
+  - MRFdk-aacPod (0.1.0)
+
+DEPENDENCIES:
+  - MRFdk-aacPod (from `../`)
+
+EXTERNAL SOURCES:
+  MRFdk-aacPod:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  MRFdk-aacPod: d59c5127fae5a994bc5a2ea9c6b753d72983da75
+
+PODFILE CHECKSUM: 4d1f57bd98002ce2d00b1cc1af6754d29c7079e3
+
+COCOAPODS: 1.8.4
