@@ -4,9 +4,9 @@
 
 **What's MRFFToolChain?**
 
-MRFFToolChain was built for my FFmepg tutorial : [https://github.com/debugly/StudyFFmpeg](https://github.com/debugly/StudyFFmpeg) .
+MRFFToolChain products was built for my FFmepg tutorial : [https://github.com/debugly/StudyFFmpeg](https://github.com/debugly/StudyFFmpeg) .
 
-MRFFToolChain contain FFmpeg lib, Lame lib,X264 lib,Fdk-aac lib...
+At present MRFFToolChain contained FFmpeg 、Lame、X264、Fdk-aac build shell...
 
 All MRFFToolChain lib were made to Pod in [MRFFToolChainPod](https://github.com/debugly/MRFFToolChainPod/). 
 
