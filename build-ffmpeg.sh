@@ -48,6 +48,7 @@ function clean(){
 
 function prepareDirs(){
     mkdir -p $BUILD;
+	mkdir -p $VENDOR_SRC;
     mkdir -p $VENDOR_PROD;
 	mkdir -p $PROD;
 }
@@ -101,7 +102,8 @@ function checkGAS(){
 		fi
 
 		local gas_bin="${VENDOR_PROD}/bin/gas-preprocessor.pl"
-
+		mkdir -p "${VENDOR_PROD}/bin"
+		
 		ln -s "$gas" "$gas_bin" && chmod +x "$gas_bin" || exit 1
 
 		echo "✅ gas-preprocessor.pl programe prepared!"
