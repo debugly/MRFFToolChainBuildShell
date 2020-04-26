@@ -1,17 +1,15 @@
 PODS:
-  - MRFFmpegPod (4.2.2):
-    - MRFFmpegPod/libavcodec (= 4.2.2)
-    - MRFFmpegPod/libavfilter (= 4.2.2)
-    - MRFFmpegPod/libavformat (= 4.2.2)
-    - MRFFmpegPod/libavutil (= 4.2.2)
-    - MRFFmpegPod/libswresample (= 4.2.2)
-    - MRFFmpegPod/libswscale (= 4.2.2)
-  - MRFFmpegPod/libavcodec (4.2.2)
-  - MRFFmpegPod/libavfilter (4.2.2)
-  - MRFFmpegPod/libavformat (4.2.2)
-  - MRFFmpegPod/libavutil (4.2.2)
-  - MRFFmpegPod/libswresample (4.2.2)
-  - MRFFmpegPod/libswscale (4.2.2)
+  - MRFFmpegPod (3.4.7):
+    - MRFFmpegPod/libavcodec (= 3.4.7)
+    - MRFFmpegPod/libavformat (= 3.4.7)
+    - MRFFmpegPod/libavutil (= 3.4.7)
+    - MRFFmpegPod/libswresample (= 3.4.7)
+    - MRFFmpegPod/libswscale (= 3.4.7)
+  - MRFFmpegPod/libavcodec (3.4.7)
+  - MRFFmpegPod/libavformat (3.4.7)
+  - MRFFmpegPod/libavutil (3.4.7)
+  - MRFFmpegPod/libswresample (3.4.7)
+  - MRFFmpegPod/libswscale (3.4.7)
 
 DEPENDENCIES:
   - MRFFmpegPod (from `../`)
@@ -21,8 +19,8 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  MRFFmpegPod: 872b505ea7cb1cb0902bb51c7b0411e94a902235
+  MRFFmpegPod: 02be39b414c2e1119e9f71541aee56ddb8f1afa5
 
-PODFILE CHECKSUM: b66f1d4f42ba44d0e51fa276770515af0e9efd09
+PODFILE CHECKSUM: 88114a06338c4fe67a946d2e412272608247939b
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.1

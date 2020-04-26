@@ -7,98 +7,95 @@
 #
 
 libavcodec = 'libavcodec'
-libavdevice = 'libavdevice'
-libavfilter = 'libavfilter'
 libavformat = 'libavformat'
 libavutil = 'libavutil'
 libswresample = 'libswresample'
 libswscale = 'libswscale'
+# libavdevice = 'libavdevice'
+# libavfilter = 'libavfilter'
+
+NAME='FFmpeg'
+VER='3.4.7'
 
 Pod::Spec.new do |s|
-  s.name             = 'MRFFmpegPod'
-  s.version          = '4.2.2'
-  s.summary          = 'A short description of MRFFmpegPod.'
-
-# This description is used to generate tags and improve search results.
-#   * Think: What does it do? Why did you write it? What is the focus?
-#   * Try to keep it short, snappy and to the point.
-#   * Write the description between the DESC delimiters below.
-#   * Finally, don't worry about the indent, CocoaPods strips it!
-
+  s.name             = "MR#{NAME}Pod"
+  s.version          = "#{VER}"
+  s.summary          = "A Pod Warper for #{NAME} lib."
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+The pod is a member of MRFFToolChainPod.
+What's MRFFToolChainPod?
+MRFFToolChainPod is buid for my ffmepg tutorial : https://github.com/debugly/StudyFFmpeg .
+MRFFToolChainPod contain FFmpeg lib, Lame lib,X264 lib,Fdk-aac lib...
+Where's the build shell?
+All ToolChain lib build shell is here : https://github.com/debugly/MRFFToolChain
                        DESC
 
-  s.homepage         = 'https://github.com/qianlongxu/MRFFmpegPod'
-  # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
-  s.license          = { :type => 'MIT', :text => 'MIT LICENSE' }
-  s.author           = { 'qianlongxu' => 'qianlongxu@gmial.com' }
-  s.source           = { :http => 'http://localhost/test/MRFFmpegPod.zip' }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
-
+  s.homepage         = 'https://github.com/debugly/MRFFToolChainPod/'
+  s.license          = { :type => 'MIT', :text => 'LICENSE' }
+  s.author           = { 'qianlongxu' => 'qianlongxu@sohu-inc.com' }
+  s.source           = { :http => "https://qipai.56.com/dev/ifox/ffpods/#{s.name}-iOS-#{s.version}.zip" }
   s.ios.deployment_target = '8.0'
-
   
   # preserve sub folder structure
-  s.ios.preserve_paths = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include"
-  s.ios.header_mappings_dir = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include"
+  s.ios.preserve_paths = "#{s.name}/iOS/#{NAME}-#{s.version}/include"
+  s.ios.header_mappings_dir = "#{s.name}/iOS/#{NAME}-#{s.version}/include"
 
   s.subspec libavcodec do |sub|
-    sub.ios.source_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libavcodec}/*.h"
-    sub.ios.vendored_libraries = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/lib/#{libavcodec}.a"
-    sub.ios.public_header_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libavcodec}/*.h"
+    sub.ios.source_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libavcodec}/*.h"
+    sub.ios.vendored_libraries = "#{s.name}/iOS/#{NAME}-#{s.version}/lib/#{libavcodec}.a"
+    sub.ios.public_header_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libavcodec}/*.h"
   end
   
-  # s.subspec libavdevice do |sub|
-  #   sub.ios.source_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libavdevice}/*.h"
-  #   sub.ios.vendored_libraries = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/lib/#{libavdevice}.a"
-  #   sub.ios.public_header_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libavdevice}/*.h"
-  # end
-
-  s.subspec libavfilter do |sub|
-    sub.ios.source_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libavfilter}/*.h"
-    sub.ios.vendored_libraries = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/lib/#{libavfilter}.a"
-    sub.ios.public_header_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libavfilter}/*.h"
-  end
-
   s.subspec libavformat do |sub|
-    sub.ios.source_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libavformat}/*.h"
-    sub.ios.vendored_libraries = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/lib/#{libavformat}.a"
-    sub.ios.public_header_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libavformat}/*.h"
+    sub.ios.source_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libavformat}/*.h"
+    sub.ios.vendored_libraries = "#{s.name}/iOS/#{NAME}-#{s.version}/lib/#{libavformat}.a"
+    sub.ios.public_header_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libavformat}/*.h"
   end
 
   s.subspec libavutil do |sub|
-    sub.ios.source_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libavutil}/*.h"
-    sub.ios.vendored_libraries = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/lib/#{libavutil}.a"
-    sub.ios.public_header_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libavutil}/*.h"
+    sub.ios.source_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libavutil}/*.h"
+    sub.ios.vendored_libraries = "#{s.name}/iOS/#{NAME}-#{s.version}/lib/#{libavutil}.a"
+    sub.ios.public_header_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libavutil}/*.h"
   end
 
   s.subspec libswresample do |sub|
-    sub.ios.source_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libswresample}/*.h"
-    sub.ios.vendored_libraries = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/lib/#{libswresample}.a"
-    sub.ios.public_header_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libswresample}/*.h"
+    sub.ios.source_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libswresample}/*.h"
+    sub.ios.vendored_libraries = "#{s.name}/iOS/#{NAME}-#{s.version}/lib/#{libswresample}.a"
+    sub.ios.public_header_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libswresample}/*.h"
   end
 
   s.subspec libswscale do |sub|
-    sub.ios.source_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libswscale}/*.h"
-    sub.ios.vendored_libraries = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/lib/#{libswscale}.a"
-    sub.ios.public_header_files = "MRFFmpegPod/iOS/FFmpeg-#{s.version}/include/#{libswscale}/*.h"
+    sub.ios.source_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libswscale}/*.h"
+    sub.ios.vendored_libraries = "#{s.name}/iOS/#{NAME}-#{s.version}/lib/#{libswscale}.a"
+    sub.ios.public_header_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libswscale}/*.h"
   end
   
+  # s.subspec libavdevice do |sub|
+  #   sub.ios.source_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libavdevice}/*.h"
+  #   sub.ios.vendored_libraries = "#{s.name}/iOS/#{NAME}-#{s.version}/lib/#{libavdevice}.a"
+  #   sub.ios.public_header_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libavdevice}/*.h"
+  # end
+
+  # s.subspec libavfilter do |sub|
+  #   sub.ios.source_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libavfilter}/*.h"
+  #   sub.ios.vendored_libraries = "#{s.name}/iOS/#{NAME}-#{s.version}/lib/#{libavfilter}.a"
+  #   sub.ios.public_header_files = "#{s.name}/iOS/#{NAME}-#{s.version}/include/#{libavfilter}/*.h"
+  # end
+
   # s.ios.xcconfig = { 'USER_HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/Headers/Public"' } 
-  # s.ios.xcconfig = { 'USER_HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/MRFFmpegPod/iOS/FFmpeg-' + s.version.to_s + '/include"' }
+  # s.ios.xcconfig = { 'USER_HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/#{s.name}/iOS/#{NAME}-' + s.version.to_s + '/include"' }
   
   # s.resource_bundles = {
-  #   'MRFFmpegPod' => ['MRFFmpegPod/Assets/*.png']
+  #   '#{s.name}' => ['#{s.name}/Assets/*.png']
   # }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   s.library = 'z', 'bz2', 'iconv', 'lzma'
   s.frameworks = 'CoreFoundation', 'CoreVideo', 'VideoToolbox', 'CoreMedia', 'AudioToolbox', 'Security'
-  other_ldflags = '$(inherited) -framework "VideoDecodeAcceleration"'
-  s.ios.xcconfig = {
-    'OTHER_LDFLAGS[arch=arm64]' => other_ldflags
-  }
+  # other_ldflags = '$(inherited) -framework "VideoDecodeAcceleration"'
+  # s.osx.xcconfig = {
+  #   'OTHER_LDFLAGS[arch=arm64]' => other_ldflags
+  # }
 
   # s.dependency 'AFNetworking', '~> 2.3'
 end

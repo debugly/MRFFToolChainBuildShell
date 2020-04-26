@@ -30,6 +30,7 @@ out="/dev/null"
 RAW_CONFIGURE_FLAGS="--enable-cross-compile --disable-debug --disable-programs \
 				 	--disable-shared --enable-static \
 				 	--disable-gpl --disable-nonfree --disable-gray --disable-swscale-alpha --disable-ffprobe --disable-doc --disable-htmlpages --disable-manpages --disable-podpages --disable-txtpages \
+					--disable-avfilter \
                  	--disable-doc --enable-pic"
 
 export PATH=${VENDOR_PROD}/bin:$PATH
