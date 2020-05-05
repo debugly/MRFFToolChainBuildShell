@@ -11,7 +11,7 @@ yasmTag='1.3.0' #Yasm Version
 #X264=`pwd`/fat-x264
 #FDK_AAC=Fdk-aac/Fdk-aac-2.0.1
 
-ARCHS="arm64 x86_64"
+ARCHS="arm64 x86_64 armv7 i386"
 DEPLOYMENT_TARGET="8.0"
 
 MCB=${PWD}
@@ -168,12 +168,12 @@ function build_arch(){
 	local CFLAGS="-arch $ARCH"
 	local CONFIGURE_FLAGS="$RAW_CONFIGURE_FLAGS"
 
-	if [ "$ARCH" = "x86_64" ]
+	if [[ "$ARCH" = 'x86_64' || "$ARCH" = 'i386' ]]
 	then
 		local PLATFORM="iPhoneSimulator"
 		CFLAGS="$CFLAGS -mios-simulator-version-min=$DEPLOYMENT_TARGET"
 		CONFIGURE_FLAGS="$CONFIGURE_FLAGS --disable-asm"
-	elif [[ "$ARCH" == 'arm64' ]];then
+	elif [[ "$ARCH" == 'arm64' || "$ARCH" == 'armv7' ]];then
 		local PLATFORM="iPhoneOS"
 		CFLAGS="$CFLAGS -mios-version-min=$DEPLOYMENT_TARGET -fembed-bitcode"
 		if [ "$ARCH" = "arm64" ]
@@ -339,7 +339,7 @@ SYNOPSIS
         ** clean product **
     sh `basename $0` -l 
         ** lipo libs **
-    sh `basename $0` -a [arm64,x86_64,all] 
+    sh `basename $0` -a [$ARCHS] 
         ** build special arch **
     sh `basename $0` -c -a all 
         ** build special arch **
@@ -388,7 +388,7 @@ while getopts "hvcla:" OPTION; do
             
             if [[ ! "$ok" ]];then
                 echo "wrong opts:$OPTARG!"
-                echo 'sh build-lame.sh -a [arm64,x86_64,all]' 
+                echo 'sh build-ffmpeg.sh -a '"[$ARCHS]" 
                 exit 1
             fi
 
