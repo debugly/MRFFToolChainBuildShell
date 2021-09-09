@@ -9,3 +9,5 @@ MakePod/MRX264Pod/Example/Pods
 MakePod/MRFFmpegPod
 build_macos
 product_macos
+MakePod/MROpenSSLPod/MROpenSSLPod/macOS
+MakePod/MROpenSSLPod/MROpenSSLPod/iOS
