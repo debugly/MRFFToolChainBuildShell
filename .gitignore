@@ -23,5 +23,4 @@ mac/make-ffmpeg-pod/OpenSSL/MRFFmpegPod-macOS-*.zip
 mac/make-openssl-pod/MROpenSSLPod
 ios/make-ffmpeg-pod/MRFFmpegPod-iOS-*.zip
 ios/make-ffmpeg-pod/Example/MRFFmpegPod.xcworkspace/xcuserdata
-ios/make-ffmpeg-pod/MRFFmpegPod-macOS-*.zip
 mac/make-openssl-pod/MROpenSSLPod-macOS-*.zip

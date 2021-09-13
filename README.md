@@ -14,151 +14,136 @@ All MRFFToolChain lib were made to Pod in [MRFFToolChainPod](https://github.com/
 
 ```
 .
-├── MakePod			//make cocoapod 
-├── README.md		//README
-├── build			//build source folder
-├── build-fdk-aac.sh	
+├── README.md
+├── config          #ffmpeg 功能裁剪配置
+├── extra           #ffmpeg，openssl 等库的源码
+├── init-ffmpeg.sh  #ffmpeg 源码初始化脚本
+├── init-openssl.sh #openssl 源码初始化脚本
+├── ios             #ios 平台编译工作目录
+├── mac             #macos 平台编译工作目录
+├──tools            #编译脚本通用依赖
+# 后续将废弃掉
+├── MakePod
+├── build
+├── build-fdk-aac.sh
 ├── build-lame.sh
 ├── build-x264.sh
-├── product			//lib products
-├── vendor_product  //dependent vendor products
-└── vendor_source   //all lib and vendor source folder
+└── product
+```
+
+## Build OpenSSL
+
+1、按平台准备源码
+
+```
+#准备 iOS 和 macOS 平台源码
+./init-openssl.sh all
+#准备 iOS 平台源码
+./init-openssl.sh ios
+#准备 macOS 平台源码
+./init-openssl.sh macos
+#第二个参数可选
+#准备 macOS 平台 arm 架构源码
+./init-openssl.sh macos arm64
+```
+
+2、按平台分别编译
+
+```
+# 编译 iOS 平台
+cd ios
+./compile-openssl.sh all 	# 编译 x86_64 和 arm64 架构
+./compile-openssl.sh x86_64# 仅编译 x86_64 架构
+./compile-openssl.sh arm64 # 仅编译 arm64 架构
+./compile-openssl.sh lipo  # 将编译好的不同架构库合并成 fat 版本
+./compile-openssl.sh clean # 清理构建产物包括 .o 和 .a
+./compile-openssl.sh clean x86_64 # 仅清理 x86_64 架构的构建产物
+./compile-openssl.sh clean arm64  # 仅清理 arm64 架构的构建产物
+./compile-openssl.sh check # 检查编译工具
+
+# 制作 Pod 库物料
+cd make-openssl-pod
+# 跟上当前库的版本，比如 1.1.1l
+./make-pod.sh 1.1.1l
+# 将 podspec 和 zip 文件上传到服务器即可
 ```
 
 ```
-MRFFToolChain/product/
-.
-├── fdk-aac
-│   ├── fdk-aac-2.0.1
-│   │   ├── include
-│   │   └── lib
-│   ├── fdk-aac-2.0.1-scratch
-│   │   ├── arm64
-│   │   └── x86_64
-│   └── fdk-aac-2.0.1-thin
-│       ├── arm64
-│       └── x86_64
-├── ffmpeg
-│   ├── ffmpeg-3.4.7
-│   │   ├── include
-│   │   └── lib
-│   ├── ffmpeg-3.4.7-scratch
-│   │   ├── arm64
-│   │   └── x86_64
-│   └── ffmpeg-3.4.7-thin
-│       ├── arm64
-│       └── x86_64
-├── lame
-│   ├── lame-3.100
-│   │   ├── include
-│   │   └── lib
-│   ├── lame-3.100-scratch
-│   │   ├── arm64
-│   │   └── x86_64
-│   └── lame-3.100-thin
-│       ├── arm64
-│       └── x86_64
-└── x264
-    ├── x264-20191217-2245
-    │   ├── include
-    │   └── lib
-    ├── x264-20191217-2245-scratch
-    │   ├── arm64
-    │   └── x86_64
-    └── x264-20191217-2245-thin
-        ├── arm64
-        └── x86_64
-```
+# 编译 macOS 平台
+cd mac
+./compile-openssl.sh all 	# 编译 x86_64 和 arm64 架构
+./compile-openssl.sh x86_64# 仅编译 x86_64 架构
+./compile-openssl.sh arm64 # 仅编译 arm64 架构
+./compile-openssl.sh lipo  # 将编译好的不同架构库合并成 fat 版本
+./compile-openssl.sh clean # 清理构建产物包括 .o 和 .a
+./compile-openssl.sh clean x86_64 # 仅清理 x86_64 架构的构建产物
+./compile-openssl.sh clean arm64  # 仅清理 arm64 架构的构建产物
+./compile-openssl.sh check # 检查编译工具
 
+# 制作 Pod 库物料
+cd make-openssl-pod
+# 跟上当前库的版本，比如 4.4
+./make-pod.sh 4.4
+# 将 podspec 和 zip 文件上传到服务器即可
+```
 
 ## Build FFmepg
 
-build iOS fat (arm64,x86_64) lib : `sh build-ffmpeg.sh -c -a all`
+> 如果需要编译支持 https 协议的 ffmpeg，需要先编译 openssl，然后再往下编译 ffmpeg！
+
+
+1、按平台准备源码
 
 ```
-====Clean====
-old product exist
-product has been cleaned.
-==========================================
-Use:/Applications/Xcode.app/Contents/Developer
-
-===================================
-✅ gas-preprocessor.pl exist!
-===================================
-
-
-===================================
-✅ FFmpeg Source 3.4.7 exist!
-===================================
-
-will build arm64...
-
-===Build Info==========
-FFmpeg 3.4.7
-ARCH : arm64
-CC : xcrun -sdk iphoneos clang
-CXX : xcrun -sdk iphoneos clang++
-AS : gas-preprocessor.pl -arch aarch64 -- xcrun -sdk iphoneos clang
-Prefix : /Users/qianlongxu/Documents/GitWorkspace/MRFFToolChain/product/ffmpeg/ffmpeg-3.4.7-thin/arm64
-CFLAGS : -arch arm64 -mios-version-min=8.0 -fembed-bitcode -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.2.sdk
-LDFLAGS : -arch arm64 -mios-version-min=8.0 -fembed-bitcode -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.2.sdk
-CONFIGURE_FLAGS : --enable-cross-compile --disable-debug --disable-programs 				 	--disable-shared --enable-static 				 	--disable-gpl --disable-nonfree --disable-gray --disable-swscale-alpha --disable-ffprobe --disable-doc --disable-htmlpages --disable-manpages --disable-podpages --disable-txtpages                  	--disable-doc --enable-pic --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.2.sdk
-=========================================================
-
-arm64 successfully built.
-will build x86_64...
-
-===Build Info==========
-FFmpeg 3.4.7
-ARCH : x86_64
-CC : xcrun -sdk iphonesimulator clang
-CXX : xcrun -sdk iphonesimulator clang++
-AS : gas-preprocessor.pl -- xcrun -sdk iphonesimulator clang
-Prefix : /Users/qianlongxu/Documents/GitWorkspace/MRFFToolChain/product/ffmpeg/ffmpeg-3.4.7-thin/x86_64
-CFLAGS : -arch x86_64 -mios-simulator-version-min=8.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk
-LDFLAGS : -arch x86_64 -mios-simulator-version-min=8.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk
-CONFIGURE_FLAGS : --enable-cross-compile --disable-debug --disable-programs 				 	--disable-shared --enable-static 				 	--disable-gpl --disable-nonfree --disable-gray --disable-swscale-alpha --disable-ffprobe --disable-doc --disable-htmlpages --disable-manpages --disable-podpages --disable-txtpages                  	--disable-doc --enable-pic --disable-asm --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk
-=========================================================
-
-x86_64 successfully built.
-building fat binaries...
-will create fat lib: libavcodec.a
-Architectures in the fat file: /Users/qianlongxu/Documents/GitWorkspace/MRFFToolChain/product/ffmpeg/ffmpeg-3.4.7/lib/libavcodec.a are: x86_64 arm64 
-will create fat lib: libavfilter.a
-Architectures in the fat file: /Users/qianlongxu/Documents/GitWorkspace/MRFFToolChain/product/ffmpeg/ffmpeg-3.4.7/lib/libavfilter.a are: x86_64 arm64 
-will create fat lib: libavformat.a
-Architectures in the fat file: /Users/qianlongxu/Documents/GitWorkspace/MRFFToolChain/product/ffmpeg/ffmpeg-3.4.7/lib/libavformat.a are: x86_64 arm64 
-will create fat lib: libavutil.a
-Architectures in the fat file: /Users/qianlongxu/Documents/GitWorkspace/MRFFToolChain/product/ffmpeg/ffmpeg-3.4.7/lib/libavutil.a are: x86_64 arm64 
-will create fat lib: libswscale.a
-Architectures in the fat file: /Users/qianlongxu/Documents/GitWorkspace/MRFFToolChain/product/ffmpeg/ffmpeg-3.4.7/lib/libswscale.a are: x86_64 arm64 
-will create fat lib: libswresample.a
-Architectures in the fat file: /Users/qianlongxu/Documents/GitWorkspace/MRFFToolChain/product/ffmpeg/ffmpeg-3.4.7/lib/libswresample.a are: x86_64 arm64 
-will create fat lib: libavdevice.a
-Architectures in the fat file: /Users/qianlongxu/Documents/GitWorkspace/MRFFToolChain/product/ffmpeg/ffmpeg-3.4.7/lib/libavdevice.a are: x86_64 arm64 
-🎉  Congrats
-🚀  FFmpeg 3.4.7 successfully built
+#准备 iOS 和 macOS 平台源码
+./init-ffmpeg.sh all
+#准备 iOS 平台源码
+./init-ffmpeg.sh ios
+#准备 macOS 平台源码
+./init-ffmpeg.sh macos
+#第二个参数可选
+#准备 macOS 平台 arm 架构源码
+./init-ffmpeg.sh macos arm64
 ```
 
-more cmd opts
+2、按平台分别编译
 
 ```
-sh build-ffmpeg.sh -h
-SYNOPSIS
-    sh build-ffmpeg.sh -h 
-        ** show useage **
-    sh build-ffmpeg.sh -v 
-        ** print more log **
-    sh build-ffmpeg.sh -c 
-        ** clean product **
-    sh build-ffmpeg.sh -l 
-        ** lipo libs **
-    sh build-ffmpeg.sh -a [arm64,x86_64,all] 
-        ** build special arch **
-    sh build-ffmpeg.sh -c -a all 
-        ** build special arch **
-    sh build-ffmpeg.sh -v -c -a all 
-        ** show more log, after clean old produt then build all arch **
+# 编译 iOS 平台
+cd ios
+./compile-ffmpeg.sh all 	# 编译 x86_64 和 arm64 架构
+./compile-ffmpeg.sh x86_64# 仅编译 x86_64 架构
+./compile-ffmpeg.sh arm64 # 仅编译 arm64 架构
+./compile-ffmpeg.sh lipo  # 将编译好的不同架构库合并成 fat 版本
+./compile-ffmpeg.sh clean # 清理构建产物包括 .o 和 .a
+./compile-ffmpeg.sh clean x86_64 # 仅清理 x86_64 架构的构建产物
+./compile-ffmpeg.sh clean arm64  # 仅清理 arm64 架构的构建产物
+./compile-ffmpeg.sh check # 检查编译工具
+
+# 制作 Pod 库物料
+cd make-ffmpeg-pod
+# 跟上当前库的版本，比如 4.4
+./make-pod.sh 4.4
+# 将 podspec 和 zip 文件上传到服务器即可
+```
+
+```
+# 编译 macOS 平台
+cd mac
+./compile-ffmpeg.sh all 	# 编译 x86_64 和 arm64 架构
+./compile-ffmpeg.sh x86_64# 仅编译 x86_64 架构
+./compile-ffmpeg.sh arm64 # 仅编译 arm64 架构
+./compile-ffmpeg.sh lipo  # 将编译好的不同架构库合并成 fat 版本
+./compile-ffmpeg.sh clean # 清理构建产物包括 .o 和 .a
+./compile-ffmpeg.sh clean x86_64 # 仅清理 x86_64 架构的构建产物
+./compile-ffmpeg.sh clean arm64  # 仅清理 arm64 架构的构建产物
+./compile-ffmpeg.sh check # 检查编译工具
+
+# 制作 Pod 库物料(如果制作的是不依赖于 openssl 的，则进入 make-ffmpeg-pod/No-OpenSSL 目录)
+cd make-ffmpeg-pod/OpenSSL
+# 跟上当前库的版本，比如 4.4
+./make-pod.sh 4.4
+# 将 podspec 和 zip 文件上传到服务器即可
 ```
 
 ## build fdk-aac
