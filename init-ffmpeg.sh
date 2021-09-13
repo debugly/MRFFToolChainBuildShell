@@ -41,8 +41,8 @@ fi
 set -e
 TOOLS=tools
 
-FF_ALL_ARCHS="x86_64 arm64"
-FF_TARGET=$1
+FF_iOS_ARCHS="x86_64 arm64"
+FF_macOS_ARCHS="x86_64 arm64"
 
 function echo_ffmpeg_version() {
     echo $IJK_FFMPEG_COMMIT
@@ -58,31 +58,67 @@ function pull_common() {
 }
 
 function pull_fork() {
-    echo "== pull ffmpeg fork $1 =="
-    sh $TOOLS/pull-repo-ref.sh $IJK_FFMPEG_FORK mac/ffmpeg-$1 ${IJK_FFMPEG_LOCAL_REPO}
-    cd mac/ffmpeg-$1
+    local dir="$1/ffmpeg-$2"
+    echo "== pull ffmpeg fork to $dir =="
+    
+    sh $TOOLS/pull-repo-ref.sh $IJK_FFMPEG_FORK $dir ${IJK_FFMPEG_LOCAL_REPO}
+    cd $dir
     git checkout ${IJK_FFMPEG_COMMIT} -B mrffmpeg
     cd -
 }
 
-function pull_fork_all() {
-    for ARCH in $FF_ALL_ARCHS
-    do
-        pull_fork $ARCH
-    done
+function usage() {
+    echo "$0 ios|macos|all [arm64|x86_64]"
 }
 
 #----------
-case "$FF_TARGET" in
-    ffmpeg-version)
-        echo_ffmpeg_version
+case "$1" in
+    iOS|ios)
+        found=0
+        for arch in $FF_iOS_ARCHS
+        do
+            if [[ "$2" == "$arch" || "x$2" == "x" ]];then
+                found=1
+                pull_fork 'ios' $arch
+            fi
+        done
+
+        if [[ found -eq 0 ]];then
+            echo "unknown arch:$2 for $1"
+        fi
     ;;
-    x86_64|arm64)
-        pull_common
-        pull_fork $FF_TARGET
+
+    macOS|macos)
+        
+        found=0
+        for arch in $FF_macOS_ARCHS
+        do
+            if [[ "$2" == "$arch" || "x$2" == "x" ]];then
+                found=1
+                pull_fork 'mac' $arch
+            fi
+        done
+
+        if [[ found -eq 0 ]];then
+            echo "unknown arch:$2 for $1"
+        fi
     ;;
-    all|*)
-        pull_common
-        pull_fork_all
+
+    all)
+
+        for arch in $FF_iOS_ARCHS
+        do
+            pull_fork 'ios' $arch
+        done
+
+        for arch in $FF_macOS_ARCHS
+        do
+            pull_fork 'mac' $arch
+        done
+    ;;
+
+    *)
+        usage
+        exit 1
     ;;
 esac
