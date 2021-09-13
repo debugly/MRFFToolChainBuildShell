@@ -6,7 +6,7 @@
 
 MRFFToolChain products was built for my FFmepg tutorial : [https://github.com/debugly/FFmpegTutorial](https://github.com/debugly/FFmpegTutorial) .
 
-At present MRFFToolChain contained FFmpeg 、Lame、X264、Fdk-aac build shell...
+At present MRFFToolChain contained OpenSSL、FFmpeg 、Lame、X264、Fdk-aac build shell...
 
 All MRFFToolChain lib were made to Pod in [MRFFToolChainPod](https://github.com/debugly/MRFFToolChainPod/). 
 
@@ -15,10 +15,9 @@ All MRFFToolChain lib were made to Pod in [MRFFToolChainPod](https://github.com/
 ```
 .
 ├── MakePod			//make cocoapod 
-├── README.md			//README
+├── README.md		//README
 ├── build			//build source folder
 ├── build-fdk-aac.sh	
-├── build-ffmpeg.sh
 ├── build-lame.sh
 ├── build-x264.sh
 ├── product			//lib products

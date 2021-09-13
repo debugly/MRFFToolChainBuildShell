@@ -64,61 +64,64 @@ function pull_fork() {
     sh $TOOLS/pull-repo-ref.sh $IJK_FFMPEG_FORK $dir ${IJK_FFMPEG_LOCAL_REPO}
     cd $dir
     git checkout ${IJK_FFMPEG_COMMIT} -B mrffmpeg
-    cd -
+    cd - > /dev/null
 }
 
 function usage() {
     echo "$0 ios|macos|all [arm64|x86_64]"
 }
 
-#----------
-case "$1" in
-    iOS|ios)
-        found=0
-        for arch in $FF_iOS_ARCHS
-        do
-            if [[ "$2" == "$arch" || "x$2" == "x" ]];then
-                found=1
+function main() {
+    case "$1" in
+        iOS|ios)
+            found=0
+            for arch in $FF_iOS_ARCHS
+            do
+                if [[ "$2" == "$arch" || "x$2" == "x" ]];then
+                    found=1
+                    pull_fork 'ios' $arch
+                fi
+            done
+
+            if [[ found -eq 0 ]];then
+                echo "unknown arch:$2 for $1"
+            fi
+        ;;
+
+        macOS|macos)
+            
+            found=0
+            for arch in $FF_macOS_ARCHS
+            do
+                if [[ "$2" == "$arch" || "x$2" == "x" ]];then
+                    found=1
+                    pull_fork 'mac' $arch
+                fi
+            done
+
+            if [[ found -eq 0 ]];then
+                echo "unknown arch:$2 for $1"
+            fi
+        ;;
+
+        all)
+
+            for arch in $FF_iOS_ARCHS
+            do
                 pull_fork 'ios' $arch
-            fi
-        done
+            done
 
-        if [[ found -eq 0 ]];then
-            echo "unknown arch:$2 for $1"
-        fi
-    ;;
-
-    macOS|macos)
-        
-        found=0
-        for arch in $FF_macOS_ARCHS
-        do
-            if [[ "$2" == "$arch" || "x$2" == "x" ]];then
-                found=1
+            for arch in $FF_macOS_ARCHS
+            do
                 pull_fork 'mac' $arch
-            fi
-        done
+            done
+        ;;
 
-        if [[ found -eq 0 ]];then
-            echo "unknown arch:$2 for $1"
-        fi
-    ;;
+        *)
+            usage
+            exit 1
+        ;;
+    esac
+}
 
-    all)
-
-        for arch in $FF_iOS_ARCHS
-        do
-            pull_fork 'ios' $arch
-        done
-
-        for arch in $FF_macOS_ARCHS
-        do
-            pull_fork 'mac' $arch
-        done
-    ;;
-
-    *)
-        usage
-        exit 1
-    ;;
-esac
+main $*

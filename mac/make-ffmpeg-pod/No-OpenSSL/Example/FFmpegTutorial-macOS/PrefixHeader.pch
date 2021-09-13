@@ -1,0 +1,32 @@
+//
+//  PrefixHeader.pch
+//  FFmpegTutorial-macOS
+//
+//  Created by Matt Reach on 2020/12/11.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#ifndef __MRWS__
+#define __MRWS__
+
+#ifndef __weakSelf__
+#define __weakSelf__  __weak    typeof(self)weakSelf = self;
+#endif
+
+#ifndef __strongSelf__
+#define __strongSelf__ __strong typeof(weakSelf)self = weakSelf;
+#endif
+
+#define __weakObj(obj)   __weak   typeof(obj)weak##obj = obj;
+#define __strongObj(obj) __strong typeof(weak##obj)obj = weak##obj;
+
+#endif
+
+#define KTestVideoURL1 @"https://data.vod.itc.cn/?new=/73/15/oFed4wzSTZe8HPqHZ8aF7J.mp4&vid=77972299&plat=14&mkey=XhSpuZUl_JtNVIuSKCB05MuFBiqUP7rB&ch=null&user=api&qd=8001&cv=3.13&uid=F45C89AE5BC3&ca=2&pg=5&pt=1&prod=ifox"
+
+#endif /* PrefixHeader_pch */

@@ -26,10 +26,12 @@ IJK_OPENSSL_FORK=git@code.sohuno.com:ifox-mac/openssl.git
 IJK_OPENSSL_COMMIT=OpenSSL_1_1_1l
 IJK_OPENSSL_LOCAL_REPO=extra/openssl
 
-TARGET="$1"
-
 set -e
 TOOLS=tools
+
+FF_iOS_ARCHS="x86_64 arm64"
+FF_macOS_ARCHS="x86_64 arm64"
+
 
 function pull_base()
 {
@@ -39,33 +41,70 @@ function pull_base()
 
 function pull_fork()
 {
-    echo "== pull openssl fork $2 $1 =="
-    dir="$2/openssl-$1"
+    local dir="$1/openssl-$2"
+    echo "== pull openssl fork to $dir =="
+
     sh $TOOLS/pull-repo-ref.sh $IJK_OPENSSL_FORK $dir ${IJK_OPENSSL_LOCAL_REPO}
     cd $dir
     git checkout ${IJK_OPENSSL_COMMIT} -B mropenssl
-    cd -
+    cd - > /dev/null
 }
 
-function main()
-{
-    if [ "$TARGET" = 'ios' ];then
-        pull_base
-        pull_fork "armv7" "$TARGET"
-        pull_fork "armv7s" "$TARGET"
-        pull_fork "arm64" "$TARGET"
-        pull_fork "i386" "$TARGET"
-        pull_fork "x86_64" "$TARGET"
-    elif [ "$TARGET" = 'mac' ];then
-        pull_base
-        pull_fork "x86_64" "$TARGET"
-        pull_fork "arm64" "$TARGET"
-    else
-        echo "Usage:"
-        echo "  ./init-openssl.sh ios"
-        echo "  ./init-openssl.sh mac"
-        exit 1
-    fi
+function usage() {
+    echo "$0 ios|macos|all [arm64|x86_64]"
 }
 
-main
+function main() {
+    case "$1" in
+        iOS|ios)
+            found=0
+            for arch in $FF_iOS_ARCHS
+            do
+                if [[ "$2" == "$arch" || "x$2" == "x" ]];then
+                    found=1
+                    pull_fork 'ios' $arch
+                fi
+            done
+
+            if [[ found -eq 0 ]];then
+                echo "unknown arch:$2 for $1"
+            fi
+        ;;
+
+        macOS|macos)
+            
+            found=0
+            for arch in $FF_macOS_ARCHS
+            do
+                if [[ "$2" == "$arch" || "x$2" == "x" ]];then
+                    found=1
+                    pull_fork 'mac' $arch
+                fi
+            done
+
+            if [[ found -eq 0 ]];then
+                echo "unknown arch:$2 for $1"
+            fi
+        ;;
+
+        all)
+
+            for arch in $FF_iOS_ARCHS
+            do
+                pull_fork 'ios' $arch
+            done
+
+            for arch in $FF_macOS_ARCHS
+            do
+                pull_fork 'mac' $arch
+            done
+        ;;
+
+        *)
+            usage
+            exit 1
+        ;;
+    esac
+}
+
+main $*

@@ -1,0 +1,43 @@
+PODS:
+  - MRFFmpegPod (4.4):
+    - MRFFmpegPod/libavcodec (= 4.4)
+    - MRFFmpegPod/libavdevice (= 4.4)
+    - MRFFmpegPod/libavfilter (= 4.4)
+    - MRFFmpegPod/libavformat (= 4.4)
+    - MRFFmpegPod/libavutil (= 4.4)
+    - MRFFmpegPod/libswresample (= 4.4)
+    - MRFFmpegPod/libswscale (= 4.4)
+    - MROpenSSLPod
+  - MRFFmpegPod/libavcodec (4.4):
+    - MROpenSSLPod
+  - MRFFmpegPod/libavdevice (4.4):
+    - MROpenSSLPod
+  - MRFFmpegPod/libavfilter (4.4):
+    - MROpenSSLPod
+  - MRFFmpegPod/libavformat (4.4):
+    - MROpenSSLPod
+  - MRFFmpegPod/libavutil (4.4):
+    - MROpenSSLPod
+  - MRFFmpegPod/libswresample (4.4):
+    - MROpenSSLPod
+  - MRFFmpegPod/libswscale (4.4):
+    - MROpenSSLPod
+  - MROpenSSLPod (1.1.1l)
+
+DEPENDENCIES:
+  - MRFFmpegPod (from `http://ifoxdev.hd.sohuno.com/ffpods/20210913/MRFFmpegPod-iOS-4.4-openssl.podspec`)
+  - MROpenSSLPod (from `http://ifoxdev.hd.sohuno.com/ffpods/20210913/MROpenSSLPod-iOS-1.1.1l.podspec`)
+
+EXTERNAL SOURCES:
+  MRFFmpegPod:
+    :podspec: http://ifoxdev.hd.sohuno.com/ffpods/20210913/MRFFmpegPod-iOS-4.4-openssl.podspec
+  MROpenSSLPod:
+    :podspec: http://ifoxdev.hd.sohuno.com/ffpods/20210913/MROpenSSLPod-iOS-1.1.1l.podspec
+
+SPEC CHECKSUMS:
+  MRFFmpegPod: 9ecbeeeb5c5a579d2ce815ffbafc3ae8eaa71e6f
+  MROpenSSLPod: 0730ed2d5ff1e26c96b511ee2b192cfd952ae0da
+
+PODFILE CHECKSUM: fadd27d5867aa5ef6469379aa03a969e0f998b83
+
+COCOAPODS: 1.10.2

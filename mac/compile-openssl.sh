@@ -64,7 +64,6 @@ do_lipo_all () {
 
 #----------
 if [ "$FF_TARGET" = "lipo" ]; then
-    echo_archs
     do_lipo_all
 elif [ "$FF_TARGET" = "all" ]; then
     echo_archs

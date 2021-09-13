@@ -58,6 +58,7 @@ do_lipo_ffmpeg () {
 }
 
 do_lipo_all () {
+    rm -rf $UNI_BUILD_ROOT/build/universal/ffmpeg
     mkdir -p $UNI_BUILD_ROOT/build/universal/ffmpeg/lib
     echo "lipo archs: $FF_ALL_ARCHS"
     for FF_LIB in $FF_LIBS
@@ -65,26 +66,14 @@ do_lipo_all () {
         do_lipo_ffmpeg "$FF_LIB.a";
     done
 
-    ANY_ARCH=
     for ARCH in $FF_ALL_ARCHS
     do
         ARCH_INC_DIR="$UNI_BUILD_ROOT/build/ffmpeg-$ARCH/output/include"
-        if [ -d "$ARCH_INC_DIR" ]; then
-            if [ -z "$ANY_ARCH" ]; then
-                ANY_ARCH=$ARCH
-                cp -R "$ARCH_INC_DIR" "$UNI_BUILD_ROOT/build/universal/ffmpeg/"
-            fi
-
-            UNI_INC_DIR="$UNI_BUILD_ROOT/build/universal/ffmpeg/include"
-
-            mkdir -p "$UNI_INC_DIR/libavutil/$ARCH"
-            cp -f "$ARCH_INC_DIR/libavutil/avconfig.h"  "$UNI_INC_DIR/libavutil/$ARCH/avconfig.h"
-            cp -f tools/avconfig.h                      "$UNI_INC_DIR/libavutil/avconfig.h"
-            cp -f "$ARCH_INC_DIR/libavutil/ffversion.h" "$UNI_INC_DIR/libavutil/$ARCH/ffversion.h"
-            cp -f tools/ffversion.h                     "$UNI_INC_DIR/libavutil/ffversion.h"
-            mkdir -p "$UNI_INC_DIR/libffmpeg/$ARCH"
-            cp -f "$ARCH_INC_DIR/libffmpeg/config.h"    "$UNI_INC_DIR/libffmpeg/$ARCH/config.h"
-            cp -f tools/config.h                        "$UNI_INC_DIR/libffmpeg/config.h"
+        ARCH_OUT_DIR="$UNI_BUILD_ROOT/build/universal/ffmpeg/include"
+        if [[ -d "$ARCH_INC_DIR" && ! -d "$ARCH_OUT_DIR" ]]; then
+            echo "copy include dir to $ARCH_OUT_DIR"
+            cp -R "$ARCH_INC_DIR" "$ARCH_OUT_DIR"
+            break
         fi
     done
 }

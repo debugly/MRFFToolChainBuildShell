@@ -1,0 +1,30 @@
+PODS:
+  - MRFFmpegPod (4.4):
+    - MRFFmpegPod/libavcodec (= 4.4)
+    - MRFFmpegPod/libavdevice (= 4.4)
+    - MRFFmpegPod/libavfilter (= 4.4)
+    - MRFFmpegPod/libavformat (= 4.4)
+    - MRFFmpegPod/libavutil (= 4.4)
+    - MRFFmpegPod/libswresample (= 4.4)
+    - MRFFmpegPod/libswscale (= 4.4)
+  - MRFFmpegPod/libavcodec (4.4)
+  - MRFFmpegPod/libavdevice (4.4)
+  - MRFFmpegPod/libavfilter (4.4)
+  - MRFFmpegPod/libavformat (4.4)
+  - MRFFmpegPod/libavutil (4.4)
+  - MRFFmpegPod/libswresample (4.4)
+  - MRFFmpegPod/libswscale (4.4)
+
+DEPENDENCIES:
+  - MRFFmpegPod (from `http://ifoxdev.hd.sohu.com/ffpods/20210913/MRFFmpegPod-macOS-4.4.podspec`)
+
+EXTERNAL SOURCES:
+  MRFFmpegPod:
+    :podspec: http://ifoxdev.hd.sohu.com/ffpods/20210913/MRFFmpegPod-macOS-4.4.podspec
+
+SPEC CHECKSUMS:
+  MRFFmpegPod: 3e321fdce174c5abba7be51e2460af6ad237b079
+
+PODFILE CHECKSUM: b84758ba62057f84207d663521043ba3ebeabb65
+
+COCOAPODS: 1.10.2
