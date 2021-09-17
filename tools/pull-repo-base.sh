@@ -11,5 +11,5 @@ elif [ ! -d $LOCAL_WORKSPACE ]; then
 else
     cd $LOCAL_WORKSPACE
     git fetch --all --tags
-    cd -
+    cd - > /dev/null
 fi
