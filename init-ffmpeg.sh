@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-export GIT_UPSTREAM=https://github.com/FFmpeg/FFmpeg.git
+# export GIT_UPSTREAM=https://github.com/FFmpeg/FFmpeg.git
 export GIT_UPSTREAM=git@code.sohuno.com:ifox-mac/FFmpeg.git
 export GIT_LOCAL_REPO=extra/ffmpeg
 export GIT_COMMIT=origin/release/4.4

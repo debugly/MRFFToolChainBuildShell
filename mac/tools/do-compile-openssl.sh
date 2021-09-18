@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 #
-# Copyright (C) 2013-2014 Zhang Rui <bbcallen@gmail.com>
-#
+# Copyright (C) 2021 Matt Reach<qianlongxu@gmail.com>
+
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -16,132 +16,65 @@
 #
 
 # This script is based on projects below
-# https://github.com/x2on/OpenSSL-for-iPhone
+# https://github.com/bilibili/ijkplayer
+# https://wiki.openssl.org/index.php/Compilation_and_Installation#OS_X
 
-#--------------------
-echo "===================="
-echo "[*] check host"
-echo "===================="
 set -e
 
+TOOLS=$(dirname "$0")
+source $TOOLS/../../tools/env_assert.sh
 
-FF_XCRUN_DEVELOPER=`xcode-select -print-path`
-if [ ! -d "$FF_XCRUN_DEVELOPER" ]; then
-  echo "xcode path is not set correctly $FF_XCRUN_DEVELOPER does not exist (most likely because of xcode > 4.3)"
-  echo "run"
-  echo "sudo xcode-select -switch <xcode path>"
-  echo "for default installation:"
-  echo "sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer"
-  exit 1
-fi
+echo "=== [$0] check env begin==="
+env_assert "XC_ARCH"
+env_assert "XC_BUILD_SOURCE"
+env_assert "XC_BUILD_PREFIX"
+env_assert "XC_BUILD_NAME"
+env_assert "XC_DEPLOYMENT_TARGET"
+env_assert "XCRUN_SDK_PATH"
+echo "ARGV:$*"
+echo "===check env end==="
 
-case $FF_XCRUN_DEVELOPER in  
-     *\ * )
-           echo "Your Xcode path contains whitespaces, which is not supported."
-           exit 1
-          ;;
-esac
+# prepare build config
+OPENSSL_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --openssldir=$XC_BUILD_PREFIX"
 
-
-#--------------------
-# include
-
-
-#--------------------
-# common defines
-FF_ARCH=$1
-if [ -z "$FF_ARCH" ]; then
-    echo "You must specific an architecture 'arm64, x86_64'.\n"
-    exit 1
-fi
-
-
-FF_BUILD_ROOT=`pwd`
-FF_TAGET_OS="darwin"
-
-
-# openssl build params
-export COMMON_FF_CFG_FLAGS=
-
-OPENSSL_CFG_FLAGS=
-OPENSSL_EXTRA_CFLAGS=
-OPENSSL_CFG_CPU=
-
-echo "build_root: $FF_BUILD_ROOT"
-
-#--------------------
-echo "===================="
-echo "[*] config arch $FF_ARCH"
-echo "===================="
-
-FF_BUILD_NAME="unknown"
-FF_XCRUN_PLATFORM="MacOSX"
-FF_XCRUN_OSVERSION=
-FF_GASPP_EXPORT=
-FF_XCODE_BITCODE=
-
-if [ "$FF_ARCH" = "x86_64" ]; then
-    FF_BUILD_NAME="openssl-x86_64"
-    FF_XCRUN_OSVERSION="-mmacosx-version-min=10.11"
-    OPENSSL_CFG_FLAGS="darwin64-x86_64-cc enable-ec_nistp_64_gcc_128 $OPENSSL_CFG_FLAGS"
-elif [ "$FF_ARCH" = "arm64" ]; then
-    FF_BUILD_NAME="openssl-arm64"
-    FF_XCRUN_OSVERSION="-mmacosx-version-min=10.11"
-    OPENSSL_CFG_FLAGS="darwin64-arm64-cc enable-ec_nistp_64_gcc_128 $OPENSSL_CFG_FLAGS"
+if [ "$XC_ARCH" = "x86_64" ]; then
+    OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
+elif [ "$XC_ARCH" = "arm64" ]; then
+    OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS darwin64-arm64-cc enable-ec_nistp_64_gcc_128"
 else
     echo "unknown architecture $FF_ARCH";
     exit 1
 fi
 
-echo "build_name: $FF_BUILD_NAME"
-echo "platform:   $FF_XCRUN_PLATFORM"
-echo "osversion:  $FF_XCRUN_OSVERSION"
+OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS no-shared no-hw no-engine no-asm"
 
-#--------------------
-echo "===================="
-echo "[*] make macOS toolchain $FF_BUILD_NAME"
-echo "===================="
-
-
-FF_BUILD_SOURCE="$FF_BUILD_ROOT/$FF_BUILD_NAME"
-FF_BUILD_PREFIX="$FF_BUILD_ROOT/build/$FF_BUILD_NAME/output"
-
-mkdir -p $FF_BUILD_PREFIX
-
-
-FF_XCRUN_SDK=`echo $FF_XCRUN_PLATFORM | tr '[:upper:]' '[:lower:]'`
-FF_XCRUN_SDK_PLATFORM_PATH=`xcrun -sdk $FF_XCRUN_SDK --show-sdk-platform-path`
-FF_XCRUN_SDK_PATH=`xcrun -sdk $FF_XCRUN_SDK --show-sdk-path`
-FF_XCRUN_CC="xcrun -sdk $FF_XCRUN_SDK clang"
-
-export CROSS_TOP="$FF_XCRUN_SDK_PLATFORM_PATH/Developer"
-export CROSS_SDK=`echo ${FF_XCRUN_SDK_PATH/#$CROSS_TOP\/SDKs\//}`
-export BUILD_TOOL="$FF_XCRUN_DEVELOPER"
-export CC="$FF_XCRUN_CC -arch $FF_ARCH $FF_XCRUN_OSVERSION"
-
-echo "build_source: $FF_BUILD_SOURCE"
-echo "build_prefix: $FF_BUILD_PREFIX"
-echo "CROSS_TOP: $CROSS_TOP"
-echo "CROSS_SDK: $CROSS_SDK"
-echo "BUILD_TOOL: $BUILD_TOOL"
-echo "CC: $CC"
+export CC="$XCRUN_CC"
+export CFLAG="-arch $XC_ARCH -mmacosx-version-min=$XC_DEPLOYMENT_TARGET -isysroot $XCRUN_SDK_PATH"
+export CXXFLAG="$CFLAG"
 
 #--------------------
 echo "\n--------------------"
 echo "[*] configurate openssl"
 echo "--------------------"
 
-OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS $FF_XCODE_BITCODE"
-OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS --prefix=$FF_BUILD_PREFIX --openssldir=$FF_BUILD_PREFIX"
+if [ ! -d $XC_BUILD_SOURCE ]; then
+    echo ""
+    echo "!! ERROR"
+    echo "!! Can not find $XC_BUILD_SOURCE directory for $XC_BUILD_NAME"
+    echo "!! Run 'init-*.sh' first"
+    echo ""
+    exit 1
+fi
 
-# xcode configuration
-export DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
-
-cd $FF_BUILD_SOURCE
+cd $XC_BUILD_SOURCE
 if [ -f "./Makefile" ]; then
     echo 'reuse configure'
 else
-    echo "config: $OPENSSL_CFG_FLAGS"
+    echo 
+    echo "CC: $CC"
+    echo "CFLAG: $CFLAG"
+    echo "CFG: $OPENSSL_CFG_FLAGS"
+    echo 
     ./Configure \
         $OPENSSL_CFG_FLAGS
     make clean
@@ -152,5 +85,6 @@ echo "\n--------------------"
 echo "[*] compile openssl"
 echo "--------------------"
 set +e
+
 make
 make install_sw

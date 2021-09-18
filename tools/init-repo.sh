@@ -18,7 +18,7 @@
 set -e
 
 TOOLS=$(dirname "$0")
-source ${TOOLS}/common.sh
+source ${TOOLS}/env_assert.sh
 
 echo "===check env begin==="
 env_assert "GIT_UPSTREAM"
