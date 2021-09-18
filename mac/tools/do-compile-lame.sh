@@ -15,10 +15,6 @@
 # limitations under the License.
 #
 
-# This script is based on projects below
-# https://github.com/bilibili/ijkplayer
-# https://wiki.openssl.org/index.php/Compilation_and_Installation#OS_X
-
 set -e
 
 TOOLS=$(dirname "$0")
@@ -35,22 +31,20 @@ echo "ARGV:$*"
 echo "===check env end==="
 
 # prepare build config
-OPENSSL_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --openssldir=$XC_BUILD_PREFIX"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX"
+CFG_FLAGS="$CFG_FLAGS --enable-nasm --disable-shared --enable-static --disable-frontend --disable-debug"
 
-if [ "$XC_ARCH" = "x86_64" ]; then
-    OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
-elif [ "$XC_ARCH" = "arm64" ]; then
-    OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS darwin64-arm64-cc enable-ec_nistp_64_gcc_128"
-else
-    echo "unknown architecture $FF_ARCH";
-    exit 1
+CFLAG="-arch $XC_ARCH -mmacosx-version-min=$XC_DEPLOYMENT_TARGET"
+CC="$XCRUN_CC -arch $XC_ARCH"
+
+# cross;
+if [[ $(uname -m) != "$XC_ARCH" ]];then
+    echo "cross compile."
+    # $XC_ARCH 还没有在 M1 上编译过 x86_64架构，不知道会怎样
+    HOST="--host=arm-apple-darwin"
+    CFLAG="$CFLAG -isysroot $XCRUN_SDK_PATH"
+    CFG_FLAGS="$CFG_FLAGS --with-sysroot=$XCRUN_SDK_PATH"
 fi
-
-OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS no-shared no-hw no-engine no-asm"
-
-export CC="$XCRUN_CC"
-export CFLAG="-arch $XC_ARCH -mmacosx-version-min=$XC_DEPLOYMENT_TARGET -isysroot $XCRUN_SDK_PATH"
-export CXXFLAG="$CFLAG"
 
 #--------------------
 echo "\n--------------------"
@@ -67,24 +61,21 @@ if [ ! -d $XC_BUILD_SOURCE ]; then
 fi
 
 cd $XC_BUILD_SOURCE
-if [ -f "./Makefile" ]; then
-    echo 'reuse configure'
-else
-    echo 
-    echo "CC: $CC"
-    echo "CFLAG: $CFLAG"
-    echo "CFG: $OPENSSL_CFG_FLAGS"
-    echo 
-    ./Configure \
-        $OPENSSL_CFG_FLAGS
-    make clean
-fi
+# Makefile already in git,so configure everytime compile
+echo "CC: $CC"
+echo "CFLAG: $CFLAG"
+echo "CFG: $CFG_FLAGS"
+echo 
+
+./configure $CFG_FLAGS \
+    $HOST \
+    CC="$CC" \
+    CFLAGS="$CFLAGS" \
+    LDFLAGS="$CFLAGS"
 
 #--------------------
 echo "\n--------------------"
 echo "[*] compile $LIB_NAME"
 echo "--------------------"
-set +e
 
-make
-make install_sw -j4
+make install -j4

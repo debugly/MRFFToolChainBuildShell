@@ -161,8 +161,7 @@ echo "[*] compile $LIB_NAME"
 echo "--------------------"
 
 cp config.* $XC_BUILD_PREFIX
-make -j3
-make install
+make install -j4
 
 mkdir -p $XC_BUILD_PREFIX/include/libffmpeg
 cp -f config.h $XC_BUILD_PREFIX/include/libffmpeg/config.h

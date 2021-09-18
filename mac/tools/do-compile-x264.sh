@@ -15,10 +15,6 @@
 # limitations under the License.
 #
 
-# This script is based on projects below
-# https://github.com/bilibili/ijkplayer
-# https://wiki.openssl.org/index.php/Compilation_and_Installation#OS_X
-
 set -e
 
 TOOLS=$(dirname "$0")
