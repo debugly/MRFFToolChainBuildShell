@@ -14,9 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# 
+# brew install nasm
+# If you really want to compile without asm, configure with --disable-asm.
 
 export LIB_NAME='ffmpeg'
 export LIPO_LIBS="libavcodec libavfilter libavformat libavutil libswscale libswresample libavdevice"
+
+which nasm
+if [[ $? -eq 0 ]];then
+    echo $(nasm --version)
+else
+    brew install nasm
+fi
 
 source ./common-env.sh
 ./tools/compile-any.sh "$*"

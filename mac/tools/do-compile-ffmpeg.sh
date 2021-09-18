@@ -60,7 +60,7 @@ FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-shared"
 # x86_64, arm64
 FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-pic"
 FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-neon"
-FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-asm" # 暂时不开启 asm
+FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-asm"
 
 if [[ "$FF_BUILD_OPT" == "debug" ]];then
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-optimizations"
@@ -83,10 +83,12 @@ FFMPEG_DEP_LIBS=
 echo "\n--------------------"
 echo "[*] check OpenSSL"
 
+# https://ffmpeg.org/doxygen/4.1/md_LICENSE.html
+
 #--------------------
 # with openssl
 if [ -f "$XC_UNI_BUILD_DIR/openssl/lib/libssl.a" ]; then
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-openssl"
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-nonfree --enable-openssl"
     
     OPENSSL_C_FLAGS="-I$XC_UNI_BUILD_DIR/openssl/include"
     OPENSSL_LD_FLAGS="-L$XC_UNI_BUILD_DIR/openssl/lib -lssl -lcrypto"
@@ -104,7 +106,8 @@ echo "[*] check x264"
 
 #--------------------
 # with x264
-if [ -f "$XC_UNI_BUILD_DIR/x264/lib/x264.a" ]; then
+if [ -f "$XC_UNI_BUILD_DIR/x264/lib/libx264.a" ]; then
+    # libx264 is gpl and --enable-gpl is not specified.
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-gpl --enable-libx264"
     
     X264_C_FLAGS="-I$XC_UNI_BUILD_DIR/x264/include"
@@ -154,7 +157,7 @@ fi
 
 #--------------------
 echo "\n--------------------"
-echo "[*] compile ffmpeg"
+echo "[*] compile $LIB_NAME"
 echo "--------------------"
 
 cp config.* $XC_BUILD_PREFIX

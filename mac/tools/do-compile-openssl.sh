@@ -54,7 +54,7 @@ export CXXFLAG="$CFLAG"
 
 #--------------------
 echo "\n--------------------"
-echo "[*] configurate openssl"
+echo "[*] configurate $LIB_NAME"
 echo "--------------------"
 
 if [ ! -d $XC_BUILD_SOURCE ]; then
@@ -82,7 +82,7 @@ fi
 
 #--------------------
 echo "\n--------------------"
-echo "[*] compile openssl"
+echo "[*] compile $LIB_NAME"
 echo "--------------------"
 set +e
 
