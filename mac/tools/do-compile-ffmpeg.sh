@@ -84,6 +84,7 @@ echo "\n--------------------"
 echo "[*] check OpenSSL"
 
 # https://ffmpeg.org/doxygen/4.1/md_LICENSE.html
+# https://www.openssl.org/source/license.html
 
 #--------------------
 # with openssl
@@ -121,6 +122,47 @@ else
 fi
 echo "----------------------"
 
+echo "\n--------------------"
+echo "[*] check fdk-aac"
+
+#--------------------
+# with fdk-aac
+if [ -f "$XC_UNI_BUILD_DIR/fdk-aac/lib/libfdk-aac.a" ]; then
+    # libx264 is gpl and --enable-gpl is not specified.
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-nonfree --enable-libfdk-aac"
+    
+    FDKAAC_C_FLAGS="-I$XC_UNI_BUILD_DIR/fdk-aac/include"
+    FDKAAC_LD_FLAGS="-L$XC_UNI_BUILD_DIR/fdk-aac/lib -lfdk-aac"
+
+    FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $FDKAAC_C_FLAGS"
+    FFMPEG_DEP_LIBS="$FFMPEG_DEP_LIBS $FDKAAC_LD_FLAGS"
+    echo "[*] --enable-libfdk-aac"
+else
+    echo "[*] --disable-libfdk-aac"
+fi
+echo "----------------------"
+
+echo "\n--------------------"
+echo "[*] check mp3lame"
+
+#--------------------
+# with lame
+if [ -f "$XC_UNI_BUILD_DIR/lame/lib/libmp3lame.a" ]; then
+    # libmp3lame is gpl and --enable-gpl is not specified.
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-gpl --enable-libmp3lame"
+    
+    FDKAAC_C_FLAGS="-I$XC_UNI_BUILD_DIR/lame/include"
+    FDKAAC_LD_FLAGS="-L$XC_UNI_BUILD_DIR/lame/lib -lmp3lame"
+
+    FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $FDKAAC_C_FLAGS"
+    FFMPEG_DEP_LIBS="$FFMPEG_DEP_LIBS $FDKAAC_LD_FLAGS"
+    echo "[*] --enable-libmp3lame"
+else
+    echo "[*] --disable-libmp3lame"
+fi
+echo "----------------------"
+
+CC="$XCRUN_CC -arch $XC_ARCH"
 
 #--------------------
 echo "\n--------------------"
