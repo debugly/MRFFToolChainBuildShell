@@ -51,6 +51,7 @@ export DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
 export XCRUN_SDK=`echo $XCRUN_PLATFORM | tr '[:upper:]' '[:lower:]'`
 # xcrun -sdk macosx clang 
 export XCRUN_CC="xcrun -sdk $XCRUN_SDK clang"
+export XCRUN_CXX="xcrun -sdk $XCRUN_SDK clang++"
 # xcrun -sdk macosx --show-sdk-platform-path 
 # /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform
 export XCRUN_SDK_PLATFORM_PATH=`xcrun -sdk $XCRUN_SDK --show-sdk-platform-path`

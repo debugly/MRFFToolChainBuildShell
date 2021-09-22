@@ -31,17 +31,22 @@ echo "ARGV:$*"
 echo "===check env end==="
 
 # prepare build config
-X264_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX"
-X264_CFG_FLAGS="$X264_CFG_FLAGS --disable-lsmash --disable-swscale --disable-ffms --enable-static --enable-pic --disable-cli --enable-strip"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX"
+CFG_FLAGS="$CFG_FLAGS --disable-shared --enable-static --disable-dependency-tracking"
+CFG_FLAGS="$CFG_FLAGS --enable-example"
+ 
 
 CFLAG="-arch $XC_ARCH -mmacosx-version-min=$XC_DEPLOYMENT_TARGET"
-CC="$XCRUN_CC"
+CC="$XCRUN_CC -arch $XC_ARCH"
+CXX="$XCRUN_CXX -arch $XC_ARCH"
 
-# cross
+# cross;
 if [[ $(uname -m) != "$XC_ARCH" ]];then
     echo "cross compile."
-    HOST="--host=$XC_ARCH-apple-darwin"
+    # $XC_ARCH 还没有在 M1 上编译过 x86_64架构，不知道会怎样
+    HOST="--host=arm-apple-darwin"
     CFLAG="$CFLAG -isysroot $XCRUN_SDK_PATH"
+    CFG_FLAGS="$CFG_FLAGS --with-sysroot=$XCRUN_SDK_PATH"
 fi
 
 #--------------------
@@ -61,16 +66,19 @@ fi
 cd $XC_BUILD_SOURCE
 # Makefile already in git,so configure everytime compile
 echo "CC: $CC"
+echo "CXX: $CXX"
 echo "CFLAG: $CFLAG"
-echo "CFG: $X264_CFG_FLAGS"
+echo "CFG: $CFG_FLAGS"
 echo 
 
-./configure $X264_CFG_FLAGS \
-    $HOST \
-    --extra-cflags="$CFLAG" \
-    --extra-ldflags="$CFLAG"
-    # --extra-asflags="$ASFLAG" \
+./autogen.sh
 
+./configure $CFG_FLAGS \
+    $HOST \
+    CC="$CC" \
+    CXX="$CXX" \
+    CFLAGS="$CFLAGS" \
+    LDFLAGS="$CFLAGS"
 
 #--------------------
 echo "\n--------------------"
