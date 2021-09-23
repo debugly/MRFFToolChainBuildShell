@@ -6,13 +6,10 @@
 # To learn more about a Podspec see https://guides.cocoapods.org/syntax/podspec.html
 #
 
-NAME='OpenSSL'
-VER='1.1.1l'
-
 Pod::Spec.new do |s|
-  s.name             = "MR#{NAME}Pod"
-  s.version          = "#{VER}"
-  s.summary          = "A Pod Warper for #{NAME} lib."
+  s.name             = "__PODNAME__"
+  s.version          = "__PODVER__"
+  s.summary          = "A Pod Warper for __INC_NAME__ lib."
   s.description      = <<-DESC
 The pod is a member of MRFFToolChainPod.
 What's MRFFToolChainPod?
@@ -25,15 +22,16 @@ All ToolChain lib build shell is here : https://github.com/debugly/MRFFToolChain
   s.homepage         = 'https://github.com/debugly/MRFFToolChainPod/'
   s.license          = { :type => 'MIT', :text => 'LICENSE' }
   s.author           = { 'qianlongxu' => 'qianlongxu@gmail.com' }
-  s.source           = { :http => "https://ifoxdev.hd.sohu.com/ffpods/20210913/MROpenSSLPod-macOS-#{s.version}.zip" }
+  s.source           = { :http => "__BINARY_SRC__" }
   
   s.osx.deployment_target = '10.11'
 
   # preserve sub folder structure
-  s.osx.preserve_paths = "#{s.name}/macOS/#{s.version}/include"
-  s.osx.header_mappings_dir = "#{s.name}/macOS/#{s.version}/include"
+  # https://stackoverflow.com/questions/18373760/cocoapods-podspec-preserve-paths
+  # s.osx.preserve_paths = "#{s.name}/macOS/#{s.version}/include"
+  # s.osx.header_mappings_dir = "#{s.name}/macOS/#{s.version}/include"
 
-  s.osx.source_files = "#{s.name}/macOS/#{s.version}/include/openssl/*.h"
+  s.osx.source_files = "#{s.name}/macOS/#{s.version}/include/__INC_NAME__/*.h"
   s.osx.vendored_libraries = "#{s.name}/macOS/#{s.version}/lib/*.a"
 
 end

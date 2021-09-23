@@ -45,6 +45,7 @@ export ALL_ARCHS="x86_64 arm64"
 export XC_TAGET_OS="darwin"
 export XCRUN_PLATFORM='MacOSX'
 export XC_DEPLOYMENT_TARGET='10.11'
+export MACOSX_DEPLOYMENT_TARGET=$XC_DEPLOYMENT_TARGET
 export DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
 
 # macosx

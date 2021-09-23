@@ -111,7 +111,7 @@ if [ -f "$XC_UNI_BUILD_DIR/x264/lib/libx264.a" ]; then
     # libx264 is gpl and --enable-gpl is not specified.
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-gpl --enable-libx264"
     
-    X264_C_FLAGS="-I$XC_UNI_BUILD_DIR/x264/include"
+    X264_C_FLAGS="-I$XC_UNI_BUILD_DIR/x264/include/x264"
     X264_LD_FLAGS="-L$XC_UNI_BUILD_DIR/x264/lib -lx264"
 
     FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $X264_C_FLAGS"

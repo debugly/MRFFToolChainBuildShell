@@ -31,7 +31,7 @@ echo "ARGV:$*"
 echo "===check env end==="
 
 # prepare build config
-X264_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX"
+X264_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --includedir=$XC_BUILD_PREFIX/include/x264"
 X264_CFG_FLAGS="$X264_CFG_FLAGS --disable-lsmash --disable-swscale --disable-ffms --enable-static --enable-pic --disable-cli --enable-strip"
 
 CFLAG="-arch $XC_ARCH -mmacosx-version-min=$XC_DEPLOYMENT_TARGET"
