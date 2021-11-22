@@ -15,8 +15,13 @@
 # limitations under the License.
 #
 
-# export GIT_UPSTREAM=https://github.com/mirror/lame.git
-export GIT_UPSTREAM=git@code.sohuno.com:ifox-mac/lame.git
+# you can export GIT_LAME_UPSTREAM=git@xx:yy/lame.git use your mirror
+if [[ "$GIT_LAME_UPSTREAM" != "" ]] ;then
+    export GIT_UPSTREAM="$GIT_LAME_UPSTREAM"
+else
+    export GIT_UPSTREAM=https://github.com/debugly/lame.git
+fi
+
 export GIT_LOCAL_REPO=extra/lame
 export GIT_COMMIT=3.100
 export DIR_NAME=lame

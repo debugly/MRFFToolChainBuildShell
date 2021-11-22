@@ -14,9 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+#
 
-# export GIT_UPSTREAM=https://github.com/openssl/openssl.git
-export GIT_UPSTREAM=git@code.sohuno.com:ifox-mac/openssl.git
+# you can export GIT_OPUS_UPSTREAM=git@xx:yy/openssl.git use your mirror
+if [[ "$GIT_OPENSSL_UPSTREAM" != "" ]] ;then
+    export GIT_UPSTREAM="$GIT_OPENSSL_UPSTREAM"
+else
+    export GIT_UPSTREAM=https://github.com/openssl/openssl.git
+fi
+
 export GIT_LOCAL_REPO=extra/openssl
 export GIT_COMMIT=OpenSSL_1_1_1l
 export DIR_NAME=openssl

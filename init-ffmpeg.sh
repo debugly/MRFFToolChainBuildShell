@@ -15,8 +15,13 @@
 # limitations under the License.
 #
 
-# export GIT_UPSTREAM=https://github.com/FFmpeg/FFmpeg.git
-export GIT_UPSTREAM=git@code.sohuno.com:ifox-mac/FFmpeg.git
+# you can export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git use your mirror
+if [[ "$GIT_FFMPEG_UPSTREAM" != "" ]] ;then
+    export GIT_UPSTREAM="$GIT_FFMPEG_UPSTREAM"
+else
+    export GIT_UPSTREAM=https://github.com/FFmpeg/FFmpeg.git
+fi
+
 export GIT_LOCAL_REPO=extra/ffmpeg
 export GIT_COMMIT=origin/release/4.4
 export DIR_NAME=ffmpeg

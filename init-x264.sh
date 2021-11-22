@@ -15,8 +15,13 @@
 # limitations under the License.
 #
 
-# export GIT_UPSTREAM=https://github.com/mirror/x264.git
-export GIT_UPSTREAM=git@code.sohuno.com:ifox-mac/x264.git
+# you can export GIT_X264_UPSTREAM=git@xx:yy/x264.git use your mirror
+if [[ "$GIT_X264_UPSTREAM" != "" ]] ;then
+    export GIT_UPSTREAM="$GIT_X264_UPSTREAM"
+else
+    export GIT_UPSTREAM=https://github.com/mirror/x264.git
+fi
+
 export GIT_LOCAL_REPO=extra/x264
 export GIT_COMMIT=origin/stable
 export DIR_NAME=x264

@@ -15,8 +15,13 @@
 # limitations under the License.
 #
 
-# export GIT_UPSTREAM=https://github.com/mstorsjo/fdk-aac.git
-export GIT_UPSTREAM=git@code.sohuno.com:ifox-mac/fdk-aac.git
+# you can export GIT_FDK_UPSTREAM=git@xx:yy/fdk-aac.git use your mirror
+if [[ "$GIT_FDK_UPSTREAM" == "" ]] ;then
+    export GIT_UPSTREAM="$GIT_FDK_UPSTREAM"
+else
+    export GIT_UPSTREAM=https://github.com/mstorsjo/fdk-aac.git
+fi
+
 export GIT_LOCAL_REPO=extra/fdk-aac
 export GIT_COMMIT=v2.0.2
 export DIR_NAME=fdk-aac
