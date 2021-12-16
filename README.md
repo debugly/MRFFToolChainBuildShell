@@ -31,6 +31,17 @@ All MRFFToolChain lib were made to Pod in [MRFFToolChainPod](https://github.com/
 └── product
 ```
 
+## Init All Lib Repo
+
+```
+#准备 iOS 和 macOS 平台源码
+./init-all.sh all
+#准备 iOS 平台源码
+./init-all.sh ios
+#准备 macOS 平台源码
+/init-all.sh macos
+```
+
 ## Build OpenSSL
 
 1、按平台准备源码
@@ -70,7 +81,7 @@ cd make-openssl-pod
 
 ```
 # 编译 macOS 平台
-cd mac
+cd macos
 ./compile-openssl.sh all 	# 编译 x86_64 和 arm64 架构
 ./compile-openssl.sh x86_64# 仅编译 x86_64 架构
 ./compile-openssl.sh arm64 # 仅编译 arm64 架构

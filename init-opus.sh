@@ -19,11 +19,11 @@
 if [[ "$GIT_OPUS_UPSTREAM" != "" ]] ;then
     export GIT_UPSTREAM="$GIT_OPUS_UPSTREAM"
 else
-    export GIT_UPSTREAM=https://gitlab.xiph.org/xiph/opusfile.git
+    export GIT_UPSTREAM=https://gitlab.xiph.org/xiph/opus.git
 fi
 
 export GIT_LOCAL_REPO=extra/opus
-export GIT_COMMIT=v0.12
-export DIR_NAME=opus
+export GIT_COMMIT=v1.3.1
+export REPO_DIR=opus
 
 ./tools/init-repo.sh $*

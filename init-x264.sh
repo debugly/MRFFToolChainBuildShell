@@ -24,6 +24,6 @@ fi
 
 export GIT_LOCAL_REPO=extra/x264
 export GIT_COMMIT=origin/stable
-export DIR_NAME=x264
+export REPO_DIR=x264
 
 ./tools/init-repo.sh $*

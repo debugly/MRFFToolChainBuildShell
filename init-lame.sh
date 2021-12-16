@@ -24,6 +24,6 @@ fi
 
 export GIT_LOCAL_REPO=extra/lame
 export GIT_COMMIT=3.100
-export DIR_NAME=lame
+export REPO_DIR=lame
 
 ./tools/init-repo.sh $*

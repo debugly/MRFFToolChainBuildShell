@@ -25,6 +25,6 @@ fi
 
 export GIT_LOCAL_REPO=extra/openssl
 export GIT_COMMIT=OpenSSL_1_1_1l
-export DIR_NAME=openssl
+export REPO_DIR=openssl
 
 ./tools/init-repo.sh $*

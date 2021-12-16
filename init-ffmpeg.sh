@@ -24,6 +24,6 @@ fi
 
 export GIT_LOCAL_REPO=extra/ffmpeg
 export GIT_COMMIT=origin/release/4.4
-export DIR_NAME=ffmpeg
+export REPO_DIR=ffmpeg
 
 ./tools/init-repo.sh $*

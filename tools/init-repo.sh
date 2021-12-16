@@ -21,10 +21,11 @@ TOOLS=$(dirname "$0")
 source ${TOOLS}/env_assert.sh
 
 echo "===check env begin==="
+echo "argv:$*"
 env_assert "GIT_UPSTREAM"
 env_assert "GIT_LOCAL_REPO"
 env_assert "GIT_COMMIT"
-env_assert "DIR_NAME"
+env_assert "REPO_DIR"
 echo "===check env end==="
 
 iOS_ARCHS="x86_64 arm64"
@@ -32,13 +33,13 @@ macOS_ARCHS="x86_64 arm64"
 
 function pull_common() {
     git --version
-    echo "== pull $DIR_NAME base =="
+    echo "== pull $REPO_DIR base =="
     sh $TOOLS/pull-repo-base.sh $GIT_UPSTREAM $GIT_LOCAL_REPO
 }
 
 function pull_fork() {
-    local dir="$1/$DIR_NAME-$2"
-    echo "== pull $DIR_NAME fork to $dir =="
+    local dir="$1/$REPO_DIR-$2"
+    echo "== pull $REPO_DIR fork to $dir =="
     
     sh $TOOLS/pull-repo-ref.sh $GIT_UPSTREAM $dir ${GIT_LOCAL_REPO}
     cd $dir
@@ -78,7 +79,7 @@ function main() {
             do
                 if [[ "$2" == "$arch" || "x$2" == "x" ]];then
                     found=1
-                    pull_fork 'mac' $arch
+                    pull_fork 'macos' $arch
                 fi
             done
 
@@ -96,7 +97,7 @@ function main() {
 
             for arch in $macOS_ARCHS
             do
-                pull_fork 'mac' $arch
+                pull_fork 'macos' $arch
             done
         ;;
 
