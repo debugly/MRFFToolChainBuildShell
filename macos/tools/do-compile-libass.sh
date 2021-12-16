@@ -31,19 +31,17 @@ echo "ARGV:$*"
 echo "===check env end==="
 
 # prepare build config
-CFG_FLAGS="--prefix=$XC_BUILD_PREFIX"
-CFG_FLAGS="$CFG_FLAGS --disable-doc --disable-dependency-tracking"
+LIBASS_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --includedir=$XC_BUILD_PREFIX/include/libass"
+LIBASS_CFG_FLAGS="$LIBASS_CFG_FLAGS --disable-dependency-tracking --disable-fontconfig"
 
 CFLAG="-arch $XC_ARCH -mmacosx-version-min=$XC_DEPLOYMENT_TARGET"
-CC="$XCRUN_CC -arch $XC_ARCH"
+CC="$XCRUN_CC"
 
-# cross;
+# cross
 if [[ $(uname -m) != "$XC_ARCH" ]];then
-    echo "cross compile."
-    # $XC_ARCH 还没有在 M1 上编译过 x86_64架构，不知道会怎样
-    HOST="--host=arm-apple-darwin"
+    echo "[*] cross compile, on $(uname -m) compile $XC_ARCH."
+    HOST="--host=$XC_ARCH-apple-darwin"
     CFLAG="$CFLAG -isysroot $XCRUN_SDK_PATH"
-    CFG_FLAGS="$CFG_FLAGS --with-sysroot=$XCRUN_SDK_PATH"
 fi
 
 #--------------------
@@ -64,14 +62,19 @@ cd $XC_BUILD_SOURCE
 # Makefile already in git,so configure everytime compile
 echo "CC: $CC"
 echo "CFLAG: $CFLAG"
-echo "CFG: $CFG_FLAGS"
+echo "CFG: $LIBASS_CFG_FLAGS"
 echo 
 
-./configure $CFG_FLAGS \
-    $HOST \
-    CC="$CC" \
-    CFLAGS="$CFLAGS" \
-    LDFLAGS="$CFLAGS"
+autoreconf -i
+
+export CFLAGS="$CFLAG -I/opt/homebrew/opt/icu4c/include"
+export LDFLAGS="$CFLAG -L/opt/homebrew/opt/icu4c/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/icu4c/include"
+
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/opt/homebrew/opt/icu4c/lib/pkgconfig"
+
+./configure $LIBASS_CFG_FLAGS
+
 
 #--------------------
 echo "\n--------------------"

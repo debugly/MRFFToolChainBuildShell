@@ -81,12 +81,30 @@ function do_compile()
     # mac/build/ffmpeg-x86_64/ouput
     export XC_BUILD_PREFIX="${UNI_BUILD_ROOT}/build/${XC_BUILD_NAME}/output"
 
+    if [ ! -d $XC_BUILD_SOURCE ]; then
+        echo ""
+        echo "!! ERROR"
+        echo "!! Can not find $XC_BUILD_SOURCE directory for $XC_BUILD_NAME"
+        echo "!! Run 'init-*.sh' first"
+        echo ""
+        exit 1
+    fi
+
     mkdir -p "$XC_BUILD_PREFIX"
 
     echo
     echo "will compile $XC_BUILD_SOURCE"
     local opt=$2
     sh $TOOLS/do-compile-$LIB_NAME.sh $opt
+}
+
+function resolove_dep() {
+    echo "[*] check depends bins: ${LIB_DEPENDS_BIN}"
+    for b in ${LIB_DEPENDS_BIN}
+    do
+        install_depends "$b"
+    done
+    echo "===================="
 }
 
 function main() {
@@ -99,6 +117,7 @@ function main() {
     if [ "$cmd" = "lipo" ]; then
         do_lipo_all
     elif [ "$cmd" = "all" ]; then
+        resolove_dep
         for arch in $ALL_ARCHS
         do
             do_compile $arch "$opt"
@@ -129,6 +148,7 @@ function main() {
         done
 
         if [ "x$MY_TARGET" != 'x' ]; then
+            resolove_dep
             do_compile $MY_TARGET "$opt"
         else
             echo "Usage:"

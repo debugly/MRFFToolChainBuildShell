@@ -14,20 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# 
-# 
-# brew install nasm
-# If you really want to compile without asm, configure with --disable-asm.
 
-export LIB_NAME='opus'
-export LIPO_LIBS="libopus"
-
-which nasm
-if [[ $? -eq 0 ]];then
-    echo $(nasm --version)
-else
-    brew install nasm
-fi
+export LIB_NAME='libyuv'
+export LIPO_LIBS="libyuv"
 
 source ./common-env.sh
 ./tools/compile-any.sh "$*"

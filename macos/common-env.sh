@@ -17,6 +17,19 @@
 
 set -e
 
+function install_depends() {
+    local name="$1"
+    local r=$(brew list | grep "$name")
+    if [[ $r != '' ]]; then
+        echo "[✅] ${name} is right."
+    else
+        echo "will use brew install ${name}."
+        brew install "$name"
+    fi
+}
+
+export -f install_depends
+
 XCRUN_DEVELOPER=`xcode-select -print-path`
 if [ ! -d "$XCRUN_DEVELOPER" ]; then
   echo "xcode path is not set correctly $XCRUN_DEVELOPER does not exist (most likely because of xcode > 4.3)"

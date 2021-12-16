@@ -45,6 +45,7 @@ FFMPEG_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX $FFMPEG_CFG_FLAGS"
 
 # Advanced options (experts only):
 if [[ $(uname -m) != "$XC_ARCH" ]];then
+    echo "[*] cross compile, on $(uname -m) compile $XC_ARCH."
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-cross-compile"
 fi
 

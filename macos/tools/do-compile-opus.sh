@@ -32,19 +32,15 @@ echo "===check env end==="
 
 # prepare build config
 CFG_FLAGS="--prefix=$XC_BUILD_PREFIX"
-CFG_FLAGS="$CFG_FLAGS --disable-shared --enable-static --disable-dependency-tracking"
-CFG_FLAGS="$CFG_FLAGS --enable-example"
- 
+CFG_FLAGS="$CFG_FLAGS --disable-doc --disable-dependency-tracking"
 
 CFLAG="-arch $XC_ARCH -mmacosx-version-min=$XC_DEPLOYMENT_TARGET"
 CC="$XCRUN_CC -arch $XC_ARCH"
-CXX="$XCRUN_CXX -arch $XC_ARCH"
 
 # cross;
 if [[ $(uname -m) != "$XC_ARCH" ]];then
-    echo "cross compile."
-    # $XC_ARCH 还没有在 M1 上编译过 x86_64架构，不知道会怎样
-    HOST="--host=arm-apple-darwin"
+    echo "[*] cross compile, on $(uname -m) compile $XC_ARCH."
+    HOST="--host=$XC_ARCH-apple-darwin"
     CFLAG="$CFLAG -isysroot $XCRUN_SDK_PATH"
     CFG_FLAGS="$CFG_FLAGS --with-sysroot=$XCRUN_SDK_PATH"
 fi
@@ -54,31 +50,23 @@ echo "\n--------------------"
 echo "[*] configurate $LIB_NAME"
 echo "--------------------"
 
-if [ ! -d $XC_BUILD_SOURCE ]; then
-    echo ""
-    echo "!! ERROR"
-    echo "!! Can not find $XC_BUILD_SOURCE directory for $XC_BUILD_NAME"
-    echo "!! Run 'init-*.sh' first"
-    echo ""
-    exit 1
-fi
-
 cd $XC_BUILD_SOURCE
-# Makefile already in git,so configure everytime compile
+
+echo "auto generate configure"
+
+./autogen.sh
+
+echo 
 echo "CC: $CC"
-echo "CXX: $CXX"
 echo "CFLAG: $CFLAG"
 echo "CFG: $CFG_FLAGS"
 echo 
 
-./autogen.sh
-
 ./configure $CFG_FLAGS \
-    $HOST \
-    CC="$CC" \
-    CXX="$CXX" \
-    CFLAGS="$CFLAGS" \
-    LDFLAGS="$CFLAGS"
+   $HOST \
+   CC="$CC" \
+   CFLAGS="$CFLAGS" \
+   LDFLAGS="$CFLAGS"
 
 #--------------------
 echo "\n--------------------"

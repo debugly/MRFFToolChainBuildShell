@@ -57,15 +57,6 @@ echo "\n--------------------"
 echo "[*] configurate $LIB_NAME"
 echo "--------------------"
 
-if [ ! -d $XC_BUILD_SOURCE ]; then
-    echo ""
-    echo "!! ERROR"
-    echo "!! Can not find $XC_BUILD_SOURCE directory for $XC_BUILD_NAME"
-    echo "!! Run 'init-*.sh' first"
-    echo ""
-    exit 1
-fi
-
 cd $XC_BUILD_SOURCE
 if [ -f "./Makefile" ]; then
     echo 'reuse configure'

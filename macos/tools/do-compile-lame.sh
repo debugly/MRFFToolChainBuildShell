@@ -31,46 +31,37 @@ echo "ARGV:$*"
 echo "===check env end==="
 
 # prepare build config
-X264_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --includedir=$XC_BUILD_PREFIX/include/x264"
-X264_CFG_FLAGS="$X264_CFG_FLAGS --disable-lsmash --disable-swscale --disable-ffms --enable-static --enable-pic --disable-cli --enable-strip"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX"
+CFG_FLAGS="$CFG_FLAGS --enable-nasm --disable-shared --enable-static --disable-frontend --disable-debug"
 
 CFLAG="-arch $XC_ARCH -mmacosx-version-min=$XC_DEPLOYMENT_TARGET"
-CC="$XCRUN_CC"
+CC="$XCRUN_CC -arch $XC_ARCH"
 
-# cross
+# cross;
 if [[ $(uname -m) != "$XC_ARCH" ]];then
-    echo "cross compile."
+    echo "[*] cross compile, on $(uname -m) compile $XC_ARCH."
     HOST="--host=$XC_ARCH-apple-darwin"
     CFLAG="$CFLAG -isysroot $XCRUN_SDK_PATH"
-fi
-
-#--------------------
-echo "\n--------------------"
-echo "[*] configurate $LIB_NAME"
-echo "--------------------"
-
-if [ ! -d $XC_BUILD_SOURCE ]; then
-    echo ""
-    echo "!! ERROR"
-    echo "!! Can not find $XC_BUILD_SOURCE directory for $XC_BUILD_NAME"
-    echo "!! Run 'init-*.sh' first"
-    echo ""
-    exit 1
+    CFG_FLAGS="$CFG_FLAGS --with-sysroot=$XCRUN_SDK_PATH"
 fi
 
 cd $XC_BUILD_SOURCE
 # Makefile already in git,so configure everytime compile
 echo "CC: $CC"
 echo "CFLAG: $CFLAG"
-echo "CFG: $X264_CFG_FLAGS"
+echo "CFG: $CFG_FLAGS"
 echo 
 
-./configure $X264_CFG_FLAGS \
-    $HOST \
-    --extra-cflags="$CFLAG" \
-    --extra-ldflags="$CFLAG"
-    # --extra-asflags="$ASFLAG" \
+#--------------------
+echo "\n--------------------"
+echo "[*] configurate $LIB_NAME"
+echo "--------------------"
 
+./configure $CFG_FLAGS \
+    $HOST \
+    CC="$CC" \
+    CFLAGS="$CFLAGS" \
+    LDFLAGS="$CFLAGS"
 
 #--------------------
 echo "\n--------------------"
