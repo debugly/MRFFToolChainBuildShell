@@ -32,9 +32,6 @@ echo
 ./init-x264.sh $PLAT
 
 echo
-./init-libass.sh $PLAT
-
-echo
 ./init-libyuv.sh $PLAT
 
 echo
