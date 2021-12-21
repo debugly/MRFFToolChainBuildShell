@@ -183,7 +183,9 @@ else
 fi
 echo "----------------------"
 
-
+#only desktop compile programs
+FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-ffmpeg --enable-ffprobe"
+    
 CC="$XCRUN_CC -arch $XC_ARCH"
 
 #--------------------
