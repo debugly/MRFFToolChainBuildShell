@@ -12,6 +12,12 @@ elif [ ! -d $LOCAL_WORKSPACE ]; then
     git repack -a
 else
     cd $LOCAL_WORKSPACE
+    origin=$(git remote get-url origin)
+    if [[ "$origin" != "$REMOTE_REPO" ]]; then
+        git remote remove origin
+        git remote add origin "$REMOTE_REPO"
+        echo "force update origin to: $REMOTE_REPO"
+    fi
     git fetch --all --tags
     cd - > /dev/null
 fi
