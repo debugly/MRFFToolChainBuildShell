@@ -23,7 +23,7 @@ else
 fi
 
 export GIT_LOCAL_REPO=extra/ffmpeg
-export GIT_COMMIT=origin/release/4.4
+export GIT_COMMIT=n4.4.1
 export REPO_DIR=ffmpeg
 
 ./tools/init-repo.sh $*

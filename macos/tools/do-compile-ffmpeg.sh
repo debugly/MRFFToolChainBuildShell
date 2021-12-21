@@ -69,13 +69,13 @@ if [[ "$FF_BUILD_OPT" == "debug" ]];then
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-small"
 else
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-optimizations"
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-debug"
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-debug"
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-small"
 fi
 
 # FFMPEG_C_FLAGS
 FFMPEG_C_FLAGS=
-FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS -arch $XC_ARCH"
+FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS -fno-stack-check -arch $XC_ARCH"
 FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS -mmacosx-version-min=$XC_DEPLOYMENT_TARGET"
 
 FFMPEG_LDFLAGS="$FFMPEG_C_FLAGS"
@@ -163,6 +163,27 @@ else
 fi
 echo "----------------------"
 
+echo "\n--------------------"
+echo "[*] check opus"
+
+#--------------------
+# with opus
+if [ -f "$XC_UNI_BUILD_DIR/opus/lib/libopus.a" ]; then
+    
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libopus"
+    
+    OPUS_C_FLAGS="-I$XC_UNI_BUILD_DIR/opus/include"
+    OPUS_LD_FLAGS="-L$XC_UNI_BUILD_DIR/opus/lib -lopus"
+
+    FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $OPUS_C_FLAGS"
+    FFMPEG_DEP_LIBS="$FFMPEG_DEP_LIBS $OPUS_LD_FLAGS"
+    echo "[*] --enable-libopus"
+else
+    echo "[*] --disable-libopus"
+fi
+echo "----------------------"
+
+
 CC="$XCRUN_CC -arch $XC_ARCH"
 
 #--------------------
@@ -191,7 +212,7 @@ else
     echo 
     ./configure \
         $FFMPEG_CFG_FLAGS \
-        --cc="$XCRUN_CC" \
+        --cc="$CC" \
         --extra-cflags="$FFMPEG_C_FLAGS" \
         --extra-cxxflags="$FFMPEG_C_FLAGS" \
         --extra-ldflags="$FFMPEG_LDFLAGS $FFMPEG_DEP_LIBS"
@@ -204,7 +225,6 @@ echo "[*] compile $LIB_NAME"
 echo "--------------------"
 
 cp config.* $XC_BUILD_PREFIX
-make install -j4
-
+make install -j8
 mkdir -p $XC_BUILD_PREFIX/include/libffmpeg
 cp -f config.h $XC_BUILD_PREFIX/include/libffmpeg/config.h

@@ -32,7 +32,6 @@ iOS_ARCHS="x86_64 arm64"
 macOS_ARCHS="x86_64 arm64"
 
 function pull_common() {
-    git --version
     echo "== pull $REPO_DIR base =="
     sh $TOOLS/pull-repo-base.sh $GIT_UPSTREAM $GIT_LOCAL_REPO
 }
