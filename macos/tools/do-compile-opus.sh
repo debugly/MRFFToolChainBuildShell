@@ -32,7 +32,7 @@ echo "===check env end==="
 
 # prepare build config
 CFG_FLAGS="--prefix=$XC_BUILD_PREFIX"
-CFG_FLAGS="$CFG_FLAGS --disable-doc --disable-dependency-tracking"
+CFG_FLAGS="$CFG_FLAGS --disable-doc --disable-dependency-tracking --disable-shared"
 
 CFLAG="-arch $XC_ARCH -mmacosx-version-min=$XC_DEPLOYMENT_TARGET"
 CC="$XCRUN_CC -arch $XC_ARCH"

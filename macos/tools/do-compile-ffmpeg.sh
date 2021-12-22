@@ -26,10 +26,11 @@ source $TOOLS/../../tools/env_assert.sh
 echo "=== [$0] check env begin==="
 env_assert "XC_TAGET_OS"
 env_assert "XC_ARCH"
+env_assert "XC_BUILD_DIR"
 env_assert "XC_BUILD_NAME"
 env_assert "XC_BUILD_SOURCE"
 env_assert "XC_BUILD_PREFIX"
-env_assert "XC_UNI_BUILD_DIR"
+env_assert "XC_UNI_DIR"
 env_assert "XC_DEPLOYMENT_TARGET"
 
 echo "ARGV:$*"
@@ -89,14 +90,12 @@ echo "[*] check OpenSSL"
 
 #--------------------
 # with openssl
-if [ -f "$XC_UNI_BUILD_DIR/openssl/lib/libssl.a" ]; then
+# use pkg-config fix ff4.0--ijk0.8.8--20210426--001 use openssl 1_1_1l occur can't find openssl error.
+if [[ -f "${XC_BUILD_DIR}/openssl-$XC_ARCH/output/lib/pkgconfig/openssl.pc" ]]; then
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-nonfree --enable-openssl"
-    
-    OPENSSL_C_FLAGS="-I$XC_UNI_BUILD_DIR/openssl/include"
-    OPENSSL_LD_FLAGS="-L$XC_UNI_BUILD_DIR/openssl/lib -lssl -lcrypto"
-
-    FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $OPENSSL_C_FLAGS"
-    FFMPEG_DEP_LIBS="$FFMPEG_DEP_LIBS $OPENSSL_LD_FLAGS"
+   
+    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${XC_BUILD_DIR}/openssl-$XC_ARCH/output/lib/pkgconfig"
+   
     echo "[*] --enable-openssl"
 else
     echo "[*] --disable-openssl"
@@ -108,15 +107,12 @@ echo "[*] check x264"
 
 #--------------------
 # with x264
-if [ -f "$XC_UNI_BUILD_DIR/x264/lib/libx264.a" ]; then
+if [[ -f "${XC_BUILD_DIR}/x264-$XC_ARCH/output/lib/pkgconfig/x264.pc" ]]; then
     # libx264 is gpl and --enable-gpl is not specified.
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-gpl --enable-libx264"
     
-    X264_C_FLAGS="-I$XC_UNI_BUILD_DIR/x264/include/x264"
-    X264_LD_FLAGS="-L$XC_UNI_BUILD_DIR/x264/lib -lx264"
+    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${XC_BUILD_DIR}/x264-$XC_ARCH/output/lib/pkgconfig"
 
-    FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $X264_C_FLAGS"
-    FFMPEG_DEP_LIBS="$FFMPEG_DEP_LIBS $X264_LD_FLAGS"
     echo "[*] --enable-libx264"
 else
     echo "[*] --disable-libx264"
@@ -128,15 +124,12 @@ echo "[*] check fdk-aac"
 
 #--------------------
 # with fdk-aac
-if [ -f "$XC_UNI_BUILD_DIR/fdk-aac/lib/libfdk-aac.a" ]; then
+if [[ -f "${XC_BUILD_DIR}/fdk-aac-$XC_ARCH/output/lib/pkgconfig/fdk-aac.pc" ]]; then
     # libx264 is gpl and --enable-gpl is not specified.
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-nonfree --enable-libfdk-aac"
     
-    FDKAAC_C_FLAGS="-I$XC_UNI_BUILD_DIR/fdk-aac/include"
-    FDKAAC_LD_FLAGS="-L$XC_UNI_BUILD_DIR/fdk-aac/lib -lfdk-aac"
+    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${XC_BUILD_DIR}/fdk-aac-$XC_ARCH/output/lib/pkgconfig"
 
-    FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $FDKAAC_C_FLAGS"
-    FFMPEG_DEP_LIBS="$FFMPEG_DEP_LIBS $FDKAAC_LD_FLAGS"
     echo "[*] --enable-libfdk-aac"
 else
     echo "[*] --disable-libfdk-aac"
@@ -148,12 +141,12 @@ echo "[*] check mp3lame"
 
 #--------------------
 # with lame
-if [ -f "$XC_UNI_BUILD_DIR/lame/lib/libmp3lame.a" ]; then
+if [[ -f "${XC_BUILD_DIR}/lame-$XC_ARCH/output/lib/libmp3lame.a" ]]; then
     # libmp3lame is gpl and --enable-gpl is not specified.
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-gpl --enable-libmp3lame"
     
-    FDKAAC_C_FLAGS="-I$XC_UNI_BUILD_DIR/lame/include"
-    FDKAAC_LD_FLAGS="-L$XC_UNI_BUILD_DIR/lame/lib -lmp3lame"
+    FDKAAC_C_FLAGS="-I${XC_BUILD_DIR}/lame-$XC_ARCH/output/include"
+    FDKAAC_LD_FLAGS="-L${XC_BUILD_DIR}/lame-$XC_ARCH/output/lib -lmp3lame"
 
     FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $FDKAAC_C_FLAGS"
     FFMPEG_DEP_LIBS="$FFMPEG_DEP_LIBS $FDKAAC_LD_FLAGS"
@@ -168,15 +161,12 @@ echo "[*] check opus"
 
 #--------------------
 # with opus
-if [ -f "$XC_UNI_BUILD_DIR/opus/lib/libopus.a" ]; then
+if [[ -f "${XC_BUILD_DIR}/opus-$XC_ARCH/output/lib/pkgconfig/opus.pc" ]]; then
     
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libopus"
     
-    OPUS_C_FLAGS="-I$XC_UNI_BUILD_DIR/opus/include"
-    OPUS_LD_FLAGS="-L$XC_UNI_BUILD_DIR/opus/lib -lopus"
+    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${XC_BUILD_DIR}/opus-$XC_ARCH/output/lib/pkgconfig"
 
-    FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $OPUS_C_FLAGS"
-    FFMPEG_DEP_LIBS="$FFMPEG_DEP_LIBS $OPUS_LD_FLAGS"
     echo "[*] --enable-libopus"
 else
     echo "[*] --disable-libopus"
@@ -193,7 +183,7 @@ echo "\n--------------------"
 echo "[*] configure"
 echo "----------------------"
 
-if [ ! -d $XC_BUILD_SOURCE ]; then
+if [[ ! -d $XC_BUILD_SOURCE ]]; then
     echo ""
     echo "!! ERROR"
     echo "!! Can not find $XC_BUILD_SOURCE directory for $XC_BUILD_NAME"
@@ -203,7 +193,7 @@ if [ ! -d $XC_BUILD_SOURCE ]; then
 fi
 
 cd $XC_BUILD_SOURCE
-if [ -f "./config.h" ]; then
+if [[ -f "./config.h" ]]; then
     echo 'reuse configure'
 else
     echo 

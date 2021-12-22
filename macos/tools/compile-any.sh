@@ -19,7 +19,9 @@ set -e
 
 # 调用这个脚本时的目录
 UNI_BUILD_ROOT=`pwd`
-export XC_UNI_BUILD_DIR="${UNI_BUILD_ROOT}/build/universal"
+
+export XC_BUILD_DIR="${UNI_BUILD_ROOT}/build"
+export XC_UNI_DIR="${XC_BUILD_DIR}/universal"
 
 # 当前脚本所在目录
 TOOLS=$(dirname "$0")
@@ -33,11 +35,11 @@ echo "ARGV:$*"
 echo "===check env end==="
 
 do_lipo_lib () {
-    LIB_FILE=$1
-    LIPO_FLAGS=
+    local LIB_FILE=$1
+    local LIPO_FLAGS=
     for arch in $ALL_ARCHS
     do
-        ARCH_LIB_FILE="$UNI_BUILD_ROOT/build/$LIB_NAME-$arch/output/lib/$LIB_FILE"
+        local ARCH_LIB_FILE="$UNI_BUILD_ROOT/build/$LIB_NAME-$arch/output/lib/$LIB_FILE"
         if [ -f "$ARCH_LIB_FILE" ]; then
             LIPO_FLAGS="$LIPO_FLAGS $ARCH_LIB_FILE"
         else
@@ -45,13 +47,13 @@ do_lipo_lib () {
         fi
     done
 
-    xcrun lipo -create $LIPO_FLAGS -output $XC_UNI_BUILD_DIR/$LIB_NAME/lib/$LIB_FILE
-    xcrun lipo -info $XC_UNI_BUILD_DIR/$LIB_NAME/lib/$LIB_FILE
+    xcrun lipo -create $LIPO_FLAGS -output $XC_UNI_DIR/$LIB_NAME/lib/$LIB_FILE
+    xcrun lipo -info $XC_UNI_DIR/$LIB_NAME/lib/$LIB_FILE
 }
 
 do_lipo_all () {
-    rm -rf $XC_UNI_BUILD_DIR/$LIB_NAME
-    mkdir -p $XC_UNI_BUILD_DIR/$LIB_NAME/lib
+    rm -rf $XC_UNI_DIR/$LIB_NAME
+    mkdir -p $XC_UNI_DIR/$LIB_NAME/lib
     echo "lipo archs: $ALL_ARCHS"
     for lib in $LIPO_LIBS
     do
@@ -60,8 +62,8 @@ do_lipo_all () {
 
     for arch in $ALL_ARCHS
     do
-        ARCH_INC_DIR="$UNI_BUILD_ROOT/build/$LIB_NAME-$arch/output/include"
-        ARCH_OUT_DIR="$XC_UNI_BUILD_DIR/$LIB_NAME/include"
+        local ARCH_INC_DIR="$UNI_BUILD_ROOT/build/$LIB_NAME-$arch/output/include"
+        local ARCH_OUT_DIR="$XC_UNI_DIR/$LIB_NAME/include"
         if [[ -d "$ARCH_INC_DIR" && ! -d "$ARCH_OUT_DIR" ]]; then
             echo "copy include dir to $ARCH_OUT_DIR"
             cp -R "$ARCH_INC_DIR" "$ARCH_OUT_DIR"

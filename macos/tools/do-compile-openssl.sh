@@ -76,6 +76,5 @@ echo "\n--------------------"
 echo "[*] compile $LIB_NAME"
 echo "--------------------"
 set +e
-
 make
-make install_sw -j4
+make install_sw
