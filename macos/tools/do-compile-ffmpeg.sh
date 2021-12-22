@@ -173,6 +173,9 @@ else
 fi
 echo "----------------------"
 
+#parser subtitles
+FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-demuxer=ass --enable-demuxer=webvtt --enable-demuxer=srt"
+
 #only desktop compile programs
 FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-ffmpeg --enable-ffprobe"
     
