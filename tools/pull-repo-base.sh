@@ -9,6 +9,7 @@ if [ -z $REMOTE_REPO -o -z $LOCAL_WORKSPACE ]; then
 elif [ ! -d $LOCAL_WORKSPACE ]; then
     git clone $REMOTE_REPO $LOCAL_WORKSPACE
 else
+    mkdir -p "$LOCAL_WORKSPACE"
     cd $LOCAL_WORKSPACE
     origin=$(git remote get-url origin)
     if [[ "$origin" != "$REMOTE_REPO" ]]; then

@@ -1,8 +1,0 @@
-use_frameworks!
-
-platform :osx, '10.11'
-
-target 'FFmpegTutorial-macOS' do
-  pod 'MRFFmpegPod', :path => '../MRFFmpegPod-macOS-4.4.podspec'
-  # pod 'MRFFmpegPod', :podspec => 'http://ifoxdev.hd.sohu.com/ffpods/20210913/MRFFmpegPod-macOS-4.4.podspec'
-end

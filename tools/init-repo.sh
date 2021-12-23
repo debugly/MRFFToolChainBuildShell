@@ -37,7 +37,7 @@ function pull_common() {
 }
 
 function pull_fork() {
-    local dir="$1/$REPO_DIR-$2"
+    local dir="build/src/$1/$REPO_DIR-$2"
     echo "== pull $REPO_DIR fork to $dir =="
     
     sh $TOOLS/pull-repo-ref.sh $GIT_UPSTREAM $dir ${GIT_LOCAL_REPO}

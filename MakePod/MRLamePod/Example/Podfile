@@ -1,7 +1,0 @@
-use_frameworks!
-
-platform :ios, '8.0'
-
-target 'MRLamePod_Example' do
-  pod 'MRLamePod', :path => '../'
-end
