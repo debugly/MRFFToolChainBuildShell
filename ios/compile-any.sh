@@ -22,14 +22,12 @@ ARCH=$3
 
 set -e
 
-function usage()
-{
+function usage() {
     echo " useage:"
     echo "  $0 [build|lipo|clean] [all|fdk-aac|ffmpeg|lame|libyuv|openssl|opus|x264] [arm64|x86_64|all] "
 }
 
-function prepare_compile_env()
-{
+function prepare_compile_env() {
     local lib="$1"
     source compile-cfgs/"$lib"
 }

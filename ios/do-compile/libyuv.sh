@@ -30,31 +30,31 @@ env_assert "XC_BUILD_PREFIX"
 echo "ARGV:$*"
 echo "===check env end==="
 
-CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET -O2 -fomit-frame-pointer -Iinclude/"
+CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET -Os -fomit-frame-pointer -Iinclude/"
 
 # cross always;
 echo "[*] cross compile, on $(uname -m) compile $XC_ARCH."
 CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
 
+echo "CC: $XCRUN_CC"
 echo "CXX: $XCRUN_CXX"
 echo "CFLAGS: $CFLAGS"
 echo 
 
 cd "$XC_BUILD_SOURCE"
 
-echo "\n--------------------"
+echo "----------------------"
 echo "[*] configurate $LIB_NAME"
-echo "--------------------"
+echo "----------------------"
 
+make -f linux.mk clean >/dev/null
 
-make -f linux.mk clean
-
-#--------------------
-echo "\n--------------------"
+#----------------------
+echo "----------------------"
 echo "[*] compile libyuv"
-echo "--------------------"
+echo "----------------------"
 
-make -f linux.mk CXX="$XCRUN_CXX" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS"
+make -f linux.mk CC="$XCRUN_CC" CXX="$XCRUN_CXX" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" 1>/dev/null
 
 mkdir -p "${XC_BUILD_PREFIX}/lib"
 cp libyuv.a "${XC_BUILD_PREFIX}/lib"

@@ -76,8 +76,7 @@ do_lipo_all () {
     done
 }
 
-function export_arch_env()
-{
+function export_arch_env() {
     # x86_64
     export XC_ARCH=$1
     # ffmpeg-x86_64
@@ -88,8 +87,7 @@ function export_arch_env()
     export XC_BUILD_PREFIX="${XC_PRODUCT_ROOT}/${XC_BUILD_NAME}"
 }
 
-function do_compile()
-{
+function do_compile() {
     export_arch_env $1
     if [ ! -d $XC_BUILD_SOURCE ]; then
         echo ""
@@ -117,8 +115,7 @@ function install_depends() {
     fi
 }
 
-function resolve_dep()
-{
+function resolve_dep() {
     echo "[*] check depends bins: ${LIB_DEPENDS_BIN}"
     for b in ${LIB_DEPENDS_BIN}
     do
@@ -127,11 +124,10 @@ function resolve_dep()
     echo "===================="
 }
 
-function do_clean()
-{
+function do_clean() {
     export_arch_env $1
     cd $XC_BUILD_SOURCE && git clean -xdf && cd - >/dev/null
-    rm -rf $XC_BUILD_PREFIX
+    rm -rf $XC_BUILD_PREFIX >/dev/null
 }
 
 function main() {

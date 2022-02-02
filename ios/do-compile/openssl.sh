@@ -35,7 +35,7 @@ echo "ARGV:$*"
 echo "===check env end==="
 
 # prepare build config
-OPENSSL_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --openssldir=$XC_BUILD_PREFIX"
+OPENSSL_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --openssldir=$XC_BUILD_PREFIX no-shared no-hw no-engine no-asm"
 
 if [ "$XC_ARCH" = "x86_64" ]; then
     OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
@@ -46,16 +46,15 @@ else
     exit 1
 fi
 
-OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS no-shared no-hw no-engine no-asm"
-
 export CC="$XCRUN_CC"
-export CFLAG="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET -isysroot $XCRUN_SDK_PATH"
-export CXXFLAG="$CFLAG"
+export CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET -isysroot $XCRUN_SDK_PATH"
+export CXXFLAG="$CFLAGS"
 
-#--------------------
-echo "\n--------------------"
+echo "[*] cross compile, on $(uname -m) compile $XC_ARCH."
+#----------------------
+echo "----------------------"
 echo "[*] configurate $LIB_NAME"
-echo "--------------------"
+echo "----------------------"
 
 cd $XC_BUILD_SOURCE
 if [ -f "./Makefile" ]; then
@@ -63,18 +62,18 @@ if [ -f "./Makefile" ]; then
 else
     echo 
     echo "CC: $CC"
-    echo "CFLAG: $CFLAG"
-    echo "CFG: $OPENSSL_CFG_FLAGS"
+    echo "CFLAGS: $CFLAGS"
+    echo "Openssl CFG: $OPENSSL_CFG_FLAGS"
     echo 
     ./Configure \
         $OPENSSL_CFG_FLAGS
-    make clean
+    make clean 1>/dev/null
 fi
 
-#--------------------
-echo "\n--------------------"
+#----------------------
+echo "----------------------"
 echo "[*] compile $LIB_NAME"
-echo "--------------------"
+echo "----------------------"
 set +e
-make
+make 1>/dev/null
 make install_sw

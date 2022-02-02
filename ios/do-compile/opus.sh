@@ -30,45 +30,44 @@ env_assert "XCRUN_SDK_PATH"
 echo "ARGV:$*"
 echo "===check env end==="
 
-# prepare build config
-CFG_FLAGS="--prefix=$XC_BUILD_PREFIX"
-CFG_FLAGS="$CFG_FLAGS --disable-doc --disable-dependency-tracking --disable-shared"
-
-CFLAG="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET"
-CC="$XCRUN_CC -arch $XC_ARCH"
-
 # cross always
 echo "[*] cross compile, on $(uname -m) compile $XC_ARCH."
-HOST="--host=$XC_ARCH-apple-darwin"
-CFLAG="$CFLAG -isysroot $XCRUN_SDK_PATH"
-CFG_FLAGS="$CFG_FLAGS --with-sysroot=$XCRUN_SDK_PATH"
 
-#--------------------
-echo "\n--------------------"
+# prepare build config
+OPUS_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --disable-doc --disable-dependency-tracking --disable-shared"
+
+CC="$XCRUN_CC"
+HOST="--host=$XC_ARCH-apple-darwin"
+CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET  -isysroot $XCRUN_SDK_PATH"
+
+OPUS_CFG_FLAGS="$OPUS_CFG_FLAGS --with-sysroot=$XCRUN_SDK_PATH"
+
+#----------------------
+echo "----------------------"
 echo "[*] configurate $LIB_NAME"
-echo "--------------------"
+echo "----------------------"
 
 cd $XC_BUILD_SOURCE
 
 echo "auto generate configure"
 
-./autogen.sh
+./autogen.sh 1>/dev/null
 
 echo 
 echo "CC: $CC"
-echo "CFLAG: $CFLAG"
-echo "CFG: $CFG_FLAGS"
+echo "OPUS_CFG_FLAGS: $OPUS_CFG_FLAGS"
+echo "CFLAGS: $CFLAGS"
 echo 
 
-./configure $CFG_FLAGS \
+./configure $OPUS_CFG_FLAGS \
    $HOST \
    CC="$CC" \
    CFLAGS="$CFLAGS" \
    LDFLAGS="$CFLAGS"
 
-#--------------------
-echo "\n--------------------"
+#----------------------
+echo "----------------------"
 echo "[*] compile $LIB_NAME"
-echo "--------------------"
+echo "----------------------"
 
-make install -j4
+make install -j4 1>/dev/null
