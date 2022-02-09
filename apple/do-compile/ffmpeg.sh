@@ -31,7 +31,6 @@ env_assert "XC_BUILD_NAME"
 env_assert "XC_BUILD_SOURCE"
 env_assert "XC_BUILD_PREFIX"
 env_assert "XC_DEPLOYMENT_TARGET"
-
 echo "ARGV:$*"
 echo "===check env end==="
 
@@ -42,10 +41,6 @@ source `pwd`/../ffconfig/module.sh
 FFMPEG_CFG_FLAGS="$COMMON_FF_CFG_FLAGS"
 
 FFMPEG_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX $FFMPEG_CFG_FLAGS"
-
-# always cross.
-echo "[*] cross compile, on $(uname -m) compile $XC_ARCH."
-FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-cross-compile"
 
 # Developer options (useful when working on FFmpeg itself):
 # FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-stripping"
@@ -74,7 +69,22 @@ fi
 # FFMPEG_C_FLAGS
 FFMPEG_C_FLAGS=
 FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS -fno-stack-check -arch $XC_ARCH"
-FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $XC_DEPLOYMENT_TARGET"
+FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
+
+# for cross compile
+if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]];then
+    echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
+    # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
+    FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS -isysroot $XCRUN_SDK_PATH"
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-cross-compile"
+fi
+
+if [[ "$XC_FORCE_CROSS" ]];then
+    #only desktop compile programs
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-ffmpeg --disable-ffprobe"
+else
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-ffmpeg --enable-ffprobe"
+fi
 
 FFMPEG_LDFLAGS="$FFMPEG_C_FLAGS"
 FFMPEG_DEP_LIBS=
@@ -142,7 +152,7 @@ if [[ -f "${XC_PRODUCT_ROOT}/lame-$XC_ARCH/lib/libmp3lame.a" ]]; then
     # libmp3lame is gpl and --enable-gpl is not specified.
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-gpl --enable-libmp3lame"
     
-    FDKAAC_C_FLAGS="-I${XC_PRODUCT_ROOT}/lame-$XC_ARCH/output/include"
+    FDKAAC_C_FLAGS="-I${XC_PRODUCT_ROOT}/lame-$XC_ARCH/include"
     FDKAAC_LD_FLAGS="-L${XC_PRODUCT_ROOT}/lame-$XC_ARCH/lib -lmp3lame"
 
     FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $FDKAAC_C_FLAGS"
@@ -172,9 +182,6 @@ echo "------------------------"
 
 #parser subtitles
 FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-demuxer=ass --enable-demuxer=webvtt --enable-demuxer=srt"
-
-#only desktop compile programs
-FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-ffmpeg --disable-ffprobe"
     
 CC="$XCRUN_CC"
 

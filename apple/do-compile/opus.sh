@@ -15,10 +15,6 @@
 # limitations under the License.
 #
 
-# This script is based on projects below
-# https://github.com/bilibili/ijkplayer
-# https://wiki.openssl.org/index.php/Compilation_and_Installation#OS_X
-
 set -e
 
 TOOLS=$(dirname "$0")
@@ -31,49 +27,51 @@ env_assert "XC_BUILD_PREFIX"
 env_assert "XC_BUILD_NAME"
 env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
+env_assert "XCRUN_CC"
 echo "ARGV:$*"
 echo "===check env end==="
 
 # prepare build config
-OPENSSL_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --openssldir=$XC_BUILD_PREFIX no-shared no-hw no-engine no-asm"
+OPUS_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --disable-doc --disable-dependency-tracking --disable-shared --enable-silent-rules --disable-extra-programs --silent"
+CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
-if [ "$XC_ARCH" = "x86_64" ]; then
-    OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
-elif [ "$XC_ARCH" = "arm64" ]; then
-    OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS darwin64-arm64-cc enable-ec_nistp_64_gcc_128"
-else
-    echo "unknown architecture $FF_ARCH";
-    exit 1
+# for cross compile
+if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]];then
+    echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
+    # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
+    CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
+    OPUS_CFG_FLAGS="$OPUS_CFG_FLAGS --host=$XC_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
 fi
 
-export CC="$XCRUN_CC"
-export CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET -isysroot $XCRUN_SDK_PATH"
-export CXXFLAG="$CFLAGS"
-
-echo "[*] cross compile, on $(uname -m) compile $XC_ARCH."
-#----------------------
 echo "----------------------"
 echo "[*] configurate $LIB_NAME"
 echo "----------------------"
 
 cd $XC_BUILD_SOURCE
-if [ -f "./Makefile" ]; then
-    echo 'reuse configure'
+
+if [[ -f 'configure' ]]; then
+   echo "reuse configure"
 else
-    echo 
-    echo "CC: $CC"
-    echo "CFLAGS: $CFLAGS"
-    echo "Openssl CFG: $OPENSSL_CFG_FLAGS"
-    echo 
-    ./Configure \
-        $OPENSSL_CFG_FLAGS
-    make clean 1>/dev/null
+   echo "auto generate configure"
+   ./autogen.sh 1>/dev/null
 fi
+
+
+echo 
+echo "CC: $XCRUN_CC"
+echo "OPUS_CFG_FLAGS: $OPUS_CFG_FLAGS"
+echo "CFLAGS: $CFLAGS"
+echo 
+
+./configure $OPUS_CFG_FLAGS \
+   CC="$XCRUN_CC" \
+   CFLAGS="$CFLAGS" \
+   LDFLAGS="$CFLAGS" \
+   1>/dev/null
 
 #----------------------
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
-set +e
-make 1>/dev/null
-make install_sw
+
+make install -j8 1>/dev/null

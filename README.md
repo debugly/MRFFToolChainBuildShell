@@ -11,57 +11,38 @@ At present MRFFToolChain contained OpenSSL、FFmpeg 、Lame、X264、Fdk-aac、l
 ## Folder structure
 
 ```
-.
 ├── README.md
-├── config          #ffmpeg 功能裁剪配置
-├── extra           #ffmpeg，openssl 等库的源码
-├── init-ffmpeg.sh  #ffmpeg 源码初始化脚本
-├── init-openssl.sh #openssl 源码初始化脚本
-├── ios             #ios 平台编译工作目录
-├── mac             #macos 平台编译工作目录
-├──tools            #编译脚本通用依赖
-
-├── README.md
+├── apple           #apple平台通用编译脚本
+│   ├── compile-any.sh
+│   ├── compile-cfgs
+│   ├── do-compile
+│   └── init-env.sh
 ├── build           #编译目录
 │   ├── product     #编译产物
 │   └── src         #构建时源码仓库
-├── extra           #源码仓库，构建时根据架构放到 build/src/$plat/$libname-$arch
-│   ├── fdk-aac
+├── extra           #ffmpeg，openssl 等库的源码
 │   ├── ffmpeg
-│   ├── lame
 │   ├── libyuv
 │   ├── openssl
-│   ├── opus
-│   └── x264
-├── ffconfig        #ffmpeg 编译选项
+│   └── opus
+├── ffconfig        #ffmpeg 功能裁剪配置
 │   ├── configure.md
 │   ├── module-default.sh
 │   ├── module-full.sh
 │   ├── module-lite-hevc.sh
 │   ├── module-lite.sh
 │   └── module.sh -> module-full.sh
-├── init-any.sh     #初始化源码仓库包括不同架构的仓库
-├── init-cfgs       #初始化脚本会调用，里面是库的名称，git仓库地址等信息
-│   ├── fdk-aac
+├── init-any.sh     #初始化源码仓库
+├── init-cfgs       #三方库的配置，包括库名，git仓库地址等信息
 │   ├── ffmpeg
-│   ├── lame
 │   ├── libyuv
 │   ├── openssl
-│   ├── opus
-│   └── x264
-├── ios
-│   ├── compile-any.sh
-│   ├── compile-cfgs
-│   ├── do-compile
-│   ├── ios-env.sh
-│   ├── make-ffmpeg-pod
-│   └── make-openssl-pod
-├── macos
-│   ├── compile-any.sh
-│   ├── compile-cfgs
-│   ├── do-compile
-│   └── macos-env.sh
-└── tools           #初始化等依赖的脚本
+│   └── opus
+├── ios             #ios 平台编译脚本
+│   └── compile-any.sh
+├── macos           #macos 平台编译脚本
+│   └── compile-any.sh
+└── tools           #初始化仓库依赖的脚本
     ├── env_assert.sh
     ├── init-repo.sh
     ├── pull-repo-base.sh
@@ -139,14 +120,15 @@ cd macos
 
 编译 ios 平台跟 macos 是一样的流程，只需要 cd 到 ios 目录操作即可。
 
+其实 ios 和 macos 均调用了 apple 目录下的脚本。
+
 ## Use Your Mirror
 
-如果 github 上的仓库克隆较慢，或者需要使用私有仓库的话，可在执行编译脚本前声明对应的环境变量即可！
+如果 github 上的仓库克隆较慢，或者需要使用内网私有仓库，可在执行编译脚本前声明对应的环境变量！
 
 | 名称 | 默认仓库 | 使用镜像 |
 |---|---|---|
-| FFmpeg | https://github.com/FFmpeg/FFmpeg.git | export GIT_FFMPEG_UPSTREAM=git@xx:yy/ffmpeg.git |
+| FFmpeg | https://github.com/bilibili/FFmpeg.git | export GIT_FFMPEG_UPSTREAM=git@xx:yy/ffmpeg.git |
 | libYUV | https://github.com/lemenkov/libyuv.git | export GIT_FDK_UPSTREAM=git@xx:yy/libyuv.git
 | OpenSSL | https://github.com/openssl/openssl.git | export GIT_OPUS_UPSTREAM=git@xx:yy/openssl.git |
 | Opus | https://gitlab.xiph.org/xiph/opus.git | export GIT_OPUS_UPSTREAM=git@xx:yy/opusfile.git  |
-

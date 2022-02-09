@@ -35,7 +35,7 @@ echo "ARGV:$*"
 echo "===check env end==="
 
 # prepare build config
-OPENSSL_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --openssldir=$XC_BUILD_PREFIX"
+OPENSSL_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --openssldir=$XC_BUILD_PREFIX no-shared no-hw no-engine no-asm"
 
 if [ "$XC_ARCH" = "x86_64" ]; then
     OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
@@ -46,35 +46,41 @@ else
     exit 1
 fi
 
-OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS no-shared no-hw no-engine no-asm"
+CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
-export CC="$XCRUN_CC"
-export CFLAG="-arch $XC_ARCH -mmacosx-version-min=$XC_DEPLOYMENT_TARGET -isysroot $XCRUN_SDK_PATH"
-export CXXFLAG="$CFLAG"
+# for cross compile
+if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]];then
+    echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
+    # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
+    CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
+fi
 
-#--------------------
-echo "\n--------------------"
+#----------------------
+echo "----------------------"
 echo "[*] configurate $LIB_NAME"
-echo "--------------------"
+echo "----------------------"
 
 cd $XC_BUILD_SOURCE
 if [ -f "./Makefile" ]; then
     echo 'reuse configure'
 else
     echo 
-    echo "CC: $CC"
-    echo "CFLAG: $CFLAG"
-    echo "CFG: $OPENSSL_CFG_FLAGS"
+    echo "CC: $XCRUN_CC"
+    echo "CFLAGS: $CFLAGS"
+    echo "Openssl CFG: $OPENSSL_CFG_FLAGS"
     echo 
-    ./Configure \
-        $OPENSSL_CFG_FLAGS
-    make clean
+    ./Configure $OPENSSL_CFG_FLAGS \
+        CC="$XCRUN_CC" \
+        CFLAGS="$CFLAGS" \
+        CXXFLAG="$CFLAGS" 
+
+    make clean 1>/dev/null
 fi
 
-#--------------------
-echo "\n--------------------"
+#----------------------
+echo "----------------------"
 echo "[*] compile $LIB_NAME"
-echo "--------------------"
+echo "----------------------"
 set +e
-make
+make 1>/dev/null
 make install_sw

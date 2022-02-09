@@ -17,19 +17,13 @@
 
 set -e
 
-# 调用这个脚本时的目录
-SHELL_ROOT=`pwd`
-
-export XC_SRC_ROOT="${SHELL_ROOT}/../build/src/ios"
-export XC_PRODUCT_ROOT="${SHELL_ROOT}/../build/product/ios"
-export XC_UNI_PROD_DIR="${XC_PRODUCT_ROOT}/universal"
-
 # 当前脚本所在目录
 TOOLS=$(dirname "$0")
 source $TOOLS/../../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
-env_assert "ALL_ARCHS"
+env_assert "XC_CMD"
+env_assert "XC_TARGET_ARCHS"
 env_assert "LIPO_LIBS"
 env_assert "LIB_NAME"
 echo "ARGV:$*"
@@ -37,9 +31,9 @@ echo "===check env end==="
 
 do_lipo_lib () {
     local LIB_FILE=$1
-    local MY_TARGET="$2"
+    local archs="$2"
     local LIPO_FLAGS=
-    for arch in $MY_TARGET
+    for arch in $archs
     do
         local ARCH_LIB_FILE="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/$LIB_FILE"
         if [ -f "$ARCH_LIB_FILE" ]; then
@@ -55,16 +49,16 @@ do_lipo_lib () {
 }
 
 do_lipo_all () {
-    local MY_TARGET="$1"
+    local archs="$1"
     rm -rf $XC_UNI_PROD_DIR/$LIB_NAME
     mkdir -p $XC_UNI_PROD_DIR/$LIB_NAME/lib
-    echo "lipo archs: $MY_TARGET"
+    echo "lipo archs: $archs"
     for lib in $LIPO_LIBS
     do
-        do_lipo_lib "$lib.a" "$MY_TARGET"
+        do_lipo_lib "$lib.a" "$archs"
     done
 
-    for arch in $MY_TARGET
+    for arch in $archs
     do
         local ARCH_INC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/include"
         local ARCH_OUT_DIR="$XC_UNI_PROD_DIR/$LIB_NAME/include"
@@ -99,20 +93,8 @@ function do_compile() {
     fi
 
     mkdir -p "$XC_BUILD_PREFIX"
-    echo "will compile $XC_BUILD_SOURCE"
     local opt=$2
     ./do-compile/$LIB_NAME.sh $opt
-}
-
-function install_depends() {
-    local name="$1"
-    local r=$(brew list | grep "$name")
-    if [[ $r != '' ]]; then
-        echo "[✅] ${name} is right."
-    else
-        echo "will use brew install ${name}."
-        brew install "$name"
-    fi
 }
 
 function resolve_dep() {
@@ -126,49 +108,46 @@ function resolve_dep() {
 
 function do_clean() {
     export_arch_env $1
+    echo "XC_BUILD_SOURCE:$XC_BUILD_SOURCE"
     cd $XC_BUILD_SOURCE && git clean -xdf && cd - >/dev/null
     rm -rf $XC_BUILD_PREFIX >/dev/null
 }
 
 function main() {
 
-    local cmd=$1
-    local arch=$2
-    local opt=$3
+    local cmd="$XC_CMD"
+    local archs="$XC_TARGET_ARCHS"
+    local opt="$XC_OPTS"
 
-    echo "cmd is [$cmd]"
+    case "$cmd" in
+        'clean')
+            for arch in $archs
+            do
+                do_clean $arch
+            done
+            rm -rf $XC_UNI_PROD_DIR/$LIB_NAME
+            echo 'done.'
+        ;;
+        'lipo')
+            do_lipo_all "$archs"
+        ;;
+        'build')
+            resolve_dep
+            for arch in $archs
+            do
+                init_env $arch
+                do_compile $arch "$opt"
+                echo
+            done
 
-    if [ "x$arch" != "x" ];then
-        MY_TARGET="$arch"
-    else 
-        MY_TARGET="$ALL_ARCHS"
-    fi
-
-    if [ "$cmd" = "lipo" ]; then
-        do_lipo_all "$MY_TARGET"
-    elif [ "$cmd" = "build" ]; then
-        resolve_dep
-        source ./do-compile/init-env.sh
-        for arch in $MY_TARGET
-        do
-            init_env $arch
-            do_compile $arch "$opt"
-        done
-
-        do_lipo_all "$MY_TARGET"
-    elif [ "$cmd" = "clean" ]; then
-        
-        for arch in $MY_TARGET
-        do
-            do_clean $arch
-        done
-        rm -rf $XC_UNI_PROD_DIR/$LIB_NAME
-        echo 'done.'
-    else
+            do_lipo_all "$archs"
+        ;;
+        *)
             echo "Usage:"
             echo "    $0 [build|lipo|clean] [x86_64|arm64]"
             exit 1
-    fi
+        ;;
+    esac
 }
 
-main $*
+main

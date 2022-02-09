@@ -34,28 +34,49 @@ case $XCRUN_DEVELOPER in
           ;;
 esac
 
-echo '================='
-echo "xcode version:"
 echo $(xcodebuild -version)
-echo '================='
+
+function install_depends() {
+    local name="$1"
+    local r=$(brew list | grep "$name")
+    if [[ $r != '' ]]; then
+        echo "[✅] ${name} is right."
+    else
+        echo "will use brew install ${name}."
+        brew install "$name"
+    fi
+}
 
 function init_env () {
     
-    case $1 in
-        'x86_64')
-            export XCRUN_PLATFORM='iPhoneSimulator'
-            export XC_DEPLOYMENT_TARGET='-mios-simulator-version-min=9.0'
-        ;;
-        'arm64')
-            export XCRUN_PLATFORM='iPhoneOS'
-            export XC_DEPLOYMENT_TARGET='-miphoneos-version-min=9.0'
-        ;;
-    esac
+    if [[ -z "$XC_PLAT" ]]; then
+        echo "XC_PLAT can't be nil."
+        exit 1
+    fi
+
+    if [[ "$XC_PLAT" == 'ios' ]]; then
+        case $1 in
+            'x86_64')
+                export XCRUN_PLATFORM='iPhoneSimulator'
+                export XC_DEPLOYMENT_TARGET='-mios-simulator-version-min=9.0'
+            ;;
+            'arm64')
+                export XCRUN_PLATFORM='iPhoneOS'
+                export XC_DEPLOYMENT_TARGET='-miphoneos-version-min=9.0'
+            ;;
+        esac
+        export XC_OTHER_CFLAGS='-fembed-bitcode -Os'
+    else
+        export XCRUN_PLATFORM='MacOSX'
+        export MACOSX_DEPLOYMENT_TARGET=10.11
+        export XC_DEPLOYMENT_TARGET="-mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
+        export XC_OTHER_CFLAGS='-Os'
+    fi
 
     #common xcode configuration
     export XC_TAGET_OS="darwin"
     export DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
-
+    
     # macosx
     export XCRUN_SDK=`echo $XCRUN_PLATFORM | tr '[:upper:]' '[:lower:]'`
     # xcrun -sdk macosx clang 
@@ -69,4 +90,6 @@ function init_env () {
     export XCRUN_SDK_PATH=`xcrun -sdk $XCRUN_SDK --show-sdk-path`
 }
 
+export -f install_depends
 export -f init_env
+export ALL_ARCHS="x86_64 arm64"
