@@ -15,14 +15,11 @@ jobs:
         uses: actions/checkout@v3
       - name: do compile libs
         run: | 
-            ./init-any.sh macos
-            cd macos
-            ./compile-any.sh build libyuv
-      - name: Install zip
-        uses: montudor/action-zip@v1
-      - name: Zip output
-        run: zip -qq -r macos-universal.zip universal
-        working-directory: ../build/product/macos/universal
+            # ./init-any.sh macos libyuv x86_64
+            # cd macos
+            # ./compile-any.sh build libyuv x86_64
+            # ./compile-any.sh lipo libyuv
+            zip -rq macos-universal.zip init-cfgs
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
