@@ -1,0 +1,16 @@
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  compile:
+    name: compile all libs
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: do compile libs
+        run: | 
+            ./init-any.sh macos && cd macos && ./compile-any.sh build all
