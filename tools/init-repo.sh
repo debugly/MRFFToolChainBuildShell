@@ -63,10 +63,6 @@ function pull_common() {
         else
             git fetch --all --tags    
         fi
-        # fix fatal: 'stable' is not a commit and a branch 'localBranch' cannot be created from it
-        git checkout ${GIT_COMMIT}
-        git checkout -B localBranch
-        cd - > /dev/null
     else
         if [[ "$SKIP_PULL_BASE" ]];then
             echo "== local repo $REPO_DIR not exist,must clone by net firstly. =="
@@ -74,9 +70,14 @@ function pull_common() {
             exit -1
         else
             git clone $GIT_UPSTREAM $GIT_LOCAL_REPO
-            git -C $GIT_LOCAL_REPO checkout ${GIT_COMMIT} -B localBranch
+            cd "$GIT_LOCAL_REPO"
         fi
     fi
+    
+    # fix fatal: 'stable' is not a commit and a branch 'localBranch' cannot be created from it
+    git checkout ${GIT_COMMIT}
+    git checkout -B localBranch
+    cd - > /dev/null
 }
 
 function apply_patches()
