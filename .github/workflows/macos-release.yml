@@ -4,12 +4,14 @@ on:
   pull_request:
     branches: [ master ]
 
+name: Create Release
+
 jobs:
-  compile:
+  build:
     name: compile all libs
     runs-on: macos-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
       - name: do compile libs
         run: | 
