@@ -24,5 +24,5 @@ else
 fi
 
 export GIT_LOCAL_REPO=extra/libyuv
-export GIT_COMMIT=master
+export GIT_COMMIT=main
 export REPO_DIR=libyuv
