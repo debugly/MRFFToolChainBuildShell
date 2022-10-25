@@ -27,45 +27,39 @@ env_assert "XC_BUILD_PREFIX"
 env_assert "XC_BUILD_NAME"
 env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
+env_assert "XCRUN_CC"
 echo "ARGV:$*"
 echo "===check env end==="
 
 # prepare build config
-X264_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --includedir=$XC_BUILD_PREFIX/include/x264"
-X264_CFG_FLAGS="$X264_CFG_FLAGS --disable-lsmash --disable-swscale --disable-ffms --enable-static --enable-pic --disable-cli --enable-strip"
+DAV1D_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --buildtype release --default-library static"
+CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
-CFLAG="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET"
-CC="$XCRUN_CC"
-
-# cross
-if [[ $(uname -m) != "$XC_ARCH" ]];then
-    echo "[*] cross compile, on $(uname -m) compile $XC_ARCH."
-    HOST="--host=$XC_ARCH-apple-darwin"
-    CFLAG="$CFLAG -isysroot $XCRUN_SDK_PATH"
-fi
-
-#--------------------
-echo "\n--------------------"
-echo "[*] configurate $LIB_NAME"
-echo "--------------------"
+echo "----------------------"
+echo "[*] compile $LIB_NAME"
+echo "CC: $XCRUN_CC"
+echo "DAV1D_CFG_FLAGS: $DAV1D_CFG_FLAGS"
+echo "CFLAGS: $CFLAGS"
+echo "----------------------"
+echo
 
 cd $XC_BUILD_SOURCE
-# Makefile already in git,so configure everytime compile
-echo "CC: $CC"
-echo "CFLAG: $CFLAG"
-echo "CFG: $X264_CFG_FLAGS"
-echo 
+export CC="$XCRUN_CC"
+export CXX="$XCRUN_CXX"
 
-./configure $X264_CFG_FLAGS \
-    $HOST \
-    --extra-cflags="$CFLAG" \
-    --extra-ldflags="$CFLAG"
-    # --extra-asflags="$ASFLAG" \
+if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]]; then
+   echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
+   # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
+   CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
+   BLURAY_CFG_FLAGS="$BLURAY_CFG_FLAGS --host=$XC_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
+   DAV1D_CFG_FLAGS="$DAV1D_CFG_FLAGS --cross-file package/crossfiles/$XC_ARCH-macos.meson"
+fi
 
+if [[ -d build ]]; then
+   rm -rf build
+fi
 
-#--------------------
-echo "\n--------------------"
-echo "[*] compile $LIB_NAME"
-echo "--------------------"
+meson setup build $DAV1D_CFG_FLAGS >/dev/null
 
-make install -j4
+ninja -C build
+ninja -C build install

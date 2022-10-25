@@ -30,7 +30,7 @@ SHELL_DIR="$PWD"
 
 function usage() {
     echo " useage:"
-    echo "  $0 [ios|macos] [build|lipo|clean] [all|fdk-aac|ffmpeg|lame|libyuv|openssl|opus|x264] [arm64|x86_64|all] [opts...]"
+    echo "  $0 [ios|macos] [build|lipo|clean] [all|ffmpeg|libyuv|openssl|opus|dav1d|bluray|fdk-aac|lame|x264] [arm64|x86_64|all] [opts...]"
 }
 
 if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' ]]; then
@@ -42,7 +42,12 @@ fi
 source 'init-env.sh'
 
 if [[ -z "$LIBS" || "$LIBS" == "all" ]]; then
-    LIBS=$(cat compile-cfgs/list.txt)
+    list='compile-cfgs/list.txt'
+    #use plat list
+    if [[ -f "compile-cfgs/list_${PLAT}.txt" ]]; then
+        list="compile-cfgs/list_${PLAT}.txt"   
+    fi
+    LIBS=$(cat $list)
 fi
 
 if [[ -z "$ARCH" || "$ARCH" == 'all' ]]; then

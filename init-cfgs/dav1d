@@ -14,10 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# 
-# brew install nasm
-# If you really want to compile without asm, configure with --disable-asm.
 
-export LIB_NAME='ffmpeg'
-export LIPO_LIBS="libavcodec libavformat libavutil libswscale libswresample" #libavfilter libavdevice
-export LIB_DEPENDS_BIN="nasm"
+# you can export GIT_DAV1D_UPSTREAM=git@xx:yy/dav1d.git use your mirror
+if [[ "$GIT_DAV1D_UPSTREAM" != "" ]] ;then
+    export GIT_UPSTREAM="$GIT_DAV1D_UPSTREAM"
+else
+    export GIT_UPSTREAM=https://code.videolan.org/videolan/dav1d.git
+fi
+
+export GIT_LOCAL_REPO=extra/dav1d
+export GIT_COMMIT=1.0.0
+export GIT_WITH_SUBMODULE=0
+export REPO_DIR=dav1d

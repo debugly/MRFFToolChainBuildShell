@@ -14,36 +14,101 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# if you want skip pull base form net, you can export SKIP_PULL_BASE=1
 
 set -e
+
+source $1
 
 TOOLS=$(dirname "$0")
 source ${TOOLS}/env_assert.sh
 
 echo "===check env begin==="
-echo "argv:$*"
+echo "argv:[$*]"
 env_assert "GIT_UPSTREAM"
 env_assert "GIT_LOCAL_REPO"
 env_assert "GIT_COMMIT"
 env_assert "REPO_DIR"
 echo "===check env end==="
 
-iOS_ARCHS="x86_64 arm64"
-macOS_ARCHS="x86_64 arm64"
+PLAT=$2
+ARCH=$3
+
+if [[ "$ARCH" == 'all' || "x$ARCH" == 'x' ]];then
+    iOS_ARCHS="x86_64 arm64"
+    macOS_ARCHS="x86_64 arm64"
+elif [[ "$ARCH" == 'x86_64' || "$ARCH" == 'arm64' ]];then
+    iOS_ARCHS="$ARCH"
+    macOS_ARCHS="$ARCH"
+else
+    echo "wrong arch:[$ARCH], can't init repo."
+    exit -1
+fi
 
 function pull_common() {
     echo "== pull $REPO_DIR base =="
-    sh $TOOLS/pull-repo-base.sh $GIT_UPSTREAM $GIT_LOCAL_REPO
+    if [[ -d "$GIT_LOCAL_REPO" ]];then
+        cd "$GIT_LOCAL_REPO"
+        [[ -d .git/rebase-apply ]] && git am --skip
+        git reset --hard
+
+        local origin=$(git remote get-url origin)
+        if [[ "$origin" != "$GIT_UPSTREAM" ]]; then
+            git remote remove origin
+            git remote add origin "$GIT_UPSTREAM"
+            echo "force update origin to: $GIT_UPSTREAM"
+        fi
+        if [[ "$SKIP_PULL_BASE" ]];then
+            echo "skip pull $REPO_DIR because you set SKIP_PULL_BASE env."
+        else
+            git fetch --all --tags    
+        fi
+        # fix fatal: 'stable' is not a commit and a branch 'localBranch' cannot be created from it
+        git checkout ${GIT_COMMIT}
+        git checkout -B localBranch
+        cd - > /dev/null
+    else
+        if [[ "$SKIP_PULL_BASE" ]];then
+            echo "== local repo $REPO_DIR not exist,must clone by net firstly. =="
+            echo "try:unset SKIP_PULL_BASE"
+            exit -1
+        else
+            git clone $GIT_UPSTREAM $GIT_LOCAL_REPO
+            git -C $GIT_LOCAL_REPO checkout ${GIT_COMMIT} -B localBranch
+        fi
+    fi
 }
 
-function pull_fork() {
-    local dir="build/src/$1/$REPO_DIR-$2"
-    echo "== pull $REPO_DIR fork to $dir =="
-    
-    sh $TOOLS/pull-repo-ref.sh $GIT_UPSTREAM $dir ${GIT_LOCAL_REPO}
-    cd $dir
-    git checkout ${GIT_COMMIT} -B localBranch
-    echo "[last commit]"$(git log -1 --pretty=format:"%h:%s:%ce:%cd")
+function apply_patches()
+{
+    local plat="$1"
+    local patch_dir="${TOOLS}/../extra/patches/$REPO_DIR"
+    if [[ -d "${patch_dir}_${plat}" ]];then
+        patch_dir="${patch_dir}_${plat}"
+    fi
+    if [[ -d "$patch_dir" ]];then
+        echo
+        echo "== Applying patches: $(basename $patch_dir) → $(basename $PWD) =="
+        git am $patch_dir/*.patch
+        if [[ $? -ne 0 ]]; then
+            echo 'Apply patches failed!'
+            git am --skip
+            exit 1
+        fi
+        echo
+    fi
+}
+
+function make_arch_repo() {
+    local dest_repo="build/src/$1/$REPO_DIR-$2"
+    echo "== copy $REPO_DIR → $dest_repo =="
+    $TOOLS/copy-local-repo.sh $GIT_LOCAL_REPO $dest_repo
+    cd $dest_repo
+    if [[ "$GIT_WITH_SUBMODULE" ]]; then
+        git submodule update --init --depth=1
+    fi
+    echo "last commit:"$(git log -1 --pretty=format:"[%h] %s:%ce %cd")
+    apply_patches $1
     cd - > /dev/null
 }
 
@@ -59,9 +124,9 @@ function main() {
             found=0
             for arch in $iOS_ARCHS
             do
-                if [[ "$2" == "$arch" || "x$2" == "x" ]];then
+                if [[ "$2" == "$arch" || "x$2" == "x" || "$2" == "all" ]];then
                     found=1
-                    pull_fork 'ios' $arch
+                    make_arch_repo 'ios' $arch
                 fi
             done
 
@@ -76,9 +141,9 @@ function main() {
             found=0
             for arch in $macOS_ARCHS
             do
-                if [[ "$2" == "$arch" || "x$2" == "x" ]];then
+                if [[ "$2" == "$arch" || "x$2" == "x" || "$2" == "all" ]];then
                     found=1
-                    pull_fork 'macos' $arch
+                    make_arch_repo 'macos' $arch
                 fi
             done
 
@@ -91,12 +156,12 @@ function main() {
             pull_common
             for arch in $iOS_ARCHS
             do
-                pull_fork 'ios' $arch
+                make_arch_repo 'ios' $arch
             done
 
             for arch in $macOS_ARCHS
             do
-                pull_fork 'macos' $arch
+                make_arch_repo 'macos' $arch
             done
         ;;
 
@@ -107,4 +172,4 @@ function main() {
     esac
 }
 
-main $*
+main $PLAT $ARCH

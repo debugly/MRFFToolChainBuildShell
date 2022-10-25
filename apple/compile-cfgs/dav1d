@@ -15,9 +15,8 @@
 # limitations under the License.
 #
 # 
-# brew install nasm
-# If you really want to compile without asm, configure with --disable-asm.
+# 
 
-export LIB_NAME='ffmpeg'
-export LIPO_LIBS="libavcodec libavformat libavutil libswscale libswresample" #libavfilter libavdevice
-export LIB_DEPENDS_BIN="nasm"
+export LIB_NAME='dav1d'
+export LIPO_LIBS="libdav1d"
+export LIB_DEPENDS_BIN="meson ninja nasm"

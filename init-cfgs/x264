@@ -23,5 +23,5 @@ else
 fi
 
 export GIT_LOCAL_REPO=extra/x264
-export GIT_COMMIT=origin/stable
+export GIT_COMMIT=stable
 export REPO_DIR=x264

@@ -14,10 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# 
-# brew install nasm
-# If you really want to compile without asm, configure with --disable-asm.
+# copy local repo from $1 to $2，just contain lastest commit. 
 
-export LIB_NAME='ffmpeg'
-export LIPO_LIBS="libavcodec libavformat libavutil libswscale libswresample" #libavfilter libavdevice
-export LIB_DEPENDS_BIN="nasm"
+if [[ -z $1 || -z $2 ]]; then
+    echo "invalid argvs for $0"
+    exit -1
+fi
+
+function main() {
+    local src_repo=$1
+    local dest_repo=$2
+    
+    cd $src_repo
+    local full_src_repo_path="file://"$(PWD)
+    cd - >/dev/null
+
+    if [[ -d $dest_repo ]]; then
+        rm -rf "$dest_repo"
+    fi
+
+    # clone local repo.
+    git clone -b localBranch "$full_src_repo_path" $dest_repo --depth=1
+}
+
+main $*

@@ -15,9 +15,13 @@
 # limitations under the License.
 #
 # 
+# 
 # brew install nasm
 # If you really want to compile without asm, configure with --disable-asm.
 
-export LIB_NAME='ffmpeg'
-export LIPO_LIBS="libavcodec libavformat libavutil libswscale libswresample" #libavfilter libavdevice
-export LIB_DEPENDS_BIN="nasm"
+# LIB_DEPENDS_BIN using string because bash can't export array chttps://stackoverflow.com/questions/5564418/exporting-an-array-in-bash-script
+# configure: error: Package requirements (openssl) were not met
+
+export LIB_NAME='x264'
+export LIPO_LIBS="libx264"
+export LIB_DEPENDS_BIN="autoconf automake libtool pkg-config"

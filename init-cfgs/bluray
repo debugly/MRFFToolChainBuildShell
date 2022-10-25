@@ -14,10 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# 
-# brew install nasm
-# If you really want to compile without asm, configure with --disable-asm.
 
-export LIB_NAME='ffmpeg'
-export LIPO_LIBS="libavcodec libavformat libavutil libswscale libswresample" #libavfilter libavdevice
-export LIB_DEPENDS_BIN="nasm"
+# you can export GIT_BLURAY_UPSTREAM=git@xx:yy/libbluray.git use your mirror
+if [[ "$GIT_BLURAY_UPSTREAM" != "" ]] ;then
+    export GIT_UPSTREAM="$GIT_BLURAY_UPSTREAM"
+else
+    export GIT_UPSTREAM=https://code.videolan.org/videolan/libbluray.git
+fi
+
+export GIT_LOCAL_REPO=extra/bluray
+export GIT_COMMIT=1.3.1
+export GIT_WITH_SUBMODULE=1
+export REPO_DIR=bluray

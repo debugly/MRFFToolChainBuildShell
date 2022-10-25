@@ -31,6 +31,7 @@ env_assert "XC_BUILD_NAME"
 env_assert "XC_BUILD_SOURCE"
 env_assert "XC_BUILD_PREFIX"
 env_assert "XC_DEPLOYMENT_TARGET"
+env_assert "XCRUN_CC"
 echo "ARGV:$*"
 echo "===check env end==="
 
@@ -79,12 +80,7 @@ if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]];then
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-cross-compile"
 fi
 
-if [[ "$XC_FORCE_CROSS" ]];then
-    #only desktop compile programs
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-ffmpeg --disable-ffprobe"
-else
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-ffmpeg --enable-ffprobe"
-fi
+FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --pkg-config-flags=--static"
 
 FFMPEG_LDFLAGS="$FFMPEG_C_FLAGS"
 FFMPEG_DEP_LIBS=
@@ -132,7 +128,7 @@ echo "[*] check fdk-aac"
 #----------------------
 # with fdk-aac
 if [[ -f "${XC_PRODUCT_ROOT}/fdk-aac-$XC_ARCH/lib/pkgconfig/fdk-aac.pc" ]]; then
-    # libx264 is gpl and --enable-gpl is not specified.
+
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-nonfree --enable-libfdk-aac"
     
     export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${XC_PRODUCT_ROOT}/fdk-aac-$XC_ARCH/lib/pkgconfig"
@@ -170,13 +166,41 @@ echo "[*] check opus"
 # with opus
 if [[ -f "${XC_PRODUCT_ROOT}/opus-$XC_ARCH/lib/pkgconfig/opus.pc" ]]; then
     
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libopus"
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libopus --enable-decoder=opus"
     
     export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${XC_PRODUCT_ROOT}/opus-$XC_ARCH/lib/pkgconfig"
 
-    echo "[*] --enable-libopus"
+    echo "[*] --enable-libopus --enable-decoder=opus"
 else
     echo "[*] --disable-libopus"
+fi
+echo "------------------------"
+
+#----------------------
+# with bluray
+if [[ -f "${XC_PRODUCT_ROOT}/bluray-$XC_ARCH/lib/pkgconfig/libbluray.pc" ]]; then
+    
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
+    
+    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${XC_PRODUCT_ROOT}/bluray-$XC_ARCH/lib/pkgconfig"
+
+    echo "[*] --enable-libbluray --enable-protocol=bluray"
+else
+    echo "[*] --disable-libbluray --disable-protocol=bluray"
+fi
+echo "------------------------"
+
+#----------------------
+# FFmpeg 4.2 支持AV1、AVS2等格式
+# dav1d由VideoLAN，VLC和FFmpeg联合开发，项目由AOM联盟赞助，和libaom相比，dav1d性能普遍提升100%，最高提升400%
+if [[ -f "${XC_PRODUCT_ROOT}/dav1d-$XC_ARCH/lib/pkgconfig/dav1d.pc" ]]; then
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-decoder=av1 --enable-libdav1d"
+    
+    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:${XC_PRODUCT_ROOT}/dav1d-$XC_ARCH/lib/pkgconfig"
+
+    echo "[*] --enable-decoder=av1 --enable-libdav1d"
+else
+    echo "[*] --disable-decoder=av1 --disable-libdav1d"
 fi
 echo "------------------------"
 
@@ -230,3 +254,5 @@ cp config.* $XC_BUILD_PREFIX
 make install -j8 1>/dev/null
 mkdir -p $XC_BUILD_PREFIX/include/libffmpeg
 cp -f config.h $XC_BUILD_PREFIX/include/libffmpeg/config.h
+# copy private header.
+#cp -f $XC_BUILD_SOURCE/libavformat/avc.h $XC_BUILD_PREFIX/include/libavformat/avc.h
