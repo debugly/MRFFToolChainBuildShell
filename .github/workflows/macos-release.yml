@@ -15,7 +15,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Read Tag Version
         run: |
-            git describe --tags | awk -F . '{printf "RELEASE_VERSION=%s.%d",$1,$2+1}' | xargs echo > constants.env
+            # https://stackoverflow.com/questions/4916492/git-describe-fails-with-fatal-no-names-found-cannot-describe-anything
+            git describe --tags --always | awk -F . '{printf "RELEASE_VERSION=%s.%d",$1,$2+1}' | xargs echo > constants.env
             cat constants.env
       - name: Export Env
         uses: cardinalby/export-env-action@v2
