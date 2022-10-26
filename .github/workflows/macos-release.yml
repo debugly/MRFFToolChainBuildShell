@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Read Tag Version
         run: |
-            v=`echo $(git describe --tags) | awk -F . '{printf "%s.%d",$1,$2+1}'`
+            v=$(echo $(git describe --tags) | awk -F . '{printf "%s.%d",$1,$2+1}')
             echo "RELEASE_VERSION=$v"
             echo "RELEASE_VERSION=$v" > constants.env
       - name: Export Env
