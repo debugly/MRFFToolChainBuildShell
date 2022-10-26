@@ -15,9 +15,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Read Tag Version
         run: |
-            v=$(echo $(git describe --tags) | awk -F . '{printf "%s.%d",$1,$2+1}')
-            echo "RELEASE_VERSION=$v"
-            echo "RELEASE_VERSION=$v" > constants.env
+            git describe --tags | awk -F . '{printf "RELEASE_VERSION=%s.%d",$1,$2+1}' | xargs echo > constants.env
+            cat constants.env
       - name: Export Env
         uses: cardinalby/export-env-action@v2
         with:
