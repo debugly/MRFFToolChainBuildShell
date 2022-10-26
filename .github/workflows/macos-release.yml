@@ -21,7 +21,7 @@ jobs:
             ./compile-any.sh lipo libyuv
             cd ../build/product/macos/universal
             echo "pwd:$PWD"
-            zip -rq macos-universal.zip ./init-cfgs/*
+            zip -rq macos-universal.zip . -i ./init-cfgs/*
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
