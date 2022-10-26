@@ -8,7 +8,7 @@ name: Create Release
 
 jobs:
   build:
-    name: compile all libs
+    name: compile macos libs then deploy
     runs-on: macos-latest
     steps:
       - name: Checkout code
@@ -38,6 +38,7 @@ jobs:
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
         with:
           tag_name: $RELEASE_VERSION
           release_name: Release $RELEASE_VERSION
@@ -48,6 +49,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
           asset_path: build/product/macos/universal/macos-universal.zip
