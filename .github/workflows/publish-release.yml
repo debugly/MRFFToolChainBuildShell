@@ -25,22 +25,20 @@ jobs:
           envFile: 'constants.env'
       - name: do compile macos libs
         run: | 
-            ./init-any.sh macos libyuv
+            ./init-any.sh macos
             cd macos
-            ./compile-any.sh build libyuv
-            ./compile-any.sh lipo libyuv
+            ./compile-any.sh build 
+            ./compile-any.sh lipo
       - name: Zip macos libs
         run: |             
             cd build/product/macos/universal
-            # github action must be use " . -i "
-            zip -v
             zip -rq macos-universal.zip ./*
       - name: do compile ios libs
         run: | 
-            ./init-any.sh ios libyuv
+            ./init-any.sh ios
             cd ios
-            ./compile-any.sh build libyuv
-            ./compile-any.sh lipo libyuv
+            ./compile-any.sh build
+            ./compile-any.sh lipo
       - name: Zip ios libs
         run: |             
             cd build/product/ios/universal
