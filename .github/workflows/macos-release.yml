@@ -33,7 +33,8 @@ jobs:
         run: |             
             cd build/product/macos/universal
             # github action must be use " . -i "
-            zip -r macos-universal.zip . -i ./*
+            zip -v
+            zip -r macos-universal.zip ./*
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
