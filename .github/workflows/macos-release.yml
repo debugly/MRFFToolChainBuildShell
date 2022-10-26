@@ -18,7 +18,7 @@ jobs:
             v=`echo $(git describe --tags) | awk -F . '{printf "%s.%d",$1,$2+1}'`
             echo "RELEASE_VERSION="$v" > constants.env
       - name: Export Env
-      - uses: cardinalby/export-env-action@v2
+        uses: cardinalby/export-env-action@v2
         with:
           envFile: 'constants.env'
       - name: do compile libs
