@@ -21,15 +21,17 @@ jobs:
             ./compile-any.sh lipo libyuv
             cd ../build/product/macos/universal
             echo "pwd:$PWD"
-            zip -rq macos-universal.zip . -i ./init-cfgs/*
+            zip -rq macos-universal.zip . -i ./universal/*
+            v=`echo $(git describe --tags)  | awk -F . '{printf "%s.%d",$1,$2+1}'`
+            export RELEASE_VERSION="$v"
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v1.0
-          release_name: Release v1.0
+          tag_name: ${RELEASE_VERSION}
+          release_name: Release ${RELEASE_VERSION}
           draft: false
           prerelease: false
       - name: Upload Release Asset
@@ -39,6 +41,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./macos-universal.zip
-          asset_name: "macos-universal-v1.0.zip"
+          asset_path: build/product/macos/universal/macos-universal.zip
+          asset_name: "macos-universal-${RELEASE_VERSION}.zip"
           asset_content_type: application/zip
