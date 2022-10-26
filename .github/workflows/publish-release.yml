@@ -56,7 +56,6 @@ jobs:
           draft: false
           prerelease: false
       - name: Upload macos Release Asset
-        id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -66,7 +65,6 @@ jobs:
           asset_name: "macos-universal-${{ env.RELEASE_VERSION }}.zip"
           asset_content_type: application/zip
       - name: Upload ios Release Asset
-        id: upload-release-asset 
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
