@@ -29,9 +29,11 @@ jobs:
             cd macos
             ./compile-any.sh build libyuv
             ./compile-any.sh lipo libyuv
-            cd ../build/product/macos/universal
+      - name: Zip libs
+        run: |             
+            cd build/product/macos/universal
             # github action must be use " . -i "
-            zip -rq macos-universal.zip . -i ./universal/*
+            zip -r macos-universal.zip . -i ./*
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
