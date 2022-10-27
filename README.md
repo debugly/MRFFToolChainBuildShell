@@ -2,7 +2,7 @@
 
 **What's MRFFToolChain?**
 
-MRFFToolChain products was built for my FFmepg tutorial : https://github.com/debugly/FFmpegTutorial.
+MRFFToolChain products was built for my FFmepg tutorial : [https://github.com/debugly/FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
 
 At present MRFFToolChain contained OpenSSL、FFmpeg 、libyuv、libopus、libbluray、etc.
 
@@ -34,6 +34,7 @@ At present MRFFToolChain contained OpenSSL、FFmpeg 、libyuv、libopus、libblu
 │   ├── module-lite.sh
 │   └── module.sh -> module-full.sh
 ├── init-any.sh     #初始化源码仓库
+├── download-pre.sh #从github下载预编好的库
 ├── init-cfgs       #三方库的配置，包括库名，git仓库地址等信息
 │   ├── bluray
 │   ├── dav1d
@@ -51,6 +52,19 @@ At present MRFFToolChain contained OpenSSL、FFmpeg 、libyuv、libopus、libblu
     ├── init-repo.sh
     ├── pull-repo-base.sh
     └── pull-repo-ref.sh
+```
+
+## ## Download Pre Compiled
+
+可以跳过自己编译，直接从github上下载预编译好的库，节省时间！
+
+```bash
+#下载 iOS 平台的预编译库
+./download-pre.sh ios
+#下载 macOS 平台的预编译库
+./download-pre.sh macos
+#下载 ios 和 macOS 平台的预编译库
+./download-pre.sh all
 ```
 
 ## Init Lib Repo
@@ -132,14 +146,14 @@ cd macos
 
 如果 github 上的仓库克隆较慢，或者需要使用内网私有仓库，可在执行编译脚本前声明对应的环境变量！
 
-| 名称  | 默认仓库 | 使用镜像 |
-| --- | --- | --- |
-| FFmpeg | https://github.com/bilibili/FFmpeg.git | export GIT_FFMPEG_UPSTREAM=git@xx:yy/ffmpeg.git |
-| libYUV | https://github.com/lemenkov/libyuv.git | export GIT_FDK_UPSTREAM=git@xx:yy/libyuv.git |
-| OpenSSL | https://github.com/openssl/openssl.git | export GIT_OPUS_UPSTREAM=git@xx:yy/openssl.git |
-| Opus | [Xiph.Org / Opus · GitLab](https://gitlab.xiph.org/xiph/opus.git) | export GIT_OPUS_UPSTREAM=git@xx:yy/opusfile.git |
-| libbluray | [VideoLAN / libbluray · GitLab](https://code.videolan.org/videolan/libbluray.git) | export GIT_BLURAY_UPSTREAM=git@xx:yy/libbluray.git |
-| dav1d | https://code.videolan.org/videolan/dav1d.git | GIT_DAV1D_UPSTREAM=git@xx:yy/dav1d.git |
+| 名称        | 默认仓库                                             | 使用镜像                                               |
+| --------- | ------------------------------------------------ | -------------------------------------------------- |
+| FFmpeg    | https://github.com/bilibili/FFmpeg.git           | export GIT_FFMPEG_UPSTREAM=git@xx:yy/ffmpeg.git    |
+| libYUV    | https://github.com/lemenkov/libyuv.git           | export GIT_FDK_UPSTREAM=git@xx:yy/libyuv.git       |
+| OpenSSL   | https://github.com/openssl/openssl.git           | export GIT_OPUS_UPSTREAM=git@xx:yy/openssl.git     |
+| Opus      | https://gitlab.xiph.org/xiph/opus.git            | export GIT_OPUS_UPSTREAM=git@xx:yy/opusfile.git    |
+| libbluray | https://code.videolan.org/videolan/libbluray.git | export GIT_BLURAY_UPSTREAM=git@xx:yy/libbluray.git |
+| dav1d     | https://code.videolan.org/videolan/dav1d.git     | GIT_DAV1D_UPSTREAM=git@xx:yy/dav1d.git             |
 
 ## Platform Configuration
 
