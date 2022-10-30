@@ -54,18 +54,20 @@ At present MRFFToolChain contained OpenSSL、FFmpeg 、libyuv、libopus、libblu
     └── pull-repo-ref.sh
 ```
 
-## ## Download Pre Compiled
+## Download Precompiled Edition
 
 可以跳过自己编译，直接从github上下载预编译好的库，节省时间！
+预编译库分为 ijk 版和 github 版，其区别是 ijk 版本打了 extra/patches/ffmpeg 目录下的补丁。
 
-```bash
-#下载 iOS 平台的预编译库
-./download-pre.sh ios
-#下载 macOS 平台的预编译库
-./download-pre.sh macos
-#下载 ios 和 macOS 平台的预编译库
-./download-pre.sh all
-```
+- 下载 ijk 版预编译库：./download-pre.sh ijk
+- 下载 github 版预编译库：./download-pre.sh github
+
+可指定平台:
+
+- 下载 ijk 版 iOS 平台的预编译库：./download-pre.sh ijk ios
+- 下载 ijk 版 macOS 平台的预编译库：./download-pre.sh ijk macos
+- 下载 github 版 iOS 平台的预编译库：./download-pre.sh github ios
+- 下载 github 版 macOS 平台的预编译库：./download-pre.sh github macos
 
 ## Init Lib Repo
 
@@ -165,10 +167,3 @@ cd macos
 1、如果不同的平台需要编译不同的库，只需要在 apple/compile-cfgs 目录下，建立 list_PLAT.txt 文件即可，PLAT 为对应的平台，比如 ios,macos 等；默认情况下按照 list.txt 里声明的顺序编译各个库。
 
 2、ffmpeg 的配置需要分平台指定，只需要在 ffconfig 目录下创建 module_PLAT.sh 文件即可，PLAT 为对应的平台，比如 ios,macos 等；默认情况下根据 module.sh 声明的配置进行编译 ffmpeg。
-
-## Precompiled Edition
-
-预编译库分为 ijk 版和 github 版，其区别是 ijk 版本打了 extra/patches/ffmpeg 目录下的补丁。
-
-- 下载 ijk 版预编译库：./download-pre.sh ijk
-- 下载 github 版预编译库：./download-pre.sh github

@@ -22,7 +22,7 @@ PLAT=$2
 VER=$3
 
 if test -z $VER ;then
-    VER='V1.0-104be8c'
+    VER='V1.0-50fc6d2'
 fi
 
 if test -z $PLAT ;then
@@ -43,9 +43,10 @@ function download() {
     echo "===[download $plat $EDITION $VER]===================="
     mkdir -p build/pre
     cd build/pre
-    local fname="$plat-universal-$EDITION-$VER.zip"
-    echo "https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$VER/$fname"
-    curl -LO https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$VER/$fname
+    local fname="$plat-universal-$VER-$EDITION.zip"
+    local url="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$VER-$EDITION/$fname"
+    echo "$url"
+    curl -LO "$url"
     mkdir -p ../product/$plat/universal
     unzip -oq $fname -d ../product/$plat/universal
     tree -L 2 ../product/$plat/universal
