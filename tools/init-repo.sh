@@ -37,7 +37,7 @@ ARCH=$3
 if [[ "$ARCH" == 'all' || "x$ARCH" == 'x' ]];then
     iOS_ARCHS="x86_64 arm64"
     macOS_ARCHS="x86_64 arm64"
-elif [[ "$ARCH" == 'x86_64' || "$ARCH" == 'arm64' ]];then
+    elif [[ "$ARCH" == 'x86_64' || "$ARCH" == 'arm64' ]];then
     iOS_ARCHS="$ARCH"
     macOS_ARCHS="$ARCH"
 else
@@ -51,7 +51,7 @@ function pull_common() {
         cd "$GIT_LOCAL_REPO"
         [[ -d .git/rebase-apply ]] && git am --skip
         git reset --hard
-
+        
         local origin=$(git remote get-url origin)
         if [[ "$origin" != "$GIT_UPSTREAM" ]]; then
             git remote remove origin
@@ -61,7 +61,7 @@ function pull_common() {
         if [[ "$SKIP_PULL_BASE" ]];then
             echo "skip pull $REPO_DIR because you set SKIP_PULL_BASE env."
         else
-            git fetch --all --tags    
+            git fetch --all --tags
         fi
     else
         if [[ "$SKIP_PULL_BASE" ]];then
@@ -82,8 +82,14 @@ function pull_common() {
 
 function apply_patches()
 {
+    if [[ "$SKIP_FFMPEG_PATHCHES" && $REPO_DIR == 'ffmpeg' ]];then
+        echo "skip apply $REPO_DIR patches,because you set SKIP_FFMPEG_PATHCHES env."
+        return    
+    fi
+
     local plat="$1"
     local patch_dir="${TOOLS}/../extra/patches/$REPO_DIR"
+
     if [[ -d "${patch_dir}_${plat}" ]];then
         patch_dir="${patch_dir}_${plat}"
     fi
@@ -105,7 +111,7 @@ function make_arch_repo() {
     echo "== copy $REPO_DIR → $dest_repo =="
     $TOOLS/copy-local-repo.sh $GIT_LOCAL_REPO $dest_repo
     cd $dest_repo
-    if [[ "$GIT_WITH_SUBMODULE" ]]; then
+    if [[ "$GIT_WITH_SUBMODULE" ]];then
         git submodule update --init --depth=1
     fi
     echo "last commit:"$(git log -1 --pretty=format:"[%h] %s:%ce %cd")
@@ -130,12 +136,12 @@ function main() {
                     make_arch_repo 'ios' $arch
                 fi
             done
-
+            
             if [[ found -eq 0 ]];then
                 echo "unknown arch:$2 for $1"
             fi
         ;;
-
+        
         macOS|macos)
             
             pull_common
@@ -147,25 +153,25 @@ function main() {
                     make_arch_repo 'macos' $arch
                 fi
             done
-
+            
             if [[ found -eq 0 ]];then
                 echo "unknown arch:$2 for $1"
             fi
         ;;
-
+        
         all)
             pull_common
             for arch in $iOS_ARCHS
             do
                 make_arch_repo 'ios' $arch
             done
-
+            
             for arch in $macOS_ARCHS
             do
                 make_arch_repo 'macos' $arch
             done
         ;;
-
+        
         *)
             usage
             exit 1

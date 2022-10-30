@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [ master ]
 
-name: Create Release
+name: Create Release (Github Edition) 
 
 jobs:
   build:
@@ -18,6 +18,7 @@ jobs:
             # https://stackoverflow.com/questions/4916492/git-describe-fails-with-fatal-no-names-found-cannot-describe-anything
             # git describe --tags --always | awk -F . '{printf "RELEASE_VERSION=%s.%d",$1,$2+1}' | xargs echo > constants.env
             git describe --tags --always | awk -F - '{printf "RELEASE_VERSION=V1.0-%s",$NF}' | xargs echo > constants.env
+            echo 'EDITION=github' >> constants.env
             cat constants.env
       - name: Export Env
         uses: cardinalby/export-env-action@v2
@@ -25,6 +26,7 @@ jobs:
           envFile: 'constants.env'
       - name: do compile macos libs
         run: | 
+            export SKIP_FFMPEG_PATHCHES=1
             ./init-any.sh macos
             cd macos
             ./compile-any.sh build 
@@ -35,6 +37,8 @@ jobs:
             zip -rq macos-universal.zip ./*
       - name: do compile ios libs
         run: | 
+            export SKIP_FFMPEG_PATHCHES=1
+            export SKIP_PULL_BASE=1
             ./init-any.sh ios
             cd ios
             ./compile-any.sh build
@@ -60,7 +64,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
           asset_path: build/product/macos/universal/macos-universal.zip
-          asset_name: "macos-universal-${{ env.RELEASE_VERSION }}.zip"
+          asset_name: "macos-universal-${{ env.EDITION }}-${{ env.RELEASE_VERSION }}.zip"
           asset_content_type: application/zip
       - name: Upload ios Release Asset
         uses: actions/upload-release-asset@v1
@@ -69,5 +73,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
           asset_path: build/product/ios/universal/ios-universal.zip
-          asset_name: "ios-universal-${{ env.RELEASE_VERSION }}.zip"
+          asset_name: "ios-universal-${{ env.EDITION }}-${{ env.RELEASE_VERSION }}.zip"
           asset_content_type: application/zip

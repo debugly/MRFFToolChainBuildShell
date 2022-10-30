@@ -1,0 +1,75 @@
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+name: Create Release (IJK Edition) 
+
+jobs:
+  build:
+    name: compile libs then deploy
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Read Tag Version
+        run: |
+            # https://stackoverflow.com/questions/4916492/git-describe-fails-with-fatal-no-names-found-cannot-describe-anything
+            # git describe --tags --always | awk -F . '{printf "RELEASE_VERSION=%s.%d",$1,$2+1}' | xargs echo > constants.env
+            git describe --tags --always | awk -F - '{printf "RELEASE_VERSION=V1.0-%s",$NF}' | xargs echo > constants.env
+            echo 'EDITION=ijk' >> constants.env
+            cat constants.env
+      - name: Export Env
+        uses: cardinalby/export-env-action@v2
+        with:
+          envFile: 'constants.env'
+      - name: do compile macos libs
+        run: | 
+            ./init-any.sh macos
+            cd macos
+            ./compile-any.sh build 
+            ./compile-any.sh lipo
+      - name: Zip macos libs
+        run: |             
+            cd build/product/macos/universal
+            zip -rq macos-universal.zip ./*
+      - name: do compile ios libs
+        run: | 
+            export SKIP_PULL_BASE=1
+            ./init-any.sh ios
+            cd ios
+            ./compile-any.sh build
+            ./compile-any.sh lipo
+      - name: Zip ios libs
+        run: |             
+            cd build/product/ios/universal
+            zip -rq ios-universal.zip ./*
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.RELEASE_VERSION }}
+          release_name: Release ${{ env.RELEASE_VERSION }}
+          draft: false
+          prerelease: false
+      - name: Upload macos Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: build/product/macos/universal/macos-universal.zip
+          asset_name: "macos-universal-${{ env.EDITION }}-${{ env.RELEASE_VERSION }}.zip"
+          asset_content_type: application/zip
+      - name: Upload ios Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: build/product/ios/universal/ios-universal.zip
+          asset_name: "ios-universal-${{ env.EDITION }}-${{ env.RELEASE_VERSION }}.zip"
+          asset_content_type: application/zip

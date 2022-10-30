@@ -88,6 +88,11 @@ At present MRFFToolChain contained OpenSSL、FFmpeg 、libyuv、libopus、libblu
 /init-all.sh all "openssl ffmpeg"
 ```
 
+高级选项：
+
+设置环境变量 export SKIP_FFMPEG_PATHCHES=1 不打 FFmpeg 补丁；
+设置环境变量 export SKIP_PULL_BASE=1 不从远程拉取最新代码；
+
 ## Compile
 
 根据编译的平台，进入相应的目录，比如编译 macos 平台：
@@ -160,3 +165,10 @@ cd macos
 1、如果不同的平台需要编译不同的库，只需要在 apple/compile-cfgs 目录下，建立 list_PLAT.txt 文件即可，PLAT 为对应的平台，比如 ios,macos 等；默认情况下按照 list.txt 里声明的顺序编译各个库。
 
 2、ffmpeg 的配置需要分平台指定，只需要在 ffconfig 目录下创建 module_PLAT.sh 文件即可，PLAT 为对应的平台，比如 ios,macos 等；默认情况下根据 module.sh 声明的配置进行编译 ffmpeg。
+
+## Precompiled Edition
+
+预编译库分为 ijk 版和 github 版，其区别是 ijk 版本打了 extra/patches/ffmpeg 目录下的补丁。
+
+- 下载 ijk 版预编译库：./download-pre.sh ijk
+- 下载 github 版预编译库：./download-pre.sh github

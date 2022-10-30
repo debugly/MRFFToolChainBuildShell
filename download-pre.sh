@@ -15,36 +15,55 @@
 # limitations under the License.
 #
 
-PLAT=$1
-VER=$2
+set -e
+
+EDITION=$1
+PLAT=$2
+VER=$3
 
 if test -z $VER ;then
     VER='V1.0-104be8c'
 fi
 
-set -e
+if test -z $PLAT ;then
+    PLAT='all'
+fi
 
 cd $(dirname "$0")
 c_dir="$PWD"
 
 function usage() {
     echo " useage:"
-    echo " $0 [ios,macos,all]"
+    echo "download precompiled ijk or github edition."
+    echo " $0 ijk|github [ios|macos|all] [<release tag>]"
 }
 
 function download() {
     local plat=$1
-    echo "===[download $plat $VER]===================="
+    echo "===[download $plat $EDITION $VER]===================="
     mkdir -p build/pre
     cd build/pre
-    echo "https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$VER/$plat-universal-$VER.zip"
-    curl -LO https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$VER/$plat-universal-$VER.zip
+    local fname="$plat-universal-$EDITION-$VER.zip"
+    echo "https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$VER/$fname"
+    curl -LO https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$VER/$fname
     mkdir -p ../product/$plat/universal
-    unzip -oq $plat-universal-$VER.zip -d ../product/$plat/universal
+    unzip -oq $fname -d ../product/$plat/universal
     tree -L 2 ../product/$plat/universal
     echo "===================================="
     cd - >/dev/null
 }
+
+if [[ "$EDITION" != 'ijk' && "$EDITION" != 'github' ]]; then
+    echo 'wrong edition,use ijk or github!'
+    usage
+    exit
+fi
+
+if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' && "$PLAT" != 'all' ]]; then
+    echo 'wrong plat,use ios or macos or all!'
+    usage
+    exit
+fi
 
 if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' ]]; then
     download $PLAT

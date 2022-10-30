@@ -38,6 +38,14 @@ function usage()
     echo " $0 [ios,macos,all] [all|fdk-aac|ffmpeg|lame|libyuv|openssl|opus|x264|bluray] [all,arm64,x86_64]"
 }
 
+if [[ "$SKIP_PULL_BASE" ]];then
+    echo "SKIP_PULL_BASE env recognized"
+fi
+
+if [[ "$SKIP_FFMPEG_PATHCHES" ]];then
+    echo "SKIP_FFMPEG_PATHCHES env recognized"
+fi
+
 if [[ "x$LIBS" == "x" || "$LIBS" == "all" ]]; then
     LIBS=$(ls init-cfgs)
 fi
