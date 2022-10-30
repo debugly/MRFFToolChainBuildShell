@@ -36,13 +36,13 @@ jobs:
     - name: do compile macos libs
       run: |
         cd macos
-        ./compile-any.sh build libyuv
-        ./compile-any.sh lipo libyuv
+        ./compile-any.sh build
+        ./compile-any.sh lipo
     - name: do compile ios libs
       run: |
         cd ios
-        ./compile-any.sh build libyuv
-        ./compile-any.sh lipo libyuv
+        ./compile-any.sh build
+        ./compile-any.sh lipo
     - name: Zip macos libs
       run: |
         cd build/product/macos/universal
@@ -57,8 +57,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.EDITION }}-${{ env.RELEASE_VERSION }}
-        release_name: Release ${{ env.EDITION }}-${{ env.RELEASE_VERSION }}
+        tag_name: ${{ env.RELEASE_VERSION }}-${{ env.EDITION }}
+        release_name: Release ${{ env.RELEASE_VERSION }}-${{ env.EDITION }}
         draft: false
         prerelease: false
     - name: Upload macos Release Asset
@@ -68,7 +68,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path: build/product/macos/universal/macos-universal.zip
-        asset_name: "macos-universal-${{ env.EDITION }}-${{ env.RELEASE_VERSION }}.zip"
+        asset_name: "macos-universal-${{ env.RELEASE_VERSION }}-${{ env.EDITION }}.zip"
         asset_content_type: application/zip
     - name: Upload ios Release Asset
       uses: actions/upload-release-asset@v1
@@ -77,7 +77,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path: build/product/ios/universal/ios-universal.zip
-        asset_name: "ios-universal-${{ env.EDITION }}-${{ env.RELEASE_VERSION }}.zip"
+        asset_name: "ios-universal-${{ env.RELEASE_VERSION }}-${{ env.EDITION }}.zip"
         asset_content_type: application/zip
     - name: Upload macos src md
       uses: actions/upload-release-asset@v1
@@ -86,7 +86,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path: build/src/macos-src-log.md
-        asset_name: "macos-src-log-${{ env.EDITION }}-${{ env.RELEASE_VERSION }}.md"
+        asset_name: "macos-src-log-${{ env.RELEASE_VERSION }}-${{ env.EDITION }}.md"
         asset_content_type: application/text
     - name: Upload ios src md
       uses: actions/upload-release-asset@v1
@@ -95,5 +95,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path: build/src/ios-src-log.md
-        asset_name: "ios-src-log-${{ env.EDITION }}-${{ env.RELEASE_VERSION }}.md"
+        asset_name: "ios-src-log-${{ env.RELEASE_VERSION }}-${{ env.EDITION }}.md"
         asset_content_type: application/text
