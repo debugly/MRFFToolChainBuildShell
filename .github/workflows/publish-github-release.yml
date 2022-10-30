@@ -24,33 +24,32 @@ jobs:
         uses: cardinalby/export-env-action@v2
         with:
           envFile: 'constants.env'
-      - name: do compile macos libs
-        run: | 
+      - run: |
             export SKIP_FFMPEG_PATHCHES=1
-            ./init-any.sh macos
-            cd macos
-            ./compile-any.sh build 
-            ./compile-any.sh lipo
-      - name: Zip macos libs
-        run: |
+            ./init-any.sh all
+      - name: generate src log
+        - run: |
             cd build/src/macos
             ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../macos-src-log.md
-            cd - >/dev/null             
+            cd ../ios
+            ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../ios-src-log.md
+      - name: do compile macos libs
+        run: |
+            cd macos
+            ./compile-any.sh build libyuv
+            ./compile-any.sh lipo libyuv
+      - name: do compile ios libs
+        run: |
+            cd ios
+            ./compile-any.sh build libyuv
+            ./compile-any.sh lipo libyuv
+      - name:
+      - name: Zip macos libs
+        run: |
             cd build/product/macos/universal
             zip -rq macos-universal.zip ./*
-      - name: do compile ios libs
-        run: | 
-            export SKIP_FFMPEG_PATHCHES=1
-            export SKIP_PULL_BASE=1
-            ./init-any.sh ios
-            cd ios
-            ./compile-any.sh build
-            ./compile-any.sh lipo
       - name: Zip ios libs
-        run: |          
-            cd build/src/ios
-            ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../ios-src-log.md
-            cd - >/dev/null
+        run: |
             cd build/product/ios/universal
             zip -rq ios-universal.zip ./*
       - name: Create ${{ env.EDITION }} Release
@@ -87,7 +86,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: build/src/macos/macos-src-log.md
+          asset_path: build/src/macos-src-log.md
           asset_name: "macos-src-log-${{ env.EDITION }}-${{ env.RELEASE_VERSION }}.md"
           asset_content_type: application/text
       - name: Upload ios src md
@@ -96,6 +95,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: build/src/ios/ios-src-log.md
+          asset_path: build/src/ios-src-log.md
           asset_name: "ios-src-log-${{ env.EDITION }}-${{ env.RELEASE_VERSION }}.md"
           asset_content_type: application/text
