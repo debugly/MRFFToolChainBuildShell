@@ -28,7 +28,7 @@ jobs:
             export SKIP_FFMPEG_PATHCHES=1
             ./init-any.sh all
       - name: generate src log
-        - run: |
+        run: |
             cd build/src/macos
             ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../macos-src-log.md
             cd ../ios
