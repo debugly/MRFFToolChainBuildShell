@@ -21,10 +21,6 @@ EDITION=$1
 PLAT=$2
 VER=$3
 
-if test -z $VER ;then
-    VER='V1.0-50fc6d2'
-fi
-
 if test -z $PLAT ;then
     PLAT='all'
 fi
@@ -33,9 +29,9 @@ cd $(dirname "$0")
 c_dir="$PWD"
 
 function usage() {
-    echo " useage:"
-    echo "download precompiled ijk or github edition."
-    echo " $0 ijk|github [ios|macos|all] [<release tag>]"
+    echo "=== useage ===================="
+    echo "Download precompiled ijk or github edition libs from github,The usage is as follows:"
+    echo "$0 ijk|github [ios|macos|all] [<release tag>]"
 }
 
 function download() {
@@ -64,6 +60,11 @@ if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' && "$PLAT" != 'all' ]]; then
     echo 'wrong plat,use ios or macos or all!'
     usage
     exit
+fi
+
+if test -z $VER ;then
+    VER=$(git describe --abbrev=0 --tag | awk -F - '{printf "%s-%s",$1,$2}')
+    echo "auto find the latest tag:${VER}"
 fi
 
 if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' ]]; then
