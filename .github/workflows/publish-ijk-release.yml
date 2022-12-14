@@ -16,8 +16,9 @@ jobs:
     - name: Read Tag Version
       run: |
         # https://stackoverflow.com/questions/4916492/git-describe-fails-with-fatal-no-names-found-cannot-describe-anything
-        # git describe --tags --always | awk -F . '{printf "RELEASE_VERSION=%s.%d",$1,$2+1}' | xargs echo > constants.env
-        git describe --tags --always | awk -F - '{printf "RELEASE_VERSION=V1.0-%s",$NF}' | xargs echo > constants.env
+        # git describe --tags --always | awk -F . '{printf "RELEASE_VERSION=%s.%d",$1,$2+1}' | xargs > constants.env
+        # git describe --tags --always | awk -F - '{printf "RELEASE_VERSION=V1.0-%s",$NF}' | xargs > constants.env
+        grep VERSION= download-pre.sh | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
         echo 'EDITION=ijk' >> constants.env
         cat constants.env
     - name: Export Env

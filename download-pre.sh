@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+VERSION=20221214184236
+
 set -e
 
 EDITION=$1
@@ -63,8 +65,9 @@ if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' && "$PLAT" != 'all' ]]; then
 fi
 
 if test -z $VER ;then
-    VER=$(git describe --abbrev=0 --tag | awk -F - '{printf "%s-%s",$1,$2}')
-    echo "auto find the latest tag:${VER}"
+    //VER=$(git describe --abbrev=0 --tag | awk -F - '{printf "%s-%s",$1,$2}')
+    VER="$VERSION"
+    echo "use the default version:${VER}"
 fi
 
 if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' ]]; then
