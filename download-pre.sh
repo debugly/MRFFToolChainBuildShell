@@ -65,7 +65,7 @@ if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' && "$PLAT" != 'all' ]]; then
 fi
 
 if test -z $VER ;then
-    //VER=$(git describe --abbrev=0 --tag | awk -F - '{printf "%s-%s",$1,$2}')
+    #VER=$(git describe --abbrev=0 --tag | awk -F - '{printf "%s-%s",$1,$2}')
     VER="$VERSION"
     echo "use the default version:${VER}"
 fi
