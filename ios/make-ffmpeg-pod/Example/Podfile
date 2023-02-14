@@ -1,8 +1,0 @@
-use_frameworks!
-
-target 'MRFFmpegPod-iOS' do
-  platform :ios,'9.0'
-  # pod 'MRFFmpegPod', :path => '../MRFFmpeg4.4.podspec'
-  pod 'MRFFmpegPod', :podspec => 'https://ifoxdev.hd.sohuno.com/ffpods/20210913/MRFFmpegPod-iOS-4.4-openssl.podspec'
-  pod 'MROpenSSLPod', :podspec => 'https://ifoxdev.hd.sohu.com/ffpods/20210913/MROpenSSLPod-iOS-1.1.1l.podspec'
-end
