@@ -1,8 +1,8 @@
-# on:
-#   push:
-#     branches: [master]
-#   pull_request:
-#     branches: [master]
+on:
+  # push:
+  #   branches: [master]
+  pull_request:
+    branches: [master]
 
 name: Create Release (Github Edition)
 
