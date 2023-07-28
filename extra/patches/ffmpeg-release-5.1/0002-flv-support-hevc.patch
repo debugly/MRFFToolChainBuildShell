@@ -1,0 +1,78 @@
+From 3334c77da65abbafa59abde52a7d435df3ebcb6f Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Mon, 22 May 2023 17:27:59 +0800
+Subject: [PATCH 2/7] flv support hevc
+
+---
+ libavformat/flv.h    |  1 +
+ libavformat/flvdec.c | 14 +++++++++++---
+ 2 files changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/libavformat/flv.h b/libavformat/flv.h
+index 3571b90..91f0065 100644
+--- a/libavformat/flv.h
++++ b/libavformat/flv.h
+@@ -110,6 +110,7 @@ enum {
+     FLV_CODECID_H264    = 7,
+     FLV_CODECID_REALH263= 8,
+     FLV_CODECID_MPEG4   = 9,
++    FLV_CODECID_HEVC    = 12,
+ };
+ 
+ enum {
+diff --git a/libavformat/flvdec.c b/libavformat/flvdec.c
+index 7242296..f1f3cca 100644
+--- a/libavformat/flvdec.c
++++ b/libavformat/flvdec.c
+@@ -321,6 +321,8 @@ static int flv_same_video_codec(AVCodecParameters *vpar, int flags)
+         return vpar->codec_id == AV_CODEC_ID_VP6A;
+     case FLV_CODECID_H264:
+         return vpar->codec_id == AV_CODEC_ID_H264;
++    case FLV_CODECID_HEVC:
++        return vpar->codec_id == AV_CODEC_ID_HEVC;
+     default:
+         return vpar->codec_tag == flv_codecid;
+     }
+@@ -367,6 +369,11 @@ static int flv_set_video_codec(AVFormatContext *s, AVStream *vstream,
+         vstreami->need_parsing = AVSTREAM_PARSE_HEADERS;
+         ret = 3;     // not 4, reading packet type will consume one byte
+         break;
++    case FLV_CODECID_HEVC:
++        par->codec_id = AV_CODEC_ID_HEVC;
++        vstreami->need_parsing = AVSTREAM_PARSE_NONE;
++        ret = 3;     // not 4, reading packet type will consume one byte
++        break;
+     case FLV_CODECID_MPEG4:
+         par->codec_id = AV_CODEC_ID_MPEG4;
+         ret = 3;
+@@ -1240,7 +1247,8 @@ retry_duration:
+ 
+     if (st->codecpar->codec_id == AV_CODEC_ID_AAC ||
+         st->codecpar->codec_id == AV_CODEC_ID_H264 ||
+-        st->codecpar->codec_id == AV_CODEC_ID_MPEG4) {
++        st->codecpar->codec_id == AV_CODEC_ID_MPEG4 ||
++        st->codecpar->codec_id == AV_CODEC_ID_HEVC) {
+         int type = avio_r8(s->pb);
+         size--;
+ 
+@@ -1249,7 +1257,7 @@ retry_duration:
+             goto leave;
+         }
+ 
+-        if (st->codecpar->codec_id == AV_CODEC_ID_H264 || st->codecpar->codec_id == AV_CODEC_ID_MPEG4) {
++        if (st->codecpar->codec_id == AV_CODEC_ID_H264 || st->codecpar->codec_id == AV_CODEC_ID_MPEG4 || st->codecpar->codec_id == AV_CODEC_ID_HEVC) {
+             // sign extension
+             int32_t cts = (avio_rb24(s->pb) + 0xff800000) ^ 0xff800000;
+             pts = av_sat_add64(dts, cts);
+@@ -1265,7 +1273,7 @@ retry_duration:
+             }
+         }
+         if (type == 0 && (!st->codecpar->extradata || st->codecpar->codec_id == AV_CODEC_ID_AAC ||
+-            st->codecpar->codec_id == AV_CODEC_ID_H264)) {
++            st->codecpar->codec_id == AV_CODEC_ID_H264 || st->codecpar->codec_id == AV_CODEC_ID_HEVC)) {
+             AVDictionaryEntry *t;
+ 
+             if (st->codecpar->extradata) {
+-- 
+2.39.2 (Apple Git-143)
+

@@ -75,8 +75,7 @@ function pull_common() {
     fi
     
     # fix fatal: 'stable' is not a commit and a branch 'localBranch' cannot be created from it
-    git checkout ${GIT_COMMIT}
-    git checkout -B localBranch
+    git checkout ${GIT_COMMIT} -B localBranch 
     cd - > /dev/null
 }
 

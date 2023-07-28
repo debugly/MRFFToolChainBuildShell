@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-VERSION=20230304181936
+IJK_VERSION=0.10.0
 
 set -e
 
@@ -66,8 +66,8 @@ fi
 
 if test -z $VER ;then
     #VER=$(git describe --abbrev=0 --tag | awk -F - '{printf "%s-%s",$1,$2}')
-    VER="$VERSION"
-    echo "use the default version:${VER}"
+    usage
+    exit
 fi
 
 if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' ]]; then

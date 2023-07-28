@@ -33,15 +33,6 @@ echo "===check env end==="
 
 # prepare build config
 DAV1D_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --buildtype release --default-library static"
-CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
-
-echo "----------------------"
-echo "[*] compile $LIB_NAME"
-echo "CC: $XCRUN_CC"
-echo "DAV1D_CFG_FLAGS: $DAV1D_CFG_FLAGS"
-echo "CFLAGS: $CFLAGS"
-echo "----------------------"
-echo
 
 cd $XC_BUILD_SOURCE
 export CC="$XCRUN_CC"
@@ -49,11 +40,15 @@ export CXX="$XCRUN_CXX"
 
 if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]]; then
    echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
-   # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
-   CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
-   BLURAY_CFG_FLAGS="$BLURAY_CFG_FLAGS --host=$XC_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
    DAV1D_CFG_FLAGS="$DAV1D_CFG_FLAGS --cross-file package/crossfiles/$XC_ARCH-macos.meson"
 fi
+
+echo "----------------------"
+echo "[*] compile $LIB_NAME"
+echo "CC: $XCRUN_CC"
+echo "DAV1D_CFG_FLAGS: $DAV1D_CFG_FLAGS"
+echo "----------------------"
+echo
 
 if [[ -d build ]]; then
    rm -rf build

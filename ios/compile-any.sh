@@ -15,5 +15,8 @@
 # limitations under the License.
 #
 # 
+set -e
 
+# 当前脚本所在目录
+cd "$(dirname "$0")"
 ../apple/compile-any.sh ios $*

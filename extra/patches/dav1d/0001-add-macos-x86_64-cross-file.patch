@@ -1,6 +1,6 @@
-From 9f11442c4cde071eaee82dc01df9e8403a2bc39a Mon Sep 17 00:00:00 2001
+From e7e92544aca6c577d6a6527f731bfeb069b331dd Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Thu, 28 Jul 2022 17:38:38 +0800
+Date: Thu, 25 May 2023 14:53:53 +0800
 Subject: [PATCH] add macos x86_64 cross file
 
 ---
@@ -10,7 +10,7 @@ Subject: [PATCH] add macos x86_64 cross file
 
 diff --git a/package/crossfiles/x86_64-macos.meson b/package/crossfiles/x86_64-macos.meson
 new file mode 100644
-index 0000000..bfeb08a
+index 0000000..cf484d1
 --- /dev/null
 +++ b/package/crossfiles/x86_64-macos.meson
 @@ -0,0 +1,30 @@
@@ -27,12 +27,12 @@ index 0000000..bfeb08a
 +strip = 'strip'
 +
 +[built-in options]
-+c_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.0.sdk']
-+cpp_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.0.sdk']
-+c_link_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.0.sdk']
-+cpp_link_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.0.sdk']
-+objc_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.0.sdk']
-+objcpp_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.0.sdk']
++c_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11']
++cpp_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11']
++c_link_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11']
++cpp_link_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11']
++objc_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11']
++objcpp_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11']
 +
 +[properties]
 +root = '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer'
@@ -46,5 +46,5 @@ index 0000000..bfeb08a
 +endian = 'little'
 \ No newline at end of file
 -- 
-2.30.1 (Apple Git-130)
+2.39.2 (Apple Git-143)
 
