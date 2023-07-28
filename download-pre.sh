@@ -15,8 +15,6 @@
 # limitations under the License.
 #
 
-IJK_VERSION=0.10.0
-
 set -e
 
 EDITION=$1

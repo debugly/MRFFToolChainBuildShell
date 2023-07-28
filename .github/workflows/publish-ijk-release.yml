@@ -20,7 +20,7 @@ jobs:
         # git describe --tags --always | awk -F . '{printf "RELEASE_VERSION=%s.%d",$1,$2+1}' | xargs > constants.env
         # git describe --tags --always | awk -F - '{printf "RELEASE_VERSION=V1.0-%s",$NF}' | xargs > constants.env
         d=$(date +'%y%m%d%H%M%S')
-        grep IJK_VERSION= download-pre.sh | awk -F = '{printf "RELEASE_VERSION=%s-$s",$2,$d}' | xargs > constants.env
+        grep IJK_VERSION= init-cfgs/ijk | awk -v d="$d" -F = '{printf "RELEASE_VERSION=%s-%s",$2,d}' | xargs > constants.env
         echo 'EDITION=ijk' >> constants.env
         cat constants.env
     - name: Export Env
