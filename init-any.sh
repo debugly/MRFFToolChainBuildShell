@@ -51,7 +51,7 @@ if [[ "x$LIBS" == "x" || "$LIBS" == "all" ]]; then
 fi
 
 if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' || "$PLAT" == 'all' ]]; then
-    source "$c_dir/init-cfgs/ijk"
+    source "$c_dir/version.sh"
     for lib in $LIBS
     do
         echo "===[init $lib]===================="
