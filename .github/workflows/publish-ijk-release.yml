@@ -27,7 +27,7 @@ jobs:
       uses: cardinalby/export-env-action@v2
       with:
         envFile: 'constants.env'
-    - run: ./init-any.sh all
+    - run: ./init-any.sh all >> $GITHUB_OUTPUT
     - name: generate src log
       run: |
         cd build/src/macos
@@ -37,13 +37,13 @@ jobs:
     - name: do compile macos libs
       run: |
         cd macos
-        ./compile-any.sh build
-        ./compile-any.sh lipo
+        ./compile-any.sh build >> $GITHUB_OUTPUT
+        ./compile-any.sh lipo >> $GITHUB_OUTPUT
     - name: do compile ios libs
       run: |
         cd ios
-        ./compile-any.sh build
-        ./compile-any.sh lipo
+        ./compile-any.sh build >> $GITHUB_OUTPUT
+        ./compile-any.sh lipo >> $GITHUB_OUTPUT
     - name: Zip macos libs
       run: |
         cd build/product/macos/universal
