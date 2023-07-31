@@ -29,12 +29,11 @@ env_assert "LIB_NAME"
 echo "ARGV:$*"
 echo "===check env end==="
 
-do_lipo_lib () {
+do_lipo_lib() {
     local LIB_FILE=$1
     local archs="$2"
     local LIPO_FLAGS=
-    for arch in $archs
-    do
+    for arch in $archs; do
         local ARCH_LIB_FILE="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/$LIB_FILE"
         if [ -f "$ARCH_LIB_FILE" ]; then
             LIPO_FLAGS="$LIPO_FLAGS $ARCH_LIB_FILE"
@@ -48,18 +47,16 @@ do_lipo_lib () {
     xcrun lipo -info $XC_UNI_PROD_DIR/$LIB_NAME/lib/$LIB_FILE
 }
 
-do_lipo_all () {
+do_lipo_all() {
     local archs="$1"
     rm -rf $XC_UNI_PROD_DIR/$LIB_NAME
     mkdir -p $XC_UNI_PROD_DIR/$LIB_NAME/lib
     echo "lipo archs: $archs"
-    for lib in $LIPO_LIBS
-    do
+    for lib in $LIPO_LIBS; do
         do_lipo_lib "$lib.a" "$archs"
     done
 
-    for arch in $archs
-    do
+    for arch in $archs; do
         local ARCH_INC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/include"
         local ARCH_OUT_DIR="$XC_UNI_PROD_DIR/$LIB_NAME/include"
         if [[ -d "$ARCH_INC_DIR" && ! -d "$ARCH_OUT_DIR" ]]; then
@@ -99,8 +96,7 @@ function do_compile() {
 
 function resolve_dep() {
     echo "[*] check depends bins: ${LIB_DEPENDS_BIN}"
-    for b in ${LIB_DEPENDS_BIN}
-    do
+    for b in ${LIB_DEPENDS_BIN}; do
         install_depends "$b"
     done
     echo "===================="
@@ -120,32 +116,38 @@ function main() {
     local opt="$XC_OPTS"
 
     case "$cmd" in
-        'clean')
-            for arch in $archs
-            do
-                do_clean $arch
-            done
-            rm -rf $XC_UNI_PROD_DIR/$LIB_NAME
-            echo 'done.'
+    'clean')
+        for arch in $archs; do
+            do_clean $arch
+        done
+        rm -rf $XC_UNI_PROD_DIR/$LIB_NAME
+        echo 'done.'
         ;;
-        'lipo')
-            do_lipo_all "$archs"
+    'lipo')
+        do_lipo_all "$archs"
         ;;
-        'build')
-            resolve_dep
-            for arch in $archs
-            do
-                init_env $arch
-                do_compile $arch "$opt"
-                echo
-            done
+    'build')
+        resolve_dep
+        for arch in $archs; do
+            init_env $arch
+            do_compile $arch "$opt"
+            echo
+        done
 
-            do_lipo_all "$archs"
+        do_lipo_all "$archs"
         ;;
-        *)
-            echo "Usage:"
-            echo "    $0 [build|lipo|clean] [x86_64|arm64]"
-            exit 1
+    'rebuild')
+        echo '---clean for rebuild-----------------'
+        XC_CMD='clean'
+        main 1>/dev/null
+        echo '---build for rebuild-----------------'
+        XC_CMD='build'
+        main
+        ;;
+    *)
+        echo "Usage:"
+        echo "    $0 [build|lipo|clean] [x86_64|arm64]"
+        exit 1
         ;;
     esac
 }

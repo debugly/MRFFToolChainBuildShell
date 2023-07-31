@@ -1,1 +1,1 @@
-libyuv openssl opus ffmpeg
+libyuv openssl opus dav1d ffmpeg

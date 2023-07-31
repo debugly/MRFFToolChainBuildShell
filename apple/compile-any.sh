@@ -30,7 +30,7 @@ SHELL_DIR="$PWD"
 
 function usage() {
     echo " useage:"
-    echo "  $0 [ios|macos] [build|lipo|clean] [all|ffmpeg|libyuv|openssl|opus|dav1d] [arm64|x86_64|all] [opts...]"
+    echo "  $0 [ios|macos] [build|rebuild|lipo|clean] [all|ffmpeg|libyuv|openssl|opus|dav1d] [arm64|x86_64|all] [opts...]"
 }
 
 if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' ]]; then
@@ -55,7 +55,7 @@ if [[ -z "$ARCH" || "$ARCH" == 'all' ]]; then
 fi
 
 if [[ -z "$CMD" ]]; then
-    echo "cmd must be: [build|lipo|clean]"
+    echo "cmd must be: [build|rebuild|lipo|clean]"
     usage
     exit 1
 fi

@@ -40,7 +40,8 @@ export CXX="$XCRUN_CXX"
 
 if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]]; then
    echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
-   DAV1D_CFG_FLAGS="$DAV1D_CFG_FLAGS --cross-file package/crossfiles/$XC_ARCH-macos.meson"
+
+   DAV1D_CFG_FLAGS="$DAV1D_CFG_FLAGS --cross-file package/crossfiles/$XC_ARCH-$XC_PLAT.meson"
 fi
 
 echo "----------------------"
