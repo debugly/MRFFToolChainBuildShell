@@ -17,9 +17,8 @@
 
 set -e
 
-EDITION=$1
-PLAT=$2
-VER=$3
+PLAT=$1
+VER=$2
 
 if test -z $PLAT ;then
     PLAT='all'
@@ -30,17 +29,17 @@ c_dir="$PWD"
 
 function usage() {
     echo "=== useage ===================="
-    echo "Download precompiled ijk or github edition libs from github,The usage is as follows:"
-    echo "$0 ijk|github [ios|macos|all] [<release tag>]"
+    echo "Download precompiled libs from github,The usage is as follows:"
+    echo "$0 [ios|macos|all] [<release tag>]"
 }
 
 function download() {
     local plat=$1
-    echo "===[download $plat $EDITION $VER]===================="
+    echo "===[download $plat $VER]===================="
     mkdir -p build/pre
     cd build/pre
-    local fname="$plat-universal-$VER-$EDITION.zip"
-    local url="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$VER-$EDITION/$fname"
+    local fname="$plat-universal-$VER.zip"
+    local url="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$VER/$fname"
     echo "$url"
     curl -LO "$url"
     mkdir -p ../product/$plat/universal
@@ -49,12 +48,6 @@ function download() {
     echo "===================================="
     cd - >/dev/null
 }
-
-if [[ "$EDITION" != 'ijk' && "$EDITION" != 'github' ]]; then
-    echo 'wrong edition,use ijk or github!'
-    usage
-    exit
-fi
 
 if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' && "$PLAT" != 'all' ]]; then
     echo 'wrong plat,use ios or macos or all!'
