@@ -29,7 +29,7 @@ jobs:
         envFile: 'constants.env'
     - run: |
         export SKIP_FFMPEG_PATHCHES=1
-        ./init-any.sh all >> $GITHUB_OUTPUT
+        ./init-any.sh all
     - name: generate src log
       run: |
         cd build/src/macos
@@ -39,13 +39,13 @@ jobs:
     - name: do compile macos libs
       run: |
         cd macos
-        ./compile-any.sh build >> $GITHUB_OUTPUT
-        ./compile-any.sh lipo >> $GITHUB_OUTPUT
+        ./compile-any.sh build
+        ./compile-any.sh lipo
     - name: do compile ios libs
       run: |
         cd ios
-        ./compile-any.sh build >> $GITHUB_OUTPUT
-        ./compile-any.sh lipo >> $GITHUB_OUTPUT
+        ./compile-any.sh build
+        ./compile-any.sh lipo
     - name: Zip macos libs
       run: |
         cd build/product/macos/universal
