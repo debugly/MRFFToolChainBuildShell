@@ -28,7 +28,7 @@ env_assert "XC_BUILD_NAME"
 env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XCRUN_CC"
-echo "ARGV:$*"
+echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
 # prepare build config

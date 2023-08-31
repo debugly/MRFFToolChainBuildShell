@@ -27,7 +27,7 @@ env_assert "XC_BUILD_NAME"
 env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XC_BUILD_PREFIX"
-echo "ARGV:$*"
+echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
 CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS -fomit-frame-pointer -Iinclude/"
@@ -50,7 +50,7 @@ echo "----------------------"
 echo "[*] configurate $LIB_NAME"
 echo "----------------------"
 
-make -f linux.mk clean >/dev/null
+#make -f linux.mk clean >/dev/null
 
 #----------------------
 echo "----------------------"

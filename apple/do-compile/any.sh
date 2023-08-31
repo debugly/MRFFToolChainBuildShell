@@ -26,7 +26,8 @@ env_assert "XC_CMD"
 env_assert "XC_TARGET_ARCHS"
 env_assert "LIPO_LIBS"
 env_assert "LIB_NAME"
-echo "ARGV:$*"
+echo "XC_OPTS:$XC_OPTS"
+echo "XC_FORCE_CROSS:$XC_FORCE_CROSS"
 echo "===check env end==="
 
 do_lipo_lib() {
@@ -90,8 +91,7 @@ function do_compile() {
     fi
 
     mkdir -p "$XC_BUILD_PREFIX"
-    local opt=$2
-    ./do-compile/$LIB_NAME.sh $opt
+    ./do-compile/$LIB_NAME.sh
 }
 
 function resolve_dep() {
@@ -113,7 +113,6 @@ function main() {
 
     local cmd="$XC_CMD"
     local archs="$XC_TARGET_ARCHS"
-    local opt="$XC_OPTS"
 
     case "$cmd" in
     'clean')
@@ -130,7 +129,7 @@ function main() {
         resolve_dep
         for arch in $archs; do
             init_env $arch
-            do_compile $arch "$opt"
+            do_compile $arch
             echo
         done
 

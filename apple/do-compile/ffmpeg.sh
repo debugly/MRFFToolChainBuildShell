@@ -32,10 +32,8 @@ env_assert "XC_BUILD_SOURCE"
 env_assert "XC_BUILD_PREFIX"
 env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_CC"
-echo "ARGV:$*"
+echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
-
-FF_BUILD_OPT=$1
 
 # ffmpeg build params
 source $(pwd)/../ffconfig/module.sh
@@ -57,7 +55,7 @@ FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-pic"
 FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-neon"
 FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-asm"
 
-if [[ "$FF_BUILD_OPT" == "debug" ]]; then
+if [[ "$XC_OPTS" == "debug" ]]; then
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-optimizations"
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-debug"
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-small"
@@ -266,7 +264,7 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-make clean
+make
 cp config.* $XC_BUILD_PREFIX
 make install -j8 1>/dev/null
 mkdir -p $XC_BUILD_PREFIX/include/libffmpeg

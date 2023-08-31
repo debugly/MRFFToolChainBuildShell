@@ -28,11 +28,17 @@ env_assert "XC_BUILD_NAME"
 env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XCRUN_CC"
-echo "ARGV:$*"
+echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
 # prepare build config
-DAV1D_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --buildtype release --default-library static"
+DAV1D_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --default-library static"
+
+if [[ "$BUILD_OPT" == "debug" ]]; then
+    DAV1D_CFG_FLAGS="$DAV1D_CFG_FLAGS --buildtype=debug"
+else
+    DAV1D_CFG_FLAGS="$DAV1D_CFG_FLAGS --buildtype=release"
+fi
 
 cd $XC_BUILD_SOURCE
 export CC="$XCRUN_CC"
@@ -57,5 +63,9 @@ fi
 
 meson setup build $DAV1D_CFG_FLAGS >/dev/null
 
-ninja -C build
-ninja -C build install
+cd ./build
+
+meson compile && meson install
+
+# ninja -C build
+# ninja -C build install
