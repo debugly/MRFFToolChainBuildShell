@@ -18,6 +18,7 @@
 set -e
 
 # 当前脚本所在目录
-cd "$(dirname "$0")"
+THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
+cd "$THIS_DIR"
 
 ../apple/compile-any.sh macos $*

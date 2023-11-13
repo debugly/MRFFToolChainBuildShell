@@ -29,8 +29,8 @@ ARCH=$3
 
 set -e
 
-cd $(dirname "$0")
-c_dir="$PWD"
+THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
+cd "$THIS_DIR"
 
 function usage()
 {
@@ -51,11 +51,11 @@ if [[ "x$LIBS" == "x" || "$LIBS" == "all" ]]; then
 fi
 
 if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' || "$PLAT" == 'all' ]]; then
-    source "$c_dir/version.sh"
+    source "$THIS_DIR/version.sh"
     for lib in $LIBS
     do
         echo "===[init $lib]===================="
-        $c_dir/tools/init-repo.sh "$c_dir/init-cfgs/$lib" "$PLAT" "$ARCH"
+        $THIS_DIR/tools/init-repo.sh "$THIS_DIR/init-cfgs/$lib" "$PLAT" "$ARCH"
         echo "===================================="
     done
 else

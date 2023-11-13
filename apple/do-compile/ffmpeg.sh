@@ -20,8 +20,8 @@
 
 set -e
 
-TOOLS=$(dirname "$0")
-source $TOOLS/../../tools/env_assert.sh
+THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
+source $THIS_DIR/../../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_TAGET_OS"
@@ -36,7 +36,7 @@ echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
 # ffmpeg build params
-source $(pwd)/../ffconfig/module.sh
+source $THIS_DIR/../../ffconfig/module.sh
 FFMPEG_CFG_FLAGS="$COMMON_FF_CFG_FLAGS"
 
 FFMPEG_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX $FFMPEG_CFG_FLAGS"

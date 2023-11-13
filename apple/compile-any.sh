@@ -25,8 +25,8 @@ OPTS=$5
 set -e
 
 # 当前脚本所在目录
-cd "$(dirname "$0")"
-SHELL_DIR="$PWD"
+THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
+cd "$THIS_DIR"
 
 function usage() {
     echo " useage:"
@@ -60,8 +60,8 @@ if [[ -z "$CMD" ]]; then
     exit 1
 fi
 
-export XC_SRC_ROOT="${SHELL_DIR}/../build/src/${PLAT}"
-export XC_PRODUCT_ROOT="${SHELL_DIR}/../build/product/${PLAT}"
+export XC_SRC_ROOT="${THIS_DIR}/../build/src/${PLAT}"
+export XC_PRODUCT_ROOT="${THIS_DIR}/../build/product/${PLAT}"
 export XC_UNI_PROD_DIR="${XC_PRODUCT_ROOT}/universal"
 
 export XC_PLAT="$PLAT"

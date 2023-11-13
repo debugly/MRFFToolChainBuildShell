@@ -18,8 +18,8 @@
 set -e
 
 # 当前脚本所在目录
-TOOLS=$(dirname "$0")
-source $TOOLS/../../tools/env_assert.sh
+THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
+source $THIS_DIR/../../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_CMD"

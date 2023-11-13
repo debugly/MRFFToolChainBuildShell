@@ -20,8 +20,8 @@ set -e
 
 source $1
 
-TOOLS=$(dirname "$0")
-source ${TOOLS}/env_assert.sh
+THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
+source ${THIS_DIR}/env_assert.sh
 
 echo "===check env begin==="
 echo "argv:[$*]"
@@ -86,7 +86,7 @@ function apply_patches() {
     fi
 
     local plat="$1"
-    local patch_dir="${TOOLS}/../extra/patches/$REPO_DIR"
+    local patch_dir="${THIS_DIR}/../extra/patches/$REPO_DIR"
 
     if [[ -d "${patch_dir}_${plat}" ]]; then
         patch_dir="${patch_dir}_${plat}"
@@ -107,7 +107,7 @@ function apply_patches() {
 function make_arch_repo() {
     local dest_repo="build/src/$1/$REPO_DIR-$2"
     echo "== copy $REPO_DIR → $dest_repo =="
-    $TOOLS/copy-local-repo.sh $GIT_LOCAL_REPO $dest_repo
+    $THIS_DIR/copy-local-repo.sh $GIT_LOCAL_REPO $dest_repo
     cd $dest_repo
     if [[ "$GIT_WITH_SUBMODULE" ]]; then
         git submodule update --init --depth=1

@@ -75,19 +75,19 @@ At present MRFFToolChain contained OpenSSL、FFmpeg 、libyuv、libopus、libblu
 
 ```
 #准备 iOS 和 macOS 平台所有库的源码
-./init-all.sh all
+./init-any.sh all
 #准备 iOS 平台源码所有库的源码
-./init-all.sh ios
+./init-any.sh ios
 #准备 iOS 平台x86架构下所有库的源码
-./init-all.sh ios all x86_64
+./init-any.sh ios all x86_64
 #准备 macOS 平台源码所有库的源码
-/init-all.sh macos
+/init-any.sh macos
 #准备 ios 平台的某些库的源码
-/init-all.sh ios "openssl ffmpeg"
+/init-any.sh ios "openssl ffmpeg"
 #准备 macOS 平台的某些库的源码
-/init-all.sh macos "openssl ffmpeg"
+/init-any.sh macos "openssl ffmpeg"
 #准备 iOS 和 macOS 平台的某些库的源码
-/init-all.sh all "openssl ffmpeg"
+/init-any.sh all "openssl ffmpeg"
 ```
 
 高级选项：
@@ -147,7 +147,7 @@ cd macos
 
 编译 ios 平台跟 macos 是一样的流程，只需要 cd 到 ios 目录操作即可。
 
-其实 ios 和 macos 均调用了 apple 目录下的脚本。
+实际上 ios 和 macos 均调用了 apple 目录下的脚本。
 
 ## Use Your Mirror
 

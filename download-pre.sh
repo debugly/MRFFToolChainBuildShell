@@ -24,8 +24,8 @@ if test -z $PLAT ;then
     PLAT='all'
 fi
 
-cd $(dirname "$0")
-c_dir="$PWD"
+THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
+cd "$THIS_DIR"
 
 function usage() {
     echo "=== useage ===================="
