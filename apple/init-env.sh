@@ -58,11 +58,11 @@ function init_env () {
         case $1 in
             'x86_64')
                 export XCRUN_PLATFORM='iPhoneSimulator'
-                export XC_DEPLOYMENT_TARGET='-mios-simulator-version-min=9.0'
+                export XC_DEPLOYMENT_TARGET='-mios-simulator-version-min=11.0'
             ;;
             'arm64')
                 export XCRUN_PLATFORM='iPhoneOS'
-                export XC_DEPLOYMENT_TARGET='-miphoneos-version-min=9.0'
+                export XC_DEPLOYMENT_TARGET='-miphoneos-version-min=11.0'
             ;;
         esac
         export XC_OTHER_CFLAGS='-fembed-bitcode -Os'
