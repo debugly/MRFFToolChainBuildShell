@@ -28,5 +28,5 @@ else
     export GIT_COMMIT=origin/release/5.1 #0028275216
 fi
 
-export GIT_LOCAL_REPO=extra/ffmpeg
+export GIT_LOCAL_REPO=build/extra/ffmpeg
 export REPO_DIR=ffmpeg

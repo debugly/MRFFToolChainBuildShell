@@ -23,6 +23,6 @@ else
     export GIT_UPSTREAM=https://github.com/openssl/openssl.git
 fi
 
-export GIT_LOCAL_REPO=extra/openssl
+export GIT_LOCAL_REPO=build/extra/openssl
 export GIT_COMMIT=OpenSSL_1_1_1u
 export REPO_DIR=openssl

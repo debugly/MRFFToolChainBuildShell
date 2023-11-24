@@ -22,7 +22,7 @@ else
     export GIT_UPSTREAM=https://code.videolan.org/videolan/dav1d.git
 fi
 
-export GIT_LOCAL_REPO=extra/dav1d
+export GIT_LOCAL_REPO=build/extra/dav1d
 export GIT_COMMIT=1.2.0
 export GIT_WITH_SUBMODULE=0
 export REPO_DIR=dav1d

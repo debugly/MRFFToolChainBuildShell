@@ -23,6 +23,6 @@ else
     export GIT_UPSTREAM=https://github.com/lemenkov/libyuv.git
 fi
 
-export GIT_LOCAL_REPO=extra/libyuv
+export GIT_LOCAL_REPO=build/extra/libyuv
 export GIT_COMMIT=main
 export REPO_DIR=libyuv
