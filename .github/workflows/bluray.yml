@@ -5,11 +5,11 @@ on:
   pull_request:
     branches: [master]
 
-name: Create openssl Release
+name: Create bluray Release
 
 jobs:
   build:
-    name: compile openssl then deploy
+    name: compile bluray then deploy
     runs-on: macos-13
     steps:
     - name: Checkout code
@@ -20,7 +20,7 @@ jobs:
         # git describe --tags --always | awk -F . '{printf "RELEASE_VERSION=%s.%d",$1,$2+1}' | xargs > constants.env
         # git describe --tags --always | awk -F - '{printf "RELEASE_VERSION=V1.0-%s",$NF}' | xargs > constants.env
         d=$(TZ=UTC-8 date +'%y%m%d%H%M%S')
-        grep GIT_OPENSSL_VERSION= ./init-cfgs/openssl | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
+        grep GIT_BLURAY_VERSION= ./init-cfgs/bluray | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
         echo "RELEASE_DATE=$d" >> constants.env
         cat constants.env
     - name: Export Env
@@ -28,7 +28,7 @@ jobs:
       with:
         envFile: 'constants.env'
     - name: init src
-      run: ./init-any.sh all openssl
+      run: ./init-any.sh all bluray
     - name: generate src log
       run: |
         cd build/src/macos
@@ -38,13 +38,13 @@ jobs:
     - name: do compile macos libs
       run: |
         cd macos
-        ./compile-any.sh build openssl
-        ./compile-any.sh lipo openssl
+        ./compile-any.sh build bluray
+        ./compile-any.sh lipo bluray
     - name: do compile ios libs
       run: |
         cd ios
-        ./compile-any.sh build openssl
-        ./compile-any.sh lipo openssl
+        ./compile-any.sh build bluray
+        ./compile-any.sh lipo bluray
     - name: Zip macos libs
       run: |
         cd build/product/macos/universal
@@ -59,8 +59,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: openssl-${{ env.RELEASE_VERSION }}-${{ env.RELEASE_DATE }}
-        release_name: openssl-${{ env.RELEASE_VERSION }}
+        tag_name: bluray-${{ env.RELEASE_VERSION }}-${{ env.RELEASE_DATE }}
+        release_name: bluray-${{ env.RELEASE_VERSION }}
         draft: false
         prerelease: false
     - name: Upload macos Release Asset
