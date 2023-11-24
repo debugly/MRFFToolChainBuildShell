@@ -5,11 +5,11 @@ on:
   pull_request:
     branches: [master]
 
-name: Create bluray Release
+name: Create macos bluray Release
 
 jobs:
   build:
-    name: compile bluray then deploy
+    name: compile macos bluray then deploy
     runs-on: macos-13
     steps:
     - name: Checkout code
@@ -40,19 +40,10 @@ jobs:
         cd macos
         ./compile-any.sh build bluray
         ./compile-any.sh lipo bluray
-    - name: do compile ios libs
-      run: |
-        cd ios
-        ./compile-any.sh build bluray
-        ./compile-any.sh lipo bluray
     - name: Zip macos libs
       run: |
         cd build/product/macos/universal
         zip -rq macos-universal.zip ./*
-    - name: Zip ios libs
-      run: |
-        cd build/product/ios/universal
-        zip -rq ios-universal.zip ./*
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -72,15 +63,6 @@ jobs:
         asset_path: build/product/macos/universal/macos-universal.zip
         asset_name: "macos-universal-${{ env.RELEASE_VERSION }}.zip"
         asset_content_type: application/zip
-    - name: Upload ios Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: build/product/ios/universal/ios-universal.zip
-        asset_name: "ios-universal-${{ env.RELEASE_VERSION }}.zip"
-        asset_content_type: application/zip
     - name: Upload macos src md
       uses: actions/upload-release-asset@v1
       env:
@@ -89,13 +71,4 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path: build/src/macos-src-log.md
         asset_name: "macos-src-log-${{ env.RELEASE_VERSION }}.md"
-        asset_content_type: application/text
-    - name: Upload ios src md
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: build/src/ios-src-log.md
-        asset_name: "ios-src-log-${{ env.RELEASE_VERSION }}.md"
         asset_content_type: application/text
