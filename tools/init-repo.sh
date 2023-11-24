@@ -86,7 +86,7 @@ function apply_patches() {
     fi
 
     local plat="$1"
-    local patch_dir="${THIS_DIR}/../extra/patches/$REPO_DIR"
+    local patch_dir="${THIS_DIR}/../patches/$REPO_DIR"
 
     if [[ -d "${patch_dir}_${plat}" ]]; then
         patch_dir="${patch_dir}_${plat}"
