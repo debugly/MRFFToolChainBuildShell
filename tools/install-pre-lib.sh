@@ -50,6 +50,7 @@ function download() {
     if [[ $? -eq 0 ]];then
         mv "$tname" "$oname"
     fi
+    ls build/pre/
 }
 
 function extract(){
