@@ -100,6 +100,14 @@ if [[ -f "${XC_PRODUCT_ROOT}/openssl-$XC_ARCH/lib/pkgconfig/openssl.pc" ]]; then
     MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/openssl-$XC_ARCH/lib/pkgconfig"
 
     echo "[*] --enable-openssl"
+elif [[ -f "${XC_PRODUCT_ROOT}/universal/openssl/lib/pkgconfig/openssl.pc" ]]; then
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-nonfree --enable-openssl"
+    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
+        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    fi
+    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/universal/openssl/lib/pkgconfig"
+
+    echo "[*] --enable-openssl"   
 else
     echo "[*] --disable-openssl"
 fi
@@ -172,6 +180,16 @@ if [[ -f "${XC_PRODUCT_ROOT}/opus-$XC_ARCH/lib/pkgconfig/opus.pc" ]]; then
     MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/opus-$XC_ARCH/lib/pkgconfig"
 
     echo "[*] --enable-libopus --enable-decoder=opus"
+elif [[ -f "${XC_PRODUCT_ROOT}/universal/opus/lib/pkgconfig/opus.pc" ]]; then
+
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libopus --enable-decoder=opus"
+
+    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
+        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    fi
+    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/universal/opus/lib/pkgconfig"
+
+    echo "[*] --enable-libopus --enable-decoder=opus"
 else
     echo "[*] --disable-libopus"
 fi
@@ -188,6 +206,16 @@ if [[ -f "${XC_PRODUCT_ROOT}/bluray-$XC_ARCH/lib/pkgconfig/libbluray.pc" ]]; the
         MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
     fi
     MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/bluray-$XC_ARCH/lib/pkgconfig"
+
+    echo "[*] --enable-libbluray --enable-protocol=bluray"
+elif [[ -f "${XC_PRODUCT_ROOT}/universal/bluray/lib/pkgconfig/libbluray.pc" ]]; then
+
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
+
+    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
+        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    fi
+    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/universal/bluray/lib/pkgconfig"
 
     echo "[*] --enable-libbluray --enable-protocol=bluray"
 else
@@ -207,6 +235,16 @@ if [[ -f "${XC_PRODUCT_ROOT}/dav1d-$XC_ARCH/lib/pkgconfig/dav1d.pc" ]]; then
         MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
     fi
     MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/dav1d-$XC_ARCH/lib/pkgconfig"
+
+    echo "[*] --enable-libdav1d --enable-decoder=libdav1d"
+elif [[ -f "${XC_PRODUCT_ROOT}/universal/dav1d/lib/pkgconfig/dav1d.pc" ]]; then
+
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libdav1d --enable-decoder=libdav1d"
+
+    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
+        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    fi
+    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/universal/dav1d/lib/pkgconfig"
 
     echo "[*] --enable-libdav1d --enable-decoder=libdav1d"
 else

@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# 
+#
 
 PLAT=$1
 CMD=$2
@@ -45,7 +45,7 @@ if [[ -z "$LIBS" || "$LIBS" == "all" ]]; then
     list='compile-cfgs/list.txt'
     #use plat list
     if [[ -f "compile-cfgs/list_${PLAT}.txt" ]]; then
-        list="compile-cfgs/list_${PLAT}.txt"   
+        list="compile-cfgs/list_${PLAT}.txt"
     fi
     LIBS=$(cat $list)
 fi
@@ -60,9 +60,11 @@ if [[ -z "$CMD" ]]; then
     exit 1
 fi
 
-export XC_SRC_ROOT="${THIS_DIR}/../build/src/${PLAT}"
-export XC_PRODUCT_ROOT="${THIS_DIR}/../build/product/${PLAT}"
-export XC_UNI_PROD_DIR="${XC_PRODUCT_ROOT}/universal"
+
+
+export XC_SRC_ROOT=$(cd "${THIS_DIR}/../build/src/${PLAT}";pwd)
+export XC_PRODUCT_ROOT=$(cd "${THIS_DIR}/../build/product/${PLAT}";pwd)
+export XC_UNI_PROD_DIR=$(cd "${XC_PRODUCT_ROOT}/universal";pwd)
 
 export XC_PLAT="$PLAT"
 export XC_CMD="$CMD"
@@ -71,7 +73,7 @@ export XC_OPTS="$OPTS"
 export XC_VENDOR_LIBS="$LIBS"
 
 if [[ "$PLAT" == 'ios' ]]; then
-export XC_FORCE_CROSS=true
+    export XC_FORCE_CROSS=true
 fi
 
 echo '------------------------------------------'
