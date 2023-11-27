@@ -24,6 +24,6 @@ else
 fi
 
 export GIT_LOCAL_REPO=build/extra/openssl
-export GIT_COMMIT=OpenSSL_1_1_1u
+export GIT_COMMIT=OpenSSL_1_1_1w
 export REPO_DIR=openssl
-export GIT_OPENSSL_VERSION=1.1.1u
+export GIT_OPENSSL_VERSION=1.1.1w
