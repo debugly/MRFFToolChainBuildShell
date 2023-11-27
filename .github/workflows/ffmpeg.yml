@@ -30,7 +30,7 @@ jobs:
     - run: |
         # export SKIP_FFMPEG_PATHCHES=1
         ./init-any.sh all ffmpeg
-        ./install-pre-any.sh all 'libyuv openssl opus bluray dav1d'
+        ./install-pre-any.sh all 'openssl opus bluray dav1d'
     - name: generate src log
       run: |
         cd build/src/macos
