@@ -30,17 +30,6 @@ function usage() {
     echo "$0 [ios|macos|all] [<release tag>]"
 }
 
-function fix_prefix(){
-    local plat=$1
-    local UNI_PC_DIR="build/product/$plat/universal/$LIB_NAME/lib/pkgconfig"
-    if ls ${UNI_PC_DIR}/*.pc >/dev/null 2>&1;then
-        echo "fix $plat $LIB_NAME pc file prefix"
-        p=$(cd "build/product/$plat/universal/$LIB_NAME";pwd)
-        escaped_p=$(echo $p | sed 's/\//\\\//g')
-        sed -i "" "s/^prefix=.*/prefix=$escaped_p/" "$UNI_PC_DIR/"*.pc
-    fi
-}
-
 function download() {
     local plat=$1
     
@@ -70,12 +59,25 @@ function extract(){
     if [[ -f "$oname" ]];then
         mkdir -p ../product/$plat/universal
         unzip -oq "$oname" -d ../product/$plat/universal
+        echo "extract zip file"
         if command -v tree >/dev/null 2>&1; then
             tree -L 2 ../product/$plat/universal
         fi
     else
         echo "you need download ${oname} firstly."
         exit 1
+    fi
+}
+
+function fix_prefix(){
+    local plat=$1
+    local UNI_PC_DIR="build/product/$plat/universal/$LIB_NAME/lib/pkgconfig"
+    ls ${UNI_PC_DIR}/*.pc
+    if ls ${UNI_PC_DIR}/*.pc >/dev/null 2>&1;then
+        echo "fix $plat $LIB_NAME pc file prefix"
+        p=$(cd "build/product/$plat/universal/$LIB_NAME";pwd)
+        escaped_p=$(echo $p | sed 's/\//\\\//g')
+        sed -i "" "s/^prefix=.*/prefix=$escaped_p/" "$UNI_PC_DIR/"*.pc
     fi
 }
 
