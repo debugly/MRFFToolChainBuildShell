@@ -28,7 +28,7 @@ OPUS_TAG='opus-1.3.1-231127113458'
 MAC_BLURAY_TAG='bluray-1.3.1-231127113451'
 DAV1D_TAG='dav1d-1.2.0-231127113745'
 OPENSSL_TAG='openssl-1.1.1u-231127113504'
-FFMPEG_TAG=
+FFMPEG_TAG='ffmpeg-5.1-231127164745'
 #----------------------------------------------------------
 
 set -e
