@@ -25,9 +25,9 @@ fi
 if [[ "$GIT_FFMPEG_COMMIT" != "" ]] ;then
     export GIT_COMMIT="$GIT_FFMPEG_COMMIT"
 else
-    export GIT_COMMIT=origin/release/5.1 #0028275216
+    export GIT_COMMIT=n5.1.4 #origin/release/5.1
 fi
 
 export GIT_LOCAL_REPO=build/extra/ffmpeg
 export REPO_DIR=ffmpeg
-export GIT_FFMPEG_VERSION=5.1
+export GIT_FFMPEG_VERSION=5.1.4
