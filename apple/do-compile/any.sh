@@ -43,7 +43,7 @@ do_lipo_lib() {
             exit 1
         fi
     done
-
+    
     xcrun lipo -create $LIPO_FLAGS -output $XC_UNI_PROD_DIR/$LIB_NAME/lib/$LIB_FILE
     xcrun lipo -info $XC_UNI_PROD_DIR/$LIB_NAME/lib/$LIB_FILE
 }
@@ -56,13 +56,26 @@ do_lipo_all() {
     for lib in $LIPO_LIBS; do
         do_lipo_lib "$lib.a" "$archs"
     done
-
+    
     for arch in $archs; do
         local ARCH_INC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/include"
         local ARCH_OUT_DIR="$XC_UNI_PROD_DIR/$LIB_NAME/include"
+        
         if [[ -d "$ARCH_INC_DIR" && ! -d "$ARCH_OUT_DIR" ]]; then
             echo "copy include dir to $ARCH_OUT_DIR"
             cp -R "$ARCH_INC_DIR" "$ARCH_OUT_DIR"
+
+            local ARCH_PC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/pkgconfig"
+            if ls ${ARCH_PC_DIR}/*.pc >/dev/null 2>&1;then
+                local UNI_PC_DIR="$XC_UNI_PROD_DIR/$LIB_NAME/lib/pkgconfig/"
+                mkdir -p "$UNI_PC_DIR"
+                echo "copy pkgconfig file to $UNI_PC_DIR"
+                cp ${ARCH_PC_DIR}/*.pc "$UNI_PC_DIR"
+                #fix prefix path
+                p="$XC_UNI_PROD_DIR/$LIB_NAME"
+                escaped_p=$(echo $p | sed 's/\//\\\//g')
+                sed -i "" "s/^prefix=.*/prefix=$escaped_p/" "$UNI_PC_DIR/"*.pc
+            fi
             break
         fi
     done
@@ -89,7 +102,7 @@ function do_compile() {
         echo ""
         exit 1
     fi
-
+    
     mkdir -p "$XC_BUILD_PREFIX"
     ./do-compile/$LIB_NAME.sh
 }
@@ -110,43 +123,43 @@ function do_clean() {
 }
 
 function main() {
-
+    
     local cmd="$XC_CMD"
     local archs="$XC_TARGET_ARCHS"
-
+    
     case "$cmd" in
-    'clean')
-        for arch in $archs; do
-            do_clean $arch
-        done
-        rm -rf $XC_UNI_PROD_DIR/$LIB_NAME
-        echo 'done.'
+        'clean')
+            for arch in $archs; do
+                do_clean $arch
+            done
+            rm -rf $XC_UNI_PROD_DIR/$LIB_NAME
+            echo 'done.'
         ;;
-    'lipo')
-        do_lipo_all "$archs"
+        'lipo')
+            do_lipo_all "$archs"
         ;;
-    'build')
-        resolve_dep
-        for arch in $archs; do
-            init_env $arch
-            do_compile $arch
-            echo
-        done
-
-        do_lipo_all "$archs"
+        'build')
+            resolve_dep
+            for arch in $archs; do
+                init_env $arch
+                do_compile $arch
+                echo
+            done
+            
+            do_lipo_all "$archs"
         ;;
-    'rebuild')
-        echo '---clean for rebuild-----------------'
-        XC_CMD='clean'
-        main 1>/dev/null
-        echo '---build for rebuild-----------------'
-        XC_CMD='build'
-        main
+        'rebuild')
+            echo '---clean for rebuild-----------------'
+            XC_CMD='clean'
+            main 1>/dev/null
+            echo '---build for rebuild-----------------'
+            XC_CMD='build'
+            main
         ;;
-    *)
-        echo "Usage:"
-        echo "    $0 [build|lipo|clean] [x86_64|arm64]"
-        exit 1
+        *)
+            echo "Usage:"
+            echo "    $0 [build|lipo|clean] [x86_64|arm64]"
+            exit 1
         ;;
     esac
 }
