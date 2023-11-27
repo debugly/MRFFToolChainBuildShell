@@ -28,7 +28,7 @@ jobs:
       with:
         envFile: 'constants.env'
     - run: |
-        export SKIP_FFMPEG_PATHCHES=1
+        # export SKIP_FFMPEG_PATHCHES=1
         ./init-any.sh all ffmpeg
         ./install-pre-any.sh all 'libyuv openssl opus bluray dav1d'
     - name: generate src log
