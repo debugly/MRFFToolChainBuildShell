@@ -43,23 +43,45 @@ function fix_prefix(){
 
 function download() {
     local plat=$1
+    
+    local oname="build/pre/${TAG}-$plat.zip"
+    if [[ -f "$oname" ]];then
+        echo "$oname already exist,no need download."
+        return
+    fi
+    
     local fname="$LIB_NAME-$plat-universal-$VER.zip"
     local url="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$TAG/$fname"
+    
     echo "---[download $fname]-----------------"
     echo "$url"
-    mkdir -p build/pre && cd build/pre
-    curl -LO "$url"
-    mkdir -p ../product/$plat/universal
-    unzip -oq $fname -d ../product/$plat/universal
-    if command -v tree >/dev/null 2>&1; then 
-        tree -L 2 ../product/$plat/universal
+    mkdir -p build/pre
+    local tname="build/pre/${TAG}.tmp"
+    curl -L "$url" -o "$tname"
+    if [[ $? -eq 0 ]];then
+        mv "$tname" "$oname"
     fi
-    echo ""
-    cd - >/dev/null
+}
+
+function extract(){
+    local plat=$1
+    local oname="build/pre/${TAG}-$plat.zip"
+
+    if [[ -f "$oname" ]];then
+        mkdir -p ../product/$plat/universal
+        unzip -oq "$oname" -d ../product/$plat/universal
+        if command -v tree >/dev/null 2>&1; then
+            tree -L 2 ../product/$plat/universal
+        fi
+    else
+        echo "you need download ${oname} firstly."
+        exit 1
+    fi
 }
 
 function install(){
     download "$*"
+    extract "$*"
     fix_prefix "$*"
 }
 
@@ -81,7 +103,7 @@ VER=$(echo $TAG | awk -F - '{print $2}')
 
 if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' ]]; then
     install $PLAT
-elif [[ "$PLAT" == 'all' ]]; then
+    elif [[ "$PLAT" == 'all' ]]; then
     plats="ios macos"
     for plat in $plats; do
         install $plat
