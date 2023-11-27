@@ -60,11 +60,9 @@ if [[ -z "$CMD" ]]; then
     exit 1
 fi
 
-
-
-export XC_SRC_ROOT=$(cd "${THIS_DIR}/../build/src/${PLAT}";pwd)
-export XC_PRODUCT_ROOT=$(cd "${THIS_DIR}/../build/product/${PLAT}";pwd)
-export XC_UNI_PROD_DIR=$(cd "${XC_PRODUCT_ROOT}/universal";pwd)
+export XC_SRC_ROOT="${THIS_DIR}/../build/src/${PLAT}"
+export XC_PRODUCT_ROOT="${THIS_DIR}/../build/product/${PLAT}"
+export XC_UNI_PROD_DIR="${XC_PRODUCT_ROOT}/universal"
 
 export XC_PLAT="$PLAT"
 export XC_CMD="$CMD"
