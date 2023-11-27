@@ -50,19 +50,18 @@ function download() {
     if [[ $? -eq 0 ]];then
         mv "$tname" "$oname"
     fi
-    ls build/pre/
 }
 
 function extract(){
     local plat=$1
     local oname="build/pre/${TAG}-$plat.zip"
-
+    
     if [[ -f "$oname" ]];then
-        mkdir -p ../product/$plat/universal
-        unzip -oq "$oname" -d ../product/$plat/universal
+        mkdir -p build/product/$plat/universal
+        unzip -oq "$oname" -d build/product/$plat/universal
         echo "extract zip file"
         if command -v tree >/dev/null 2>&1; then
-            tree -L 2 ../product/$plat/universal
+            tree -L 2 build/product/$plat/universal
         fi
     else
         echo "you need download ${oname} firstly."
@@ -73,7 +72,7 @@ function extract(){
 function fix_prefix(){
     local plat=$1
     local UNI_PC_DIR="build/product/$plat/universal/$LIB_NAME/lib/pkgconfig"
-    ls ${UNI_PC_DIR}/*.pc
+    
     if ls ${UNI_PC_DIR}/*.pc >/dev/null 2>&1;then
         echo "fix $plat $LIB_NAME pc file prefix"
         p=$(cd "build/product/$plat/universal/$LIB_NAME";pwd)
