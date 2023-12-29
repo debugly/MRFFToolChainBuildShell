@@ -28,7 +28,9 @@ jobs:
       with:
         envFile: 'constants.env'
     - name: init src
-      run: ./init-any.sh all ass
+      run: |
+        ./init-any.sh all ass
+        ./install-pre-any.sh all 'freetype harfbuzz fribidi unibreak'
     - name: generate src log
       run: |
         cd build/src/macos
