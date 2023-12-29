@@ -29,6 +29,9 @@ MAC_BLURAY_TAG='bluray-1.3.4-231127183939'
 DAV1D_TAG='dav1d-1.3.0-231127183948'
 OPENSSL_TAG='openssl-1.1.1w-231127183927'
 FFMPEG_TAG='ffmpeg-5.1.4-231128092946'
+
+FREETYPE_TAG='freetype-2.13.2-231229172708'
+UNIBREAK_TAG='unibreak-5.1-231229171455'
 #----------------------------------------------------------
 
 set -e
