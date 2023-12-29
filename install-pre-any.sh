@@ -32,6 +32,9 @@ FFMPEG_TAG='ffmpeg-5.1.4-231128092946'
 
 FREETYPE_TAG='freetype-2.13.2-231229172708'
 UNIBREAK_TAG='unibreak-5.1-231229171455'
+HARFBUZZ_TAG=''
+FRIBIDI_TAG=''
+ASS_TAG=''
 #----------------------------------------------------------
 
 set -e
@@ -99,6 +102,18 @@ if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' || "$PLAT" == 'all' ]]; then
             ;;
             'dav1d')
                 TAG=$DAV1D_TAG
+            ;;
+            'freetype')
+                TAG=$FREETYPE_TAG
+            ;;
+            'harfbuzz')
+                TAG=$HARFBUZZ_TAG
+            ;;
+            'fribidi')
+                TAG=$FRIBIDI_TAG
+            ;;
+            'unibreak')
+                TAG=$UNIBREAK_TAG
             ;;
             *)
                 echo "wrong lib name:$lib"
