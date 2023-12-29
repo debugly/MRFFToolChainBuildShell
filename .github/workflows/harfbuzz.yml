@@ -29,8 +29,8 @@ jobs:
         envFile: 'constants.env'
     - name: init src
       run: |
-      ./init-any.sh all harfbuzz
-      ./install-pre-any.sh all 'freetype'
+        ./init-any.sh all harfbuzz
+        ./install-pre-any.sh all 'freetype'
     - name: generate src log
       run: |
         cd build/src/macos
