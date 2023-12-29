@@ -1,14 +1,14 @@
-From d159d00f17ede28a96534491168b30dab6b996f3 Mon Sep 17 00:00:00 2001
+From c69fdc7f7a8d450f6480f52fb3bea670f8c6cbd1 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Mon, 12 Jun 2023 16:15:15 +0800
-Subject: [PATCH] hls support discontinuity
+Subject: [PATCH 08/14] hls support discontinuity
 
 ---
  libavformat/hls.c | 60 +++++++++++++++++++++++++++++++++++++++++------
  1 file changed, 53 insertions(+), 7 deletions(-)
 
 diff --git a/libavformat/hls.c b/libavformat/hls.c
-index e622425..9ea9db6 100644
+index bf7fdc1..2e3bff6 100644
 --- a/libavformat/hls.c
 +++ b/libavformat/hls.c
 @@ -73,6 +73,8 @@ enum KeyType {
@@ -149,5 +149,5 @@ index e622425..9ea9db6 100644
                              pls->seek_timestamp;
                      if (ts_diff >= 0 && (pls->seek_flags  & AVSEEK_FLAG_ANY ||
 -- 
-2.39.2 (Apple Git-143)
+2.39.3 (Apple Git-145)
 

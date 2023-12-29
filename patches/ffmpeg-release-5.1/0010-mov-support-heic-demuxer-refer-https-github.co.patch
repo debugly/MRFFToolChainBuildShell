@@ -1,8 +1,7 @@
-From d10df83cedb3f390c0db67fc10362864aec3823c Mon Sep 17 00:00:00 2001
+From 7bce220aacde2614c3e777767e39b588783f7966 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Mon, 12 Jun 2023 18:18:05 +0800
-Subject: [PATCH] mov support heic demuxer (refer :
- https://github.com/bluez-sh/FFmpeg/commit/9a885cddb3550ab863a60d02c5fb78e4ae206cf1)
+Subject: [PATCH 10/14] [PATCH] mov support heic demuxer (https://github.com/bluez-sh/FFmpeg/commit/9a885cddb3550ab863a60d02c5fb78e4ae206cf1)
 
 ---
  libavcodec/packet.h |  15 +
@@ -86,7 +85,7 @@ index f05c2d9..a704a0e 100644
  
  int ff_mp4_read_descr_len(AVIOContext *pb);
 diff --git a/libavformat/mov.c b/libavformat/mov.c
-index 1bbc435..16a08d3 100644
+index 96ec33c..6b19678 100644
 --- a/libavformat/mov.c
 +++ b/libavformat/mov.c
 @@ -65,6 +65,10 @@
@@ -125,7 +124,7 @@ index 1bbc435..16a08d3 100644
      if (c->trak_index < 0) {  // meta not inside a trak
          if (type == MKTAG('m','d','t','a')) {
              c->found_hdlr_mdta = 1;
-@@ -1962,6 +1984,10 @@ static int mov_read_glbl(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+@@ -1964,6 +1986,10 @@ static int mov_read_glbl(MOVContext *c, AVIOContext *pb, MOVAtom atom)
      if ((uint64_t)atom.size > (1<<30))
          return AVERROR_INVALIDDATA;
  
@@ -136,7 +135,7 @@ index 1bbc435..16a08d3 100644
      if (atom.size >= 10) {
          // Broken files created by legacy versions of libavformat will
          // wrap a whole fiel atom inside of a glbl atom.
-@@ -7472,121 +7498,303 @@ static int mov_read_pitm(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+@@ -7478,121 +7504,303 @@ static int mov_read_pitm(MOVContext *c, AVIOContext *pb, MOVAtom atom)
      return atom.size;
  }
  
@@ -535,7 +534,7 @@ index 1bbc435..16a08d3 100644
  }
  
  static const MOVParseTableEntry mov_default_parse_table[] = {
-@@ -7694,6 +7902,16 @@ static const MOVParseTableEntry mov_default_parse_table[] = {
+@@ -7700,6 +7908,16 @@ static const MOVParseTableEntry mov_default_parse_table[] = {
  { MKTAG('i','l','o','c'), mov_read_iloc },
  { MKTAG('p','c','m','C'), mov_read_pcmc }, /* PCM configuration box */
  { MKTAG('p','i','t','m'), mov_read_pitm },
@@ -552,7 +551,7 @@ index 1bbc435..16a08d3 100644
  { 0, NULL }
  };
  
-@@ -8190,6 +8408,12 @@ static int mov_read_close(AVFormatContext *s)
+@@ -8196,6 +8414,12 @@ static int mov_read_close(AVFormatContext *s)
      av_freep(&mov->aes_decrypt);
      av_freep(&mov->chapter_tracks);
  
@@ -565,7 +564,7 @@ index 1bbc435..16a08d3 100644
      return 0;
  }
  
-@@ -8344,6 +8568,9 @@ static int mov_read_header(AVFormatContext *s)
+@@ -8350,6 +8574,9 @@ static int mov_read_header(AVFormatContext *s)
  
      mov->fc = s;
      mov->trak_index = -1;
@@ -575,7 +574,7 @@ index 1bbc435..16a08d3 100644
      /* .mov and .mp4 aren't streamable anyway (only progressive download if moov is before mdat) */
      if (pb->seekable & AVIO_SEEKABLE_NORMAL)
          atom.size = avio_size(pb);
-@@ -8358,13 +8585,106 @@ static int mov_read_header(AVFormatContext *s)
+@@ -8364,13 +8591,106 @@ static int mov_read_header(AVFormatContext *s)
              av_log(s, AV_LOG_ERROR, "error reading header\n");
              return err;
          }
@@ -684,7 +683,7 @@ index 1bbc435..16a08d3 100644
      if (pb->seekable & AVIO_SEEKABLE_NORMAL) {
          if (mov->nb_chapter_tracks > 0 && !mov->ignore_chapters)
              mov_read_chapters(s);
-@@ -8652,6 +8972,98 @@ static int get_eia608_packet(AVIOContext *pb, AVPacket *pkt, int size)
+@@ -8659,6 +8979,98 @@ static int get_eia608_packet(AVIOContext *pb, AVPacket *pkt, int size)
      return 0;
  }
  
@@ -783,7 +782,7 @@ index 1bbc435..16a08d3 100644
  static int mov_read_packet(AVFormatContext *s, AVPacket *pkt)
  {
      MOVContext *mov = s->priv_data;
-@@ -8675,6 +9087,47 @@ static int mov_read_packet(AVFormatContext *s, AVPacket *pkt)
+@@ -8682,6 +9094,47 @@ static int mov_read_packet(AVFormatContext *s, AVPacket *pkt)
      current_index = sc->current_index;
      mov_current_sample_inc(sc);
  
@@ -831,7 +830,7 @@ index 1bbc435..16a08d3 100644
      if (mov->next_root_atom) {
          sample->pos = FFMIN(sample->pos, mov->next_root_atom);
          sample->size = FFMIN(sample->size, (mov->next_root_atom - sample->pos));
-@@ -9045,7 +9498,7 @@ static const AVOption mov_options[] = {
+@@ -9052,7 +9505,7 @@ static const AVOption mov_options[] = {
      { "enable_drefs", "Enable external track support.", OFFSET(enable_drefs), AV_OPT_TYPE_BOOL,
          {.i64 = 0}, 0, 1, FLAGS },
      { "max_stts_delta", "treat offsets above this value as invalid", OFFSET(max_stts_delta), AV_OPT_TYPE_INT, {.i64 = UINT_MAX-48000*10 }, 0, UINT_MAX, .flags = AV_OPT_FLAG_DECODING_PARAM },
@@ -840,7 +839,7 @@ index 1bbc435..16a08d3 100644
      { NULL },
  };
  
-@@ -9057,11 +9510,11 @@ static const AVClass mov_class = {
+@@ -9064,11 +9517,11 @@ static const AVClass mov_class = {
  };
  
  const AVInputFormat ff_mov_demuxer = {
@@ -855,5 +854,5 @@ index 1bbc435..16a08d3 100644
      .read_probe     = mov_probe,
      .read_header    = mov_read_header,
 -- 
-2.39.2 (Apple Git-143)
+2.39.3 (Apple Git-145)
 

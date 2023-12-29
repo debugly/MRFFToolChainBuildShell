@@ -1,0 +1,30 @@
+# This is a cross compilation file from OSX (M1) to x86_64
+# Apple keeps changing the location and names of files so
+# these might not work for you. Use the googels and xcrun.
+
+[binaries]
+c = 'clang'
+cpp = 'clang++'
+objc = 'clang'
+objcpp = 'clang++'
+ar = 'ar'
+strip = 'strip'
+
+[built-in options]
+c_args = ['-arch', 'x86_64', '-mios-simulator-version-min=9.0', '-fembed-bitcode', '-Os', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk']
+cpp_args = ['-arch', 'x86_64', '-mios-simulator-version-min=9.0', '-fembed-bitcode', '-Os', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk']
+c_link_args = ['-arch', 'x86_64', '-mios-simulator-version-min=9.0', '-Os', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk']
+cpp_link_args = ['-arch', 'x86_64', '-mios-simulator-version-min=9.0', '-Os', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk']
+objc_args = ['-arch', 'x86_64', '-mios-simulator-version-min=9.0', '-fembed-bitcode', '-Os', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk']
+objcpp_args = ['-arch', 'x86_64', '-mios-simulator-version-min=9.0', '-fembed-bitcode', '-Os', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk']
+
+[properties]
+root = '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer'
+has_function_printf = true
+has_function_hfkerhisadf = false
+
+[host_machine]
+system = 'darwin'
+cpu_family = 'x86_64'
+cpu = 'x86_64'
+endian = 'little'

@@ -32,12 +32,12 @@ echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
 # prepare build config
-DAV1D_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --default-library static"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --default-library static"
 
 if [[ "$BUILD_OPT" == "debug" ]]; then
-    DAV1D_CFG_FLAGS="$DAV1D_CFG_FLAGS --buildtype=debug"
+    CFG_FLAGS="$CFG_FLAGS --buildtype=debug"
 else
-    DAV1D_CFG_FLAGS="$DAV1D_CFG_FLAGS --buildtype=release"
+    CFG_FLAGS="$CFG_FLAGS --buildtype=release"
 fi
 
 cd $XC_BUILD_SOURCE
@@ -46,24 +46,24 @@ export CXX="$XCRUN_CXX"
 
 if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]]; then
    echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
-
-   DAV1D_CFG_FLAGS="$DAV1D_CFG_FLAGS --cross-file package/crossfiles/$XC_ARCH-$XC_PLAT.meson"
+   CFG_FLAGS="$CFG_FLAGS --cross-file $THIS_DIR/../compile-cfgs/meson-crossfiles/$XC_ARCH-$XC_PLAT.meson"
 fi
 
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "CC: $XCRUN_CC"
-echo "DAV1D_CFG_FLAGS: $DAV1D_CFG_FLAGS"
+echo "CFG_FLAGS: $CFG_FLAGS"
 echo "----------------------"
 echo
 
-if [[ -d build ]]; then
-   rm -rf build
+build=./build-$XC_ARCH
+if [[ -d $build ]]; then
+   rm -rf $build
 fi
 
-meson setup build $DAV1D_CFG_FLAGS >/dev/null
+meson setup $build $CFG_FLAGS >/dev/null
 
-cd ./build
+cd $build
 
 meson compile && meson install
 

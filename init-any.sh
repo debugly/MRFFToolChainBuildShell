@@ -35,7 +35,7 @@ cd "$THIS_DIR"
 function usage()
 {
     echo " useage:"
-    echo " $0 [ios,macos,all] [all|fdk-aac|ffmpeg|lame|libyuv|openssl|opus|x264|bluray] [all,arm64,x86_64]"
+    echo " $0 [ios,macos,all] [all|fdk-aac|ffmpeg|lame|libyuv|openssl|opus|x264|bluray|ass|freetype|fribidi|harfbuzz|unibreak] [all,arm64,x86_64]"
 }
 
 if [[ "$SKIP_PULL_BASE" ]];then
@@ -51,7 +51,6 @@ if [[ "x$LIBS" == "x" || "$LIBS" == "all" ]]; then
 fi
 
 if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' || "$PLAT" == 'all' ]]; then
-    source "$THIS_DIR/version.sh"
     for lib in $LIBS
     do
         echo "===[init $lib]===================="

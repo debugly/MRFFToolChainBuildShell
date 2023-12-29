@@ -26,4 +26,4 @@ export GIT_LOCAL_REPO=build/extra/dav1d
 export GIT_COMMIT=1.3.0
 export GIT_WITH_SUBMODULE=0
 export REPO_DIR=dav1d
-export GIT_DAV1D_VERSION=1.3.0
+export GIT_REPO_VERSION=1.3.0

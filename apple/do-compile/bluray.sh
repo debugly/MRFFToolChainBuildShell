@@ -33,20 +33,28 @@ echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
 # prepare build config
-BLURAY_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --disable-dependency-tracking --disable-silent-rules --disable-bdjava-jar --without-freetype --without-fontconfig --disable-doxygen-doc"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --disable-dependency-tracking --disable-silent-rules --disable-bdjava-jar --without-freetype --without-fontconfig --disable-doxygen-doc"
 CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
+
+if [[ "$XC_OPTS" == "debug" ]];then
+   CFG_FLAGS="${CFG_FLAGS} use_examples=yes"
+fi
 
 # for cross compile
 if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]];then
     echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
     CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
-    BLURAY_CFG_FLAGS="$BLURAY_CFG_FLAGS --host=$XC_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
+    CFG_FLAGS="$CFG_FLAGS --host=$XC_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
 fi
 
 echo "----------------------"
 echo "[*] configurate $LIB_NAME"
 echo "----------------------"
+
+# use system xml2 lib
+export LIBXML2_CFLAGS=$(xml2-config --cflags)
+export LIBXML2_LIBS=$(xml2-config --libs)
 
 cd $XC_BUILD_SOURCE
 
@@ -60,11 +68,11 @@ fi
 
 echo 
 echo "CC: $XCRUN_CC"
-echo "BLURAY_CFG_FLAGS: $BLURAY_CFG_FLAGS"
+echo "CFG_FLAGS: $CFG_FLAGS"
 echo "CFLAGS: $CFLAGS"
 echo 
 
-./configure $BLURAY_CFG_FLAGS \
+./configure $CFG_FLAGS \
    CC="$XCRUN_CC" \
    CFLAGS="$CFLAGS" \
    LDFLAGS="$CFLAGS" \
@@ -76,3 +84,7 @@ echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
 make install -j8 1>/dev/null
+# system xml2 lib has no pc file,when compile ffmepg, pkg-config can't find the private xml2 lib
+echo "remove private xml lib from pc file"
+
+sed -i "" '/Requires.private/d' $XC_BUILD_PREFIX/lib/pkgconfig/libbluray.pc

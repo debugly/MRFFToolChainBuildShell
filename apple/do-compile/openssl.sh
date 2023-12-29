@@ -35,12 +35,12 @@ echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
 # prepare build config
-OPENSSL_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --openssldir=$XC_BUILD_PREFIX no-shared no-hw no-engine no-asm"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --openssldir=$XC_BUILD_PREFIX no-shared no-hw no-engine no-asm"
 
 if [ "$XC_ARCH" = "x86_64" ]; then
-    OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
+    CFG_FLAGS="$CFG_FLAGS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
 elif [ "$XC_ARCH" = "arm64" ]; then
-    OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS darwin64-arm64-cc enable-ec_nistp_64_gcc_128"
+    CFG_FLAGS="$CFG_FLAGS darwin64-arm64-cc enable-ec_nistp_64_gcc_128"
 else
     echo "unknown architecture $FF_ARCH";
     exit 1
@@ -67,9 +67,9 @@ else
     echo 
     echo "CC: $XCRUN_CC"
     echo "CFLAGS: $CFLAGS"
-    echo "Openssl CFG: $OPENSSL_CFG_FLAGS"
+    echo "Openssl CFG: $CFG_FLAGS"
     echo 
-    ./Configure $OPENSSL_CFG_FLAGS \
+    ./Configure $CFG_FLAGS \
         CC="$XCRUN_CC" \
         CFLAGS="$CFLAGS" \
         CXXFLAG="$CFLAGS"
@@ -81,4 +81,4 @@ echo "[*] compile $LIB_NAME"
 echo "----------------------"
 set +e
 make 1>/dev/null
-make install_sw
+make install_sw 1>/dev/null

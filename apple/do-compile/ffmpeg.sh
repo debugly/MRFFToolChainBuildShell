@@ -37,50 +37,51 @@ echo "===check env end==="
 
 # ffmpeg build params
 source $THIS_DIR/../../ffconfig/module.sh
-FFMPEG_CFG_FLAGS="$COMMON_FF_CFG_FLAGS"
+CFG_FLAGS="$COMMON_FF_CFG_FLAGS"
 
-FFMPEG_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX $FFMPEG_CFG_FLAGS"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX $CFG_FLAGS"
 
 # Developer options (useful when working on FFmpeg itself):
-# FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-stripping"
+# CFG_FLAGS="$CFG_FLAGS --disable-stripping"
 
 ##
-FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --arch=$XC_ARCH"
-FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --target-os=$XC_TAGET_OS"
-FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-static"
-FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-shared"
+CFG_FLAGS="$CFG_FLAGS --arch=$XC_ARCH"
+CFG_FLAGS="$CFG_FLAGS --target-os=$XC_TAGET_OS"
+CFG_FLAGS="$CFG_FLAGS --enable-static"
+CFG_FLAGS="$CFG_FLAGS --disable-shared"
 
 # x86_64, arm64
-FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-pic"
-FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-neon"
-FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-asm"
+CFG_FLAGS="$CFG_FLAGS --enable-pic"
+CFG_FLAGS="$CFG_FLAGS --enable-neon"
+CFG_FLAGS="$CFG_FLAGS --enable-asm"
+
+C_FLAGS=
+C_FLAGS="$C_FLAGS -fno-stack-check -arch $XC_ARCH"
+C_FLAGS="$C_FLAGS $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
 if [[ "$XC_OPTS" == "debug" ]]; then
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-optimizations"
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-debug"
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-small"
+    CFG_FLAGS="$CFG_FLAGS --disable-optimizations"
+    CFG_FLAGS="$CFG_FLAGS --enable-debug"
+    CFG_FLAGS="$CFG_FLAGS --disable-small"
+    C_FLAGS="$C_FLAGS -D DEBUG_BLURAY=1"
 else
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-optimizations"
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-debug"
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-small"
+    CFG_FLAGS="$CFG_FLAGS --enable-optimizations"
+    CFG_FLAGS="$CFG_FLAGS --disable-debug"
+    CFG_FLAGS="$CFG_FLAGS --enable-small"
 fi
-
-# FFMPEG_C_FLAGS
-FFMPEG_C_FLAGS=
-FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS -fno-stack-check -arch $XC_ARCH"
-FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
 # for cross compile
 if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]]; then
     echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
-    FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS --sysroot $XCRUN_SDK_PATH"
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-cross-compile"
+    C_FLAGS="$C_FLAGS --sysroot $XCRUN_SDK_PATH"
+    CFG_FLAGS="$CFG_FLAGS --enable-cross-compile"
 fi
 
-FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --pkg-config-flags=--static"
 
-FFMPEG_LDFLAGS="$FFMPEG_C_FLAGS"
+CFG_FLAGS="$CFG_FLAGS --pkg-config-flags=--static"
+
+LDFLAGS="$C_FLAGS"
 FFMPEG_DEP_LIBS=
 
 echo "----------------------"
@@ -89,23 +90,23 @@ echo "[*] check OpenSSL"
 # https://ffmpeg.org/doxygen/4.1/md_LICENSE.html
 # https://www.openssl.org/source/license.html
 
-MY_PKG_CONFIG_PATH=''
+MY_PKG_CONFIG_LIBDIR=''
 # with openssl
 # use pkg-config fix ff4.0--ijk0.8.8--20210426--001 use openssl 1_1_1m occur can't find openssl error.
 if [[ -f "${XC_PRODUCT_ROOT}/openssl-$XC_ARCH/lib/pkgconfig/openssl.pc" ]]; then
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-nonfree --enable-openssl"
-    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
-        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    CFG_FLAGS="$CFG_FLAGS --enable-nonfree --enable-openssl"
+    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
     fi
-    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/openssl-$XC_ARCH/lib/pkgconfig"
+    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/openssl-$XC_ARCH/lib/pkgconfig"
 
     echo "[*] --enable-openssl"
 elif [[ -f "${XC_PRODUCT_ROOT}/universal/openssl/lib/pkgconfig/openssl.pc" ]]; then
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-nonfree --enable-openssl"
-    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
-        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    CFG_FLAGS="$CFG_FLAGS --enable-nonfree --enable-openssl"
+    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
     fi
-    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/universal/openssl/lib/pkgconfig"
+    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/openssl/lib/pkgconfig"
 
     echo "[*] --enable-openssl"   
 else
@@ -118,12 +119,12 @@ echo "[*] check x264"
 # with x264
 if [[ -f "${XC_PRODUCT_ROOT}/x264-$XC_ARCH/lib/pkgconfig/x264.pc" ]]; then
     # libx264 is gpl and --enable-gpl is not specified.
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-gpl --enable-libx264"
+    CFG_FLAGS="$CFG_FLAGS --enable-gpl --enable-libx264"
 
-    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
-        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
     fi
-    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/x264-$XC_ARCH/lib/pkgconfig"
+    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/x264-$XC_ARCH/lib/pkgconfig"
 
     echo "[*] --enable-libx264"
 else
@@ -136,12 +137,12 @@ echo "[*] check fdk-aac"
 # with fdk-aac
 if [[ -f "${XC_PRODUCT_ROOT}/fdk-aac-$XC_ARCH/lib/pkgconfig/fdk-aac.pc" ]]; then
 
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-nonfree --enable-libfdk-aac"
+    CFG_FLAGS="$CFG_FLAGS --enable-nonfree --enable-libfdk-aac"
 
-    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
-        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
     fi
-    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/fdk-aac-$XC_ARCH/lib/pkgconfig"
+    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/fdk-aac-$XC_ARCH/lib/pkgconfig"
 
     echo "[*] --enable-libfdk-aac"
 else
@@ -154,12 +155,12 @@ echo "[*] check mp3lame"
 # with lame
 if [[ -f "${XC_PRODUCT_ROOT}/lame-$XC_ARCH/lib/libmp3lame.a" ]]; then
     # libmp3lame is gpl and --enable-gpl is not specified.
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-gpl --enable-libmp3lame"
+    CFG_FLAGS="$CFG_FLAGS --enable-gpl --enable-libmp3lame"
 
     FDKAAC_C_FLAGS="-I${XC_PRODUCT_ROOT}/lame-$XC_ARCH/include"
     FDKAAC_LD_FLAGS="-L${XC_PRODUCT_ROOT}/lame-$XC_ARCH/lib -lmp3lame"
 
-    FFMPEG_C_FLAGS="$FFMPEG_C_FLAGS $FDKAAC_C_FLAGS"
+    C_FLAGS="$C_FLAGS $FDKAAC_C_FLAGS"
     FFMPEG_DEP_LIBS="$FFMPEG_DEP_LIBS $FDKAAC_LD_FLAGS"
     echo "[*] --enable-libmp3lame"
 else
@@ -172,22 +173,22 @@ echo "[*] check opus"
 # with opus
 if [[ -f "${XC_PRODUCT_ROOT}/opus-$XC_ARCH/lib/pkgconfig/opus.pc" ]]; then
 
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libopus --enable-decoder=opus"
+    CFG_FLAGS="$CFG_FLAGS --enable-libopus --enable-decoder=opus"
 
-    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
-        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
     fi
-    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/opus-$XC_ARCH/lib/pkgconfig"
+    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/opus-$XC_ARCH/lib/pkgconfig"
 
     echo "[*] --enable-libopus --enable-decoder=opus"
 elif [[ -f "${XC_PRODUCT_ROOT}/universal/opus/lib/pkgconfig/opus.pc" ]]; then
 
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libopus --enable-decoder=opus"
+    CFG_FLAGS="$CFG_FLAGS --enable-libopus --enable-decoder=opus"
 
-    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
-        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
     fi
-    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/universal/opus/lib/pkgconfig"
+    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/opus/lib/pkgconfig"
 
     echo "[*] --enable-libopus --enable-decoder=opus"
 else
@@ -200,22 +201,23 @@ echo "[*] check bluray"
 # with bluray
 if [[ -f "${XC_PRODUCT_ROOT}/bluray-$XC_ARCH/lib/pkgconfig/libbluray.pc" ]]; then
 
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
+# --enable-libxml2
+    CFG_FLAGS="$CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
 
-    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
-        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
     fi
-    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/bluray-$XC_ARCH/lib/pkgconfig"
+    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/bluray-$XC_ARCH/lib/pkgconfig"
 
     echo "[*] --enable-libbluray --enable-protocol=bluray"
 elif [[ -f "${XC_PRODUCT_ROOT}/universal/bluray/lib/pkgconfig/libbluray.pc" ]]; then
 
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
+    CFG_FLAGS="$CFG_FLAGS --enable-libxml2 --enable-libbluray --enable-protocol=bluray"
 
-    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
-        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
     fi
-    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/universal/bluray/lib/pkgconfig"
+    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/bluray/lib/pkgconfig"
 
     echo "[*] --enable-libbluray --enable-protocol=bluray"
 else
@@ -229,22 +231,22 @@ echo "[*] check dav1d"
 # dav1d由VideoLAN，VLC和FFmpeg联合开发，项目由AOM联盟赞助，和libaom相比，dav1d性能普遍提升100%，最高提升400%
 if [[ -f "${XC_PRODUCT_ROOT}/dav1d-$XC_ARCH/lib/pkgconfig/dav1d.pc" ]]; then
 
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libdav1d --enable-decoder=libdav1d"
+    CFG_FLAGS="$CFG_FLAGS --enable-libdav1d --enable-decoder=libdav1d"
 
-    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
-        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
     fi
-    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/dav1d-$XC_ARCH/lib/pkgconfig"
+    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/dav1d-$XC_ARCH/lib/pkgconfig"
 
     echo "[*] --enable-libdav1d --enable-decoder=libdav1d"
 elif [[ -f "${XC_PRODUCT_ROOT}/universal/dav1d/lib/pkgconfig/dav1d.pc" ]]; then
 
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-libdav1d --enable-decoder=libdav1d"
+    CFG_FLAGS="$CFG_FLAGS --enable-libdav1d --enable-decoder=libdav1d"
 
-    if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
-        MY_PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH:"
+    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
     fi
-    MY_PKG_CONFIG_PATH="${MY_PKG_CONFIG_PATH}${XC_PRODUCT_ROOT}/universal/dav1d/lib/pkgconfig"
+    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/dav1d/lib/pkgconfig"
 
     echo "[*] --enable-libdav1d --enable-decoder=libdav1d"
 else
@@ -252,18 +254,20 @@ else
 fi
 
 #just wait videotoolbox support decode av1
-# FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-decoder=av1"
+# CFG_FLAGS="$CFG_FLAGS --enable-decoder=av1"
 
-if [[ -n "$MY_PKG_CONFIG_PATH" ]]; then
-    export PKG_CONFIG_PATH="$MY_PKG_CONFIG_PATH"
+if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+    export PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR"
 fi
 
 CC="$XCRUN_CC"
 
-# echo "PKG_CONFIG_PATH:${PKG_CONFIG_PATH}"
+echo "export PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}"
+export PKG_LIBS=$(xml2-config --libs)
+export PKG_CFLAGS=$(xml2-config --cflags)
 # pkg-config --variable pc_path pkg-config
 # pkg-config --libs dav1d
-
+pkg-config --cflags --libs libbluray
 echo "----------------------"
 echo "[*] configure"
 
@@ -283,18 +287,18 @@ else
     echo
     echo "CC: $CC"
     echo
-    echo "CFLAGS: $FFMPEG_C_FLAGS"
+    echo "CFLAGS: $C_FLAGS"
     echo
-    echo "FF_CFG_FLAGS: $FFMPEG_CFG_FLAGS"
+    echo "FF_CFG_FLAGS: $CFG_FLAGS"
     echo
-    echo "LDFLAG:$FFMPEG_LDFLAGS $FFMPEG_DEP_LIBS"
+    echo "LDFLAG:$LDFLAGS $FFMPEG_DEP_LIBS"
     echo
     ./configure \
-        $FFMPEG_CFG_FLAGS \
+        $CFG_FLAGS \
         --cc="$CC" \
-        --extra-cflags="$FFMPEG_C_FLAGS" \
-        --extra-cxxflags="$FFMPEG_C_FLAGS" \
-        --extra-ldflags="$FFMPEG_LDFLAGS $FFMPEG_DEP_LIBS"
+        --extra-cflags="$C_FLAGS" \
+        --extra-cxxflags="$C_FLAGS" \
+        --extra-ldflags="$LDFLAGS $FFMPEG_DEP_LIBS"
 fi
 
 #----------------------

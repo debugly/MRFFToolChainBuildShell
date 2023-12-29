@@ -113,11 +113,12 @@ function make_arch_repo() {
         git submodule update --init --depth=1
     fi
     echo "last commit:"$(git log -1 --pretty=format:"[%h] %s:%ce %cd")
-    if [[ -n "$IJK_VERSION" ]]; then
-        git tag "ff${GIT_COMMIT##*/}-ijk$IJK_VERSION"
-    fi
     apply_patches $1
-    echo "tag:$(git describe --tags)"
+    if ! git describe --tags >/dev/null 2>&1; then
+        git tag "${GIT_REPO_VERSION}"
+    fi
+    tag=$(git describe --tags 2>/dev/null)
+    echo "current tag:$tag"
     cd - >/dev/null
 }
 

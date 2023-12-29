@@ -26,4 +26,4 @@ export GIT_LOCAL_REPO=build/extra/bluray
 export GIT_COMMIT=1.3.4
 export GIT_WITH_SUBMODULE=1
 export REPO_DIR=bluray
-export GIT_BLURAY_VERSION=1.3.4
+export GIT_REPO_VERSION=1.3.4

@@ -40,7 +40,6 @@ do_lipo_lib() {
             LIPO_FLAGS="$LIPO_FLAGS $ARCH_LIB_FILE"
         else
             echo "can't find the $arch arch $LIB_FILE"
-            exit 1
         fi
     done
     
@@ -103,6 +102,10 @@ function do_compile() {
         exit 1
     fi
     
+    # disabling pkg-config-path
+    # https://gstreamer-devel.narkive.com/TeNagSKN/gst-devel-disabling-pkg-config-path
+    export PKG_CONFIG_LIBDIR=./
+    # export PKG_CONFIG_LIBDIR=${sysroot}/lib/pkgconfig
     mkdir -p "$XC_BUILD_PREFIX"
     ./do-compile/$LIB_NAME.sh
 }
@@ -146,7 +149,7 @@ function main() {
                 echo
             done
             
-            do_lipo_all "$archs"
+            do_lipo_all "$XC_ALL_ARCHS"
         ;;
         'rebuild')
             echo '---clean for rebuild-----------------'
@@ -157,8 +160,8 @@ function main() {
             main
         ;;
         *)
-            echo "Usage:"
-            echo "    $0 [build|lipo|clean] [x86_64|arm64]"
+            echo "Unknown cmd:[$cmd]"
+            echo "Maybe you want use rebuild|build|lipo|clean|"
             exit 1
         ;;
     esac

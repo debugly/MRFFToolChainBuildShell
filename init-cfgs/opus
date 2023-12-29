@@ -25,4 +25,4 @@ fi
 export GIT_LOCAL_REPO=build/extra/opus
 export GIT_COMMIT=v1.4
 export REPO_DIR=opus
-export GIT_OPUS_VERSION=1.4
+export GIT_REPO_VERSION=1.4

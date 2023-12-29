@@ -92,4 +92,4 @@ function init_env () {
 
 export -f install_depends
 export -f init_env
-export ALL_ARCHS="x86_64 arm64"
+export XC_ALL_ARCHS="x86_64 arm64"

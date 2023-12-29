@@ -30,7 +30,7 @@ cd "$THIS_DIR"
 
 function usage() {
     echo " useage:"
-    echo "  $0 [ios|macos] [build|rebuild|lipo|clean] [all|ffmpeg|libyuv|openssl|opus|dav1d] [arm64|x86_64|all] [opts...]"
+    echo "  $0 [ios|macos] [build|rebuild|lipo|clean] [all|fdk-aac|ffmpeg|lame|libyuv|openssl|opus|x264|bluray|ass|freetype|fribidi|harfbuzz|unibreak] [arm64|x86_64|all] [opts...]"
 }
 
 if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' ]]; then
@@ -51,7 +51,7 @@ if [[ -z "$LIBS" || "$LIBS" == "all" ]]; then
 fi
 
 if [[ -z "$ARCH" || "$ARCH" == 'all' ]]; then
-    ARCH="$ALL_ARCHS"
+    ARCH="$XC_ALL_ARCHS"
 fi
 
 if [[ -z "$CMD" ]]; then

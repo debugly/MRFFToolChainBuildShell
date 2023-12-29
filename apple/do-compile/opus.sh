@@ -32,7 +32,7 @@ echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
 # prepare build config
-OPUS_CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --disable-doc --disable-dependency-tracking --disable-shared --enable-silent-rules --disable-extra-programs --silent"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --disable-doc --disable-dependency-tracking --disable-shared --enable-silent-rules --disable-extra-programs --silent"
 CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
 # for cross compile
@@ -40,7 +40,7 @@ if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]];then
     echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
     CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
-    OPUS_CFG_FLAGS="$OPUS_CFG_FLAGS --host=$XC_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
+    CFG_FLAGS="$CFG_FLAGS --host=$XC_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
 fi
 
 echo "----------------------"
@@ -59,11 +59,11 @@ fi
 
 echo 
 echo "CC: $XCRUN_CC"
-echo "OPUS_CFG_FLAGS: $OPUS_CFG_FLAGS"
+echo "CFG_FLAGS: $CFG_FLAGS"
 echo "CFLAGS: $CFLAGS"
 echo 
 
-./configure $OPUS_CFG_FLAGS \
+./configure $CFG_FLAGS \
    CC="$XCRUN_CC" \
    CFLAGS="$CFLAGS" \
    LDFLAGS="$CFLAGS" \

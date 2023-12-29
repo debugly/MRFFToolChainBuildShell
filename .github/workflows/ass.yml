@@ -1,0 +1,101 @@
+on:
+  # push:
+  #   branches: [master]
+  workflow_dispatch:
+  pull_request:
+    branches: [master]
+
+name: Create ass Release
+
+jobs:
+  build:
+    name: compile ass then deploy
+    runs-on: macos-13
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Read Tag Version
+      run: |
+        # https://stackoverflow.com/questions/4916492/git-describe-fails-with-fatal-no-names-found-cannot-describe-anything
+        # git describe --tags --always | awk -F . '{printf "RELEASE_VERSION=%s.%d",$1,$2+1}' | xargs > constants.env
+        # git describe --tags --always | awk -F - '{printf "RELEASE_VERSION=V1.0-%s",$NF}' | xargs > constants.env
+        d=$(TZ=UTC-8 date +'%y%m%d%H%M%S')
+        grep GIT_REPO_VERSION= ./init-cfgs/ass | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
+        echo "RELEASE_DATE=$d" >> constants.env
+        cat constants.env
+    - name: Export Env
+      uses: cardinalby/export-env-action@v2
+      with:
+        envFile: 'constants.env'
+    - name: init src
+      run: ./init-any.sh all ass
+    - name: generate src log
+      run: |
+        cd build/src/macos
+        ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../macos-src-log.md
+        cd ../ios
+        ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../ios-src-log.md
+    - name: do compile macos libs
+      run: |
+        cd macos
+        ./compile-any.sh build ass
+        ./compile-any.sh lipo ass
+    - name: do compile ios libs
+      run: |
+        cd ios
+        ./compile-any.sh build ass
+        ./compile-any.sh lipo ass
+    - name: Zip macos libs
+      run: |
+        cd build/product/macos/universal
+        zip -rq macos-universal.zip ./*
+    - name: Zip ios libs
+      run: |
+        cd build/product/ios/universal
+        zip -rq ios-universal.zip ./*
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ass-${{ env.RELEASE_VERSION }}-${{ env.RELEASE_DATE }}
+        release_name: ass-${{ env.RELEASE_VERSION }}
+        draft: false
+        prerelease: false
+    - name: Upload macos Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: build/product/macos/universal/macos-universal.zip
+        asset_name: "ass-macos-universal-${{ env.RELEASE_VERSION }}.zip"
+        asset_content_type: application/zip
+    - name: Upload ios Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: build/product/ios/universal/ios-universal.zip
+        asset_name: "ass-ios-universal-${{ env.RELEASE_VERSION }}.zip"
+        asset_content_type: application/zip
+    - name: Upload macos src md
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: build/src/macos-src-log.md
+        asset_name: "macos-ass-src-log-${{ env.RELEASE_VERSION }}.md"
+        asset_content_type: application/text
+    - name: Upload ios src md
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: build/src/ios-src-log.md
+        asset_name: "ios-ass-src-log-${{ env.RELEASE_VERSION }}.md"
+        asset_content_type: application/text

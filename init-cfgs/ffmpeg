@@ -30,4 +30,4 @@ fi
 
 export GIT_LOCAL_REPO=build/extra/ffmpeg
 export REPO_DIR=ffmpeg
-export GIT_FFMPEG_VERSION=5.1.4
+export GIT_REPO_VERSION=5.1.4

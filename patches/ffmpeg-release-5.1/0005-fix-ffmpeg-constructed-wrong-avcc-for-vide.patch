@@ -1,8 +1,8 @@
-From 49ac01ec1e3f33fe8363f875e91e2355f4480f26 Mon Sep 17 00:00:00 2001
+From e4ed8a65f39abdbcc542069782ecfe2a8dcd23c9 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Mon, 16 May 2022 16:15:10 +0800
-Subject: [PATCH 5/7] fix ffmpeg constructed wrong avcc for videotoolbox
- hwaccel.
+Subject: [PATCH 05/14] fix ffmpeg constructed wrong avcc for
+ videotoolbox hwaccel.
 
 ---
  libavcodec/videotoolbox.c | 35 ++++++++++++++++++++++++++++++++++-
@@ -55,5 +55,5 @@ index d61d310..82fa993 100644
      return data;
  }
 -- 
-2.39.2 (Apple Git-143)
+2.39.3 (Apple Git-145)
 

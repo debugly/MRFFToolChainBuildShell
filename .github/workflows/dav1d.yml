@@ -20,7 +20,7 @@ jobs:
         # git describe --tags --always | awk -F . '{printf "RELEASE_VERSION=%s.%d",$1,$2+1}' | xargs > constants.env
         # git describe --tags --always | awk -F - '{printf "RELEASE_VERSION=V1.0-%s",$NF}' | xargs > constants.env
         d=$(TZ=UTC-8 date +'%y%m%d%H%M%S')
-        grep GIT_DAV1D_VERSION= ./init-cfgs/dav1d | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
+        grep GIT_REPO_VERSION= ./init-cfgs/dav1d | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
         echo "RELEASE_DATE=$d" >> constants.env
         cat constants.env
     - name: Export Env

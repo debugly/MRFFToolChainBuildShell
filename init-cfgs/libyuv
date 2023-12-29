@@ -26,4 +26,4 @@ fi
 export GIT_LOCAL_REPO=build/extra/libyuv
 export GIT_COMMIT=main
 export REPO_DIR=libyuv
-export GIT_LIBYUV_VERSION=main
+export GIT_REPO_VERSION=main

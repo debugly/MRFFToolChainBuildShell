@@ -21,4 +21,4 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-../apple/compile-any.sh ios $*
+../apple/compile-any.sh ios "$@"

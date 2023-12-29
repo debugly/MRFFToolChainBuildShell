@@ -1,7 +1,7 @@
-From 0d685c7a7dd124afdf9700d158a6cfc1c710ea19 Mon Sep 17 00:00:00 2001
+From 6a6f96b5b870260bb5c8d70fcc602417aab2a7af Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Tue, 8 Aug 2023 14:53:18 +0800
-Subject: [PATCH] restore ijk custom protocols except longurl
+Subject: [PATCH 13/14] restore ijk custom protocols except longurl
 
 ---
  libavcodec/Makefile      |   1 +
@@ -637,5 +637,5 @@ index 0000000..b64cb39
 +
 +#endif /* AVUTIL_APPLICATION_H */
 -- 
-2.39.2 (Apple Git-143)
+2.39.3 (Apple Git-145)
 

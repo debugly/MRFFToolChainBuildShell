@@ -1,8 +1,8 @@
-From 1f7e8ca2fc1e2bf9ec6519902f47c427d2b4aa6d Mon Sep 17 00:00:00 2001
+From d067bd96497d0bc0bd91feda20b7ca2c7e651f79 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Mon, 22 May 2023 18:19:11 +0800
-Subject: [PATCH] Correct the wrong codecpar->codec_id which read from MIME of
- ID3tags, but the real data was encoded in PNG/JPEG/TIFF
+Subject: [PATCH 07/14] Correct the wrong codecpar->codec_id which read
+ from MIME of ID3tags, but the real data was encoded in PNG/JPEG/TIFF
 
 ---
  libavformat/id3v2.c   | 7 ++++++-
@@ -43,7 +43,7 @@ index e7ff26e..a99e212 100644
      return 0;
  }
 diff --git a/libavformat/mov.c b/libavformat/mov.c
-index 88fbfbc..1bbc435 100644
+index ee4b62a..96ec33c 100644
 --- a/libavformat/mov.c
 +++ b/libavformat/mov.c
 @@ -212,7 +212,7 @@ static int mov_read_covr(MOVContext *c, AVIOContext *pb, int type, int len)
@@ -56,5 +56,5 @@ index 88fbfbc..1bbc435 100644
          } else {
              id = AV_CODEC_ID_MJPEG;
 -- 
-2.39.2 (Apple Git-143)
+2.39.3 (Apple Git-145)
 

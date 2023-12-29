@@ -1,7 +1,7 @@
-From 0b054f958ed0f191b6edbf52b5f56c88b404038f Mon Sep 17 00:00:00 2001
+From 7b54df2c93d327611d594f9b4ea1475bcf729cb6 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 29 Jul 2022 12:54:09 +0800
-Subject: [PATCH 4/7] file use file_seek
+Subject: [PATCH 04/14] file use file_seek
 
 ---
  libavformat/file.c | 3 ++-
@@ -29,5 +29,5 @@ index 98c9e81..edd939c 100644
      .url_check           = file_check,
      .priv_data_size      = sizeof(FileContext),
 -- 
-2.39.2 (Apple Git-143)
+2.39.3 (Apple Git-145)
 
