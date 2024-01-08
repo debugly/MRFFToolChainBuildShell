@@ -211,8 +211,8 @@ if [[ -f "${XC_PRODUCT_ROOT}/bluray-$XC_ARCH/lib/pkgconfig/libbluray.pc" ]]; the
 
     echo "[*] --enable-libbluray --enable-protocol=bluray"
 elif [[ -f "${XC_PRODUCT_ROOT}/universal/bluray/lib/pkgconfig/libbluray.pc" ]]; then
-
-    CFG_FLAGS="$CFG_FLAGS --enable-libxml2 --enable-libbluray --enable-protocol=bluray"
+# --enable-libxml2
+    CFG_FLAGS="$CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
 
     if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
         MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
@@ -277,18 +277,21 @@ if [[ -f "${XC_PRODUCT_ROOT}/dvdread-$XC_ARCH/lib/pkgconfig/dvdread.pc" || -f "$
 else
     echo "[*] --disable-libdvdread"
 fi
+
+
+echo "----------------------"
+echo "[*] PKG_CONFIG_LIBDIR"
+
 if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
     export PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR"
 fi
 
-CC="$XCRUN_CC"
-
 echo "export PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}"
-export PKG_LIBS=$(xml2-config --libs)
-export PKG_CFLAGS=$(xml2-config --cflags)
+
 # pkg-config --variable pc_path pkg-config
 # pkg-config --libs dav1d
-pkg-config --cflags --libs libbluray
+# pkg-config --cflags --libs libbluray
+
 echo "----------------------"
 echo "[*] configure"
 
@@ -306,7 +309,7 @@ if [[ -f "./config.h" ]]; then
     echo 'reuse configure'
 else
     echo
-    echo "CC: $CC"
+    echo "CC: $XCRUN_CC"
     echo
     echo "CFLAGS: $C_FLAGS"
     echo
@@ -316,7 +319,7 @@ else
     echo
     ./configure \
         $CFG_FLAGS \
-        --cc="$CC" \
+        --cc="$XCRUN_CC" \
         --extra-cflags="$C_FLAGS" \
         --extra-cxxflags="$C_FLAGS" \
         --extra-ldflags="$LDFLAGS $FFMPEG_DEP_LIBS"
@@ -324,10 +327,13 @@ fi
 
 #----------------------
 echo "----------------------"
-echo "[*] compile $LIB_NAME"
-echo "----------------------"
+echo "[*] compile"
 
 make
+
+echo "----------------------"
+echo "[*] install"
+
 cp config.* $XC_BUILD_PREFIX
 make install -j8 1>/dev/null
 mkdir -p $XC_BUILD_PREFIX/include/libffmpeg
