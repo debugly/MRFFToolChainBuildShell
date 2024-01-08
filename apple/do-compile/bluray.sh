@@ -85,6 +85,13 @@ echo "----------------------"
 
 make install -j8 1>/dev/null
 # system xml2 lib has no pc file,when compile ffmepg, pkg-config can't find the private xml2 lib
-echo "remove private xml lib from pc file"
+echo "mv private xml lib to system"
 
-sed -i "" '/Requires.private/d' $XC_BUILD_PREFIX/lib/pkgconfig/libbluray.pc
+pc_file="$XC_BUILD_PREFIX/lib/pkgconfig/libbluray.pc"
+# rm line 'Requires.private'
+sed -i "" '/Requires.private/d' "$pc_file"
+# find line number
+n=$(grep -n 'Libs.private' "$pc_file" | cut -d: -f1)
+xml_lib=echo $(xml2-config --libs) | awk '{len=split($0,a," "); for(n=2;n<=len;n++)printf " %s",a[n]}'
+# line n append " -lxml2 -lz -lpthread -licucore -lm"
+sed -i "" "$n s/$/&$xml_lib/" "$pc_file"
