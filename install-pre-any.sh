@@ -25,7 +25,7 @@
 #----------------------------------------------------------
 LIBYUV_TAG='libyuv-main-231127113441'
 OPUS_TAG='opus-1.4-231127183709'
-MAC_BLURAY_TAG='bluray-1.3.4-240108102853'
+MAC_BLURAY_TAG='bluray-1.3.4-240108180408'
 DAV1D_TAG='dav1d-1.3.0-231127183948'
 OPENSSL_TAG='openssl-1.1.1w-231127183927'
 DVDREAD_TAG='dvdread-6.1.3-240108102425'
