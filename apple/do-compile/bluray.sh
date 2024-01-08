@@ -92,6 +92,6 @@ pc_file="$XC_BUILD_PREFIX/lib/pkgconfig/libbluray.pc"
 sed -i "" '/Requires.private/d' "$pc_file"
 # find line number
 n=$(grep -n 'Libs.private' "$pc_file" | cut -d: -f1)
-xml_lib=echo $(xml2-config --libs) | awk '{len=split($0,a," "); for(n=2;n<=len;n++)printf " %s",a[n]}'
+xml_lib=$(echo $(xml2-config --libs) | awk '{len=split($0,a," "); for(n=2;n<=len;n++)printf " %s",a[n]}')
 # line n append " -lxml2 -lz -lpthread -licucore -lm"
 sed -i "" "$n s/$/&$xml_lib/" "$pc_file"
