@@ -27,10 +27,11 @@ jobs:
       uses: cardinalby/export-env-action@v2
       with:
         envFile: 'constants.env'
-    - run: |
+    - name: install pre-compile libs
+      run: |
         # export SKIP_FFMPEG_PATHCHES=1
         ./init-any.sh all ffmpeg
-        ./install-pre-any.sh all 'openssl opus bluray dav1d'
+        ./install-pre-any.sh all 'openssl opus bluray dav1d dvdread'
     - name: generate src log
       run: |
         cd build/src/macos
