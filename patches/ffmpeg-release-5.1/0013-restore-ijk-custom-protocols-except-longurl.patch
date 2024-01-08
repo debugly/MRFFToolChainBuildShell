@@ -1,7 +1,7 @@
 From 6a6f96b5b870260bb5c8d70fcc602417aab2a7af Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Tue, 8 Aug 2023 14:53:18 +0800
-Subject: [PATCH 13/14] restore ijk custom protocols except longurl
+Subject: [PATCH 13/15] restore ijk custom protocols except longurl
 
 ---
  libavcodec/Makefile      |   1 +

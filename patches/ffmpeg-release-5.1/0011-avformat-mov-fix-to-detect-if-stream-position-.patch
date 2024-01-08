@@ -1,7 +1,7 @@
 From 58c75976a4af13ad3b39b142e9f4ae957ee883f7 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Wed, 14 Jun 2023 17:56:07 +0800
-Subject: [PATCH 11/14] avformat mov fix to detect if stream position has been reset (https://patchwork.ffmpeg.org/project/ffmpeg/patch/20200424152042.29383-3-hello.vectronic@gmail.com/)
+Subject: [PATCH 11/15] avformat mov fix to detect if stream position has been reset (https://patchwork.ffmpeg.org/project/ffmpeg/patch/20200424152042.29383-3-hello.vectronic@gmail.com/)
 
 ---
  libavformat/hls.c |  7 +++++--

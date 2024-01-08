@@ -1,7 +1,7 @@
 From e4ed8a65f39abdbcc542069782ecfe2a8dcd23c9 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Mon, 16 May 2022 16:15:10 +0800
-Subject: [PATCH 05/14] fix ffmpeg constructed wrong avcc for
+Subject: [PATCH 05/15] fix ffmpeg constructed wrong avcc for
  videotoolbox hwaccel.
 
 ---

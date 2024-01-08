@@ -256,6 +256,27 @@ fi
 #just wait videotoolbox support decode av1
 # CFG_FLAGS="$CFG_FLAGS --enable-decoder=av1"
 
+echo "----------------------"
+echo "[*] check dvdread"
+
+if [[ -f "${XC_PRODUCT_ROOT}/dvdread-$XC_ARCH/lib/pkgconfig/dvdread.pc" || -f "${XC_PRODUCT_ROOT}/universal/dvdread/lib/pkgconfig/dvdread.pc" ]]; then
+
+    CFG_FLAGS="$CFG_FLAGS --enable-libdvdread"
+
+    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
+    fi
+
+    if [[ -f "${XC_PRODUCT_ROOT}/dvdread-$XC_ARCH/lib/pkgconfig/dvdread.pc" ]]; then
+        MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/dvdread-$XC_ARCH/lib/pkgconfig"
+    else
+        MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/dvdread/lib/pkgconfig"
+    fi
+
+    echo "[*] --enable-libdvdread"
+else
+    echo "[*] --disable-libdvdread"
+fi
 if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
     export PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR"
 fi

@@ -30,7 +30,7 @@ cd "$THIS_DIR"
 
 function usage() {
     echo " useage:"
-    echo "  $0 [ios|macos] [build|rebuild|lipo|clean] [all|fdk-aac|ffmpeg|lame|libyuv|openssl|opus|x264|bluray|ass|freetype|fribidi|harfbuzz|unibreak] [arm64|x86_64|all] [opts...]"
+    echo "  $0 [ios|macos] [build|rebuild|lipo|clean] [all|fdk-aac|ffmpeg|lame|libyuv|openssl|opus|x264|bluray|ass|freetype|fribidi|harfbuzz|unibreak|dvdread] [arm64|x86_64|all] [opts...]"
 }
 
 if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' ]]; then
