@@ -48,6 +48,9 @@ do_lipo_lib() {
 }
 
 do_lipo_all() {
+    echo '----------------------'
+    echo '[*] lipo'
+
     local archs="$1"
     rm -rf $XC_UNI_PROD_DIR/$LIB_NAME
     mkdir -p $XC_UNI_PROD_DIR/$LIB_NAME/lib
@@ -154,7 +157,7 @@ function main() {
         'rebuild')
             echo '---clean for rebuild-----------------'
             XC_CMD='clean'
-            main 1>/dev/null
+            main >/dev/null
             echo '---build for rebuild-----------------'
             XC_CMD='build'
             main

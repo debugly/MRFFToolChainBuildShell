@@ -17,6 +17,10 @@
 
 set -e
 
+export THREAD_COUNT=$(sysctl -n machdep.cpu.thread_count)
+
+echo "support thread count:$THREAD_COUNT"
+
 XCRUN_DEVELOPER=`xcode-select -print-path`
 if [ ! -d "$XCRUN_DEVELOPER" ]; then
   echo "xcode path is not set correctly $XCRUN_DEVELOPER does not exist (most likely because of xcode > 4.3)"

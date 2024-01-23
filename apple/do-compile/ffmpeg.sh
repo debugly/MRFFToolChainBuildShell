@@ -32,6 +32,7 @@ env_assert "XC_BUILD_SOURCE"
 env_assert "XC_BUILD_PREFIX"
 env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_CC"
+env_assert "THREAD_COUNT"
 echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
@@ -329,13 +330,13 @@ fi
 echo "----------------------"
 echo "[*] compile"
 
-make
+make -j$THREAD_COUNT >/dev/null
 
 echo "----------------------"
 echo "[*] install"
 
 cp config.* $XC_BUILD_PREFIX
-make install -j8 1>/dev/null
+make install >/dev/null
 mkdir -p $XC_BUILD_PREFIX/include/libffmpeg
 cp -f config.h $XC_BUILD_PREFIX/include/libffmpeg/config.h
 # copy private header.

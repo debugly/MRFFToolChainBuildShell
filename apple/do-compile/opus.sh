@@ -28,6 +28,7 @@ env_assert "XC_BUILD_NAME"
 env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XCRUN_CC"
+env_assert "THREAD_COUNT"
 echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
@@ -53,7 +54,7 @@ if [[ -f 'configure' ]]; then
    echo "reuse configure"
 else
    echo "auto generate configure"
-   ./autogen.sh 1>/dev/null
+   ./autogen.sh >/dev/null
 fi
 
 
@@ -67,11 +68,11 @@ echo
    CC="$XCRUN_CC" \
    CFLAGS="$CFLAGS" \
    LDFLAGS="$CFLAGS" \
-   1>/dev/null
+   >/dev/null
 
 #----------------------
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-make install -j8 1>/dev/null
+make install -j$THREAD_COUNT >/dev/null

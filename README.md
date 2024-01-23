@@ -30,17 +30,13 @@ At present MRFFToolChain contained OpenSSL、FFmpeg 、libyuv、libopus、libblu
 │   └── module.sh -> module-full.sh
 ├── init-any.sh  #初始化源码仓库
 ├── init-cfgs    #三方库的配置，包括库名，git仓库地址等信息
-│   ├── ass
 │   ├── bluray
 │   ├── dav1d
+│   ├── dvdread
 │   ├── ffmpeg
-│   ├── freetype
-│   ├── fribidi
-│   ├── harfbuzz
 │   ├── libyuv
 │   ├── openssl
-│   ├── opus
-│   └── unibreak
+│   └── opus
 ├── install-pre-any.sh #直接从github下载预编译好的lib
 ├── ios               #ios 平台编译脚本
 │   └── compile-any.sh

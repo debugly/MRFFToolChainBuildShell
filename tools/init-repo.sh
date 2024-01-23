@@ -94,7 +94,7 @@ function apply_patches() {
     if [[ -d "$patch_dir" ]]; then
         echo
         echo "== Applying patches: $(basename $patch_dir) → $(basename $PWD) =="
-        git am --keep $patch_dir/*.patch
+        git am --whitespace=fix --keep $patch_dir/*.patch
         if [[ $? -ne 0 ]]; then
             echo 'Apply patches failed!'
             git am --skip

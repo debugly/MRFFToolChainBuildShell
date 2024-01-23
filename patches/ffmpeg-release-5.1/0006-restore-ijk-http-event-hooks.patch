@@ -1,0 +1,744 @@
+From 0dbc6cebcbfbed31c380989677ea4f84b08d9d58 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Tue, 23 Jan 2024 15:25:48 +0800
+Subject: [PATCH 06/15] restore ijk http event hooks
+
+---
+ libavformat/http.c      |  35 ++++++-
+ libavformat/tcp.c       |  60 ++++++++++-
+ libavutil/Makefile      |   2 +
+ libavutil/application.c | 215 ++++++++++++++++++++++++++++++++++++++++
+ libavutil/application.h | 122 +++++++++++++++++++++++
+ libavutil/dict.c        |  39 +++++++-
+ libavutil/dict.h        |  10 ++
+ libavutil/error.h       |   4 +
+ 8 files changed, 479 insertions(+), 8 deletions(-)
+ create mode 100644 libavutil/application.c
+ create mode 100644 libavutil/application.h
+
+diff --git a/libavformat/http.c b/libavformat/http.c
+index c5c48c7..31c07a4 100644
+--- a/libavformat/http.c
++++ b/libavformat/http.c
+@@ -33,6 +33,7 @@
+ #include "libavutil/opt.h"
+ #include "libavutil/time.h"
+ #include "libavutil/parseutils.h"
++#include "libavutil/application.h"
+ 
+ #include "avformat.h"
+ #include "http.h"
+@@ -136,6 +137,9 @@ typedef struct HTTPContext {
+     char *new_location;
+     AVDictionary *redirect_cache;
+     uint64_t filesize_from_content_range;
++    char *tcp_hook;
++    char *app_ctx_intptr;
++    AVApplicationContext *app_ctx;
+ } HTTPContext;
+ 
+ #define OFFSET(x) offsetof(HTTPContext, x)
+@@ -178,6 +182,8 @@ static const AVOption options[] = {
+     { "resource", "The resource requested by a client", OFFSET(resource), AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, E },
+     { "reply_code", "The http status code to return to a client", OFFSET(reply_code), AV_OPT_TYPE_INT, { .i64 = 200}, INT_MIN, 599, E},
+     { "short_seek_size", "Threshold to favor readahead over seek.", OFFSET(short_seek_size), AV_OPT_TYPE_INT, { .i64 = 0 }, 0, INT_MAX, D },
++    { "http-tcp-hook", "hook protocol on tcp", OFFSET(tcp_hook), AV_OPT_TYPE_STRING, { .str = "tcp" }, 0, 0, D | E },
++    { "ijkapplication", "AVApplicationContext", OFFSET(app_ctx_intptr), AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, .flags = D },
+     { NULL }
+ };
+ 
+@@ -208,6 +214,7 @@ static int http_open_cnx_internal(URLContext *h, AVDictionary **options)
+     char buf[1024], urlbuf[MAX_URL_SIZE];
+     int port, use_proxy, err = 0;
+     HTTPContext *s = h->priv_data;
++    lower_proto = s->tcp_hook;
+ 
+     av_url_split(proto, sizeof(proto), auth, sizeof(auth),
+                  hostname, sizeof(hostname), &port,
+@@ -263,6 +270,13 @@ static int http_open_cnx_internal(URLContext *h, AVDictionary **options)
+     ff_url_join(buf, sizeof(buf), lower_proto, NULL, hostname, port, NULL);
+ 
+     if (!s->hd) {
++        av_dict_set_intptr(options, "ijkapplication", (uintptr_t)s->app_ctx, 0);
++
++        // AVDictionaryEntry *t = NULL;
++        // while ((t = av_dict_get(*options, "", t, AV_DICT_IGNORE_SUFFIX))) {
++        //     av_log(NULL, AV_LOG_INFO, "%-*s: %-*s = %s\n", 12, "http open tcp", 28, t->key, t->value);
++        // }
++
+         err = ffurl_open_whitelist(&s->hd, buf, AVIO_FLAG_READ_WRITE,
+                                    &h->interrupt_callback, options,
+                                    h->protocol_whitelist, h->protocol_blacklist, h);
+@@ -683,6 +697,10 @@ static int http_open(URLContext *h, const char *uri, int flags,
+ {
+     HTTPContext *s = h->priv_data;
+     int ret;
++    s->app_ctx = (AVApplicationContext *)av_dict_strtoptr(s->app_ctx_intptr);
++
++    // av_log(NULL, AV_LOG_INFO, "%-*s: %-*s = %s\n", 12, "xql http_open verify", 28, "ijkapplication", s->app_ctx_intptr);
++    // av_log(NULL, AV_LOG_INFO, "%-*s: %-*s = %s\n", 12, "xql http_open verify", 28, "tcp_hook", s->tcp_hook);
+ 
+     if( s->seekable == 1 )
+         h->is_streamed = 0;
+@@ -719,7 +737,9 @@ static int http_open(URLContext *h, const char *uri, int flags,
+     if (s->listen) {
+         return http_listen(h, uri, flags, options);
+     }
++    av_application_will_http_open(s->app_ctx, (void*)h, uri);
+     ret = http_open_cnx(h, options);
++    av_application_did_http_open(s->app_ctx, (void*)h, uri, ret, s->http_code, s->filesize);
+ bail_out:
+     if (ret < 0) {
+         av_dict_free(&s->chained_options);
+@@ -1610,7 +1630,14 @@ static int http_buf_read(URLContext *h, uint8_t *buf, int size)
+         uint64_t target_end = s->end_off ? s->end_off : s->filesize;
+         if ((!s->willclose || s->chunksize == UINT64_MAX) && s->off >= target_end)
+             return AVERROR_EOF;
+-        len = ffurl_read(s->hd, buf, size);
++        len = size;
++        if (s->filesize > 0 && s->filesize != UINT64_MAX && s->filesize != INT32_MAX) {
++            int64_t unread = s->filesize - s->off;
++            if (len > unread)
++                len = (int)unread;
++        }
++        if (len > 0)
++            len = ffurl_read(s->hd, buf, len);
+         if ((!len || len == AVERROR_EOF) &&
+             (!s->willclose || s->chunksize == UINT64_MAX) && s->off < target_end) {
+             av_log(h, AV_LOG_ERROR,
+@@ -1949,7 +1976,9 @@ static int64_t http_seek_internal(URLContext *h, int64_t off, int whence, int fo
+     s->hd = NULL;
+ 
+     /* if it fails, continue on old connection */
++    av_application_will_http_seek(s->app_ctx, (void*)h, s->location, off);
+     if ((ret = http_open_cnx(h, &options)) < 0) {
++        av_application_did_http_seek(s->app_ctx, (void*)h, s->location, off, ret, s->http_code);
+         av_dict_free(&options);
+         memcpy(s->buffer, old_buf, old_buf_size);
+         s->buf_ptr = s->buffer;
+@@ -1958,6 +1987,7 @@ static int64_t http_seek_internal(URLContext *h, int64_t off, int whence, int fo
+         s->off     = old_off;
+         return ret;
+     }
++    av_application_did_http_seek(s->app_ctx, (void*)h, s->location, off, ret, s->http_code);
+     av_dict_free(&options);
+     ffurl_close(old_hd);
+     return off;
+@@ -2051,6 +2081,7 @@ static int http_proxy_open(URLContext *h, const char *uri, int flags)
+     HTTPAuthType cur_auth_type;
+     char *authstr;
+ 
++    s->app_ctx = (AVApplicationContext *)av_dict_strtoptr(s->app_ctx_intptr);
+     if( s->seekable == 1 )
+         h->is_streamed = 0;
+     else
+@@ -2063,7 +2094,7 @@ static int http_proxy_open(URLContext *h, const char *uri, int flags)
+     if (*path == '/')
+         path++;
+ 
+-    ff_url_join(lower_url, sizeof(lower_url), "tcp", NULL, hostname, port,
++    ff_url_join(lower_url, sizeof(lower_url), s->tcp_hook, NULL, hostname, port,
+                 NULL);
+ redo:
+     ret = ffurl_open_whitelist(&s->hd, lower_url, AVIO_FLAG_READ_WRITE,
+diff --git a/libavformat/tcp.c b/libavformat/tcp.c
+index a11ccbb..21d18d1 100644
+--- a/libavformat/tcp.c
++++ b/libavformat/tcp.c
+@@ -23,6 +23,8 @@
+ #include "libavutil/parseutils.h"
+ #include "libavutil/opt.h"
+ #include "libavutil/time.h"
++#include "libavutil/avstring.h"
++#include "libavutil/application.h"
+ 
+ #include "internal.h"
+ #include "network.h"
+@@ -45,6 +47,9 @@ typedef struct TCPContext {
+ #if !HAVE_WINSOCK2_H
+     int tcp_mss;
+ #endif /* !HAVE_WINSOCK2_H */
++
++    char * app_ctx_intptr;
++    AVApplicationContext *app_ctx;
+ } TCPContext;
+ 
+ #define OFFSET(x) offsetof(TCPContext, x)
+@@ -60,6 +65,8 @@ static const AVOption options[] = {
+ #if !HAVE_WINSOCK2_H
+     { "tcp_mss",     "Maximum segment size for outgoing TCP packets",          OFFSET(tcp_mss),     AV_OPT_TYPE_INT, { .i64 = -1 },         -1, INT_MAX, .flags = D|E },
+ #endif /* !HAVE_WINSOCK2_H */
++    { "ijkapplication",   "AVApplicationContext",                              OFFSET(app_ctx_intptr),   AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, .flags = D },
++    { "connect_timeout",  "set connect timeout (in microseconds) of socket", OFFSET(open_timeout),     AV_OPT_TYPE_INT, { .i64 = -1 },         -1, INT_MAX, .flags = D|E },
+     { NULL }
+ };
+ 
+@@ -110,7 +117,21 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
+     int ret;
+     char hostname[1024],proto[1024],path[1024];
+     char portstr[10];
+-    s->open_timeout = 5000000;
++    AVAppTcpIOControl control = {0};
++
++    int ret2;
++    if (s->open_timeout < 0) {
++        s->open_timeout = 15000000;
++    }
++    // av_log(NULL, AV_LOG_INFO, "xql tcp_open uri %s", uri);
++    // av_log(NULL, AV_LOG_INFO, "%-*s: %-*s = %s\n", 12, "xql tcp_open verify", 28, "ijkapplication", s->app_ctx_intptr);
++    // av_log(NULL, AV_LOG_INFO, "%-*s: %-*s = %d\n", 12, "xql tcp_open verify", 28, "connect_timeout", s->open_timeout);
++    // av_log(NULL, AV_LOG_INFO, "%-*s: %-*s = %d\n", 12, "xql tcp_open verify", 28, "addrinfo_one_by_one", s->addrinfo_one_by_one);
++    // av_log(NULL, AV_LOG_INFO, "%-*s: %-*s = %d\n", 12, "xql tcp_open verify", 28, "addrinfo_timeout", s->addrinfo_timeout);
++    // av_log(NULL, AV_LOG_INFO, "%-*s: %-*s = %d\n", 12, "xql tcp_open verify", 28, "dns_cache_timeout", s->dns_cache_timeout);
++    // av_log(NULL, AV_LOG_INFO, "%-*s: %-*s = %d\n", 12, "xql tcp_open verify", 28, "dns_cache_clear", s->dns_cache_clear);
++
++    s->app_ctx = (AVApplicationContext *)av_dict_strtoptr(s->app_ctx_intptr);
+ 
+     av_url_split(proto, sizeof(proto), NULL, 0, hostname, sizeof(hostname),
+         &port, path, sizeof(path), uri);
+@@ -131,6 +152,9 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
+         }
+         if (av_find_info_tag(buf, sizeof(buf), "timeout", p)) {
+             s->rw_timeout = strtol(buf, NULL, 10);
++            if (s->rw_timeout >= 0) {
++                s->open_timeout = s->rw_timeout;
++            }
+         }
+         if (av_find_info_tag(buf, sizeof(buf), "listen_timeout", p)) {
+             s->listen_timeout = strtol(buf, NULL, 10);
+@@ -140,7 +164,7 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
+         }
+     }
+     if (s->rw_timeout >= 0) {
+-        s->open_timeout =
++        //s->open_timeout =
+         h->rw_timeout   = s->rw_timeout;
+     }
+     hints.ai_family = AF_UNSPEC;
+@@ -198,9 +222,24 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
+         // Socket descriptor already closed here. Safe to overwrite to client one.
+         fd = ret;
+     } else {
+-        ret = ff_connect_parallel(ai, s->open_timeout / 1000, 3, h, &fd, customize_fd, s);
++        ret = av_application_on_tcp_will_open(s->app_ctx);
++        if (ret) {
++            av_log(NULL, AV_LOG_WARNING, "terminated by application in AVAPP_CTRL_WILL_TCP_OPEN");
++            goto fail1;
++        }
++        ret = ff_connect_parallel(cur_ai, s->open_timeout / 1000, 3, h, &fd, customize_fd, s);
++
++        ret2 = av_application_on_tcp_did_open(s->app_ctx, ret, fd, &control);
++
+         if (ret < 0)
+             goto fail1;
++
++        if (ret2) {
++            av_log(NULL, AV_LOG_WARNING, "terminated by application in AVAPP_CTRL_DID_TCP_OPEN");
++            ret = ret2;
++            goto fail1;
++        }
++        av_log(NULL, AV_LOG_INFO, "tcp did open uri = %s, ip = %s\n", uri , control.ip);
+     }
+ 
+     h->is_streamed = 1;
+@@ -241,12 +280,18 @@ static int tcp_read(URLContext *h, uint8_t *buf, int size)
+ 
+     if (!(h->flags & AVIO_FLAG_NONBLOCK)) {
+         ret = ff_network_wait_fd_timeout(s->fd, 0, h->rw_timeout, &h->interrupt_callback);
+-        if (ret)
++        if (ret) {
++            if (ret == AVERROR(ETIMEDOUT)) {
++                ret = AVERROR_TCP_READ_TIMEOUT;
++            }
+             return ret;
++        }
+     }
+     ret = recv(s->fd, buf, size, 0);
+     if (ret == 0)
+         return AVERROR_EOF;
++    if (ret > 0)
++        av_application_did_io_tcp_read(s->app_ctx, (void*)h, ret);
+     return ret < 0 ? ff_neterrno() : ret;
+ }
+ 
+@@ -257,9 +302,14 @@ static int tcp_write(URLContext *h, const uint8_t *buf, int size)
+ 
+     if (!(h->flags & AVIO_FLAG_NONBLOCK)) {
+         ret = ff_network_wait_fd_timeout(s->fd, 1, h->rw_timeout, &h->interrupt_callback);
+-        if (ret)
++        if (ret) {
++            if (ret == AVERROR(ETIMEDOUT)) {
++                ret = AVERROR_TCP_WRITE_TIMEOUT;
++            }
+             return ret;
++        }
+     }
++
+     ret = send(s->fd, buf, size, MSG_NOSIGNAL);
+     return ret < 0 ? ff_neterrno() : ret;
+ }
+diff --git a/libavutil/Makefile b/libavutil/Makefile
+index 2744693..2c55e6a 100644
+--- a/libavutil/Makefile
++++ b/libavutil/Makefile
+@@ -9,6 +9,7 @@ HEADERS = adler32.h                                                     \
+           avassert.h                                                    \
+           avstring.h                                                    \
+           avutil.h                                                      \
++          application.h                                                 \
+           base64.h                                                      \
+           blowfish.h                                                    \
+           bprint.h                                                      \
+@@ -106,6 +107,7 @@ OBJS = adler32.o                                                        \
+        audio_fifo.o                                                     \
+        avstring.o                                                       \
+        avsscanf.o                                                       \
++       application.o                                                    \
+        base64.o                                                         \
+        blowfish.o                                                       \
+        bprint.o                                                         \
+diff --git a/libavutil/application.c b/libavutil/application.c
+new file mode 100644
+index 0000000..ec7c1f0
+--- /dev/null
++++ b/libavutil/application.c
+@@ -0,0 +1,215 @@
++/*
++ * copyright (c) 2016 Zhang Rui
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#include "application.h"
++#include "../libavformat/network.h"
++#include "avstring.h"
++#include "mem.h"
++
++void av_application_on_io_traffic(AVApplicationContext *h, AVAppIOTraffic *event);
++
++int av_application_alloc(AVApplicationContext **ph, void *opaque)
++{
++    AVApplicationContext *h = NULL;
++
++    h = av_mallocz(sizeof(AVApplicationContext));
++    if (!h)
++        return AVERROR(ENOMEM);
++
++    h->opaque = opaque;
++
++    *ph = h;
++    return 0;
++}
++
++int av_application_open(AVApplicationContext **ph, void *opaque)
++{
++    int ret = av_application_alloc(ph, opaque);
++    if (ret)
++        return ret;
++
++    return 0;
++}
++
++void av_application_close(AVApplicationContext *h)
++{
++    av_free(h);
++}
++
++void av_application_closep(AVApplicationContext **ph)
++{
++    if (!ph || !*ph)
++        return;
++
++    av_application_close(*ph);
++    *ph = NULL;
++}
++
++void av_application_on_http_event(AVApplicationContext *h, int event_type, AVAppHttpEvent *event)
++{
++    if (h && h->func_on_app_event)
++        h->func_on_app_event(h, event_type, (void *)event, sizeof(AVAppHttpEvent));
++}
++
++void av_application_will_http_open(AVApplicationContext *h, void *obj, const char *url)
++{
++    AVAppHttpEvent event = {0};
++
++    if (!h || !obj || !url)
++        return;
++
++    event.obj        = obj;
++    av_strlcpy(event.url, url, sizeof(event.url));
++
++    av_application_on_http_event(h, AVAPP_EVENT_WILL_HTTP_OPEN, &event);
++}
++
++void av_application_did_http_open(AVApplicationContext *h, void *obj, const char *url, int error, int http_code, int64_t filesize)
++{
++    AVAppHttpEvent event = {0};
++
++    if (!h || !obj || !url)
++        return;
++
++    event.obj        = obj;
++    av_strlcpy(event.url, url, sizeof(event.url));
++    event.error     = error;
++    event.http_code = http_code;
++    event.filesize  = filesize;
++
++    av_application_on_http_event(h, AVAPP_EVENT_DID_HTTP_OPEN, &event);
++}
++
++void av_application_will_http_seek(AVApplicationContext *h, void *obj, const char *url, int64_t offset)
++{
++    AVAppHttpEvent event = {0};
++
++    if (!h || !obj || !url)
++        return;
++
++    event.obj        = obj;
++    event.offset     = offset;
++    av_strlcpy(event.url, url, sizeof(event.url));
++
++    av_application_on_http_event(h, AVAPP_EVENT_WILL_HTTP_SEEK, &event);
++}
++
++void av_application_did_http_seek(AVApplicationContext *h, void *obj, const char *url, int64_t offset, int error, int http_code)
++{
++    AVAppHttpEvent event = {0};
++
++    if (!h || !obj || !url)
++        return;
++
++    event.obj        = obj;
++    event.offset     = offset;
++    av_strlcpy(event.url, url, sizeof(event.url));
++    event.error     = error;
++    event.http_code = http_code;
++
++    av_application_on_http_event(h, AVAPP_EVENT_DID_HTTP_SEEK, &event);
++}
++
++void av_application_on_io_traffic(AVApplicationContext *h, AVAppIOTraffic *event)
++{
++    if (h && h->func_on_app_event)
++        h->func_on_app_event(h, AVAPP_EVENT_IO_TRAFFIC, (void *)event, sizeof(AVAppIOTraffic));
++}
++
++int  av_application_on_io_control(AVApplicationContext *h, int event_type, AVAppIOControl *control)
++{
++    if (h && h->func_on_app_event)
++        return h->func_on_app_event(h, event_type, (void *)control, sizeof(AVAppIOControl));
++    return 0;
++}
++
++int av_application_on_tcp_will_open(AVApplicationContext *h)
++{
++    if (h && h->func_on_app_event) {
++        AVAppTcpIOControl control = {0};
++        return h->func_on_app_event(h, AVAPP_CTRL_WILL_TCP_OPEN, (void *)&control, sizeof(AVAppTcpIOControl));
++    }
++    return 0;
++}
++
++// only callback returns error
++int av_application_on_tcp_did_open(AVApplicationContext *h, int error, int fd, AVAppTcpIOControl *control)
++{
++    struct sockaddr_storage so_stg;
++    int       ret = 0;
++    socklen_t so_len = sizeof(so_stg);
++    int       so_family;
++    char      *so_ip_name = control->ip;
++
++    if (!h || !h->func_on_app_event || fd <= 0)
++        return 0;
++
++    ret = getpeername(fd, (struct sockaddr *)&so_stg, &so_len);
++    if (ret)
++        return 0;
++    control->error = error;
++    control->fd = fd;
++
++    so_family = ((struct sockaddr*)&so_stg)->sa_family;
++    switch (so_family) {
++        case AF_INET: {
++            struct sockaddr_in* in4 = (struct sockaddr_in*)&so_stg;
++            if (inet_ntop(AF_INET, &(in4->sin_addr), so_ip_name, sizeof(control->ip))) {
++                control->family = AF_INET;
++                control->port = in4->sin_port;
++            }
++            break;
++        }
++        case AF_INET6: {
++            struct sockaddr_in6* in6 = (struct sockaddr_in6*)&so_stg;
++            if (inet_ntop(AF_INET6, &(in6->sin6_addr), so_ip_name, sizeof(control->ip))) {
++                control->family = AF_INET6;
++                control->port = in6->sin6_port;
++            }
++            break;
++        }
++    }
++
++    return h->func_on_app_event(h, AVAPP_CTRL_DID_TCP_OPEN, (void *)control, sizeof(AVAppTcpIOControl));
++}
++
++void av_application_on_async_statistic(AVApplicationContext *h, AVAppAsyncStatistic *statistic)
++{
++    if (h && h->func_on_app_event)
++        h->func_on_app_event(h, AVAPP_EVENT_ASYNC_STATISTIC, (void *)statistic, sizeof(AVAppAsyncStatistic));
++}
++
++void av_application_on_async_read_speed(AVApplicationContext *h, AVAppAsyncReadSpeed *speed)
++{
++    if (h && h->func_on_app_event)
++        h->func_on_app_event(h, AVAPP_EVENT_ASYNC_READ_SPEED, (void *)speed, sizeof(AVAppAsyncReadSpeed));
++}
++
++void av_application_did_io_tcp_read(AVApplicationContext *h, void *obj, int bytes)
++{
++    AVAppIOTraffic event = {0};
++    if (!h || !obj || bytes <= 0)
++        return;
++
++    event.obj        = obj;
++    event.bytes      = bytes;
++
++    av_application_on_io_traffic(h, &event);
++}
+diff --git a/libavutil/application.h b/libavutil/application.h
+new file mode 100644
+index 0000000..b64cb39
+--- /dev/null
++++ b/libavutil/application.h
+@@ -0,0 +1,122 @@
++/*
++ * copyright (c) 2016 Zhang Rui
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#ifndef AVUTIL_APPLICATION_H
++#define AVUTIL_APPLICATION_H
++
++#include <stdio.h>
++#include "libavutil/log.h"
++
++#define AVAPP_EVENT_WILL_HTTP_OPEN  1 //AVAppHttpEvent
++#define AVAPP_EVENT_DID_HTTP_OPEN   2 //AVAppHttpEvent
++#define AVAPP_EVENT_WILL_HTTP_SEEK  3 //AVAppHttpEvent
++#define AVAPP_EVENT_DID_HTTP_SEEK   4 //AVAppHttpEvent
++
++#define AVAPP_EVENT_ASYNC_STATISTIC     0x11000 //AVAppAsyncStatistic
++#define AVAPP_EVENT_ASYNC_READ_SPEED    0x11001 //AVAppAsyncReadSpeed
++#define AVAPP_EVENT_IO_TRAFFIC          0x12204 //AVAppIOTraffic
++
++#define AVAPP_CTRL_WILL_TCP_OPEN   0x20001 //AVAppTcpIOControl
++#define AVAPP_CTRL_DID_TCP_OPEN    0x20002 //AVAppTcpIOControl
++
++#define AVAPP_CTRL_WILL_HTTP_OPEN  0x20003 //AVAppIOControl
++#define AVAPP_CTRL_WILL_LIVE_OPEN  0x20005 //AVAppIOControl
++
++#define AVAPP_CTRL_WILL_CONCAT_SEGMENT_OPEN 0x20007 //AVAppIOControl
++
++typedef struct AVAppIOControl {
++    size_t  size;
++    char    url[4096];      /* in, out */
++    int     segment_index;  /* in, default = 0 */
++    int     retry_counter;  /* in */
++
++    int     is_handled;     /* out, default = false */
++    int     is_url_changed; /* out, default = false */
++} AVAppIOControl;
++
++typedef struct AVAppTcpIOControl {
++    int  error;
++    int  family;
++    char ip[96];
++    int  port;
++    int  fd;
++} AVAppTcpIOControl;
++
++typedef struct AVAppAsyncStatistic {
++    size_t  size;
++    int64_t buf_backwards;
++    int64_t buf_forwards;
++    int64_t buf_capacity;
++} AVAppAsyncStatistic;
++
++typedef struct AVAppAsyncReadSpeed {
++    size_t  size;
++    int     is_full_speed;
++    int64_t io_bytes;
++    int64_t elapsed_milli;
++} AVAppAsyncReadSpeed;
++
++typedef struct AVAppHttpEvent
++{
++    void    *obj;
++    char     url[4096];
++    int64_t  offset;
++    int      error;
++    int      http_code;
++    int64_t  filesize;
++} AVAppHttpEvent;
++
++typedef struct AVAppIOTraffic
++{
++    void   *obj;
++    int     bytes;
++} AVAppIOTraffic;
++
++typedef struct AVApplicationContext AVApplicationContext;
++struct AVApplicationContext {
++    const AVClass *av_class;    /**< information for av_log(). Set by av_application_open(). */
++    void *opaque;               /**< user data. */
++
++    int (*func_on_app_event)(AVApplicationContext *h, int event_type ,void *obj, size_t size);
++};
++
++int  av_application_alloc(AVApplicationContext **ph, void *opaque);
++int  av_application_open(AVApplicationContext **ph, void *opaque);
++void av_application_close(AVApplicationContext *h);
++void av_application_closep(AVApplicationContext **ph);
++
++void av_application_on_http_event(AVApplicationContext *h, int event_type, AVAppHttpEvent *event);
++void av_application_will_http_open(AVApplicationContext *h, void *obj, const char *url);
++void av_application_did_http_open(AVApplicationContext *h, void *obj, const char *url, int error, int http_code, int64_t filesize);
++void av_application_will_http_seek(AVApplicationContext *h, void *obj, const char *url, int64_t offset);
++void av_application_did_http_seek(AVApplicationContext *h, void *obj, const char *url, int64_t offset, int error, int http_code);
++
++void av_application_did_io_tcp_read(AVApplicationContext *h, void *obj, int bytes);
++
++int  av_application_on_io_control(AVApplicationContext *h, int event_type, AVAppIOControl *control);
++
++int av_application_on_tcp_will_open(AVApplicationContext *h);
++int av_application_on_tcp_did_open(AVApplicationContext *h, int error, int fd, AVAppTcpIOControl *control);
++
++void av_application_on_async_statistic(AVApplicationContext *h, AVAppAsyncStatistic *statistic);
++void av_application_on_async_read_speed(AVApplicationContext *h, AVAppAsyncReadSpeed *speed);
++
++
++#endif /* AVUTIL_APPLICATION_H */
+diff --git a/libavutil/dict.c b/libavutil/dict.c
+index 9d3d96c..9ec8dfa 100644
+--- a/libavutil/dict.c
++++ b/libavutil/dict.c
+@@ -42,7 +42,7 @@ AVDictionaryEntry *av_dict_get(const AVDictionary *m, const char *key,
+ {
+     unsigned int i, j;
+ 
+-    if (!m)
++    if (!m || !key)
+         return NULL;
+ 
+     if (prev)
+@@ -153,6 +153,43 @@ int av_dict_set_int(AVDictionary **pm, const char *key, int64_t value,
+     return av_dict_set(pm, key, valuestr, flags);
+ }
+ 
++int av_dict_set_intptr(AVDictionary **pm, const char *key, uintptr_t value,
++                int flags)
++{
++    char valuestr[22];
++    snprintf(valuestr, sizeof(valuestr), "%p", value);
++    flags &= ~AV_DICT_DONT_STRDUP_VAL;
++    return av_dict_set(pm, key, valuestr, flags);
++}
++
++uintptr_t av_dict_get_intptr(const AVDictionary *m, const char* key) {
++    uintptr_t ptr = NULL;
++    AVDictionaryEntry *t = NULL;
++    if ((t = av_dict_get(m, key, NULL, 0))) {
++      return av_dict_strtoptr(t->value);
++    }
++    return NULL;
++}
++
++uintptr_t av_dict_strtoptr(char * value) {
++   uintptr_t ptr = NULL;
++   char *next = NULL;
++   if(!value || value[0] !='0' || (value[1]|0x20)!='x') {
++       return NULL;
++   }
++   ptr = strtoull(value, &next, 16);
++   if (next == value) {
++       return NULL;
++   }
++   return ptr;
++}
++
++char * av_dict_ptrtostr(uintptr_t value) {
++    char valuestr[22] = {0};
++    snprintf(valuestr, sizeof(valuestr), "%p", value);
++    return av_strdup(valuestr);
++}
++
+ static int parse_key_value_pair(AVDictionary **pm, const char **buf,
+                                 const char *key_val_sep, const char *pairs_sep,
+                                 int flags)
+diff --git a/libavutil/dict.h b/libavutil/dict.h
+index 0d1afc6..d200b42 100644
+--- a/libavutil/dict.h
++++ b/libavutil/dict.h
+@@ -135,6 +135,16 @@ int av_dict_set(AVDictionary **pm, const char *key, const char *value, int flags
+  */
+ int av_dict_set_int(AVDictionary **pm, const char *key, int64_t value, int flags);
+ 
++/**
++ * Convenience wrapper for av_dict_get that converts the value to a pointer
++ * and stores it.
++ *
++ */
++int av_dict_set_intptr(AVDictionary **pm, const char *key, uintptr_t value, int flags);
++uintptr_t av_dict_get_intptr(const AVDictionary *m, const char* key);
++uintptr_t av_dict_strtoptr(char * value);
++char * av_dict_ptrtostr(uintptr_t value);
++
+ /**
+  * Parse the key/value pairs list and add the parsed entries to a dictionary.
+  *
+diff --git a/libavutil/error.h b/libavutil/error.h
+index 0d3269a..2943350 100644
+--- a/libavutil/error.h
++++ b/libavutil/error.h
+@@ -84,6 +84,10 @@
+ 
+ #define AV_ERROR_MAX_STRING_SIZE 64
+ 
++#define AVERROR_TCP_CONNECT_TIMEOUT -1001
++#define AVERROR_TCP_READ_TIMEOUT -1002
++#define AVERROR_TCP_WRITE_TIMEOUT -1003
++
+ /**
+  * Put a description of the AVERROR code errnum in errbuf.
+  * In case of failure the global variable errno is set to indicate the
+-- 
+2.39.3 (Apple Git-145)
+

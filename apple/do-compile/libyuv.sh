@@ -27,6 +27,7 @@ env_assert "XC_BUILD_NAME"
 env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XC_BUILD_PREFIX"
+env_assert "THREAD_COUNT"
 echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
@@ -57,7 +58,7 @@ echo "----------------------"
 echo "[*] compile libyuv"
 echo "----------------------"
 
-make -f linux.mk CC="$XCRUN_CC" CXX="$XCRUN_CXX" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" 1>/dev/null
+make -f linux.mk CC="$XCRUN_CC" CXX="$XCRUN_CXX" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" -j$THREAD_COUNT >/dev/null
 
 mkdir -p "${XC_BUILD_PREFIX}/lib"
 cp libyuv.a "${XC_BUILD_PREFIX}/lib"

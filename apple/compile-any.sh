@@ -30,7 +30,7 @@ cd "$THIS_DIR"
 
 function usage() {
     echo " useage:"
-    echo "  $0 [ios|macos] [build|rebuild|lipo|clean] [all|fdk-aac|ffmpeg|lame|libyuv|openssl|opus|x264|bluray|ass|freetype|fribidi|harfbuzz|unibreak|dvdread] [arm64|x86_64|all] [opts...]"
+    echo "  $0 [ios|macos] [build|rebuild|lipo|clean] [all|ffmpeg|libyuv|openssl|opus|bluray|dav1d|dvdread] [arm64|x86_64|all] [opts...]"
 }
 
 if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' ]]; then
@@ -83,6 +83,7 @@ echo "XC_OPTS         : [$XC_OPTS]"
 echo "XC_FORCE_CROSS  : [$XC_FORCE_CROSS]"
 echo '------------------------------------------'
 
+START_STMP=$(date +%s)
 # 循环编译所有的库
 for lib in $LIBS
 do
@@ -97,3 +98,9 @@ do
     fi
     echo "===================================="
 done
+
+END_STMP=$(date +%s)
+take=$(( END_STMP - START_STMP ))
+echo time elapsed ${take} s.
+
+echo "===================================="

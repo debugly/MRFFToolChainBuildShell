@@ -1,0 +1,813 @@
+From 5ce4f79fc1860da59233d6a1b6ff7e563d244466 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Tue, 23 Jan 2024 15:45:28 +0800
+Subject: [PATCH 07/15] restore ijk dns cache
+
+---
+ libavformat/hls.c     |  46 +++++-
+ libavformat/tcp.c     | 322 ++++++++++++++++++++++++++++++++++++++++--
+ libavutil/Makefile    |   2 +
+ libavutil/dns_cache.c | 231 ++++++++++++++++++++++++++++++
+ libavutil/dns_cache.h |  39 +++++
+ 5 files changed, 623 insertions(+), 17 deletions(-)
+ create mode 100644 libavutil/dns_cache.c
+ create mode 100644 libavutil/dns_cache.h
+
+diff --git a/libavformat/hls.c b/libavformat/hls.c
+index 2e3bff6..35dd88c 100644
+--- a/libavformat/hls.c
++++ b/libavformat/hls.c
+@@ -222,6 +222,7 @@ typedef struct HLSContext {
+     AVIOInterruptCB *interrupt_callback;
+     AVDictionary *avio_opts;
+     AVDictionary *seg_format_opts;
++    char *seg_inherit_opts;
+     char *allowed_extensions;
+     int max_reload;
+     int http_persistent;
+@@ -1935,7 +1936,32 @@ static int hls_close(AVFormatContext *s)
+     return 0;
+ }
+ 
+-static int hls_read_header(AVFormatContext *s)
++static int copy_hls_headers_for_http(AVDictionary **dst, const AVDictionary *src, const char *opts)
++{
++    if (!opts)
++        return 0;
++
++    char *my_opts = opts;
++    char *saved = NULL;
++    char *opt = NULL;
++    int ret = 0;
++
++    while ((opt = av_strtok(my_opts, ",", &saved))) {
++        AVDictionaryEntry *t = NULL;
++        while ((t = av_dict_get(src, "", t, AV_DICT_IGNORE_SUFFIX))) {
++            if (t->key && !strcmp(t->key, opt)) {
++                ret = av_dict_set(dst, t->key, t->value, 0);
++                if (ret < 0)
++                    return ret;
++            }
++        }
++        my_opts = saved;
++    }
++
++    return ret;
++}
++
++static int hls_read_header2(AVFormatContext *s, AVDictionary **a_options)
+ {
+     HLSContext *c = s->priv_data;
+     int ret = 0, i;
+@@ -1948,9 +1974,20 @@ static int hls_read_header(AVFormatContext *s)
+     c->first_timestamp = AV_NOPTS_VALUE;
+     c->cur_timestamp = AV_NOPTS_VALUE;
+ 
++    //pb only include keys which in hls_options list.
+     if ((ret = ffio_copy_url_options(s->pb, &c->avio_opts)) < 0)
+         return ret;
+ 
++    //current a_options is original options,you can filter special keys
++    copy_hls_headers_for_http(&c->avio_opts, *a_options, c->seg_inherit_opts);
++    //use segment format options override inherit options.
++    av_dict_copy(&c->avio_opts, c->seg_format_opts, 0);
++
++    // AVDictionaryEntry *t = NULL;
++    // while ((t = av_dict_get(c->avio_opts, "", t, AV_DICT_IGNORE_SUFFIX))) {
++    //     av_log(NULL, AV_LOG_INFO, "%-*s: %-*s = %s\n", 12, "hls_read_header2", 28, t->key, t->value);
++    // }
++
+     /* XXX: Some HLS servers don't like being sent the range header,
+        in this case, need to  setting http_seekable = 0 to disable
+        the range header */
+@@ -2047,6 +2084,7 @@ static int hls_read_header(AVFormatContext *s)
+         pls->needed = 1;
+         pls->parent = s;
+ 
++        av_dict_copy(&options, c->avio_opts, 0);
+         /*
+          * If this is a live stream and this playlist looks like it is one segment
+          * behind, try to sync it up so that every substream starts at the same
+@@ -2155,8 +2193,6 @@ static int hls_read_header(AVFormatContext *s)
+         if ((ret = ff_copy_whiteblacklists(pls->ctx, s)) < 0)
+             return ret;
+ 
+-        av_dict_copy(&options, c->seg_format_opts, 0);
+-
+         ret = avformat_open_input(&pls->ctx, pls->segments[0]->url, in_fmt, &options);
+         av_dict_free(&options);
+         if (ret < 0)
+@@ -2595,6 +2631,8 @@ static const AVOption hls_options[] = {
+         OFFSET(http_seekable), AV_OPT_TYPE_BOOL, { .i64 = -1}, -1, 1, FLAGS},
+     {"seg_format_options", "Set options for segment demuxer",
+         OFFSET(seg_format_opts), AV_OPT_TYPE_DICT, {.str = NULL}, 0, 0, FLAGS},
++    {"seg_inherit_options", "Special keys inherit form options,apply for segment demuxer",
++        OFFSET(seg_inherit_opts), AV_OPT_TYPE_STRING, {.str = NULL}, INT_MIN, INT_MAX, FLAGS},
+     {NULL}
+ };
+ 
+@@ -2613,7 +2651,7 @@ const AVInputFormat ff_hls_demuxer = {
+     .flags          = AVFMT_NOGENSEARCH | AVFMT_TS_DISCONT | AVFMT_NO_BYTE_SEEK,
+     .flags_internal = FF_FMT_INIT_CLEANUP,
+     .read_probe     = hls_probe,
+-    .read_header    = hls_read_header,
++    .read_header2    = hls_read_header2,
+     .read_packet    = hls_read_packet,
+     .read_close     = hls_close,
+     .read_seek      = hls_read_seek,
+diff --git a/libavformat/tcp.c b/libavformat/tcp.c
+index 21d18d1..1a85363 100644
+--- a/libavformat/tcp.c
++++ b/libavformat/tcp.c
+@@ -25,6 +25,7 @@
+ #include "libavutil/time.h"
+ #include "libavutil/avstring.h"
+ #include "libavutil/application.h"
++#include "libavutil/dns_cache.h"
+ 
+ #include "internal.h"
+ #include "network.h"
+@@ -33,6 +34,9 @@
+ #if HAVE_POLL_H
+ #include <poll.h>
+ #endif
++#if HAVE_PTHREADS
++#include <pthread.h>
++#endif
+ 
+ typedef struct TCPContext {
+     const AVClass *class;
+@@ -49,6 +53,10 @@ typedef struct TCPContext {
+ #endif /* !HAVE_WINSOCK2_H */
+ 
+     char * app_ctx_intptr;
++    int addrinfo_one_by_one;
++    int addrinfo_timeout;
++    int64_t dns_cache_timeout;
++    int dns_cache_clear;
+     AVApplicationContext *app_ctx;
+ } TCPContext;
+ 
+@@ -67,9 +75,261 @@ static const AVOption options[] = {
+ #endif /* !HAVE_WINSOCK2_H */
+     { "ijkapplication",   "AVApplicationContext",                              OFFSET(app_ctx_intptr),   AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, .flags = D },
+     { "connect_timeout",  "set connect timeout (in microseconds) of socket", OFFSET(open_timeout),     AV_OPT_TYPE_INT, { .i64 = -1 },         -1, INT_MAX, .flags = D|E },
++    { "addrinfo_one_by_one",  "parse addrinfo one by one in getaddrinfo()",    OFFSET(addrinfo_one_by_one), AV_OPT_TYPE_INT, { .i64 = 0 },         0, 1, .flags = D|E },
++    { "addrinfo_timeout", "set timeout (in microseconds) for getaddrinfo()",   OFFSET(addrinfo_timeout), AV_OPT_TYPE_INT, { .i64 = -1 },       -1, INT_MAX, .flags = D|E },
++    { "dns_cache_timeout", "dns cache TTL (in microseconds)",   OFFSET(dns_cache_timeout), AV_OPT_TYPE_INT, { .i64 = 0 },       -1, INT64_MAX, .flags = D|E },
++    { "dns_cache_clear", "clear dns cache",   OFFSET(dns_cache_clear), AV_OPT_TYPE_INT, { .i64 = 0},       -1, INT_MAX, .flags = D|E },
+     { NULL }
+ };
+ 
++int ijk_tcp_getaddrinfo_nonblock(const char *hostname, const char *servname,
++                                 const struct addrinfo *hints, struct addrinfo **res,
++                                 int64_t timeout,
++                                 const AVIOInterruptCB *int_cb, int one_by_one);
++#ifdef HAVE_PTHREADS
++
++typedef struct TCPAddrinfoRequest
++{
++    AVBufferRef *buffer;
++
++    pthread_mutex_t mutex;
++    pthread_cond_t cond;
++
++    AVIOInterruptCB interrupt_callback;
++
++    char            *hostname;
++    char            *servname;
++    struct addrinfo  hints;
++    struct addrinfo *res;
++
++    volatile int     finished;
++    int              last_error;
++} TCPAddrinfoRequest;
++
++static void tcp_getaddrinfo_request_free(TCPAddrinfoRequest *req)
++{
++    av_assert0(req);
++    if (req->res) {
++        freeaddrinfo(req->res);
++        req->res = NULL;
++    }
++
++    av_freep(&req->servname);
++    av_freep(&req->hostname);
++    pthread_cond_destroy(&req->cond);
++    pthread_mutex_destroy(&req->mutex);
++    av_freep(&req);
++}
++
++static void tcp_getaddrinfo_request_free_buffer(void *opaque, uint8_t *data)
++{
++    av_assert0(opaque);
++    TCPAddrinfoRequest *req = (TCPAddrinfoRequest *)opaque;
++    tcp_getaddrinfo_request_free(req);
++}
++
++static int tcp_getaddrinfo_request_create(TCPAddrinfoRequest **request,
++                                          const char *hostname,
++                                          const char *servname,
++                                          const struct addrinfo *hints,
++                                          const AVIOInterruptCB *int_cb)
++{
++    TCPAddrinfoRequest *req = (TCPAddrinfoRequest *) av_mallocz(sizeof(TCPAddrinfoRequest));
++    if (!req)
++        return AVERROR(ENOMEM);
++
++    if (pthread_mutex_init(&req->mutex, NULL)) {
++        av_freep(&req);
++        return AVERROR(ENOMEM);
++    }
++
++    if (pthread_cond_init(&req->cond, NULL)) {
++        pthread_mutex_destroy(&req->mutex);
++        av_freep(&req);
++        return AVERROR(ENOMEM);
++    }
++
++    if (int_cb)
++        req->interrupt_callback = *int_cb;
++
++    if (hostname) {
++        req->hostname = av_strdup(hostname);
++        if (!req->hostname)
++            goto fail;
++    }
++
++    if (servname) {
++        req->servname = av_strdup(servname);
++        if (!req->hostname)
++            goto fail;
++    }
++
++    if (hints) {
++        req->hints.ai_family   = hints->ai_family;
++        req->hints.ai_socktype = hints->ai_socktype;
++        req->hints.ai_protocol = hints->ai_protocol;
++        req->hints.ai_flags    = hints->ai_flags;
++    }
++
++    req->buffer = av_buffer_create(NULL, 0, tcp_getaddrinfo_request_free_buffer, req, 0);
++    if (!req->buffer)
++        goto fail;
++
++    *request = req;
++    return 0;
++fail:
++    tcp_getaddrinfo_request_free(req);
++    return AVERROR(ENOMEM);
++}
++
++static void *tcp_getaddrinfo_worker(void *arg)
++{
++    TCPAddrinfoRequest *req = arg;
++
++    getaddrinfo(req->hostname, req->servname, &req->hints, &req->res);
++    pthread_mutex_lock(&req->mutex);
++    req->finished = 1;
++    pthread_cond_signal(&req->cond);
++    pthread_mutex_unlock(&req->mutex);
++    av_buffer_unref(&req->buffer);
++    return NULL;
++}
++
++static void *tcp_getaddrinfo_one_by_one_worker(void *arg)
++{
++    struct addrinfo *temp_addrinfo = NULL;
++    struct addrinfo *cur = NULL;
++    int ret = EAI_FAIL;
++    int i = 0;
++    int option_length = 0;
++
++    TCPAddrinfoRequest *req = (TCPAddrinfoRequest *)arg;
++
++    int family_option[2] = {AF_INET, AF_INET6};
++
++    option_length = sizeof(family_option) / sizeof(family_option[0]);
++
++    for (; i < option_length; ++i) {
++        struct addrinfo *hint = &req->hints;
++        hint->ai_family = family_option[i];
++        ret = getaddrinfo(req->hostname, req->servname, hint, &temp_addrinfo);
++        if (ret) {
++            req->last_error = ret;
++            continue;
++        }
++        pthread_mutex_lock(&req->mutex);
++        if (!req->res) {
++            req->res = temp_addrinfo;
++        } else {
++            cur = req->res;
++            while (cur->ai_next)
++                cur = cur->ai_next;
++            cur->ai_next = temp_addrinfo;
++        }
++        pthread_mutex_unlock(&req->mutex);
++    }
++    pthread_mutex_lock(&req->mutex);
++    req->finished = 1;
++    pthread_cond_signal(&req->cond);
++    pthread_mutex_unlock(&req->mutex);
++    av_buffer_unref(&req->buffer);
++    return NULL;
++}
++
++int ijk_tcp_getaddrinfo_nonblock(const char *hostname, const char *servname,
++                                 const struct addrinfo *hints, struct addrinfo **res,
++                                 int64_t timeout,
++                                 const AVIOInterruptCB *int_cb, int one_by_one)
++{
++    int     ret;
++    int64_t start;
++    int64_t now;
++    AVBufferRef        *req_ref = NULL;
++    TCPAddrinfoRequest *req     = NULL;
++    pthread_t work_thread;
++
++    if (hostname && !hostname[0])
++        hostname = NULL;
++    av_log(NULL, AV_LOG_INFO, "dns getaddrinfo uri = %s\n", hostname);
++    if (timeout <= 0)
++        return getaddrinfo(hostname, servname, hints, res);
++av_log(NULL, AV_LOG_INFO, "dns tcp_getaddrinfo_request_create uri = %s\n", hostname);
++    ret = tcp_getaddrinfo_request_create(&req, hostname, servname, hints, int_cb);
++    if (ret)
++        goto fail;
++
++    req_ref = av_buffer_ref(req->buffer);
++    if (req_ref == NULL) {
++        ret = AVERROR(ENOMEM);
++        goto fail;
++    }
++
++    /* FIXME: using a thread pool would be better. */
++    if (one_by_one)
++        ret = pthread_create(&work_thread, NULL, tcp_getaddrinfo_one_by_one_worker, req);
++    else
++        ret = pthread_create(&work_thread, NULL, tcp_getaddrinfo_worker, req);
++
++    if (ret) {
++        ret = AVERROR(ret);
++        goto fail;
++    }
++
++    pthread_detach(work_thread);
++
++    start = av_gettime();
++    now   = start;
++
++    pthread_mutex_lock(&req->mutex);
++    while (1) {
++        int64_t wait_time = now + 100000;
++        struct timespec tv = { .tv_sec  =  wait_time / 1000000,
++                               .tv_nsec = (wait_time % 1000000) * 1000 };
++
++        if (req->finished || (start + timeout < now)) {
++            if (req->res) {
++                ret = 0;
++                *res = req->res;
++                req->res = NULL;
++            } else {
++                ret = req->last_error ? req->last_error : AVERROR_EXIT;
++            }
++            break;
++        }
++#if defined(__ANDROID__) && defined(HAVE_PTHREAD_COND_TIMEDWAIT_MONOTONIC)
++        ret = pthread_cond_timedwait_monotonic_np(&req->cond, &req->mutex, &tv);
++#else
++        ret = pthread_cond_timedwait(&req->cond, &req->mutex, &tv);
++#endif
++        if (ret != 0 && ret != ETIMEDOUT) {
++            av_log(NULL, AV_LOG_ERROR, "pthread_cond_timedwait failed: %d\n", ret);
++            ret = AVERROR_EXIT;
++            break;
++        }
++
++        if (ff_check_interrupt(&req->interrupt_callback)) {
++            ret = AVERROR_EXIT;
++            break;
++        }
++
++        now = av_gettime();
++    }
++    pthread_mutex_unlock(&req->mutex);
++fail:
++    av_buffer_unref(&req_ref);
++    return ret;
++}
++
++#else
++int ijk_tcp_getaddrinfo_nonblock(const char *hostname, const char *servname,
++                                 const struct addrinfo *hints, struct addrinfo **res,
++                                 int64_t timeout,
++                                 const AVIOInterruptCB *int_cb)
++{
++    return getaddrinfo(hostname, servname, hints, res);
++}
++#endif
++
+ static const AVClass tcp_class = {
+     .class_name = "tcp",
+     .item_name  = av_default_item_name,
+@@ -118,7 +378,7 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
+     char hostname[1024],proto[1024],path[1024];
+     char portstr[10];
+     AVAppTcpIOControl control = {0};
+-
++    DnsCacheEntry *dns_entry = NULL;
+     int ret2;
+     if (s->open_timeout < 0) {
+         s->open_timeout = 15000000;
+@@ -172,18 +432,37 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
+     snprintf(portstr, sizeof(portstr), "%d", port);
+     if (s->listen)
+         hints.ai_flags |= AI_PASSIVE;
+-    if (!hostname[0])
+-        ret = getaddrinfo(NULL, portstr, &hints, &ai);
+-    else
+-        ret = getaddrinfo(hostname, portstr, &hints, &ai);
+-    if (ret) {
+-        av_log(h, AV_LOG_ERROR,
+-               "Failed to resolve hostname %s: %s\n",
+-               hostname, gai_strerror(ret));
+-        return AVERROR(EIO);
++    if (s->dns_cache_timeout > 0) {
++        if (s->dns_cache_clear) {
++            remove_dns_cache_entry(uri);
++        } else {
++            dns_entry = get_dns_cache_reference(uri);
++        }
+     }
+ 
+-    cur_ai = ai;
++    if (!dns_entry) {
++#ifdef HAVE_PTHREADS
++        ret = ijk_tcp_getaddrinfo_nonblock(hostname, portstr, &hints, &ai, s->addrinfo_timeout, &h->interrupt_callback, s->addrinfo_one_by_one);
++#else
++        if (s->addrinfo_timeout > 0)
++            av_log(h, AV_LOG_WARNING, "Ignore addrinfo_timeout without pthreads support.\n");
++        if (!hostname[0])
++            ret = getaddrinfo(NULL, portstr, &hints, &ai);
++        else
++            ret = getaddrinfo(hostname, portstr, &hints, &ai);
++#endif
++        if (ret) {
++            av_log(h, AV_LOG_ERROR,
++                "Failed to resolve hostname %s: %s\n",
++                hostname, gai_strerror(ret));
++            return AVERROR(EIO);
++        }
++
++        cur_ai = ai;
++    } else {
++        av_log(NULL, AV_LOG_INFO, "hit dns cache uri = %s\n", uri);
++        cur_ai = dns_entry->res;
++    }
+ 
+ #if HAVE_STRUCT_SOCKADDR_IN6
+     // workaround for IOS9 getaddrinfo in IPv6 only network use hardcode IPv4 address can not resolve port number.
+@@ -239,19 +518,36 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
+             ret = ret2;
+             goto fail1;
+         }
++
++        if (!dns_entry && !strstr(uri, control.ip) && s->dns_cache_timeout > 0) {
++            add_dns_cache_entry(uri, cur_ai, s->dns_cache_timeout);
++            av_log(NULL, AV_LOG_INFO, "add dns cache uri = %s, ip = %s\n", uri , control.ip);
++        }
+         av_log(NULL, AV_LOG_INFO, "tcp did open uri = %s, ip = %s\n", uri , control.ip);
+     }
+ 
+     h->is_streamed = 1;
+     s->fd = fd;
+ 
+-    freeaddrinfo(ai);
++    if (dns_entry) {
++        release_dns_cache_reference(uri, &dns_entry);
++    } else {
++        freeaddrinfo(ai);
++    }
+     return 0;
+ 
+  fail1:
+     if (fd >= 0)
+         closesocket(fd);
+-    freeaddrinfo(ai);
++
++    if (dns_entry) {
++        av_log(NULL, AV_LOG_ERROR, "hit dns cache but connect fail uri = %s, ip = %s\n", uri , control.ip);
++        release_dns_cache_reference(uri, &dns_entry);
++        remove_dns_cache_entry(uri);
++    } else {
++        freeaddrinfo(cur_ai);
++    }
++
+     return ret;
+ }
+ 
+diff --git a/libavutil/Makefile b/libavutil/Makefile
+index 2c55e6a..873a32c 100644
+--- a/libavutil/Makefile
++++ b/libavutil/Makefile
+@@ -28,6 +28,7 @@ HEADERS = adler32.h                                                     \
+           display.h                                                     \
+           dovi_meta.h                                                   \
+           downmix_info.h                                                \
++          dns_cache.h                                                   \
+           encryption_info.h                                             \
+           error.h                                                       \
+           eval.h                                                        \
+@@ -108,6 +109,7 @@ OBJS = adler32.o                                                        \
+        avstring.o                                                       \
+        avsscanf.o                                                       \
+        application.o                                                    \
++       dns_cache.o                                                      \
+        base64.o                                                         \
+        blowfish.o                                                       \
+        bprint.o                                                         \
+diff --git a/libavutil/dns_cache.c b/libavutil/dns_cache.c
+new file mode 100644
+index 0000000..2976a9e
+--- /dev/null
++++ b/libavutil/dns_cache.c
+@@ -0,0 +1,231 @@
++/*
++ * copyright (c) 2017 Raymond Zheng
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#include "libavutil/dns_cache.h"
++#include "libavutil/time.h"
++#include "libavutil/mem.h"
++#include "libavformat/network.h"
++
++
++#if HAVE_PTHREADS
++#include <pthread.h>
++#endif
++
++typedef struct DnsCacheContext DnsCacheContext;
++typedef struct DnsCacheContext {
++    AVDictionary *dns_dictionary;
++    pthread_mutex_t dns_dictionary_mutex;
++    int initialized;
++} DnsCacheContext;
++
++static DnsCacheContext *context = NULL;
++static pthread_once_t key_once = PTHREAD_ONCE_INIT;
++
++static void inner_init(void) {
++    int ret = 0;
++    context = (DnsCacheContext *) av_mallocz(sizeof(DnsCacheContext));
++    if (context) {
++        ret = pthread_mutex_init(&context->dns_dictionary_mutex, NULL);
++        if (!ret) {
++            context->initialized = 1;
++        } else {
++            av_freep(&context);
++        }
++    }
++}
++
++static void free_private_addrinfo(struct addrinfo **p_ai) {
++    struct addrinfo *ai = *p_ai;
++
++    if (ai) {
++        if (ai->ai_addr) {
++            av_freep(&ai->ai_addr);
++        }
++        av_freep(p_ai);
++    }
++}
++
++static int inner_remove_dns_cache(const char *uri, DnsCacheEntry *dns_cache_entry) {
++    if (context && dns_cache_entry) {
++        if (dns_cache_entry->ref_count == 0) {
++            av_dict_set_int(&context->dns_dictionary, uri, 0, 0);
++            free_private_addrinfo(&dns_cache_entry->res);
++            av_freep(&dns_cache_entry);
++        } else {
++            dns_cache_entry->delete_flag = 1;
++        }
++    }
++
++    return 0;
++}
++
++static DnsCacheEntry *new_dns_cache_entry(const char *uri, struct addrinfo *cur_ai, int64_t timeout) {
++    DnsCacheEntry *new_entry = NULL;
++    int64_t cur_time         = av_gettime_relative();
++
++    if (cur_time < 0) {
++        goto fail;
++    }
++
++    new_entry = (DnsCacheEntry *) av_mallocz(sizeof(struct DnsCacheEntry));
++    if (!new_entry) {
++        goto fail;
++    }
++
++    new_entry->res = (struct addrinfo *) av_mallocz(sizeof(struct addrinfo));
++    if (!new_entry->res) {
++        av_freep(&new_entry);
++        goto fail;
++    }
++
++    memcpy(new_entry->res, cur_ai, sizeof(struct addrinfo));
++
++    new_entry->res->ai_addr = (struct sockaddr *) av_mallocz(sizeof(struct sockaddr));
++    if (!new_entry->res->ai_addr) {
++        av_freep(&new_entry->res);
++        av_freep(&new_entry);
++        goto fail;
++    }
++
++    memcpy(new_entry->res->ai_addr, cur_ai->ai_addr, sizeof(struct sockaddr));
++    new_entry->res->ai_canonname = NULL;
++    new_entry->res->ai_next      = NULL;
++    new_entry->ref_count         = 0;
++    new_entry->delete_flag       = 0;
++    new_entry->expired_time      = cur_time + timeout * 1000;
++
++    return new_entry;
++
++fail:
++    return NULL;
++}
++
++DnsCacheEntry *get_dns_cache_reference(const char *uri) {
++    AVDictionaryEntry *elem = NULL;
++    DnsCacheEntry *dns_cache_entry = NULL;
++    int64_t cur_time = av_gettime_relative();
++
++    if (cur_time < 0 || !uri || strlen(uri) == 0) {
++        return NULL;
++    }
++
++    if (!context || !context->initialized) {
++#if HAVE_PTHREADS
++        pthread_once(&key_once, inner_init);
++#endif
++    }
++
++    if (context && context->initialized) {
++        pthread_mutex_lock(&context->dns_dictionary_mutex);
++        elem = av_dict_get(context->dns_dictionary, uri, NULL, AV_DICT_MATCH_CASE);
++        if (elem) {
++            dns_cache_entry = (DnsCacheEntry *) (intptr_t) strtoll(elem->value, NULL, 10);
++            if (dns_cache_entry) {
++                if (dns_cache_entry->expired_time < cur_time) {
++                    inner_remove_dns_cache(uri, dns_cache_entry);
++                    dns_cache_entry = NULL;
++                } else {
++                    dns_cache_entry->ref_count++;
++                }
++            }
++        }
++        pthread_mutex_unlock(&context->dns_dictionary_mutex);
++    }
++
++    return dns_cache_entry;
++}
++
++int release_dns_cache_reference(const char *uri, DnsCacheEntry **p_entry) {
++    DnsCacheEntry *entry = *p_entry;
++
++    if (!uri || strlen(uri) == 0) {
++        return -1;
++    }
++
++    if (context && context->initialized && entry) {
++        pthread_mutex_lock(&context->dns_dictionary_mutex);
++        entry->ref_count--;
++        if (entry->delete_flag && entry->ref_count == 0) {
++            inner_remove_dns_cache(uri, entry);
++            entry = NULL;
++        }
++        pthread_mutex_unlock(&context->dns_dictionary_mutex);
++    }
++    return 0;
++}
++
++int remove_dns_cache_entry(const char *uri) {
++    AVDictionaryEntry *elem = NULL;
++    DnsCacheEntry *dns_cache_entry = NULL;
++
++    if (!uri || strlen(uri) == 0) {
++        return -1;
++    }
++
++    if (context && context->initialized) {
++        pthread_mutex_lock(&context->dns_dictionary_mutex);
++        elem = av_dict_get(context->dns_dictionary, uri, NULL, AV_DICT_MATCH_CASE);
++        if (elem) {
++            dns_cache_entry = (DnsCacheEntry *) (intptr_t) strtoll(elem->value, NULL, 10);
++            if (dns_cache_entry) {
++                inner_remove_dns_cache(uri, dns_cache_entry);
++            }
++        }
++        pthread_mutex_unlock(&context->dns_dictionary_mutex);
++    }
++
++    return 0;
++}
++
++int add_dns_cache_entry(const char *uri, struct addrinfo *cur_ai, int64_t timeout) {
++    DnsCacheEntry *new_entry = NULL;
++    DnsCacheEntry *old_entry = NULL;
++    AVDictionaryEntry *elem  = NULL;
++
++    if (!uri || strlen(uri) == 0 || timeout <= 0) {
++        goto fail;
++    }
++
++    if (cur_ai == NULL || cur_ai->ai_addr == NULL) {
++        goto fail;
++    }
++
++    if (context && context->initialized) {
++        pthread_mutex_lock(&context->dns_dictionary_mutex);
++        elem = av_dict_get(context->dns_dictionary, uri, NULL, AV_DICT_MATCH_CASE);
++        if (elem) {
++            old_entry = (DnsCacheEntry *) (intptr_t) strtoll(elem->value, NULL, 10);
++            if (old_entry) {
++                pthread_mutex_unlock(&context->dns_dictionary_mutex);
++                goto fail;
++            }
++        }
++        new_entry = new_dns_cache_entry(uri, cur_ai, timeout);
++        if (new_entry) {
++            av_dict_set_int(&context->dns_dictionary, uri, (int64_t) (intptr_t) new_entry, 0);
++        }
++        pthread_mutex_unlock(&context->dns_dictionary_mutex);
++
++        return 0;
++    }
++
++fail:
++    return -1;
++}
+diff --git a/libavutil/dns_cache.h b/libavutil/dns_cache.h
+new file mode 100644
+index 0000000..23c695e
+--- /dev/null
++++ b/libavutil/dns_cache.h
+@@ -0,0 +1,39 @@
++/*
++ * copyright (c) 2017 Raymond Zheng
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#ifndef AVUTIL_DNS_CACHE_H
++#define AVUTIL_DNS_CACHE_H
++
++#include "libavutil/log.h"
++#include <stdint.h>
++
++typedef struct DnsCacheEntry {
++    volatile int ref_count;
++    volatile int delete_flag;
++    int64_t expired_time;
++    struct addrinfo *res;  // construct by private function, not support ai_next and ai_canonname, can only be released using free_private_addrinfo
++} DnsCacheEntry;
++
++DnsCacheEntry *get_dns_cache_reference(const char *uri);
++int release_dns_cache_reference(const char *uri, DnsCacheEntry **p_entry);
++int remove_dns_cache_entry(const char *uri);
++int add_dns_cache_entry(const char *uri, struct addrinfo *cur_ai, int64_t timeout);
++
++#endif /* AVUTIL_DNS_CACHE_H */
+-- 
+2.39.3 (Apple Git-145)
+

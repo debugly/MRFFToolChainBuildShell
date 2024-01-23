@@ -31,6 +31,7 @@ env_assert "XC_BUILD_PREFIX"
 env_assert "XC_BUILD_NAME"
 env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
+env_assert "THREAD_COUNT"
 echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
@@ -80,5 +81,5 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 set +e
-make 1>/dev/null
-make install_sw 1>/dev/null
+make -j$THREAD_COUNT >/dev/null
+make install_sw >/dev/null

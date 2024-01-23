@@ -1,0 +1,859 @@
+From 13ac53d7cea87c6cf1fb5eaf2344a6cd16c254e8 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Mon, 12 Jun 2023 18:18:05 +0800
+Subject: [PATCH 12/15] mov support heic demuxer
+ (https://github.com/bluez-sh/FFmpeg/commit/9a885cddb3550ab863a60d02c5fb78e4ae206cf1)
+
+---
+ libavcodec/packet.h |  15 +
+ libavformat/isom.h  |  31 +++
+ libavformat/mov.c   | 653 +++++++++++++++++++++++++++++++++++++-------
+ 3 files changed, 599 insertions(+), 100 deletions(-)
+
+diff --git a/libavcodec/packet.h b/libavcodec/packet.h
+index 404d520..c36cf03 100644
+--- a/libavcodec/packet.h
++++ b/libavcodec/packet.h
+@@ -299,6 +299,21 @@ enum AVPacketSideDataType {
+      */
+     AV_PKT_DATA_DYNAMIC_HDR10_PLUS,
+ 
++    /**
++     * Tile info for image reconstruction
++     * @code
++     * u32le current_tile (current tile number in row major order) [0..nb_tiles-1]
++     * u32le nb_tiles
++     * u32le grid_rows (rows in the final image grid)
++     * u32le grid_cols (cols in the final image grid)
++     * u32le tile_width
++     * u32le tile_height
++     * u32le output_width  (cropped width  of the final image)
++     * u32le output_height (cropped height of the final image)
++     * @encode
++     */
++    AV_PKT_DATA_TILE_INFO,
++
+     /**
+      * The number of side data types.
+      * This is not part of the public API/ABI in the sense that it may
+diff --git a/libavformat/isom.h b/libavformat/isom.h
+index f05c2d9..a704a0e 100644
+--- a/libavformat/isom.h
++++ b/libavformat/isom.h
+@@ -160,6 +160,16 @@ typedef struct MOVIndexRange {
+     int64_t end;
+ } MOVIndexRange;
+ 
++typedef struct HEICItem {
++    int item_id;
++    uint64_t pos;
++    uint64_t size;
++    uint32_t width;
++    uint32_t height;
++    int is_idat_relative;
++    int type;
++} HEICItem;
++
+ typedef struct MOVStreamContext {
+     AVIOContext *pb;
+     int pb_is_copied;
+@@ -318,6 +328,27 @@ typedef struct MOVContext {
+     uint32_t max_stts_delta;
+     int is_still_picture_avif;
+     int primary_item_id;
++
++    int found_iloc;         ///< 'iloc' atom has been found
++    uint64_t idat_offset;   ///< offset of 'idat' atom (non-zero if found)
++    int disable_avformat_decoding;
++    AVCodecContext *dec_ctx;
++    AVFrame *frame;         ///< final decoded frame in HEIF/HEIC
++    AVFrame *tile;
++    HEICItem *item_list;    ///< list of items in HEIF/HEIC
++    int nb_items;
++    int *tile_id_list;      ///< list containing item IDs of all tiles
++    int nb_tiles;
++    int cur_item_id;
++    int grid_item_id;
++    //int primary_item_id;
++    int primary_rot;        ///< rotation angle for primary item
++    uint8_t grid_rows;
++    uint8_t grid_cols;
++    uint32_t tile_width;
++    uint32_t tile_height;
++    uint32_t output_width;
++    uint32_t output_height;
+ } MOVContext;
+ 
+ int ff_mp4_read_descr_len(AVIOContext *pb);
+diff --git a/libavformat/mov.c b/libavformat/mov.c
+index 96ec33c..6b19678 100644
+--- a/libavformat/mov.c
++++ b/libavformat/mov.c
+@@ -65,6 +65,10 @@
+ #include "mov_chan.h"
+ #include "replaygain.h"
+ 
++#include "libavutil/imgutils.h"
++#include "libavutil/display.h"
++#include "libavcodec/avcodec.h"
++
+ #if CONFIG_ZLIB
+ #include <zlib.h>
+ #endif
+@@ -743,6 +747,24 @@ static int mov_read_hdlr(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+     av_log(c->fc, AV_LOG_TRACE, "ctype=%s\n", av_fourcc2str(ctype));
+     av_log(c->fc, AV_LOG_TRACE, "stype=%s\n", av_fourcc2str(type));
+ 
++    if (type == MKTAG('p','i','c','t')) {
++        MOVStreamContext *sc;
++        st = avformat_new_stream(c->fc, NULL);
++        if (!st)
++            return AVERROR(ENOMEM);
++        sc = av_mallocz(sizeof(*sc));
++        if (!sc)
++            return AVERROR(ENOMEM);
++        st->priv_data = sc;
++        st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
++        sc->pb = c->fc->pb;
++        sc->pb_is_copied = 1;
++        sc->time_scale = 1;
++
++        avpriv_set_pts_info(st, 32, 1, sc->time_scale);
++        return 0;
++    }
++
+     if (c->trak_index < 0) {  // meta not inside a trak
+         if (type == MKTAG('m','d','t','a')) {
+             c->found_hdlr_mdta = 1;
+@@ -1964,6 +1986,10 @@ static int mov_read_glbl(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+     if ((uint64_t)atom.size > (1<<30))
+         return AVERROR_INVALIDDATA;
+ 
++    /* if iloc is already found, assuming non-tiled image (unless dimg found) */
++    if (!c->nb_tiles && c->found_iloc && c->cur_item_id != c->primary_item_id)
++        return 0;
++
+     if (atom.size >= 10) {
+         // Broken files created by legacy versions of libavformat will
+         // wrap a whole fiel atom inside of a glbl atom.
+@@ -7478,121 +7504,303 @@ static int mov_read_pitm(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+     return atom.size;
+ }
+ 
+-static int mov_read_iloc(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++static int mov_read_iinf(MOVContext *c, AVIOContext *pb, MOVAtom atom)
+ {
+-    int version, offset_size, length_size, base_offset_size, index_size;
+-    int item_count, extent_count;
+-    uint64_t base_offset, extent_offset, extent_length;
+-    uint8_t value;
+-    AVStream *st;
+-    MOVStreamContext *sc;
++    int entry_count;
++    int version = avio_r8(pb);
++    avio_rb24(pb);  /* flags */
++    atom.size -= 4;
++    if (!version) {
++        entry_count = avio_rb16(pb);
++        atom.size -= 2;
++    } else {
++        entry_count = avio_rb32(pb);
++        atom.size -= 4;
++    }
++    if (!c->item_list) {
++        c->item_list = av_mallocz_array(entry_count, sizeof(HEICItem));
++        if (!c->item_list)
++            return AVERROR(ENOMEM);
++        c->nb_items = entry_count;
++    }
++    c->cur_item_id = 0;
++    return mov_read_default(c, pb, atom);
++}
+ 
+-    if (!c->is_still_picture_avif) {
+-        // * For non-avif, we simply ignore the iloc box.
+-        // * For animated avif, we don't care about the iloc box as all the
+-        //   necessary information can be found in the moov box.
+-        return 0;
++static int mov_read_infe(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++{
++    int item_id, item_type;
++    int version = avio_r8(pb);
++    avio_rb24(pb);  /* flags */
++
++    if (!c->fc->nb_streams) {
++        av_log(c->fc, AV_LOG_ERROR, "hdlr box not found\n");
++        return AVERROR_INVALIDDATA;
+     }
+ 
+-    if (c->fc->nb_streams) {
+-        av_log(c->fc, AV_LOG_INFO, "Duplicate iloc box found\n");
+-        return 0;
++    item_id = (version >= 3) ? avio_rb32(pb) : avio_rb16(pb);
++    if (avio_rb16(pb) != 0) {
++        avpriv_request_sample(c->fc, "Protected HEIC");
++        return AVERROR_PATCHWELCOME;
+     }
++    item_type = avio_rl32(pb);
++    avio_r8(pb);   /* null terminated tag */
+ 
+-    st = avformat_new_stream(c->fc, NULL);
+-    if (!st)
+-        return AVERROR(ENOMEM);
+-    st->id = c->fc->nb_streams;
+-    sc = av_mallocz(sizeof(MOVStreamContext));
+-    if (!sc)
++    if (item_type == MKTAG('h','v','c','1')) {
++        AVStream *st = c->fc->streams[c->fc->nb_streams-1];
++        st->codecpar->codec_id = mov_codec_id(st, item_type);
++    } else if (item_type == MKTAG('g','r','i','d')) {
++        c->grid_item_id = item_id;
++    }
++
++    if (c->cur_item_id < c->nb_items) {
++        c->item_list[c->cur_item_id].item_id = item_id;
++        c->item_list[c->cur_item_id].type    = item_type;
++        c->cur_item_id++;
++    }
++    return 0;
++}
++
++static int mov_read_iref(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++{
++    avio_rb32(pb);  /* version and flags */
++    atom.size -= 4;
++    return mov_read_default(c, pb, atom);
++}
++
++static int mov_read_dimg(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++{
++    int entries, i;
++    int from_item_id = avio_rb16(pb);
++
++    if (from_item_id != c->grid_item_id) {
++        avpriv_request_sample(c->fc, "Derived item of type other than 'grid'");
++        return AVERROR_PATCHWELCOME;
++    }
++    entries = avio_rb16(pb);
++    c->tile_id_list = av_malloc_array(entries, sizeof(int));
++    if (!c->tile_id_list)
+         return AVERROR(ENOMEM);
++    /* 'to' item ids */
++    for (i = 0; i < entries; i++)
++        c->tile_id_list[i] = avio_rb16(pb);
++    c->nb_tiles = entries;
++    return 0;
++}
+ 
+-    st->priv_data = sc;
+-    st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
+-    st->codecpar->codec_id = AV_CODEC_ID_AV1;
+-    sc->ffindex = st->index;
+-    c->trak_index = st->index;
+-    st->avg_frame_rate.num = st->avg_frame_rate.den = 1;
+-    st->time_base.num = st->time_base.den = 1;
+-    st->nb_frames = 1;
+-    sc->time_scale = 1;
+-    sc = st->priv_data;
+-    sc->pb = c->fc->pb;
+-    sc->pb_is_copied = 1;
++static int mov_read_ispe(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++{
++    uint32_t width, height;
++    avio_rb32(pb);  /* version and flags */
++    width  = avio_rb32(pb);
++    height = avio_rb32(pb);
++
++    for (int i = 0; i < c->nb_items; i++) {
++        if (c->item_list[i].item_id == c->cur_item_id) {
++            c->item_list[i].width  = width;
++            c->item_list[i].height = height;
++            break;
++        }
++    }
++    return 0;
++}
++
++static int mov_read_irot(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++{
++    if (c->cur_item_id != c->primary_item_id)
++        return 0;
++    c->primary_rot = - (90 * (avio_r8(pb) & 0x3));
++    return 0;
++}
++
++static int mov_read_iprp(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++{
++    typedef struct AtomPos {
++        int64_t pos, size;
++    } AtomPos;
++    AtomPos *atoms = NULL;
++    int nb_atoms = 0;
++    int version, flags;
++    unsigned count, i, j;
++    int64_t old_pos, ret = 0;
++    MOVAtom a;
++
++    if (!c->fc->nb_streams) {
++        av_log(c->fc, AV_LOG_ERROR, "hdlr box not found\n");
++        return AVERROR_INVALIDDATA;
++    }
++
++    a.size = avio_rb32(pb);
++    a.type = avio_rl32(pb);
++
++    if (a.size < 8 || a.type != MKTAG('i','p','c','o'))
++        return AVERROR_INVALIDDATA;
++    a.size -= 8;
++
++    while (a.size >= 8) {
++        AtomPos *ref = av_dynarray2_add((void**)&atoms, &nb_atoms, sizeof(AtomPos), NULL);
++        if (!ref) {
++            ret = AVERROR(ENOMEM);
++            goto fail;
++        }
++        ref->pos  = avio_tell(pb);
++        ref->size = avio_rb32(pb);
++        if (ref->size > a.size || ref->size < 8)
++            break;
++        if ((ret = avio_seek(pb, ref->pos + ref->size, SEEK_SET)) < 0)
++            goto fail;
++        a.size -= ref->size;
++    }
++
++    if (a.size) {
++        ret = AVERROR_INVALIDDATA;
++        goto fail;
++    }
++
++    a.size = avio_rb32(pb);
++    a.type = avio_rl32(pb);
++
++    if (a.size < 8 || a.type != MKTAG('i','p','m','a')) {
++        ret = AVERROR_INVALIDDATA;
++        goto fail;
++    }
+ 
+     version = avio_r8(pb);
+-    avio_rb24(pb);  // flags.
+-
+-    value = avio_r8(pb);
+-    offset_size = (value >> 4) & 0xF;
+-    length_size = value & 0xF;
+-    value = avio_r8(pb);
+-    base_offset_size = (value >> 4) & 0xF;
+-    index_size = !version ? 0 : (value & 0xF);
+-    if (index_size) {
+-        av_log(c->fc, AV_LOG_ERROR, "iloc: index_size != 0 not supported.\n");
+-        return AVERROR_PATCHWELCOME;
++    flags   = avio_rb24(pb);
++    count   = avio_rb32(pb);
++
++    for (i = 0; i < count; i++) {
++        int item_id = (version >= 1) ? avio_rb32(pb) : avio_rb16(pb);
++        int assoc_count = avio_r8(pb);
++
++        for (j = 0; j < assoc_count; j++) {
++            MOVAtom parentAtom;
++            AtomPos *atom;
++            int index = avio_r8(pb) & 0x7f;
++            if (flags & 1) {
++                index <<= 8;
++                index |= avio_r8(pb);
++            }
++            if (index > nb_atoms || index <= 0) {
++                ret = AVERROR_INVALIDDATA;
++                goto fail;
++            }
++
++            atom = &atoms[--index];
++            c->cur_item_id = item_id;
++            parentAtom = (MOVAtom){ .size = atom->size, .type = MKTAG('i','p','c','o') };
++
++            old_pos = avio_tell(pb);
++            if ((ret = avio_seek(pb, atom->pos, SEEK_SET)) < 0)
++                goto fail;
++            if ((ret = mov_read_default(c, pb, parentAtom)) < 0)
++                goto fail;
++            if ((ret = avio_seek(pb, old_pos, SEEK_SET)) < 0)
++                goto fail;
++        }
+     }
+-    item_count = (version < 2) ? avio_rb16(pb) : avio_rb32(pb);
++    ret = 0;
+ 
+-    // Populate the necessary fields used by mov_build_index.
+-    sc->stsc_count = 1;
+-    sc->stsc_data = av_malloc_array(1, sizeof(*sc->stsc_data));
+-    if (!sc->stsc_data)
+-        return AVERROR(ENOMEM);
+-    sc->stsc_data[0].first = 1;
+-    sc->stsc_data[0].count = 1;
+-    sc->stsc_data[0].id = 1;
+-    sc->chunk_count = 1;
+-    sc->chunk_offsets = av_malloc_array(1, sizeof(*sc->chunk_offsets));
+-    if (!sc->chunk_offsets)
+-        return AVERROR(ENOMEM);
+-    sc->sample_count = 1;
+-    sc->sample_sizes = av_malloc_array(1, sizeof(*sc->sample_sizes));
+-    if (!sc->sample_sizes)
+-        return AVERROR(ENOMEM);
+-    sc->stts_count = 1;
+-    sc->stts_data = av_malloc_array(1, sizeof(*sc->stts_data));
+-    if (!sc->stts_data)
+-        return AVERROR(ENOMEM);
+-    sc->stts_data[0].count = 1;
+-    // Not used for still images. But needed by mov_build_index.
+-    sc->stts_data[0].duration = 0;
++fail:
++    av_free(atoms);
++    return ret;
++}
+ 
+-    for (int i = 0; i < item_count; i++) {
+-        int item_id = (version < 2) ? avio_rb16(pb) : avio_rb32(pb);
+-        if (avio_feof(pb))
+-            return AVERROR_INVALIDDATA;
+-        if (version > 0)
+-            avio_rb16(pb);  // construction_method.
+-        avio_rb16(pb);  // data_reference_index.
+-        if (rb_size(pb, &base_offset, base_offset_size) < 0)
+-            return AVERROR_INVALIDDATA;
++static int mov_read_idat(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++{
++    c->idat_offset = avio_tell(pb);
++    return 0;
++}
++
++static int read_image_grid(MOVContext *c, AVIOContext *pb) {
++    uint8_t flags;
++    avio_r8(pb);    /* version */
++    flags = avio_r8(pb);
++    c->grid_rows  = avio_r8(pb) + 1;
++    c->grid_cols  = avio_r8(pb) + 1;
++    /* actual width and height of output image */
++    c->output_width  = (flags & 1) ? avio_rb32(pb) : avio_rb16(pb);
++    c->output_height = (flags & 1) ? avio_rb32(pb) : avio_rb16(pb);
++    return 0;
++}
++
++static uint64_t read_length(AVIOContext *pb, unsigned len)
++{
++    uint64_t i, ret = 0;
++    for (i = 0; i < len; i++)
++        ret = (ret << 8) | avio_r8(pb);
++    return ret;
++}
++
++static int mov_read_iloc(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++{
++    int offset_size, length_size;
++    int base_offset_size, index_size;
++    int item_count, i, j;
++    uint8_t temp;
++
++    int version = avio_r8(pb);
++    avio_rb24(pb);  /* flags */
++
++    if (!c->fc->nb_streams) {
++        av_log(c->fc, AV_LOG_ERROR, "hdlr box not found\n");
++        return AVERROR_INVALIDDATA;
++    }
++
++    temp = avio_r8(pb);
++    offset_size = temp >> 4;
++    length_size = temp & 0xf;
++    temp = avio_r8(pb);
++    base_offset_size = temp >> 4;
++    index_size = (version == 1 || version == 2) ? temp & 0xf : 0;
++    item_count = (version <  2) ? avio_rb16(pb) :
++                 (version == 2) ? avio_rb32(pb) : 0;
++
++    if (!c->item_list) {
++        c->item_list = av_mallocz_array(item_count, sizeof(HEICItem));
++        if (!c->item_list)
++            return AVERROR(ENOMEM);
++        c->nb_items = item_count;
++    }
++
++    for (i = 0; i < FFMIN(item_count, c->nb_items); i++) {
++        int item_id, offset_type, extent_count;
++        int64_t base_offset;
++
++        item_id     = (version < 2) ? avio_rb16(pb) : avio_rb32(pb);
++        offset_type = (version > 0) ? avio_rb16(pb) & 0xf : 0;
++        if (offset_type > 1) {
++            avpriv_request_sample(c->fc, "iloc offset type %d", offset_type);
++            return AVERROR_PATCHWELCOME;
++        }
++        avio_rb16(pb);  /* data reference index */
++        base_offset  = read_length(pb, base_offset_size);
+         extent_count = avio_rb16(pb);
++
+         if (extent_count > 1) {
+-            // For still AVIF images, we only support one extent item.
+-            av_log(c->fc, AV_LOG_ERROR, "iloc: extent_count > 1 not supported.\n");
++            avpriv_request_sample(c->fc, "Item extent count greater than 1");
+             return AVERROR_PATCHWELCOME;
+         }
+-        for (int j = 0; j < extent_count; j++) {
+-            if (rb_size(pb, &extent_offset, offset_size) < 0 ||
+-                rb_size(pb, &extent_length, length_size) < 0)
+-                return AVERROR_INVALIDDATA;
+-            if (item_id == c->primary_item_id) {
+-                sc->sample_sizes[0] = extent_length;
+-                sc->chunk_offsets[0] = base_offset + extent_offset;
+-            }
+-        }
+-    }
+ 
+-    mov_build_index(c, st);
++        for (j = 0; j < extent_count; j++) {
++            int64_t item_pos, ext_offset, ext_length;
+ 
+-    // For still AVIF images, the iloc box contains all the necessary
+-    // information that would generally be provided by the moov box. So simply
+-    // mark that we have found the moov box so that parsing can continue.
+-    c->found_moov = 1;
++            read_length(pb, index_size);    /* extent index */
++            ext_offset = read_length(pb, offset_size);
++            ext_length = read_length(pb, length_size);
+ 
+-    return atom.size;
++            item_pos = base_offset + ext_offset;
++            if (offset_type == 1)
++                c->item_list[i].is_idat_relative = 1;
++
++            c->item_list[i].item_id = item_id;
++            c->item_list[i].pos     = item_pos;
++            c->item_list[i].size    = ext_length;
++        }
++    }
++
++    c->found_iloc = 1;
++    return 0;
+ }
+ 
+ static const MOVParseTableEntry mov_default_parse_table[] = {
+@@ -7700,6 +7908,16 @@ static const MOVParseTableEntry mov_default_parse_table[] = {
+ { MKTAG('i','l','o','c'), mov_read_iloc },
+ { MKTAG('p','c','m','C'), mov_read_pcmc }, /* PCM configuration box */
+ { MKTAG('p','i','t','m'), mov_read_pitm },
++
++{ MKTAG('i','i','n','f'), mov_read_iinf },
++{ MKTAG('i','n','f','e'), mov_read_infe },
++{ MKTAG('i','p','r','p'), mov_read_iprp },
++{ MKTAG('i','s','p','e'), mov_read_ispe },
++{ MKTAG('i','r','e','f'), mov_read_iref },
++{ MKTAG('d','i','m','g'), mov_read_dimg },
++{ MKTAG('i','d','a','t'), mov_read_idat },
++{ MKTAG('i','r','o','t'), mov_read_irot },
++
+ { 0, NULL }
+ };
+ 
+@@ -8196,6 +8414,12 @@ static int mov_read_close(AVFormatContext *s)
+     av_freep(&mov->aes_decrypt);
+     av_freep(&mov->chapter_tracks);
+ 
++    av_freep(&mov->item_list);
++    av_freep(&mov->tile_id_list);
++    av_frame_free(&mov->frame);
++    av_frame_free(&mov->tile);
++    avcodec_free_context(&mov->dec_ctx);
++
+     return 0;
+ }
+ 
+@@ -8350,6 +8574,9 @@ static int mov_read_header(AVFormatContext *s)
+ 
+     mov->fc = s;
+     mov->trak_index = -1;
++    mov->grid_item_id = -1;
++    mov->primary_item_id = -1;
++
+     /* .mov and .mp4 aren't streamable anyway (only progressive download if moov is before mdat) */
+     if (pb->seekable & AVIO_SEEKABLE_NORMAL)
+         atom.size = avio_size(pb);
+@@ -8364,13 +8591,106 @@ static int mov_read_header(AVFormatContext *s)
+             av_log(s, AV_LOG_ERROR, "error reading header\n");
+             return err;
+         }
+-    } while ((pb->seekable & AVIO_SEEKABLE_NORMAL) && !mov->found_moov && !mov->moov_retry++);
+-    if (!mov->found_moov) {
++    } while ((pb->seekable & AVIO_SEEKABLE_NORMAL) && !mov->found_moov && !mov->found_iloc && !mov->moov_retry++);
++    if (!mov->found_moov && !mov->found_iloc) {
+         av_log(s, AV_LOG_ERROR, "moov atom not found\n");
+         return AVERROR_INVALIDDATA;
+     }
+     av_log(mov->fc, AV_LOG_TRACE, "on_parse_exit_offset=%"PRId64"\n", avio_tell(pb));
+ 
++    if (mov->found_iloc) {
++        /* For HEIF/HEIC pictures */
++        AVStream *st = s->streams[s->nb_streams-1];
++        MOVStreamContext *sc = st->priv_data;
++        int i, j, ret;
++
++        if (mov->nb_tiles) {
++
++            for (i = 0; i < mov->nb_tiles; i++) {
++                int tile_id = mov->tile_id_list[i];
++                for (j = 0; j < mov->nb_items; j++) {
++                    HEICItem *item = &mov->item_list[j];
++                    if (item->item_id == tile_id) {
++                        if (item->is_idat_relative)
++                            item->pos += mov->idat_offset;
++                        if (add_index_entry(st, item->pos, i, item->size, 0, AVINDEX_KEYFRAME) < 0)
++                            return AVERROR(ENOMEM);
++                        if (!mov->tile_width || !mov->tile_height) {
++                            mov->tile_width  = item->width;
++                            mov->tile_height = item->height;
++                        }
++                        break;
++                    }
++                }
++            }
++
++            for (i = 0; i < mov->nb_items; i++) {
++                HEICItem *item = &mov->item_list[i];
++                if (item->item_id == mov->grid_item_id) {
++                    if (item->is_idat_relative)
++                        item->pos += mov->idat_offset;
++                    if ((ret = avio_seek(pb, item->pos, SEEK_SET)) < 0)
++                        return ret;
++                    if ((ret = read_image_grid(mov, pb)) < 0)
++                        return ret;
++                    break;
++                }
++            }
++
++            av_log(s, AV_LOG_INFO, "tile res %dx%d, grid res %dx%d, output res %dx%d\n",
++                   mov->tile_width, mov->tile_height, mov->tile_width  * mov->grid_cols,
++                   mov->tile_height * mov->grid_rows, mov->output_width, mov->output_height);
++
++        } else {
++            for (i = 0; i < mov->nb_items; i++) {
++                HEICItem *item = &mov->item_list[i];
++                if (item->item_id == mov->primary_item_id) {
++                    if (item->is_idat_relative)
++                        item->pos += mov->idat_offset;
++                    if (add_index_entry(st, item->pos, i, item->size, 0, AVINDEX_KEYFRAME) < 0)
++                        return AVERROR(ENOMEM);
++                    break;
++                }
++            }
++        }
++
++        if (mov->nb_tiles && !mov->disable_avformat_decoding) {
++            const AVCodec *codec = avcodec_find_decoder(st->codecpar->codec_id);
++            mov->dec_ctx = avcodec_alloc_context3(codec);
++            if (!mov->dec_ctx)
++                return AVERROR(ENOMEM);
++            ret = avcodec_parameters_to_context(mov->dec_ctx, st->codecpar);
++            if (ret < 0)
++                return ret;
++            ret = avcodec_open2(mov->dec_ctx, codec, NULL);
++            if (ret < 0) {
++                av_log(s, AV_LOG_ERROR, "Error opening codec\n");
++                return ret;
++            }
++
++            if (mov->primary_rot) {
++                sc->display_matrix = av_malloc(sizeof(int32_t) * 9);
++                if (!sc->display_matrix)
++                    return AVERROR(ENOMEM);
++                av_display_rotation_set(sc->display_matrix, mov->primary_rot);
++            }
++
++            st->codecpar->width       = mov->output_width;
++            st->codecpar->height      = mov->output_height;
++            st->codecpar->format      = AV_PIX_FMT_YUV420P;
++            st->codecpar->color_range = AVCOL_RANGE_JPEG;
++            st->codecpar->codec_id    = AV_CODEC_ID_RAWVIDEO;
++            st->codecpar->codec_tag   = 0;
++        } else if (!mov->nb_tiles) {
++            if (mov->primary_rot) {
++                sc->display_matrix = av_malloc(sizeof(int32_t) * 9);
++                if (!sc->display_matrix)
++                    return AVERROR(ENOMEM);
++                av_display_rotation_set(sc->display_matrix, mov->primary_rot);
++            }
++        }
++    }
++
+     if (pb->seekable & AVIO_SEEKABLE_NORMAL) {
+         if (mov->nb_chapter_tracks > 0 && !mov->ignore_chapters)
+             mov_read_chapters(s);
+@@ -8659,6 +8979,98 @@ static int get_eia608_packet(AVIOContext *pb, AVPacket *pkt, int size)
+     return 0;
+ }
+ 
++static int heic_decode_tile(MOVContext *c, AVPacket *pkt, int index)
++{
++    const AVPixFmtDescriptor *desc;
++    unsigned plane, nb_planes = 0;
++    int ret;
++
++    if (!c->tile) c->tile = av_frame_alloc();
++
++    ret = avcodec_send_packet(c->dec_ctx, pkt);
++    if (ret < 0) {
++        av_log(c->fc, AV_LOG_ERROR, "Error sending tile for decoding\n");
++        return ret;
++    }
++
++    ret = avcodec_receive_frame(c->dec_ctx, c->tile);
++    if (ret < 0) {
++        av_log(c->fc, AV_LOG_ERROR, "Error decoding tile\n");
++        return ret;
++    }
++
++    if (c->tile->format != AV_PIX_FMT_YUVJ420P &&
++        c->tile->format != AV_PIX_FMT_YUV420P) {
++        avpriv_request_sample(c->fc,
++                "Unsupported pixel format '%d' for direct decoding heif/heic tiles", c->tile->format);
++        return AVERROR_PATCHWELCOME;
++    }
++
++    if (!c->frame) {
++        c->frame = av_frame_alloc();
++        av_frame_copy_props(c->frame, c->tile);
++        c->frame->width  = c->tile_width  * c->grid_cols;
++        c->frame->height = c->tile_height * c->grid_rows;
++        c->frame->format = c->tile->format;
++        ret = av_frame_get_buffer(c->frame, 1);
++        if (ret < 0)
++            return ret;
++    }
++
++    desc = av_pix_fmt_desc_get(c->frame->format);
++    nb_planes = av_pix_fmt_count_planes(c->frame->format);
++
++    for (plane = 0; plane < nb_planes; plane++) {
++        uint8_t *p, *q;
++        unsigned x, y, line, wp, hp;
++        hp = plane == 1 || plane == 2 ?
++             AV_CEIL_RSHIFT(c->tile->height, desc->log2_chroma_h)
++             : c->tile->height;
++        wp = plane == 1 || plane == 2 ?
++             AV_CEIL_RSHIFT(c->tile->width,  desc->log2_chroma_w)
++             : c->tile->width;
++        x = (index % c->grid_cols) * wp;
++        y = (index / c->grid_cols) * hp;
++        p = &c->tile ->data[plane][0];
++        q = &c->frame->data[plane][y * c->frame->linesize[plane] + x];
++        for (line = 0; line < hp; line++) {
++            memcpy(q, p, wp);
++            p += c->tile ->linesize[plane];
++            q += c->frame->linesize[plane];
++        }
++    }
++
++    return 0;
++}
++
++static int heic_copy_frame_to_buffer(MOVContext *c, AVPacket *pkt, AVFrame *frame)
++{
++    unsigned grid_width  = c->tile_width  * c->grid_cols;
++    unsigned grid_height = c->tile_height * c->grid_rows;
++    unsigned size;
++    int ret;
++
++    frame->crop_right  = grid_width  - c->output_width;
++    frame->crop_bottom = grid_height - c->output_height;
++    av_frame_apply_cropping(frame, 0);
++
++    size = av_image_get_buffer_size(frame->format, frame->width,
++                                    frame->height, 1);
++
++    ret = av_new_packet(pkt, size);
++    if (ret < 0)
++        return ret;
++
++    ret = av_image_copy_to_buffer(pkt->data, size,
++                            (const uint8_t **)frame->data,
++                            frame->linesize, frame->format,
++                            frame->width, frame->height, 1);
++    if (ret < 0)
++        return ret;
++
++    return size;
++}
++
+ static int mov_read_packet(AVFormatContext *s, AVPacket *pkt)
+ {
+     MOVContext *mov = s->priv_data;
+@@ -8682,6 +9094,47 @@ static int mov_read_packet(AVFormatContext *s, AVPacket *pkt)
+     current_index = sc->current_index;
+     mov_current_sample_inc(sc);
+ 
++    if (mov->nb_tiles && !mov->disable_avformat_decoding) {
++        AVPacket avpkt;
++
++        int64_t ret64 = avio_seek(sc->pb, sample->pos, SEEK_SET);
++        if (ret64 != sample->pos) {
++            av_log(mov->fc, AV_LOG_ERROR, "stream %d, offset 0x%"PRIx64": partial file\n",
++                   sc->ffindex, sample->pos);
++            return AVERROR_INVALIDDATA;
++        }
++
++        ret = av_get_packet(sc->pb, &avpkt, sample->size);
++        if (ret < 0)
++            return ret;
++
++        ret = heic_decode_tile(mov, &avpkt, current_index);
++        av_packet_unref(&avpkt);
++
++        if (ret < 0)
++            return ret;
++
++        if (current_index == mov->nb_tiles-1)
++            return heic_copy_frame_to_buffer(mov, pkt, mov->frame);
++
++        return 0;
++    }
++
++    if (mov->nb_tiles) {
++        const uint32_t tile_info[8] = { current_index,     mov->nb_tiles,
++                                        mov->grid_rows,    mov->grid_cols,
++                                        mov->tile_width,   mov->tile_height,
++                                        mov->output_width, mov->output_height };
++        uint8_t *sd = av_packet_new_side_data(pkt, AV_PKT_DATA_TILE_INFO, sizeof(tile_info));
++        if (!sd)
++            return AVERROR(ENOMEM);
++        memcpy(sd, tile_info, sizeof(tile_info));
++
++        av_log(mov->fc, AV_LOG_INFO, "frame %ld, tile %ld of %ld in row %ld\n",
++               (current_index+1), (current_index % mov->grid_cols)+1, (long)mov->grid_cols,
++               (current_index / mov->grid_cols)+1);
++    }
++
+     if (mov->next_root_atom) {
+         sample->pos = FFMIN(sample->pos, mov->next_root_atom);
+         sample->size = FFMIN(sample->size, (mov->next_root_atom - sample->pos));
+@@ -9052,7 +9505,7 @@ static const AVOption mov_options[] = {
+     { "enable_drefs", "Enable external track support.", OFFSET(enable_drefs), AV_OPT_TYPE_BOOL,
+         {.i64 = 0}, 0, 1, FLAGS },
+     { "max_stts_delta", "treat offsets above this value as invalid", OFFSET(max_stts_delta), AV_OPT_TYPE_INT, {.i64 = UINT_MAX-48000*10 }, 0, UINT_MAX, .flags = AV_OPT_FLAG_DECODING_PARAM },
+-
++    { "disable_avformat_decoding", "Disable direct decoding inside libavformat. Currently used only for tiled heif/heic files.", OFFSET(disable_avformat_decoding), AV_OPT_TYPE_BOOL, {.i64 = 0}, 0, 1, FLAGS },
+     { NULL },
+ };
+ 
+@@ -9064,11 +9517,11 @@ static const AVClass mov_class = {
+ };
+ 
+ const AVInputFormat ff_mov_demuxer = {
+-    .name           = "mov,mp4,m4a,3gp,3g2,mj2",
++    .name           = "mov,mp4,m4a,3gp,3g2,mj2,heic,heif",
+     .long_name      = NULL_IF_CONFIG_SMALL("QuickTime / MOV"),
+     .priv_class     = &mov_class,
+     .priv_data_size = sizeof(MOVContext),
+-    .extensions     = "mov,mp4,m4a,3gp,3g2,mj2,psp,m4b,ism,ismv,isma,f4v,avif",
++    .extensions     = "mov,mp4,m4a,3gp,3g2,mj2,psp,m4b,ism,ismv,isma,f4v,avif,heic,heif",
+     .flags_internal = FF_FMT_INIT_CLEANUP,
+     .read_probe     = mov_probe,
+     .read_header    = mov_read_header,
+-- 
+2.39.3 (Apple Git-145)
+
