@@ -28,6 +28,7 @@ env_assert "XC_BUILD_NAME"
 env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XCRUN_CC"
+env_assert "THREAD_COUNT"
 echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
@@ -68,4 +69,4 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-make -j8 install 1>/dev/null
+make -j$THREAD_COUNT install 1>/dev/null

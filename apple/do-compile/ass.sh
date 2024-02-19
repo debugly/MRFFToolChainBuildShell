@@ -28,6 +28,7 @@ env_assert "XC_BUILD_NAME"
 env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XCRUN_CC"
+env_assert "THREAD_COUNT"
 echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
@@ -55,6 +56,8 @@ else
     echo "auto generate configure"
     ./autogen.sh 1>/dev/null
 fi
+
+echo 
 
 MY_PKG_CONFIG_LIBDIR=''
 # with freetype
@@ -105,6 +108,22 @@ else
     echo "[*] --disable-harfbuzz"
 fi
 
+# with unibreak
+if [[ -f "${XC_PRODUCT_ROOT}/unibreak-$XC_ARCH/lib/pkgconfig/libunibreak.pc" || -f "${XC_PRODUCT_ROOT}/universal/unibreak/lib/pkgconfig/libunibreak.pc" ]]; then
+    echo "[*] --enable-unibreak"
+    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
+    fi
+    
+    if [[ -f "${XC_PRODUCT_ROOT}/unibreak-$XC_ARCH/lib/pkgconfig/libunibreak.pc" ]]; then
+        MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/unibreak-$XC_ARCH/lib/pkgconfig"
+    else
+        MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/unibreak/lib/pkgconfig"
+    fi
+else
+    echo "[*] --disable-unibreak"
+fi
+
 if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
     export PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR"
 fi
@@ -126,4 +145,4 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-make install -j8 1>/dev/null
+make install -j$THREAD_COUNT 1>/dev/null
