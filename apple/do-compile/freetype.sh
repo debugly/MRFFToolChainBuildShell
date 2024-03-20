@@ -28,46 +28,46 @@ env_assert "XC_BUILD_NAME"
 env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XCRUN_CC"
-env_assert "THREAD_COUNT"
 echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
-#  --silent
-CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --enable-static --disable-shared"
-CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
+# prepare build config
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --default-library static -Dpng=disabled"
 
-# for cross compile
-if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]];then
-    echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
-    # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
-    CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
-    CFG_FLAGS="$CFG_FLAGS --host=$XC_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
+if [[ "$BUILD_OPT" == "debug" ]]; then
+    CFG_FLAGS="$CFG_FLAGS --buildtype=debug"
+else
+    CFG_FLAGS="$CFG_FLAGS --buildtype=release"
 fi
 
 cd $XC_BUILD_SOURCE
+export CC="$XCRUN_CC"
+export CXX="$XCRUN_CXX"
 
-echo 
-echo "CC: $XCRUN_CC"
-echo "CFG_FLAGS: $CFG_FLAGS"
-echo "CFLAGS: $CFLAGS"
-echo 
+if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]]; then
+   echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
+   CFG_FLAGS="$CFG_FLAGS --cross-file $THIS_DIR/../compile-cfgs/meson-crossfiles/$XC_ARCH-$XC_PLAT.meson"
+fi
 
-echo "----------------------"
-echo "[*] configurate $LIB_NAME"
-echo "----------------------"
-
-echo "generate configure"
-
-./autogen.sh 1>/dev/null
-
-./configure $CFG_FLAGS \
-   CC="$XCRUN_CC" \
-   CFLAGS="$CFLAGS" \
-   LDFLAGS="$CFLAGS" 1>/dev/null
-
-#----------------------
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
+echo "CC: $XCRUN_CC"
+echo "CFG_FLAGS: $CFG_FLAGS"
 echo "----------------------"
+echo
 
-make -j$THREAD_COUNT install 1>/dev/null
+build=./build-$XC_ARCH
+if [[ -d $build ]]; then
+   rm -rf $build
+fi
+
+meson setup $build $CFG_FLAGS
+
+cd $build
+
+echo "compile"
+
+meson compile && meson install
+
+# ninja -C build
+# ninja -C build install
