@@ -31,7 +31,7 @@ env_assert "XCRUN_CC"
 echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
-CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --enable-static --disable-shared --silent --enable-silent-rules"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --enable-static --disable-shared --silent --enable-silent-rules --disable-dependency-tracking"
 CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
 # for cross compile
@@ -41,6 +41,11 @@ if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]];then
     CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
     CFG_FLAGS="$CFG_FLAGS --host=$XC_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
 fi
+
+if [[ "$BUILD_OPT" == "debug" ]]; then
+    CFG_FLAGS="$CFG_FLAGS --enable-debug"
+fi
+
 
 cd $XC_BUILD_SOURCE
 
