@@ -22,6 +22,7 @@ jobs:
         d=$(TZ=UTC-8 date +'%y%m%d%H%M%S')
         grep GIT_REPO_VERSION= ./init-cfgs/harfbuzz | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
         echo "RELEASE_DATE=$d" >> constants.env
+        echo "HOMEBREW_NO_AUTO_UPDATE=1" >> constants.env
         cat constants.env
     - name: Export Env
       uses: cardinalby/export-env-action@v2
