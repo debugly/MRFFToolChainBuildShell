@@ -10,7 +10,7 @@ name: Create freetype Release
 jobs:
   build:
     name: compile freetype then deploy
-    runs-on: macos-13
+    runs-on: macos-13-xlarge
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
