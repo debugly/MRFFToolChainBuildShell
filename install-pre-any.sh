@@ -34,7 +34,7 @@ FFMPEG_TAG='ffmpeg-5.1.4-240123163221'
 FREETYPE_TAG='freetype-2.13.2-240320173506'
 UNIBREAK_TAG='unibreak-5.1-231229171455'
 FRIBIDI_TAG='fribidi-1.0.13-240320172504'
-HARFBUZZ_TAG=''
+HARFBUZZ_TAG='harfbuzz-8.3.0-240320182151'
 ASS_TAG=''
 #----------------------------------------------------------
 
