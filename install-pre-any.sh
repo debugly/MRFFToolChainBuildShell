@@ -61,7 +61,7 @@ function install_lib ()
 function usage() {
     echo "=== useage ===================="
     echo "Download pre-compiled libs from github:"
-    echo " $0 [ios,macos,all] [all|ffmpeg|libyuv|openssl|opus|bluray|dav1d|freetype|fribidi|harfbuzz|ass]"
+    echo " $0 [ios,macos,all] [all|ffmpeg|libyuv|openssl|opus|bluray|dav1d|freetype|fribidi|harfbuzz|unibreak|ass]"
     exit 1
 }
 

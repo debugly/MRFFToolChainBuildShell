@@ -35,7 +35,7 @@ cd "$THIS_DIR"
 function usage()
 {
     echo " useage:"
-    echo " $0 [ios,macos,all] [all|ffmpeg|libyuv|openssl|opus|bluray|dvdread|dav1d|freetype|fribidi|harfbuzz|ass|ffmpeg] [all,arm64,x86_64]"
+    echo " $0 [ios,macos,all] [all|ffmpeg|libyuv|openssl|opus|bluray|dvdread|dav1d|freetype|harfbuzz|fribidi|unibreak|ass|ffmpeg] [all,arm64,x86_64]"
 }
 
 if [[ "$SKIP_PULL_BASE" ]];then

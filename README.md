@@ -2,9 +2,9 @@
 
 **What's MRFFToolChain?**
 
-MRFFToolChain products was built for my FFmepg tutorial : [https://github.com/debugly/FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
+MRFFToolChain products was built for ijkplayer : [https://github.com/debugly/ijkplayer](https://github.com/debugly/ijkplayer).
 
-At present MRFFToolChain contained OpenSSL、FFmpeg 、libyuv、libopus、libbluray、etc.
+At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、freetype、fribidi、harfbuzz、libyuv、openssl、opus、unibreak`.
 
 ## Folder structure
 
@@ -30,13 +30,18 @@ At present MRFFToolChain contained OpenSSL、FFmpeg 、libyuv、libopus、libblu
 │   └── module.sh -> module-full.sh
 ├── init-any.sh  #初始化源码仓库
 ├── init-cfgs    #三方库的配置，包括库名，git仓库地址等信息
+│   ├── ass
 │   ├── bluray
 │   ├── dav1d
 │   ├── dvdread
 │   ├── ffmpeg
+│   ├── freetype
+│   ├── fribidi
+│   ├── harfbuzz
 │   ├── libyuv
 │   ├── openssl
-│   └── opus
+│   ├── opus
+│   └── unibreak
 ├── install-pre-any.sh #直接从github下载预编译好的lib
 ├── ios               #ios 平台编译脚本
 │   └── compile-any.sh
@@ -48,13 +53,13 @@ At present MRFFToolChain contained OpenSSL、FFmpeg 、libyuv、libopus、libblu
 │   ├── ffmpeg-n4.0
 │   └── ffmpeg-release-5.1
 ├── tools            #基础脚本
-│   ├── copy-local-repo.sh
-│   ├── env_assert.sh
-│   ├── init-repo.sh
-│   ├── install-pre-lib.sh
-│   ├── pull-repo-base.sh
-│   └── pull-repo-ref.sh
-└── version.sh
+    ├── copy-local-repo.sh
+    ├── env_assert.sh
+    ├── init-repo.sh
+    ├── install-pre-lib.sh
+    ├── pull-repo-base.sh
+    ├── pull-repo-ref.sh
+    └── sync-lastest-private.sh
 ```
 
 ## Download Pre-compiled libs
@@ -144,14 +149,20 @@ At present MRFFToolChain contained OpenSSL、FFmpeg 、libyuv、libopus、libblu
 
 如果 github 上的仓库克隆较慢，或者需要使用内网私有仓库，可在执行编译脚本前声明对应的环境变量！
 
-| 名称        | 默认仓库                                             | 使用镜像                                               |
-| --------- | ------------------------------------------------ | -------------------------------------------------- |
-| FFmpeg    | https://github.com/bilibili/FFmpeg.git           | export GIT_FFMPEG_UPSTREAM=git@xx:yy/ffmpeg.git    |
-| libYUV    | https://github.com/lemenkov/libyuv.git           | export GIT_LIBYUV_UPSTREAM=git@xx:yy/libyuv.git    |
-| OpenSSL   | https://github.com/openssl/openssl.git           | export GIT_OPENSSL_UPSTREAM=git@xx:yy/openssl.git  |
-| Opus      | https://gitlab.xiph.org/xiph/opus.git            | export GIT_OPUS_UPSTREAM=git@xx:yy/opusfile.git    |
-| libbluray | https://code.videolan.org/videolan/libbluray.git | export GIT_BLURAY_UPSTREAM=git@xx:yy/libbluray.git |
-| dav1d     | https://code.videolan.org/videolan/dav1d.git     | export GIT_DAV1D_UPSTREAM=git@xx:yy/dav1d.git      |
+| 名称          | 默认仓库                                                 | 默认版本   | 使用镜像                                                     |
+| ----------- | ---------------------------------------------------- | ------ | -------------------------------------------------------- |
+| libass      | https://github.com/libass/libass.git                 | 0.17.1 | export GIT_ASS_UPSTREAM = git@xx:yy/libass.git           |
+| libbluray   | https://code.videolan.org/videolan/libbluray.git     | 1.3.4  | export GIT_BLURAY_UPSTREAM = git@xx:yy/libbluray.git     |
+| dav1d       | https://code.videolan.org/videolan/dav1d.git         | 1.3.0  | export GIT_DAV1D_UPSTREAM = git@xx:yy/dav1d.git          |
+| libdvdread  | https://code.videolan.org/videolan/libdvdread.git    | 6.1.3  | export GIT_DVDREAD_UPSTREAM = git@xx:yy/libdvdread.git   |
+| FFmpeg      | https://github.com/FFmpeg/FFmpeg.git                 | 5.1.4  | export GIT_FFMPEG_UPSTREAM = git@xx:yy/FFmpeg.git        |
+| freetype    | https://gitlab.freedesktop.org/freetype/freetype.git | 2.13.2 | export GIT_FREETYPE_UPSTREAM = git@xx:yy/freetype.git    |
+| fribidi     | https://github.com/fribidi/fribidi.git               | 1.0.13 | export GIT_FRIBIDI_UPSTREAM = git@xx:yy/fribidi.git      |
+| harfbuzz    | https://github.com/harfbuzz/harfbuzz.git             | 8.3.0  | export GIT_HARFBUZZ_UPSTREAM = git@xx:yy/harfbuzz.git    |
+| libyuv      | https://github.com/lemenkov/libyuv.git               | main   | export GIT_LIBYUV_UPSTREAM = git@xx:yy/libyuv.git        |
+| openssl     | https://github.com/openssl/openssl.git               | 1.1.1w | export GIT_OPENSSL_UPSTREAM = git@xx:yy/openssl.git      |
+| opus        | https://gitlab.xiph.org/xiph/opus.git                | 1.4    | export GIT_OPUS_UPSTREAM = git@xx:yy/opus.git            |
+| libunibreak | https://github.com/adah1972/libunibreak.git          | 5.1    | export GIT_UNIBREAK_UPSTREAM = git@xx:yy/libunibreak.git |
 
 ## Advanced Configuration
 
