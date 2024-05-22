@@ -1,7 +1,7 @@
 From 5ce4f79fc1860da59233d6a1b6ff7e563d244466 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Tue, 23 Jan 2024 15:45:28 +0800
-Subject: [PATCH 07/15] restore ijk dns cache
+Subject: [PATCH 17/17] restore ijk dns cache
 
 ---
  libavformat/hls.c     |  46 +++++-

@@ -1,0 +1,26 @@
+From 2b7025ea0b9f72c365f7ce79ba462496e07e9a3d Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Wed, 22 May 2024 14:24:29 +0800
+Subject: [PATCH 03/17] correct file seekable value range, 0 means streamed can't
+ seek, 1 means not streamed can seek.
+
+---
+ libavformat/file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libavformat/file.c b/libavformat/file.c
+index 98c9e81..a35dfca 100644
+--- a/libavformat/file.c
++++ b/libavformat/file.c
+@@ -85,7 +85,7 @@ static const AVOption file_options[] = {
+     { "truncate", "truncate existing files on write", offsetof(FileContext, trunc), AV_OPT_TYPE_BOOL, { .i64 = 1 }, 0, 1, AV_OPT_FLAG_ENCODING_PARAM },
+     { "blocksize", "set I/O operation maximum block size", offsetof(FileContext, blocksize), AV_OPT_TYPE_INT, { .i64 = INT_MAX }, 1, INT_MAX, AV_OPT_FLAG_ENCODING_PARAM },
+     { "follow", "Follow a file as it is being written", offsetof(FileContext, follow), AV_OPT_TYPE_INT, { .i64 = 0 }, 0, 1, AV_OPT_FLAG_DECODING_PARAM },
+-    { "seekable", "Sets if the file is seekable", offsetof(FileContext, seekable), AV_OPT_TYPE_INT, { .i64 = -1 }, -1, 0, AV_OPT_FLAG_DECODING_PARAM | AV_OPT_FLAG_ENCODING_PARAM },
++    { "seekable", "Sets if the file is seekable", offsetof(FileContext, seekable), AV_OPT_TYPE_INT, { .i64 = -1 }, -1, 1, AV_OPT_FLAG_DECODING_PARAM | AV_OPT_FLAG_ENCODING_PARAM },
+     { NULL }
+ };
+ 
+-- 
+2.39.3 (Apple Git-146)
+
