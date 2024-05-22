@@ -57,7 +57,9 @@ CFG_FLAGS="$CFG_FLAGS --enable-neon"
 CFG_FLAGS="$CFG_FLAGS --enable-asm"
 
 C_FLAGS=
-C_FLAGS="$C_FLAGS -fno-stack-check -arch $XC_ARCH"
+# https://gitlab.gnome.org/GNOME/gimp/-/issues/8649
+# from clang 15 int <-> pointer conversions now defaults as an error
+C_FLAGS="$C_FLAGS -Wno-int-conversion -fno-stack-check -arch $XC_ARCH"
 C_FLAGS="$C_FLAGS $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
 if [[ "$XC_OPTS" == "debug" ]]; then

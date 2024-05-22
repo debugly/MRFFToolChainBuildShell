@@ -81,5 +81,6 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 set +e
-make -j$THREAD_COUNT >/dev/null
-make install_sw >/dev/null
+
+make build_libs -j$THREAD_COUNT >/dev/null
+make install_dev >/dev/null

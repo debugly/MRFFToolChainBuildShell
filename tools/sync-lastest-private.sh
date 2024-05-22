@@ -12,7 +12,8 @@ set -e
 
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
-cd ../build/extra
+
+lib=$1
 
 function update()
 {
@@ -27,13 +28,13 @@ function update()
         echo "$repo"
         git remote add github "$repo"
     fi
-
+    
     echo '=== will pull all from github ==='
     git reset --hard
     git checkout master -B master
     git pull origin master
     git fetch github --tags
-
+    
     echo '=== will push all branch to private ==='
     git push origin --tags
     git push origin --all
@@ -42,9 +43,15 @@ function update()
     cd -
 }
 
-for i in $(ls);
-do
-    update "$i"
-done;
+cd ../build/extra
+if [[ -z "$lib" ]];then
+    for lib in $(ls);
+    do
+        update "$lib"
+    done;
+else
+    update "$lib"
+fi
 
-# update bluray
+
+

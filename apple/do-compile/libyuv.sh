@@ -58,7 +58,7 @@ echo "----------------------"
 echo "[*] compile libyuv"
 echo "----------------------"
 
-make -f linux.mk CC="$XCRUN_CC" CXX="$XCRUN_CXX" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" -j$THREAD_COUNT >/dev/null
+CC="$XCRUN_CC" CXX="$XCRUN_CXX" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" make -f linux.mk libyuv.a -j$THREAD_COUNT >/dev/null
 
 mkdir -p "${XC_BUILD_PREFIX}/lib"
 cp libyuv.a "${XC_BUILD_PREFIX}/lib"
