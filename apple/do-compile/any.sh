@@ -147,12 +147,12 @@ function main() {
         'build')
             resolve_dep
             for arch in $archs; do
-                init_env $arch
+                init_arch_env $arch
                 do_compile $arch
                 echo
             done
             
-            do_lipo_all "$XC_ALL_ARCHS"
+            do_lipo_all "$archs"
         ;;
         'rebuild')
             echo '---clean for rebuild-----------------'

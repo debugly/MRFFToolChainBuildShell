@@ -66,7 +66,7 @@ if [[ "$XC_OPTS" == "debug" ]]; then
     CFG_FLAGS="$CFG_FLAGS --disable-optimizations"
     CFG_FLAGS="$CFG_FLAGS --enable-debug"
     CFG_FLAGS="$CFG_FLAGS --disable-small"
-    C_FLAGS="$C_FLAGS -D DEBUG_BLURAY=1"
+    #C_FLAGS="$C_FLAGS -D DEBUG_BLURAY=1"
 else
     CFG_FLAGS="$CFG_FLAGS --enable-optimizations"
     CFG_FLAGS="$CFG_FLAGS --disable-debug"
@@ -199,35 +199,6 @@ else
 fi
 
 echo "----------------------"
-echo "[*] check bluray"
-
-# with bluray
-if [[ -f "${XC_PRODUCT_ROOT}/bluray-$XC_ARCH/lib/pkgconfig/libbluray.pc" ]]; then
-
-# --enable-libxml2
-    CFG_FLAGS="$CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
-
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/bluray-$XC_ARCH/lib/pkgconfig"
-
-    echo "[*] --enable-libbluray --enable-protocol=bluray"
-elif [[ -f "${XC_PRODUCT_ROOT}/universal/bluray/lib/pkgconfig/libbluray.pc" ]]; then
-# --enable-libxml2
-    CFG_FLAGS="$CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
-
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/bluray/lib/pkgconfig"
-
-    echo "[*] --enable-libbluray --enable-protocol=bluray"
-else
-    echo "[*] --disable-libbluray --disable-protocol=bluray"
-fi
-
-echo "----------------------"
 echo "[*] check dav1d"
 
 # FFmpeg 4.2 支持AV1、AVS2等格式
@@ -259,27 +230,56 @@ fi
 #just wait videotoolbox support decode av1
 # CFG_FLAGS="$CFG_FLAGS --enable-decoder=av1"
 
-echo "----------------------"
-echo "[*] check dvdread"
+# echo "----------------------"
+# echo "[*] check bluray"
 
-if [[ -f "${XC_PRODUCT_ROOT}/dvdread-$XC_ARCH/lib/pkgconfig/dvdread.pc" || -f "${XC_PRODUCT_ROOT}/universal/dvdread/lib/pkgconfig/dvdread.pc" ]]; then
+# # with bluray
+# if [[ -f "${XC_PRODUCT_ROOT}/bluray-$XC_ARCH/lib/pkgconfig/libbluray.pc" ]]; then
 
-    CFG_FLAGS="$CFG_FLAGS --enable-libdvdread"
+# # --enable-libxml2
+#     CFG_FLAGS="$CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
 
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
+#     if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+#         MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
+#     fi
+#     MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/bluray-$XC_ARCH/lib/pkgconfig"
 
-    if [[ -f "${XC_PRODUCT_ROOT}/dvdread-$XC_ARCH/lib/pkgconfig/dvdread.pc" ]]; then
-        MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/dvdread-$XC_ARCH/lib/pkgconfig"
-    else
-        MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/dvdread/lib/pkgconfig"
-    fi
+#     echo "[*] --enable-libbluray --enable-protocol=bluray"
+# elif [[ -f "${XC_PRODUCT_ROOT}/universal/bluray/lib/pkgconfig/libbluray.pc" ]]; then
+# # --enable-libxml2
+#     CFG_FLAGS="$CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
 
-    echo "[*] --enable-libdvdread"
-else
-    echo "[*] --disable-libdvdread"
-fi
+#     if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+#         MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
+#     fi
+#     MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/bluray/lib/pkgconfig"
+
+#     echo "[*] --enable-libbluray --enable-protocol=bluray"
+# else
+#     echo "[*] --disable-libbluray --disable-protocol=bluray"
+# fi
+
+# echo "----------------------"
+# echo "[*] check dvdread"
+
+# if [[ -f "${XC_PRODUCT_ROOT}/dvdread-$XC_ARCH/lib/pkgconfig/dvdread.pc" || -f "${XC_PRODUCT_ROOT}/universal/dvdread/lib/pkgconfig/dvdread.pc" ]]; then
+
+#     CFG_FLAGS="$CFG_FLAGS --enable-libdvdread"
+
+#     if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
+#         MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
+#     fi
+
+#     if [[ -f "${XC_PRODUCT_ROOT}/dvdread-$XC_ARCH/lib/pkgconfig/dvdread.pc" ]]; then
+#         MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/dvdread-$XC_ARCH/lib/pkgconfig"
+#     else
+#         MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/dvdread/lib/pkgconfig"
+#     fi
+
+#     echo "[*] --enable-libdvdread"
+# else
+#     echo "[*] --disable-libdvdread"
+# fi
 
 
 echo "----------------------"

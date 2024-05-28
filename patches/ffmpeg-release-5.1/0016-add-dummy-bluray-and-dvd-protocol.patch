@@ -1,0 +1,83 @@
+From 4e948b9e613c04598344400661dcf555ea590f31 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Tue, 28 May 2024 09:56:14 +0800
+Subject: [PATCH 16/16] add dummy bluray and dvd protocol
+
+---
+ libavformat/demux.c     | 11 +++++++++++
+ libavformat/ijkutils.c  |  2 ++
+ libavformat/protocols.c |  2 ++
+ libavformat/url.h       |  2 ++
+ 4 files changed, 17 insertions(+)
+
+diff --git a/libavformat/demux.c b/libavformat/demux.c
+index 06216eb..a69cf1d 100644
+--- a/libavformat/demux.c
++++ b/libavformat/demux.c
+@@ -348,6 +348,17 @@ int avformat_open_input(AVFormatContext **ps, const char *filename,
+         ff_id3v2_free_extra_meta(&id3v2_extra_meta);
+     }
+ 
++    //fill stream info
++    if (s->pb) {
++        URLContext *url_context = ffio_geturlcontext(s->pb);
++        if (url_context && url_context->prot) {
++            URLProtocol *prot = url_context->prot;
++            if (prot->url_parse_priv) {
++                prot->url_parse_priv(s, url_context);
++            }
++        }
++    }
++    
+     if ((ret = avformat_queue_attached_pictures(s)) < 0)
+         goto close;
+ 
+diff --git a/libavformat/ijkutils.c b/libavformat/ijkutils.c
+index 25faad1..10f8c37 100644
+--- a/libavformat/ijkutils.c
++++ b/libavformat/ijkutils.c
+@@ -65,6 +65,8 @@ IJK_DUMMY_PROTOCOL(ijkhttphook);
+ IJK_DUMMY_PROTOCOL(ijksegment);
+ IJK_DUMMY_PROTOCOL(ijktcphook);
+ IJK_DUMMY_PROTOCOL(ijkio);
++IJK_DUMMY_PROTOCOL(ijkbluray);
++IJK_DUMMY_PROTOCOL(ijkdvd);
+ 
+ #define IJK_FF_DEMUXER(x)                                                                          \
+ extern AVInputFormat ff_##x##_demuxer;                                                               \
+diff --git a/libavformat/protocols.c b/libavformat/protocols.c
+index 8c67f34..8dc3b23 100644
+--- a/libavformat/protocols.c
++++ b/libavformat/protocols.c
+@@ -79,6 +79,8 @@ extern const URLProtocol ff_ijkmediadatasource_protocol;
+ extern const URLProtocol ff_ijksegment_protocol;
+ extern const URLProtocol ff_ijktcphook_protocol;
+ extern const URLProtocol ff_ijkio_protocol;
++extern const URLProtocol ff_ijkbluray_protocol;
++extern const URLProtocol ff_ijkdvd_protocol;
+ 
+ #include "libavformat/protocol_list.c"
+ 
+diff --git a/libavformat/url.h b/libavformat/url.h
+index 3cfe3ec..35f66d2 100644
+--- a/libavformat/url.h
++++ b/libavformat/url.h
+@@ -50,6 +50,7 @@ typedef struct URLContext {
+     int min_packet_size;        /**< if non zero, the stream is packetized with this min packet size */
+ } URLContext;
+ 
++typedef struct AVFormatContext AVFormatContext;
+ typedef struct URLProtocol {
+     const char *name;
+     int     (*url_open)( URLContext *h, const char *url, int flags);
+@@ -95,6 +96,7 @@ typedef struct URLProtocol {
+     int (*url_close_dir)(URLContext *h);
+     int (*url_delete)(URLContext *h);
+     int (*url_move)(URLContext *h_src, URLContext *h_dst);
++    int (*url_parse_priv)(AVFormatContext *ic, URLContext *h);
+     const char *default_whitelist;
+ } URLProtocol;
+ 
+-- 
+2.39.3 (Apple Git-146)
+

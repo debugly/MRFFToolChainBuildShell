@@ -1,7 +1,7 @@
 From 2b7025ea0b9f72c365f7ce79ba462496e07e9a3d Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Wed, 22 May 2024 14:24:29 +0800
-Subject: [PATCH 03/17] correct file seekable value range, 0 means streamed can't
+Subject: [PATCH 03/16] correct file seekable value range, 0 means streamed can't
  seek, 1 means not streamed can seek.
 
 ---

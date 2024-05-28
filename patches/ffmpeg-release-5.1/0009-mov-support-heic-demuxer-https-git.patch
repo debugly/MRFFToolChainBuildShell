@@ -1,7 +1,7 @@
 From 13ac53d7cea87c6cf1fb5eaf2344a6cd16c254e8 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Mon, 12 Jun 2023 18:18:05 +0800
-Subject: [PATCH 10/17] mov support heic demuxer
+Subject: [PATCH 09/16] mov support heic demuxer
  (https://github.com/bluez-sh/FFmpeg/commit/9a885cddb3550ab863a60d02c5fb78e4ae206cf1)
 
 ---

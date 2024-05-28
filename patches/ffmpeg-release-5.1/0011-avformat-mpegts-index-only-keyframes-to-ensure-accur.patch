@@ -1,15 +1,15 @@
-From bcc2005d5eaed8dab062d1b27b20106eef7ef150 Mon Sep 17 00:00:00 2001
+From d1114e0ab218b333bffe322361d8b46033e18fa9 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Sun, 25 Jun 2023 14:33:48 +0800
-Subject: [PATCH 12/17] avformat/mpegts: index only keyframes to ensure
- accurate seeks
+Date: Fri, 24 May 2024 10:30:36 +0800
+Subject: [PATCH 11/16] avformat/mpegts: index only keyframes to ensure accurate
+ seeks by default
 
 ---
  libavformat/mpegts.c | 8 ++++++--
  1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/libavformat/mpegts.c b/libavformat/mpegts.c
-index 8a3436f..fdbb9df 100644
+index 8a3436f..8e65529 100644
 --- a/libavformat/mpegts.c
 +++ b/libavformat/mpegts.c
 @@ -157,6 +157,7 @@ struct MpegTSContext {
@@ -25,7 +25,7 @@ index 8a3436f..fdbb9df 100644
      {"max_packet_size", "maximum size of emitted packet", offsetof(MpegTSContext, max_packet_size), AV_OPT_TYPE_INT,
       {.i64 = 204800}, 1, INT_MAX/2, AV_OPT_FLAG_DECODING_PARAM },
 +    {"seek_flag_keyframe", "seek use keyframe mode", offsetof(MpegTSContext, seek_flag_keyframe), AV_OPT_TYPE_BOOL,
-+     {.i64 = 0}, 0, 1, AV_OPT_FLAG_DECODING_PARAM },
++     {.i64 = 1}, 0, 1, AV_OPT_FLAG_DECODING_PARAM },
      { NULL },
  };
  
@@ -43,5 +43,5 @@ index 8a3436f..fdbb9df 100644
                  int64_t dts = pkt->dts;
                  *ppos = pkt->pos;
 -- 
-2.39.3 (Apple Git-145)
+2.39.3 (Apple Git-146)
 
