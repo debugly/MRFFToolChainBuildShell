@@ -25,17 +25,16 @@
 #----------------------------------------------------------
 LIBYUV_TAG='libyuv-main-231127113441'
 OPUS_TAG='opus-1.4-231127183709'
-MAC_BLURAY_TAG='bluray-1.3.4-240108180408'
+MAC_BLURAY_TAG='bluray-1.3.4-240528173418'
 DAV1D_TAG='dav1d-1.3.0-231127183948'
 OPENSSL_TAG='openssl-1.1.1w-231127183927'
 DVDREAD_TAG='dvdread-6.1.3-240108102425'
-FFMPEG_TAG='ffmpeg-5.1.4-240522180132'
-
 FREETYPE_TAG='freetype-2.13.2-240320173506'
 UNIBREAK_TAG='unibreak-5.1-231229171455'
 FRIBIDI_TAG='fribidi-1.0.13-240320172504'
 HARFBUZZ_TAG='harfbuzz-8.3.0-240320182151'
 ASS_TAG='ass-0.17.1-240320183602'
+FFMPEG_TAG='ffmpeg-5.1.4-240522180132'
 #----------------------------------------------------------
 
 set -e
