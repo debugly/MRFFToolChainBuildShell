@@ -1,7 +1,7 @@
 From dc595d866ab9a0a67331b10dc969b434ab5e4e6b Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Wed, 22 May 2024 14:55:43 +0800
-Subject: [PATCH 05/16] hls support discontinuity tag
+Subject: [PATCH 05] hls support discontinuity tag
 
 ---
  libavformat/hls.c | 59 +++++++++++++++++++++++++++++++++++++++++------

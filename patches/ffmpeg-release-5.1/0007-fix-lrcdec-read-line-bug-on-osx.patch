@@ -1,7 +1,7 @@
 From e9742509d17c2c08b6d6d5eca8da5fe886d5cb66 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Mon, 22 May 2023 18:20:51 +0800
-Subject: [PATCH 07/16] fix lrcdec read line bug on osx.
+Subject: [PATCH 07] fix lrcdec read line bug on osx.
 
 ---
  libavformat/lrcdec.c | 20 +++++++++++---------

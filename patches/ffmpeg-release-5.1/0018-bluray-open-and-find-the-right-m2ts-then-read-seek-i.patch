@@ -1,0 +1,205 @@
+From a78737dbf420343099b8151d6a23262e98fbddef Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Wed, 29 May 2024 11:43:03 +0800
+Subject: [PATCH 18] bluray open and find the right m2ts, then read\seek it
+ direactly instread of bluray logic.
+
+---
+ libavformat/bluray.c | 112 ++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 106 insertions(+), 6 deletions(-)
+
+diff --git a/libavformat/bluray.c b/libavformat/bluray.c
+index 635c4f1..a7bcd90 100644
+--- a/libavformat/bluray.c
++++ b/libavformat/bluray.c
+@@ -20,12 +20,18 @@
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+  */
+ 
++/*
++ 2024.05.28 the "House.of.the.Dragon.S01E01.2022.UHD.BluRay.2160p.HEVC.Atmos.TrueHD7.1-TAG.iso" bluray disc after seek read first frame is not key,eventhough mpegts.c mpegts_get_dts handled seek_flag_keyframe problem. therefore,the hw decode failed.
++ so use bluray open and find the right m2ts,then read\seek it direactly instread bluray logic.
++ */
++
+ #include <libbluray/bluray.h>
+ 
+ #include "libavutil/avstring.h"
+ #include "libavformat/avformat.h"
+ #include "libavformat/url.h"
+ #include "libavutil/opt.h"
++#include "libavutil/dict.h"
+ 
+ #define BLURAY_PROTO_PREFIX     "bluray:"
+ #define MIN_PLAYLIST_LENGTH     180     /* 3 min */
+@@ -39,6 +45,8 @@ typedef struct {
+     int angle;
+     int chapter;
+     /*int region;*/
++    int title_idx;
++    int stream_opened;
+ } BlurayContext;
+ 
+ #define OFFSET(x) offsetof(BlurayContext, x)
+@@ -111,8 +119,24 @@ static int bluray_close(URLContext *h)
+     return 0;
+ }
+ 
++#ifdef DEBUG_BLURAY
++#include <libbluray/log_control.h>
++#define BLURAY_DEBUG_MASK 0xFFFFF //(0xFFFFF & ~DBG_STREAM)
++
++static void bluray_DebugHandler(const char *psz)
++{
++    size_t len = strlen(psz);
++    if(len < 1) return;
++    av_log(NULL, AV_LOG_INFO, "[bluray] %s\n",psz);
++}
++#endif
++
+ static int bluray_open(URLContext *h, const char *path, int flags)
+ {
++#ifdef DEBUG_BLURAY
++    bd_set_debug_mask(BLURAY_DEBUG_MASK);
++    bd_set_debug_handler(bluray_DebugHandler);
++#endif
+     BlurayContext *bd = h->priv_data;
+     int num_title_idx;
+     const char *diskname = path;
+@@ -160,12 +184,13 @@ static int bluray_open(URLContext *h, const char *path, int flags)
+ 
+             if (info->duration > duration) {
+                 bd->playlist = info->playlist;
++                bd->title_idx = i;
+                 duration = info->duration;
+             }
+ 
+             bd_free_title_info(info);
+         }
+-        av_log(h, AV_LOG_INFO, "selected %05d.mpls\n", bd->playlist);
++        av_log(h, AV_LOG_INFO, "select longest playlist: %05d.mpls\n", bd->playlist);
+     }
+ 
+     /* select playlist */
+@@ -183,7 +208,7 @@ static int bluray_open(URLContext *h, const char *path, int flags)
+     if (bd->chapter > 1) {
+         bd_seek_chapter(bd->bd, bd->chapter - 1);
+     }
+-
++    bd->stream_opened = 1;
+     return 0;
+ }
+ 
+@@ -195,7 +220,13 @@ static int bluray_read(URLContext *h, unsigned char *buf, int size)
+     if (!bd || !bd->bd) {
+         return AVERROR(EFAULT);
+     }
+-
++    if (bd->stream_opened) {
++        int read = (int)bd_file_read(bd->bd, buf, size);
++        if (read == 0) {
++            return AVERROR_EOF;
++        }
++        return read;
++    }
+     len = bd_read(bd->bd, buf, size);
+ 
+     return len == 0 ? AVERROR_EOF : len;
+@@ -213,16 +244,84 @@ static int64_t bluray_seek(URLContext *h, int64_t pos, int whence)
+     case SEEK_SET:
+     case SEEK_CUR:
+     case SEEK_END:
+-        return bd_seek(bd->bd, pos);
+-
++        if (bd->stream_opened) {
++            return (int)bd_file_seek(bd->bd, pos, whence);
++        } else {
++            return bd_seek(bd->bd, pos);
++        }
+     case AVSEEK_SIZE:
+-        return bd_get_title_size(bd->bd);
++        if (bd->stream_opened) {
++            return bd_file_size(bd->bd);
++        } else {
++            return bd_get_title_size(bd->bd);
++        }
+     }
+ 
+     av_log(h, AV_LOG_ERROR, "Unsupported whence operation %d\n", whence);
+     return AVERROR(EINVAL);
+ }
+ 
++static int bluray_parse_priv(AVFormatContext *ic, URLContext *h)
++{
++    BlurayContext *bd = h->priv_data;
++    BLURAY_TITLE_INFO *title_info = NULL;
++    BLURAY_CLIP_INFO clip_info;
++
++    int v_idx = 0;
++    int a_idx = 0;
++    int s_idx = 0;
++    int ret = 0;
++
++    if (!bd || !bd->bd) {
++        return AVERROR(EFAULT);
++    }
++
++    title_info = bd_get_title_info(bd->bd, bd->title_idx, 0);
++    if (!title_info) {
++        return AVERROR(EFAULT);
++    }
++
++    if (title_info->clip_count <= 0) {
++        ret = EFAULT;
++        goto fail;
++    }
++    clip_info = title_info->clips[0];
++
++    for (int i = 0; i < ic->nb_streams; i++) {
++        if (ic->streams[i] && ic->streams[i]->codecpar) {
++            switch (ic->streams[i]->codecpar->codec_type) {
++            case AVMEDIA_TYPE_VIDEO:
++                if (v_idx < clip_info.video_stream_count) {
++                    av_log(h, AV_LOG_INFO, "video stream %d lang = %s\n", v_idx, clip_info.video_streams[v_idx].lang);
++                    av_dict_set(&ic->streams[i]->metadata, "language", clip_info.video_streams[v_idx].lang, AV_DICT_DONT_OVERWRITE);
++                    v_idx++;
++                }
++                break;
++            case AVMEDIA_TYPE_AUDIO:
++                if (a_idx < clip_info.audio_stream_count) {
++                    av_log(h, AV_LOG_INFO, "audio stream %d lang = %s\n", a_idx, clip_info.audio_streams[a_idx].lang);
++                    av_dict_set(&ic->streams[i]->metadata, "language", clip_info.audio_streams[a_idx].lang, AV_DICT_DONT_OVERWRITE);
++                    a_idx++;
++                }
++                break;
++            case AVMEDIA_TYPE_SUBTITLE:
++                if (s_idx < clip_info.pg_stream_count) {
++                    av_log(h, AV_LOG_INFO, "subtitle stream %d lang = %s\n", s_idx, clip_info.pg_streams[s_idx].lang);
++                    av_dict_set(&ic->streams[i]->metadata, "language", clip_info.pg_streams[s_idx].lang, AV_DICT_DONT_OVERWRITE);
++                    s_idx++;
++                }
++                break;
++            default:
++                break;
++            }
++        }
++    }
++
++fail:
++    bd_free_title_info(title_info);
++
++    return ret != 0 ? AVERROR(ret) : 0;
++}
+ 
+ const URLProtocol ff_bluray_protocol = {
+     .name            = "bluray",
+@@ -230,6 +329,7 @@ const URLProtocol ff_bluray_protocol = {
+     .url_open        = bluray_open,
+     .url_read        = bluray_read,
+     .url_seek        = bluray_seek,
++    .url_parse_priv  = bluray_parse_priv,
+     .priv_data_size  = sizeof(BlurayContext),
+     .priv_data_class = &bluray_context_class,
+ };
+-- 
+2.39.3 (Apple Git-146)
+

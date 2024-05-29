@@ -1,7 +1,7 @@
 From f6f27781ff29d6b6d9f812d0a01d990fc91ce3e0 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Tue, 23 Jan 2024 14:16:01 +0800
-Subject: [PATCH 10/16] avformat mov fix to detect if stream position
+Subject: [PATCH 10] avformat mov fix to detect if stream position
  has been reset
  (https://patchwork.ffmpeg.org/project/ffmpeg/patch/20200424152042.29383-3-hello.vectronic@gmail.com/)
 
