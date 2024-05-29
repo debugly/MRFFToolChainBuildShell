@@ -1,7 +1,7 @@
-From a78737dbf420343099b8151d6a23262e98fbddef Mon Sep 17 00:00:00 2001
+From 690495b9eab397ad2a3441974d903ae2e3aa425c Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Wed, 29 May 2024 11:43:03 +0800
-Subject: [PATCH 18] bluray open and find the right m2ts, then read\seek it
+Date: Wed, 29 May 2024 15:27:51 +0800
+Subject: [PATCH 18]  bluray open and find the right m2ts, then read\seek it
  direactly instread of bluray logic.
 
 ---
@@ -9,7 +9,7 @@ Subject: [PATCH 18] bluray open and find the right m2ts, then read\seek it
  1 file changed, 106 insertions(+), 6 deletions(-)
 
 diff --git a/libavformat/bluray.c b/libavformat/bluray.c
-index 635c4f1..a7bcd90 100644
+index 635c4f1..338aec2 100644
 --- a/libavformat/bluray.c
 +++ b/libavformat/bluray.c
 @@ -20,12 +20,18 @@
@@ -111,7 +111,7 @@ index 635c4f1..a7bcd90 100644
 -        return bd_seek(bd->bd, pos);
 -
 +        if (bd->stream_opened) {
-+            return (int)bd_file_seek(bd->bd, pos, whence);
++            return bd_file_seek(bd->bd, pos, whence);
 +        } else {
 +            return bd_seek(bd->bd, pos);
 +        }
