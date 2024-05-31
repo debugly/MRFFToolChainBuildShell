@@ -17,6 +17,7 @@
 
 # ./init-any.sh ios
 # ./init-any.sh macos
+# ./init-any.sh tvos
 # ./init-any.sh all
 # ./init-any.sh ios "ffmpeg"
 # ./init-any.sh ios "ffmpeg opus"
@@ -35,7 +36,7 @@ cd "$THIS_DIR"
 function usage()
 {
     echo " useage:"
-    echo " $0 [ios,macos,all] [all|ffmpeg|libyuv|openssl|opus|bluray|dvdread|dav1d|freetype|harfbuzz|fribidi|unibreak|ass|ffmpeg] [all,arm64,x86_64]"
+    echo " $0 [ios,macos,tvos,all] [all|ffmpeg|libyuv|openssl|opus|bluray|dvdread|dav1d|freetype|harfbuzz|fribidi|unibreak|ass|ffmpeg] [all,arm64,x86_64]"
 }
 
 if [[ "$SKIP_PULL_BASE" ]];then
@@ -50,7 +51,7 @@ if [[ "x$LIBS" == "x" || "$LIBS" == "all" ]]; then
     LIBS=$(ls init-cfgs)
 fi
 
-if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' || "$PLAT" == 'all' ]]; then
+if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' || "$PLAT" == 'tvos' || "$PLAT" == 'all' ]]; then
     echo "=== will init ==="
     echo "$LIBS"
     echo "==="

@@ -37,9 +37,16 @@ ARCH=$3
 if [[ "$ARCH" == 'all' || "x$ARCH" == 'x' ]]; then
     iOS_ARCHS="x86_64 arm64"
     macOS_ARCHS="x86_64 arm64"
-elif [[ "$ARCH" == 'x86_64' || "$ARCH" == 'arm64' ]]; then
+    tvOS_ARCHS="arm64 arm64_simulator"
+    elif [[ "$ARCH" == 'x86_64' ]]; then
     iOS_ARCHS="$ARCH"
     macOS_ARCHS="$ARCH"
+    elif [["$ARCH" == 'arm64' ]]; then
+    iOS_ARCHS="$ARCH"
+    macOS_ARCHS="$ARCH"
+    tvOS_ARCHS="$ARCH"
+    elif [["$ARCH" == 'arm64_simulator' ]]; then
+    tvOS_ARCHS="$ARCH"
 else
     echo "wrong arch:[$ARCH], can't init repo."
     exit -1
@@ -51,7 +58,7 @@ function pull_common() {
         cd "$GIT_LOCAL_REPO"
         [[ -d .git/rebase-apply ]] && git am --skip
         git reset --hard
-
+        
         local origin=$(git remote get-url origin)
         if [[ "$origin" != "$GIT_UPSTREAM" ]]; then
             git remote remove origin
@@ -73,7 +80,7 @@ function pull_common() {
             cd "$GIT_LOCAL_REPO"
         fi
     fi
-
+    
     # fix fatal: 'stable' is not a commit and a branch 'localBranch' cannot be created from it
     git checkout ${GIT_COMMIT} -B localBranch
     cd - >/dev/null
@@ -84,10 +91,10 @@ function apply_patches() {
         echo "skip apply $REPO_DIR patches,because you set SKIP_FFMPEG_PATHCHES env."
         return
     fi
-
+    
     local plat="$1"
     local patch_dir="${THIS_DIR}/../patches/$REPO_DIR"
-
+    
     if [[ -d "${patch_dir}_${plat}" ]]; then
         patch_dir="${patch_dir}_${plat}"
     fi
@@ -124,56 +131,75 @@ function make_arch_repo() {
 
 function usage() {
     echo "usage:"
-    echo "$0 ios|macos|all [arm64|x86_64]"
+    echo "$0 ios|macos|tvos|all [arm64|x86_64]"
 }
 
 function main() {
     case "$1" in
-    iOS | ios)
-        pull_common
-        found=0
-        for arch in $iOS_ARCHS; do
-            if [[ "$2" == "$arch" || "x$2" == "x" || "$2" == "all" ]]; then
-                found=1
+        iOS | ios)
+            pull_common
+            found=0
+            for arch in $iOS_ARCHS; do
+                if [[ "$2" == "$arch" || "x$2" == "x" || "$2" == "all" ]]; then
+                    found=1
+                    make_arch_repo 'ios' $arch
+                fi
+            done
+            
+            if [[ found -eq 0 ]]; then
+                echo "unknown arch:$2 for $1"
+            fi
+        ;;
+        
+        macOS | macos)
+            
+            pull_common
+            found=0
+            for arch in $macOS_ARCHS; do
+                if [[ "$2" == "$arch" || "x$2" == "x" || "$2" == "all" ]]; then
+                    found=1
+                    make_arch_repo 'macos' $arch
+                fi
+            done
+            
+            if [[ found -eq 0 ]]; then
+                echo "unknown arch:$2 for $1"
+            fi
+        ;;
+        
+        tvOS | tvos)
+            pull_common
+            found=0
+            for arch in $tvOS_ARCHS; do
+                if [[ "$2" == "$arch" || "x$2" == "x" || "$2" == "all" ]]; then
+                    found=1
+                    make_arch_repo 'tvos' $arch
+                fi
+            done
+            
+            if [[ found -eq 0 ]]; then
+                echo "unknown arch:$2 for $1"
+            fi
+        ;;
+        
+        all)
+            pull_common
+            for arch in $iOS_ARCHS; do
                 make_arch_repo 'ios' $arch
-            fi
-        done
-
-        if [[ found -eq 0 ]]; then
-            echo "unknown arch:$2 for $1"
-        fi
-        ;;
-
-    macOS | macos)
-
-        pull_common
-        found=0
-        for arch in $macOS_ARCHS; do
-            if [[ "$2" == "$arch" || "x$2" == "x" || "$2" == "all" ]]; then
-                found=1
+            done
+            
+            for arch in $macOS_ARCHS; do
                 make_arch_repo 'macos' $arch
-            fi
-        done
-
-        if [[ found -eq 0 ]]; then
-            echo "unknown arch:$2 for $1"
-        fi
+            done
+            
+            for arch in $tvOS_ARCHS; do
+                make_arch_repo 'tvos' $arch
+            done
         ;;
-
-    all)
-        pull_common
-        for arch in $iOS_ARCHS; do
-            make_arch_repo 'ios' $arch
-        done
-
-        for arch in $macOS_ARCHS; do
-            make_arch_repo 'macos' $arch
-        done
-        ;;
-
-    *)
-        usage
-        exit 1
+        
+        *)
+            usage
+            exit 1
         ;;
     esac
 }

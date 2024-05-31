@@ -18,6 +18,7 @@
 set -e
 
 export THREAD_COUNT=$(sysctl -n machdep.cpu.thread_count)
+export XC_USE_XCFRAMEWORK=1
 
 echo "support thread count:$THREAD_COUNT"
 
@@ -51,6 +52,40 @@ function install_depends() {
     fi
 }
 
+function init_plat_env() {
+
+    PLAT=$1
+    if [[ -z "$PLAT" ]]; then
+        echo "init_plat_env must be with plat parameter."
+        exit 1
+    fi
+
+    if [[ "$PLAT" != 'macos' ]]; then
+        export XC_FORCE_CROSS=true
+        export PKG_CONFIG=$(which pkg-config)
+    fi
+
+    if [[ "$PLAT" == 'ios' ]]; then
+        export XC_OTHER_CFLAGS="-fembed-bitcode"
+        export XC_ALL_ARCHS="x86_64 arm64"
+    elif [[ "$PLAT" == 'macos' ]]; then
+        export XC_OTHER_CFLAGS=""
+        export XC_ALL_ARCHS="x86_64 arm64"
+    elif [[ "$PLAT" == 'tvos' ]]; then
+        export XC_OTHER_CFLAGS=''
+        export XC_ALL_ARCHS="arm64 arm64_simulator"
+    fi
+
+    export XC_SRC_ROOT="${THIS_DIR}/../build/src/${PLAT}"
+    export XC_PRODUCT_ROOT="${THIS_DIR}/../build/product/${PLAT}"
+    export XC_UNI_PROD_DIR="${XC_PRODUCT_ROOT}/universal"
+    export XC_PLAT="$PLAT"
+    
+    #common xcode configuration
+    export XC_TAGET_OS="darwin"
+    export DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
+}
+
 function init_arch_env () {
     
     if [[ -z "$XC_PLAT" ]]; then
@@ -63,25 +98,30 @@ function init_arch_env () {
             'x86_64')
                 export XCRUN_PLATFORM='iPhoneSimulator'
                 export XC_DEPLOYMENT_TARGET='-mios-simulator-version-min=11.0'
+                export XC_IS_SIMULATOR=1
             ;;
             'arm64')
                 export XCRUN_PLATFORM='iPhoneOS'
                 export XC_DEPLOYMENT_TARGET='-miphoneos-version-min=11.0'
             ;;
         esac
-        
-        export XC_OTHER_CFLAGS="-fembed-bitcode"
-
-    else
+    elif [[ "$XC_PLAT" == 'macos' ]]; then
         export XCRUN_PLATFORM='MacOSX'
         export MACOSX_DEPLOYMENT_TARGET=10.11
         export XC_DEPLOYMENT_TARGET="-mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
-        export XC_OTHER_CFLAGS=""
+    elif [[ "$XC_PLAT" == 'tvos' ]]; then
+        case $1 in
+            'arm64_simulator')
+                export XCRUN_PLATFORM='AppleTVSimulator'
+                export XC_DEPLOYMENT_TARGET="-mtvos-simulator-version-min=12.0"
+                export XC_IS_SIMULATOR=1
+            ;;
+            'arm64')
+                export XCRUN_PLATFORM='AppleTVOS'
+                export XC_DEPLOYMENT_TARGET="-mtvos-version-min=12.0"
+            ;;
+        esac
     fi
-    
-    #common xcode configuration
-    export XC_TAGET_OS="darwin"
-    export DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
     
     # macosx
     export XCRUN_SDK=`echo $XCRUN_PLATFORM | tr '[:upper:]' '[:lower:]'`
@@ -97,5 +137,5 @@ function init_arch_env () {
 }
 
 export -f install_depends
+export -f init_plat_env
 export -f init_arch_env
-export XC_ALL_ARCHS="x86_64 arm64"

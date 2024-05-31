@@ -30,16 +30,18 @@ cd "$THIS_DIR"
 
 function usage() {
     echo " useage:"
-    echo "  $0 [ios|macos] [build|rebuild|lipo|clean] [all|ffmpeg|libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg] [arm64|x86_64|all] [opts...]"
+    echo "  $0 [ios|macos|tvos] [build|rebuild|lipo|clean] [all|ffmpeg|libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg] [arm64|x86_64|all] [opts...]"
 }
 
-if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' ]]; then
-    echo "plat must be: [ios|macos]"
+if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' && "$PLAT" != 'tvos' ]]; then
+    echo "plat must be: [ios|macos|tvos]"
     usage
     exit 1
 fi
 
 source 'init-env.sh'
+
+init_plat_env $PLAT
 
 if [[ -z "$LIBS" || "$LIBS" == "all" ]]; then
     list='compile-cfgs/list.txt'
@@ -60,19 +62,12 @@ if [[ -z "$CMD" ]]; then
     exit 1
 fi
 
-export XC_SRC_ROOT="${THIS_DIR}/../build/src/${PLAT}"
-export XC_PRODUCT_ROOT="${THIS_DIR}/../build/product/${PLAT}"
-export XC_UNI_PROD_DIR="${XC_PRODUCT_ROOT}/universal"
 
-export XC_PLAT="$PLAT"
 export XC_CMD="$CMD"
 export XC_TARGET_ARCHS="$ARCH"
 export XC_OPTS="$OPTS"
 export XC_VENDOR_LIBS="$LIBS"
 
-if [[ "$PLAT" == 'ios' ]]; then
-    export XC_FORCE_CROSS=true
-fi
 
 echo '------------------------------------------'
 echo "XC_PLAT         : [$XC_PLAT]"

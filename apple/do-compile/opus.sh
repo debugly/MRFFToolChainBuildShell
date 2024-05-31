@@ -51,24 +51,24 @@ echo "----------------------"
 cd $XC_BUILD_SOURCE
 
 if [[ -f 'configure' ]]; then
-   echo "reuse configure"
+    echo "reuse configure"
 else
-   echo "auto generate configure"
-   ./autogen.sh >/dev/null
+    echo "auto generate configure"
+    ./autogen.sh >/dev/null
 fi
 
 
-echo 
+echo
 echo "CC: $XCRUN_CC"
 echo "CFG_FLAGS: $CFG_FLAGS"
 echo "CFLAGS: $CFLAGS"
-echo 
+echo
 
 ./configure $CFG_FLAGS \
-   CC="$XCRUN_CC" \
-   CFLAGS="$CFLAGS" \
-   LDFLAGS="$CFLAGS" \
-   >/dev/null
+CC="$XCRUN_CC" \
+CFLAGS="$CFLAGS" \
+LDFLAGS="$CFLAGS" \
+>/dev/null
 
 #----------------------
 echo "----------------------"

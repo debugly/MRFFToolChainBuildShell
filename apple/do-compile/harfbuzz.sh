@@ -69,9 +69,13 @@ export CC="$XCRUN_CC"
 export CXX="$XCRUN_CXX"
 
 if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]]; then
-   echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
-   CFG_FLAGS="$CFG_FLAGS --cross-file $THIS_DIR/../compile-cfgs/meson-crossfiles/$XC_ARCH-$XC_PLAT.meson"
-   export PKG_CONFIG=$(which pkg-config)
+    if [[ $XC_IS_SIMULATOR != 1 ]]; then
+        echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
+        CFG_FLAGS="$CFG_FLAGS --cross-file $THIS_DIR/../compile-cfgs/meson-crossfiles/$XC_ARCH-$XC_PLAT.meson"
+    else
+        echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH simulator."
+        CFG_FLAGS="$CFG_FLAGS --cross-file $THIS_DIR/../compile-cfgs/meson-crossfiles/$XC_ARCH-$XC_PLAT-simulator.meson"
+    fi
 fi
 
 echo "----------------------"
@@ -84,7 +88,7 @@ echo
 
 build=./build-$XC_ARCH
 if [[ -d $build ]]; then
-   rm -rf $build
+    rm -rf $build
 fi
 
 meson setup $build $CFG_FLAGS 1>/dev/null

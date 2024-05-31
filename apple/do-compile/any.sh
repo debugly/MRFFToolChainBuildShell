@@ -31,63 +31,84 @@ echo "XC_FORCE_CROSS:$XC_FORCE_CROSS"
 echo "===check env end==="
 
 do_lipo_lib() {
-    local LIB_FILE=$1
+    local lib=$1
     local archs="$2"
-    local LIPO_FLAGS=
-    for arch in $archs; do
-        local ARCH_LIB_FILE="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/$LIB_FILE"
-        if [ -f "$ARCH_LIB_FILE" ]; then
-            LIPO_FLAGS="$LIPO_FLAGS $ARCH_LIB_FILE"
-        else
-            echo "can't find the $arch arch $LIB_FILE"
-        fi
-    done
+    local inputs=
     
-    xcrun lipo -create $LIPO_FLAGS -output $XC_UNI_PROD_DIR/$LIB_NAME/lib/$LIB_FILE
-    xcrun lipo -info $XC_UNI_PROD_DIR/$LIB_NAME/lib/$LIB_FILE
+    if [[ "$XC_USE_XCFRAMEWORK" == "1" ]]; then
+        for arch in $archs; do
+            local lib_file="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/${lib}.a"
+            if [ -f "$lib_file" ]; then
+                local ARCH_INC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/include"
+                inputs="$inputs -library $lib_file -headers $ARCH_INC_DIR"
+            else
+                echo "can't find the $arch arch $lib"
+            fi
+        done
+        xcodebuild -create-xcframework $inputs -output $XC_UNI_PROD_DIR/${lib}.xcframework
+    else
+        mkdir -p $XC_UNI_PROD_DIR/$LIB_NAME/lib
+        for arch in $archs; do
+            local lib_file="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/${lib}.a"
+            if [ -f "$lib_file" ]; then
+                inputs="$inputs $lib_file"
+            else
+                echo "can't find the $arch arch $lib"
+            fi
+        done
+        
+        xcrun lipo -create $inputs -output $XC_UNI_PROD_DIR/$LIB_NAME/lib/${lib}.a
+        xcrun lipo -info $XC_UNI_PROD_DIR/$LIB_NAME/lib/${lib}.a
+    fi
+    
 }
 
 do_lipo_all() {
     echo '----------------------'
     echo '[*] lipo'
-
+    
     local archs="$1"
     rm -rf $XC_UNI_PROD_DIR/$LIB_NAME
-    mkdir -p $XC_UNI_PROD_DIR/$LIB_NAME/lib
     echo "lipo archs: $archs"
+    
     for lib in $LIPO_LIBS; do
-        do_lipo_lib "$lib.a" "$archs"
+        do_lipo_lib "$lib" "$archs"
     done
     
-    for arch in $archs; do
-        local ARCH_INC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/include"
-        local ARCH_OUT_DIR="$XC_UNI_PROD_DIR/$LIB_NAME/include"
-        
-        if [[ -d "$ARCH_INC_DIR" && ! -d "$ARCH_OUT_DIR" ]]; then
-            echo "copy include dir to $ARCH_OUT_DIR"
-            cp -R "$ARCH_INC_DIR" "$ARCH_OUT_DIR"
-
-            local ARCH_PC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/pkgconfig"
-            if ls ${ARCH_PC_DIR}/*.pc >/dev/null 2>&1;then
-                local UNI_PC_DIR="$XC_UNI_PROD_DIR/$LIB_NAME/lib/pkgconfig/"
-                mkdir -p "$UNI_PC_DIR"
-                echo "copy pkgconfig file to $UNI_PC_DIR"
-                cp ${ARCH_PC_DIR}/*.pc "$UNI_PC_DIR"
-                #fix prefix path
-                p="$XC_UNI_PROD_DIR/$LIB_NAME"
-                escaped_p=$(echo $p | sed 's/\//\\\//g')
-                sed -i "" "s/^prefix=.*/prefix=$escaped_p/" "$UNI_PC_DIR/"*.pc
+    if [[ "$XC_USE_XCFRAMEWORK" != "1" ]]; then
+        for arch in $archs; do
+            local ARCH_INC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/include"
+            local ARCH_OUT_DIR="$XC_UNI_PROD_DIR/$LIB_NAME/include"
+            
+            if [[ -d "$ARCH_INC_DIR" && ! -d "$ARCH_OUT_DIR" ]]; then
+                echo "copy include dir to $ARCH_OUT_DIR"
+                cp -R "$ARCH_INC_DIR" "$ARCH_OUT_DIR"
+                
+                local ARCH_PC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/pkgconfig"
+                if ls ${ARCH_PC_DIR}/*.pc >/dev/null 2>&1;then
+                    local UNI_PC_DIR="$XC_UNI_PROD_DIR/$LIB_NAME/lib/pkgconfig/"
+                    mkdir -p "$UNI_PC_DIR"
+                    echo "copy pkgconfig file to $UNI_PC_DIR"
+                    cp ${ARCH_PC_DIR}/*.pc "$UNI_PC_DIR"
+                    #fix prefix path
+                    p="$XC_UNI_PROD_DIR/$LIB_NAME"
+                    escaped_p=$(echo $p | sed 's/\//\\\//g')
+                    sed -i "" "s/^prefix=.*/prefix=$escaped_p/" "$UNI_PC_DIR/"*.pc
+                fi
+                break
             fi
-            break
-        fi
-    done
+        done
+    fi
+    echo '----------------------'
 }
 
 function export_arch_env() {
+    
+    export _XC_ARCH="$1"
     # x86_64
-    export XC_ARCH=$1
+    export XC_ARCH="${_XC_ARCH/_simulator/}"
     # ffmpeg-x86_64
-    export XC_BUILD_NAME="${LIB_NAME}-${XC_ARCH}"
+    export XC_BUILD_NAME="${LIB_NAME}-${_XC_ARCH}"
     # ios/ffmpeg-x86_64
     export XC_BUILD_SOURCE="${XC_SRC_ROOT}/${XC_BUILD_NAME}"
     # ios/ffmpeg-x86_64
