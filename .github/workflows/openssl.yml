@@ -21,7 +21,7 @@ jobs:
         # git describe --tags --always | awk -F - '{printf "RELEASE_VERSION=V1.0-%s",$NF}' | xargs > constants.env
         d=$(TZ=UTC-8 date +'%y%m%d%H%M%S')
         LIB_NAME=openssl
-        grep GIT_OPENSSL_VERSION= ./init-cfgs/$LIB_NAME | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
+        grep GIT_REPO_VERSION= ./init-cfgs/$LIB_NAME | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
         echo "RELEASE_DATE=$d" >> constants.env
         echo "LIB_NAME=$LIB_NAME" >> constants.env
         cat constants.env
