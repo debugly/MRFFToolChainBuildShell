@@ -70,7 +70,7 @@ function init_plat_env() {
         ALL_ARCHS="arm64 arm64_simulator"
     fi
 
-    if [[ -z $"XC_ALL_ARCHS" ]];then
+    if [[ -z "$XC_ALL_ARCHS" ]];then
         export XC_ALL_ARCHS=$ALL_ARCHS
     else
         for arch in $XC_ALL_ARCHS

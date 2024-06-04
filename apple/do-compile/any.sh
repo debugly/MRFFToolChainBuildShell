@@ -53,11 +53,15 @@ do_lipo_lib() {
         fi
     done
     
-    xcrun lipo -create $inputs -output $XC_UNI_PROD_DIR/$LIB_NAME/lib/${lib}.a
-    xcrun lipo -info $XC_UNI_PROD_DIR/$LIB_NAME/lib/${lib}.a
+    if [[ $inputs ]];then
+        xcrun lipo -create $inputs -output $XC_UNI_PROD_DIR/$LIB_NAME/lib/${lib}.a
+        xcrun lipo -info $XC_UNI_PROD_DIR/$LIB_NAME/lib/${lib}.a
+    fi
 
-    xcrun lipo -create $inputs_sim -output $XC_UNI_SIM_PROD_DIR/$LIB_NAME/lib/${lib}.a
-    xcrun lipo -info $XC_UNI_SIM_PROD_DIR/$LIB_NAME/lib/${lib}.a
+    if [[ $inputs_sim ]];then
+        xcrun lipo -create $inputs_sim -output $XC_UNI_SIM_PROD_DIR/$LIB_NAME/lib/${lib}.a
+        xcrun lipo -info $XC_UNI_SIM_PROD_DIR/$LIB_NAME/lib/${lib}.a
+    fi
 }
 
 do_lipo_all() {
@@ -102,7 +106,8 @@ do_lipo_all() {
     done
 
     echo '----------------------'
-
+    echo '[*] make xcframework'
+    
     do_make_xcframework
 }
 

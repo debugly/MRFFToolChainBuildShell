@@ -41,13 +41,13 @@ jobs:
         ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../tvos-src-log.md
     - name: do compile macos libs
       run: |
-        ./macos/compile-any.sh -a 'arm64 x86_64' -c build -l ${{ env.LIB_NAME }}
+        ./macos/compile-any.sh -c build -l ${{ env.LIB_NAME }}
     - name: do compile ios libs
       run: |
-        ./ios/compile-any.sh -a 'arm64 x86_64_simulator' -c build -l ${{ env.LIB_NAME }}
+        ./ios/compile-any.sh -c build -l ${{ env.LIB_NAME }}
     - name: do compile tvos libs
       run: |
-        ./tvos/compile-any.sh -a 'arm64 arm64_simulator' -c build -l ${{ env.LIB_NAME }}
+        ./tvos/compile-any.sh -c build -l ${{ env.LIB_NAME }}
     - name: Zip apple xcframework
       run: |
         cd build/product/xcframework
