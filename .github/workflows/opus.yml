@@ -52,6 +52,7 @@ jobs:
       run: |
         cd build/product/xcframework
         zip -rq apple-xcframework.zip ./*
+        mv apple-xcframework.zip ../
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
