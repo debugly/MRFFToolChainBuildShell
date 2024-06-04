@@ -163,7 +163,7 @@ function main() {
             init_arch_for_plat
             pull_common
             for arch in $ALL_ARCHS; do
-                make_arch_repo 'ios' $arch
+                make_arch_repo "$PLAT" $arch
             done
         ;;
         all)
