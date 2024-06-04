@@ -22,8 +22,9 @@ jobs:
         d=$(TZ=UTC-8 date +'%y%m%d%H%M%S')
         LIB_NAME=opus
         grep GIT_REPO_VERSION= ./init-cfgs/$LIB_NAME | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
-        echo "RELEASE_DATE=$d" >> constants.env
         echo "LIB_NAME=$LIB_NAME" >> constants.env
+        echo "RELEASE_DATE=$d" >> constants.env
+        echo "HOMEBREW_NO_AUTO_UPDATE=1" >> constants.env
         cat constants.env
     - name: Export Env
       uses: cardinalby/export-env-action@v2

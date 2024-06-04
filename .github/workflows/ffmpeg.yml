@@ -9,8 +9,8 @@ name: Create ffmpeg Release
 
 jobs:
   build:
-    name: compile github ffmpeg then deploy
-    runs-on: macos-latest
+    name: compile ffmpeg then deploy
+    runs-on: macos-13
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -20,17 +20,19 @@ jobs:
         # git describe --tags --always | awk -F . '{printf "RELEASE_VERSION=%s.%d",$1,$2+1}' | xargs > constants.env
         # git describe --tags --always | awk -F - '{printf "RELEASE_VERSION=V1.0-%s",$NF}' | xargs > constants.env
         d=$(TZ=UTC-8 date +'%y%m%d%H%M%S')
-        grep GIT_REPO_VERSION= ./init-cfgs/ffmpeg | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
+        LIB_NAME=ffmpeg
+        grep GIT_REPO_VERSION= ./init-cfgs/$LIB_NAME | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
+        echo "LIB_NAME=$LIB_NAME" >> constants.env
         echo "RELEASE_DATE=$d" >> constants.env
+        echo "HOMEBREW_NO_AUTO_UPDATE=1" >> constants.env
         cat constants.env
     - name: Export Env
       uses: cardinalby/export-env-action@v2
       with:
         envFile: 'constants.env'
-    - name: install pre-compile libs
+    - name: init src
       run: |
-        # export SKIP_FFMPEG_PATHCHES=1
-        ./init-any.sh all ffmpeg
+        ./init-any.sh all ${{ env.LIB_NAME }}
         ./install-pre-any.sh all 'openssl opus bluray dav1d dvdread'
     - name: generate src log
       run: |
@@ -38,49 +40,40 @@ jobs:
         ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../macos-src-log.md
         cd ../ios
         ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../ios-src-log.md
-    - name: do compile macos platform
+        cd ../tvos
+        ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../tvos-src-log.md
+    - name: do compile macos libs
       run: |
-        ./macos/compile-any.sh build ffmpeg
-        ./macos/compile-any.sh lipo ffmpeg
-    - name: do compile ios platform
+        ./macos/compile-any.sh -c build -l ${{ env.LIB_NAME }}
+    - name: do compile ios libs
       run: |
-        ./ios/compile-any.sh build ffmpeg
-        ./ios/compile-any.sh lipo ffmpeg
-    - name: Zip macos ffmpeg
+        ./ios/compile-any.sh -c build -l ${{ env.LIB_NAME }}
+    - name: do compile tvos libs
       run: |
-        cd build/product/macos/universal
-        zip -rq macos-universal.zip ./ffmpeg/*
-    - name: Zip ios ffmpeg
+        ./tvos/compile-any.sh -c build -l ${{ env.LIB_NAME }}
+    - name: Zip apple xcframework
       run: |
-        cd build/product/ios/universal
-        zip -rq ios-universal.zip ./ffmpeg/*
+        cd build/product/xcframework
+        zip -rq apple-xcframework.zip ./*
+        mv apple-xcframework.zip ../
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ffmpeg-${{ env.RELEASE_VERSION }}-${{ env.RELEASE_DATE }}
-        release_name: ffmpeg-${{ env.RELEASE_VERSION }}
+        tag_name: ${{ env.LIB_NAME }}-${{ env.RELEASE_VERSION }}-${{ env.RELEASE_DATE }}
+        release_name: ${{ env.LIB_NAME }}-${{ env.RELEASE_VERSION }}
         draft: false
         prerelease: false
-    - name: Upload macos Release Asset
+    - name: Upload Apple Plat Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: build/product/macos/universal/macos-universal.zip
-        asset_name: "ffmpeg-macos-universal-${{ env.RELEASE_VERSION }}.zip"
-        asset_content_type: application/zip
-    - name: Upload ios Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: build/product/ios/universal/ios-universal.zip
-        asset_name: "ffmpeg-ios-universal-${{ env.RELEASE_VERSION }}.zip"
+        asset_path: build/product/apple-xcframework.zip
+        asset_name: "${{ env.LIB_NAME }}-apple-xcframework-${{ env.RELEASE_VERSION }}.zip"
         asset_content_type: application/zip
     - name: Upload macos src md
       uses: actions/upload-release-asset@v1
@@ -99,4 +92,13 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path: build/src/ios-src-log.md
         asset_name: "ios-src-log-${{ env.RELEASE_VERSION }}.md"
+        asset_content_type: application/text
+    - name: Upload tvos src md
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: build/src/tvos-src-log.md
+        asset_name: "tvos-src-log-${{ env.RELEASE_VERSION }}.md"
         asset_content_type: application/text

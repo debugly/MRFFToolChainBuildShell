@@ -20,7 +20,9 @@ jobs:
         # git describe --tags --always | awk -F . '{printf "RELEASE_VERSION=%s.%d",$1,$2+1}' | xargs > constants.env
         # git describe --tags --always | awk -F - '{printf "RELEASE_VERSION=V1.0-%s",$NF}' | xargs > constants.env
         d=$(TZ=UTC-8 date +'%y%m%d%H%M%S')
-        grep GIT_REPO_VERSION= ./init-cfgs/harfbuzz | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
+        LIB_NAME=harfbuzz
+        grep GIT_REPO_VERSION= ./init-cfgs/$LIB_NAME | awk -F = '{printf "RELEASE_VERSION=%s",$2}' | xargs > constants.env
+        echo "LIB_NAME=$LIB_NAME" >> constants.env
         echo "RELEASE_DATE=$d" >> constants.env
         echo "HOMEBREW_NO_AUTO_UPDATE=1" >> constants.env
         cat constants.env
@@ -30,7 +32,7 @@ jobs:
         envFile: 'constants.env'
     - name: init src
       run: |
-        ./init-any.sh all harfbuzz
+        ./init-any.sh all ${{ env.LIB_NAME }}
         ./install-pre-any.sh all 'freetype'
     - name: generate src log
       run: |
@@ -38,51 +40,40 @@ jobs:
         ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../macos-src-log.md
         cd ../ios
         ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../ios-src-log.md
+        cd ../tvos
+        ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../tvos-src-log.md
     - name: do compile macos libs
       run: |
-        cd macos
-        ./compile-any.sh build harfbuzz
-        ./compile-any.sh lipo harfbuzz
+        ./macos/compile-any.sh -c build -l ${{ env.LIB_NAME }}
     - name: do compile ios libs
       run: |
-        cd ios
-        ./compile-any.sh build harfbuzz
-        ./compile-any.sh lipo harfbuzz
-    - name: Zip macos libs
+        ./ios/compile-any.sh -c build -l ${{ env.LIB_NAME }}
+    - name: do compile tvos libs
       run: |
-        cd build/product/macos/universal
-        zip -rq macos-universal.zip ./*
-    - name: Zip ios libs
+        ./tvos/compile-any.sh -c build -l ${{ env.LIB_NAME }}
+    - name: Zip apple xcframework
       run: |
-        cd build/product/ios/universal
-        zip -rq ios-universal.zip ./*
+        cd build/product/xcframework
+        zip -rq apple-xcframework.zip ./*
+        mv apple-xcframework.zip ../
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: harfbuzz-${{ env.RELEASE_VERSION }}-${{ env.RELEASE_DATE }}
-        release_name: harfbuzz-${{ env.RELEASE_VERSION }}
+        tag_name: ${{ env.LIB_NAME }}-${{ env.RELEASE_VERSION }}-${{ env.RELEASE_DATE }}
+        release_name: ${{ env.LIB_NAME }}-${{ env.RELEASE_VERSION }}
         draft: false
         prerelease: false
-    - name: Upload macos Release Asset
+    - name: Upload Apple Plat Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: build/product/macos/universal/macos-universal.zip
-        asset_name: "harfbuzz-macos-universal-${{ env.RELEASE_VERSION }}.zip"
-        asset_content_type: application/zip
-    - name: Upload ios Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: build/product/ios/universal/ios-universal.zip
-        asset_name: "harfbuzz-ios-universal-${{ env.RELEASE_VERSION }}.zip"
+        asset_path: build/product/apple-xcframework.zip
+        asset_name: "${{ env.LIB_NAME }}-apple-xcframework-${{ env.RELEASE_VERSION }}.zip"
         asset_content_type: application/zip
     - name: Upload macos src md
       uses: actions/upload-release-asset@v1
@@ -101,4 +92,13 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path: build/src/ios-src-log.md
         asset_name: "ios-src-log-${{ env.RELEASE_VERSION }}.md"
+        asset_content_type: application/text
+    - name: Upload tvos src md
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: build/src/tvos-src-log.md
+        asset_name: "tvos-src-log-${{ env.RELEASE_VERSION }}.md"
         asset_content_type: application/text
