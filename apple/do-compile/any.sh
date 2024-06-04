@@ -13,7 +13,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+
+# Creating a multiplatform binary framework bundle
+# https://developer.apple.com/documentation/xcode/creating-a-multi-platform-binary-framework-bundle
 
 set -e
 
@@ -23,10 +25,10 @@ source $THIS_DIR/../../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_CMD"
-env_assert "XC_TARGET_ARCHS"
 env_assert "LIPO_LIBS"
 env_assert "LIB_NAME"
-echo "XC_OPTS:$XC_OPTS"
+env_assert "XC_ALL_ARCHS"
+echo "XC_DEBUG:$XC_DEBUG"
 echo "XC_FORCE_CROSS:$XC_FORCE_CROSS"
 echo "===check env end==="
 
@@ -34,33 +36,28 @@ do_lipo_lib() {
     local lib=$1
     local archs="$2"
     local inputs=
-    
-    if [[ "$XC_USE_XCFRAMEWORK" == "1" ]]; then
-        for arch in $archs; do
-            local lib_file="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/${lib}.a"
-            if [ -f "$lib_file" ]; then
-                local ARCH_INC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/include"
-                inputs="$inputs -library $lib_file -headers $ARCH_INC_DIR"
+    local inputs_sim=
+
+    for arch in $archs; do
+        local lib_file="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/${lib}.a"
+        if [ -f "$lib_file" ]; then
+            if [[ $arch == *simulator ]];then
+                inputs_sim="$inputs_sim $lib_file"
+                mkdir -p $XC_UNI_SIM_PROD_DIR/$LIB_NAME/lib
             else
-                echo "can't find the $arch arch $lib"
-            fi
-        done
-        xcodebuild -create-xcframework $inputs -output $XC_UNI_PROD_DIR/${lib}.xcframework
-    else
-        mkdir -p $XC_UNI_PROD_DIR/$LIB_NAME/lib
-        for arch in $archs; do
-            local lib_file="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/${lib}.a"
-            if [ -f "$lib_file" ]; then
                 inputs="$inputs $lib_file"
-            else
-                echo "can't find the $arch arch $lib"
+                mkdir -p $XC_UNI_PROD_DIR/$LIB_NAME/lib   
             fi
-        done
-        
-        xcrun lipo -create $inputs -output $XC_UNI_PROD_DIR/$LIB_NAME/lib/${lib}.a
-        xcrun lipo -info $XC_UNI_PROD_DIR/$LIB_NAME/lib/${lib}.a
-    fi
+        else
+            echo "can't find the $arch arch $lib"
+        fi
+    done
     
+    xcrun lipo -create $inputs -output $XC_UNI_PROD_DIR/$LIB_NAME/lib/${lib}.a
+    xcrun lipo -info $XC_UNI_PROD_DIR/$LIB_NAME/lib/${lib}.a
+
+    xcrun lipo -create $inputs_sim -output $XC_UNI_SIM_PROD_DIR/$LIB_NAME/lib/${lib}.a
+    xcrun lipo -info $XC_UNI_SIM_PROD_DIR/$LIB_NAME/lib/${lib}.a
 }
 
 do_lipo_all() {
@@ -70,53 +67,86 @@ do_lipo_all() {
     local archs="$1"
     rm -rf $XC_UNI_PROD_DIR/$LIB_NAME
     echo "lipo archs: $archs"
-    
+
     for lib in $LIPO_LIBS; do
         do_lipo_lib "$lib" "$archs"
     done
     
-    if [[ "$XC_USE_XCFRAMEWORK" != "1" ]]; then
-        for arch in $archs; do
-            local ARCH_INC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/include"
-            local ARCH_OUT_DIR="$XC_UNI_PROD_DIR/$LIB_NAME/include"
+    for arch in $archs; do
+
+        local ARCH_INC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/include"
+        if [[ $arch == *simulator ]];then
+            local UNI_DIR="$XC_UNI_SIM_PROD_DIR"
+        else
+            local UNI_DIR="$XC_UNI_PROD_DIR"
+        fi
+        
+        local ARCH_OUT_DIR="$UNI_DIR/$LIB_NAME/include"
+
+        if [[ -d "$ARCH_INC_DIR" && ! -d "$ARCH_OUT_DIR" ]]; then
+            echo "copy include dir to $ARCH_OUT_DIR"
+            cp -R "$ARCH_INC_DIR" "$ARCH_OUT_DIR"
             
-            if [[ -d "$ARCH_INC_DIR" && ! -d "$ARCH_OUT_DIR" ]]; then
-                echo "copy include dir to $ARCH_OUT_DIR"
-                cp -R "$ARCH_INC_DIR" "$ARCH_OUT_DIR"
-                
-                local ARCH_PC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/pkgconfig"
-                if ls ${ARCH_PC_DIR}/*.pc >/dev/null 2>&1;then
-                    local UNI_PC_DIR="$XC_UNI_PROD_DIR/$LIB_NAME/lib/pkgconfig/"
-                    mkdir -p "$UNI_PC_DIR"
-                    echo "copy pkgconfig file to $UNI_PC_DIR"
-                    cp ${ARCH_PC_DIR}/*.pc "$UNI_PC_DIR"
-                    #fix prefix path
-                    p="$XC_UNI_PROD_DIR/$LIB_NAME"
-                    escaped_p=$(echo $p | sed 's/\//\\\//g')
-                    sed -i "" "s/^prefix=.*/prefix=$escaped_p/" "$UNI_PC_DIR/"*.pc
-                fi
-                break
+            local ARCH_PC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/pkgconfig"
+            if ls ${ARCH_PC_DIR}/*.pc >/dev/null 2>&1;then
+                local UNI_PC_DIR="$UNI_DIR/$LIB_NAME/lib/pkgconfig/"
+                mkdir -p "$UNI_PC_DIR"
+                echo "copy pkgconfig file to $UNI_PC_DIR"
+                cp ${ARCH_PC_DIR}/*.pc "$UNI_PC_DIR"
+                #fix prefix path
+                p="$UNI_DIR/$LIB_NAME"
+                escaped_p=$(echo $p | sed 's/\//\\\//g')
+                sed -i "" "s/^prefix=.*/prefix=$escaped_p/" "$UNI_PC_DIR/"*.pc
             fi
-        done
-    fi
+        fi
+    done
+
     echo '----------------------'
+
+    do_make_xcframework
 }
 
-function export_arch_env() {
+function do_make_xcframework() {
+    mkdir -p "$XC_XCFRMK_DIR"
     
-    export _XC_ARCH="$1"
-    # x86_64
-    export XC_ARCH="${_XC_ARCH/_simulator/}"
-    # ffmpeg-x86_64
-    export XC_BUILD_NAME="${LIB_NAME}-${_XC_ARCH}"
-    # ios/ffmpeg-x86_64
-    export XC_BUILD_SOURCE="${XC_SRC_ROOT}/${XC_BUILD_NAME}"
-    # ios/ffmpeg-x86_64
-    export XC_BUILD_PREFIX="${XC_PRODUCT_ROOT}/${XC_BUILD_NAME}"
+    for lib in $LIPO_LIBS; do
+        # add macOS
+        macos_lib=$XC_MACOS_PRODUCT_ROOT/universal/$LIB_NAME/lib/${lib}.a
+        if [[ -f $macos_lib ]]; then
+            macos_inputs="-library $macos_lib -headers $XC_MACOS_PRODUCT_ROOT/universal/$LIB_NAME/include"
+        fi
+        # add iOS
+        ios_lib=$XC_IOS_PRODUCT_ROOT/universal/$LIB_NAME/lib/${lib}.a
+        if [[ -f $ios_lib ]]; then
+            ios_inputs="-library $ios_lib -headers $XC_IOS_PRODUCT_ROOT/universal/$LIB_NAME/include"
+        fi
+        # add iOS Simulator
+        ios_sim_lib=$XC_IOS_PRODUCT_ROOT/universal-simulator/$LIB_NAME/lib/${lib}.a
+        if [[ -f $ios_sim_lib ]]; then
+            ios_sim_inputs="-library $ios_sim_lib -headers $XC_IOS_PRODUCT_ROOT/universal-simulator/$LIB_NAME/include"
+        fi
+        # add tvOS
+        tvos_lib=$XC_TVOS_PRODUCT_ROOT/universal/$LIB_NAME/lib/${lib}.a
+        if [[ -f $tvos_lib ]]; then
+            tvos_inputs="-library $tvos_lib -headers $XC_TVOS_PRODUCT_ROOT/universal/$LIB_NAME/include"
+        fi
+        # add tvOS Simulator
+        tvos_sim_lib=$XC_TVOS_PRODUCT_ROOT/universal-simulator/$LIB_NAME/lib/${lib}.a
+        if [[ -f $tvos_sim_lib ]]; then
+            tvos_sim_inputs="-library $tvos_sim_lib -headers $XC_TVOS_PRODUCT_ROOT/universal-simulator/$LIB_NAME/include"
+        fi
+
+        output=$XC_XCFRMK_DIR/${lib}.xcframework
+        rm -rf "$output"
+        xcodebuild -create-xcframework $macos_inputs $ios_inputs $ios_sim_inputs $tvos_inputs $tvos_sim_inputs -output "$output"
+    done
+    
 }
 
 function do_compile() {
-    export_arch_env $1
+
+    init_arch_env $1
+
     if [ ! -d $XC_BUILD_SOURCE ]; then
         echo ""
         echo "!! ERROR"
@@ -143,37 +173,36 @@ function resolve_dep() {
 }
 
 function do_clean() {
-    export_arch_env $1
+    init_arch_env $1
     echo "XC_BUILD_SOURCE:$XC_BUILD_SOURCE"
-    cd $XC_BUILD_SOURCE && git clean -xdf && cd - >/dev/null
+    [[ -f $XC_BUILD_SOURCE ]] && cd $XC_BUILD_SOURCE && git clean -xdf && cd - >/dev/null
     rm -rf $XC_BUILD_PREFIX >/dev/null
 }
 
 function main() {
     
     local cmd="$XC_CMD"
-    local archs="$XC_TARGET_ARCHS"
     
     case "$cmd" in
         'clean')
-            for arch in $archs; do
+            for arch in $XC_ALL_ARCHS; do
                 do_clean $arch
             done
+
             rm -rf $XC_UNI_PROD_DIR/$LIB_NAME
             echo 'done.'
         ;;
         'lipo')
-            do_lipo_all "$archs"
+            do_lipo_all "$XC_ALL_ARCHS"
         ;;
         'build')
             resolve_dep
-            for arch in $archs; do
-                init_arch_env $arch
+            for arch in $XC_ALL_ARCHS; do
                 do_compile $arch
                 echo
             done
-            
-            do_lipo_all "$archs"
+
+            do_lipo_all "$XC_ALL_ARCHS"
         ;;
         'rebuild')
             echo '---clean for rebuild-----------------'

@@ -22,19 +22,18 @@ source $THIS_DIR/../../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_ARCH"
-env_assert "XC_BUILD_SOURCE"
-env_assert "XC_PRODUCT_ROOT"
-env_assert "XC_BUILD_PREFIX"
 env_assert "XC_BUILD_NAME"
-env_assert "XC_DEPLOYMENT_TARGET"
-env_assert "XCRUN_SDK_PATH"
 env_assert "XCRUN_CC"
-env_assert "THREAD_COUNT"
+env_assert "XC_DEPLOYMENT_TARGET"
+env_assert "XC_BUILD_SOURCE"
+env_assert "XC_BUILD_PREFIX"
+env_assert "XCRUN_SDK_PATH"
+env_assert "XC_THREAD"
+echo "XC_DEBUG:$XC_DEBUG"
 echo "XC_OTHER_CFLAGS:$XC_OTHER_CFLAGS"
-echo "XC_OPTS:$XC_OPTS"
 echo "===check env end==="
 
-if [[ "$XC_OPTS" == "debug" ]];then
+if [[ "$XC_DEBUG" == "debug" ]];then
     export XC_OTHER_CFLAGS="${XC_OTHER_CFLAGS} -g"
 else
     export XC_OTHER_CFLAGS="${XC_OTHER_CFLAGS} -Os"
@@ -44,7 +43,7 @@ fi
 CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --disable-shared --disable-dependency-tracking --disable-silent-rules --disable-bdjava-jar --without-freetype --without-fontconfig --disable-doxygen-doc"
 CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
-if [[ "$XC_OPTS" == "debug" ]];then
+if [[ "$XC_DEBUG" == "debug" ]];then
    CFG_FLAGS="${CFG_FLAGS} use_examples=yes --disable-optimizations"
 fi
 
@@ -91,7 +90,7 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-make install -j$THREAD_COUNT >/dev/null
+make install -j$XC_THREAD >/dev/null
 # system xml2 lib has no pc file,when compile ffmepg, pkg-config can't find the private xml2 lib
 echo "mv private xml lib to system"
 

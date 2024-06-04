@@ -22,13 +22,14 @@ source $THIS_DIR/../../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_ARCH"
+env_assert "XC_BUILD_NAME"
+env_assert "XCRUN_CC"
+env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XC_BUILD_SOURCE"
 env_assert "XC_BUILD_PREFIX"
-env_assert "XC_BUILD_NAME"
-env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
-env_assert "XCRUN_CC"
-echo "XC_OPTS:$XC_OPTS"
+env_assert "XC_THREAD"
+echo "XC_DEBUG:$XC_DEBUG"
 echo "===check env end==="
 
 CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --enable-static --disable-shared --silent --enable-silent-rules --disable-dependency-tracking"

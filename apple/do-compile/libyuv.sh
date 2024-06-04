@@ -22,13 +22,14 @@ source $THIS_DIR/../../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_ARCH"
-env_assert "XC_BUILD_SOURCE"
 env_assert "XC_BUILD_NAME"
+env_assert "XCRUN_CC"
 env_assert "XC_DEPLOYMENT_TARGET"
-env_assert "XCRUN_SDK_PATH"
+env_assert "XC_BUILD_SOURCE"
 env_assert "XC_BUILD_PREFIX"
-env_assert "THREAD_COUNT"
-echo "XC_OPTS:$XC_OPTS"
+env_assert "XCRUN_SDK_PATH"
+env_assert "XC_THREAD"
+echo "XC_DEBUG:$XC_DEBUG"
 echo "===check env end==="
 
 CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS -fomit-frame-pointer -Iinclude/"
@@ -58,7 +59,7 @@ echo "----------------------"
 echo "[*] compile libyuv"
 echo "----------------------"
 
-CC="$XCRUN_CC" CXX="$XCRUN_CXX" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" make -f linux.mk libyuv.a -j$THREAD_COUNT >/dev/null
+CC="$XCRUN_CC" CXX="$XCRUN_CXX" CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" make -f linux.mk libyuv.a -j$XC_THREAD >/dev/null
 
 mkdir -p "${XC_BUILD_PREFIX}/lib"
 cp libyuv.a "${XC_BUILD_PREFIX}/lib"

@@ -25,15 +25,15 @@ source $THIS_DIR/../../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_ARCH"
+env_assert "XC_BUILD_NAME"
+env_assert "XCRUN_CC"
+env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XC_BUILD_SOURCE"
 env_assert "XC_BUILD_PREFIX"
-env_assert "XC_BUILD_NAME"
-env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
-env_assert "XCRUN_CC"
-echo "XC_OPTS:$XC_OPTS"
+env_assert "XC_THREAD"
+echo "XC_DEBUG:$XC_DEBUG"
 echo "===check env end==="
-
 # prepare build config
 CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --default-library static"
 
@@ -69,6 +69,7 @@ export CC="$XCRUN_CC"
 export CXX="$XCRUN_CXX"
 
 if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]]; then
+    export PKG_CONFIG=$(which pkg-config)
     if [[ $XC_IS_SIMULATOR != 1 ]]; then
         echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
         CFG_FLAGS="$CFG_FLAGS --cross-file $THIS_DIR/../compile-cfgs/meson-crossfiles/$XC_ARCH-$XC_PLAT.meson"

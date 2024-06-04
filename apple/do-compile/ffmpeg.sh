@@ -24,16 +24,16 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 source $THIS_DIR/../../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
-env_assert "XC_TAGET_OS"
 env_assert "XC_ARCH"
-env_assert "XC_PRODUCT_ROOT"
+env_assert "XC_TAGET_OS"
 env_assert "XC_BUILD_NAME"
+env_assert "XCRUN_CC"
+env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XC_BUILD_SOURCE"
 env_assert "XC_BUILD_PREFIX"
-env_assert "XC_DEPLOYMENT_TARGET"
-env_assert "XCRUN_CC"
-env_assert "THREAD_COUNT"
-echo "XC_OPTS:$XC_OPTS"
+env_assert "XCRUN_SDK_PATH"
+env_assert "XC_THREAD"
+echo "XC_DEBUG:$XC_DEBUG"
 echo "===check env end==="
 
 # ffmpeg build params
@@ -62,7 +62,7 @@ C_FLAGS=
 C_FLAGS="$C_FLAGS -Wno-int-conversion -fno-stack-check -arch $XC_ARCH"
 C_FLAGS="$C_FLAGS $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
-if [[ "$XC_OPTS" == "debug" ]]; then
+if [[ "$XC_DEBUG" == "debug" ]]; then
     CFG_FLAGS="$CFG_FLAGS --disable-optimizations"
     CFG_FLAGS="$CFG_FLAGS --enable-debug"
     CFG_FLAGS="$CFG_FLAGS --disable-small"
@@ -332,7 +332,7 @@ fi
 echo "----------------------"
 echo "[*] compile"
 
-make -j$THREAD_COUNT >/dev/null
+make -j$XC_THREAD >/dev/null
 
 echo "----------------------"
 echo "[*] install"

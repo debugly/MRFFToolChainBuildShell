@@ -22,14 +22,14 @@ source $THIS_DIR/../../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_ARCH"
+env_assert "XC_BUILD_NAME"
+env_assert "XCRUN_CC"
+env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XC_BUILD_SOURCE"
 env_assert "XC_BUILD_PREFIX"
-env_assert "XC_BUILD_NAME"
-env_assert "XC_DEPLOYMENT_TARGET"
 env_assert "XCRUN_SDK_PATH"
-env_assert "XCRUN_CC"
-env_assert "THREAD_COUNT"
-echo "XC_OPTS:$XC_OPTS"
+env_assert "XC_THREAD"
+echo "XC_DEBUG:$XC_DEBUG"
 echo "===check env end==="
 
 # prepare build config --silent
@@ -145,4 +145,4 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-make install -j$THREAD_COUNT 1>/dev/null
+make install -j$XC_THREAD 1>/dev/null

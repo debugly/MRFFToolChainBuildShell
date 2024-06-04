@@ -22,22 +22,21 @@ source $THIS_DIR/../../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_ARCH"
-env_assert "XC_BUILD_SOURCE"
-env_assert "XC_PRODUCT_ROOT"
-env_assert "XC_BUILD_PREFIX"
 env_assert "XC_BUILD_NAME"
-env_assert "XC_DEPLOYMENT_TARGET"
-env_assert "XCRUN_SDK_PATH"
 env_assert "XCRUN_CC"
-env_assert "THREAD_COUNT"
-echo "XC_OPTS:$XC_OPTS"
+env_assert "XC_DEPLOYMENT_TARGET"
+env_assert "XC_BUILD_SOURCE"
+env_assert "XC_BUILD_PREFIX"
+env_assert "XCRUN_SDK_PATH"
+env_assert "XC_THREAD"
+echo "XC_DEBUG:$XC_DEBUG"
 echo "===check env end==="
 
 # prepare build config
 CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --disable-dependency-tracking --disable-silent-rules --disable-apidoc --enable-static --disable-shared"
 CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
-if [[ "$XC_OPTS" == "debug" ]];then
+if [[ "$XC_DEBUG" == "debug" ]];then
    CFG_FLAGS="${CFG_FLAGS} use_examples=yes"
 fi
 
@@ -80,4 +79,4 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-make install -j$THREAD_COUNT >/dev/null
+make install -j$XC_THREAD >/dev/null
