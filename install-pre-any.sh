@@ -39,7 +39,7 @@ FFMPEG_TAG='ffmpeg-5.1.4-240529153208'
 
 set -e
 
-PLAT=$1
+PLAT=`echo $1 | tr '[:upper:]' '[:lower:]'`
 LIBS=$2
 
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)

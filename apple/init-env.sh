@@ -115,7 +115,7 @@ function init_arch_env () {
 
     if [[ "$XC_PLAT" == 'ios' ]]; then
         case $_XC_ARCH in
-            'x86_64' | x86_64_simulator)
+            'x86_64_simulator')
                 export XCRUN_PLATFORM='iPhoneSimulator'
                 export XC_DEPLOYMENT_TARGET='-mios-simulator-version-min=11.0'
                 export XC_IS_SIMULATOR=1

@@ -20,37 +20,60 @@ set -e
 
 source $1
 
+iOS_ARCHS="arm64 x86_64_simulator"
+macOS_ARCHS="x86_64 arm64"
+tvOS_ARCHS="arm64 arm64_simulator"
+
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 source ${THIS_DIR}/env_assert.sh
 
-echo "===check env begin==="
-echo "argv:[$*]"
-env_assert "GIT_UPSTREAM"
-env_assert "GIT_LOCAL_REPO"
-env_assert "GIT_COMMIT"
-env_assert "REPO_DIR"
-echo "===check env end==="
-
-PLAT=$2
+PLAT=`echo $2 | tr '[:upper:]' '[:lower:]'`
 ARCH=$3
 
-if [[ "$ARCH" == 'all' || "x$ARCH" == 'x' ]]; then
-    iOS_ARCHS="x86_64 arm64"
-    macOS_ARCHS="x86_64 arm64"
-    tvOS_ARCHS="arm64 arm64_simulator"
-    elif [[ "$ARCH" == 'x86_64' ]]; then
-    iOS_ARCHS="$ARCH"
-    macOS_ARCHS="$ARCH"
-    elif [["$ARCH" == 'arm64' ]]; then
-    iOS_ARCHS="$ARCH"
-    macOS_ARCHS="$ARCH"
-    tvOS_ARCHS="$ARCH"
-    elif [["$ARCH" == 'arm64_simulator' ]]; then
-    tvOS_ARCHS="$ARCH"
-else
-    echo "wrong arch:[$ARCH], can't init repo."
-    exit -1
+if [[ "$ARCH" == 'all' ]]; then
+    ARCH=
 fi
+
+echo "===check env begin==="
+env_assert "REPO_DIR"
+env_assert "GIT_COMMIT"
+env_assert "GIT_LOCAL_REPO"
+env_assert "GIT_UPSTREAM"
+echo "===check env end==="
+
+
+function init_arch_for_plat()
+{
+    if [[ "$PLAT" == 'ios' ]]; then
+        ALL_ARCHS="$iOS_ARCHS"
+    elif [[ "$PLAT" == 'macos' ]]; then
+        ALL_ARCHS="$macOS_ARCHS"
+    elif [[ "$PLAT" == 'tvos' ]]; then
+        ALL_ARCHS="$tvOS_ARCHS"
+    else
+        echo "wrong plat:$PLAT"
+        exit 1
+    fi
+
+    if [[ ! -z "$ARCH" ]];then
+
+        for arch in $ARCH
+        do
+            validate=0
+            for arch2 in $ALL_ARCHS
+            do
+                if [[ $arch == $arch2 ]];then
+                    validate=1
+                fi
+            done
+            if [[ $validate -eq 0 ]];then
+                echo "the $arch is not validate on ${PLAT},you can use [$ALL_ARCHS]"
+                exit 1
+            fi
+        done
+        ALL_ARCHS="$ARCH"
+    fi
+}
 
 function pull_common() {
     echo "== pull $REPO_DIR base =="
@@ -135,53 +158,14 @@ function usage() {
 }
 
 function main() {
-    case "$1" in
-        iOS | ios)
+    case "$PLAT" in
+        ios | macos | tvos)
+            init_arch_for_plat
             pull_common
-            found=0
-            for arch in $iOS_ARCHS; do
-                if [[ "$2" == "$arch" || "x$2" == "x" || "$2" == "all" ]]; then
-                    found=1
-                    make_arch_repo 'ios' $arch
-                fi
+            for arch in $ALL_ARCHS; do
+                make_arch_repo 'ios' $arch
             done
-            
-            if [[ found -eq 0 ]]; then
-                echo "unknown arch:$2 for $1"
-            fi
         ;;
-        
-        macOS | macos)
-            
-            pull_common
-            found=0
-            for arch in $macOS_ARCHS; do
-                if [[ "$2" == "$arch" || "x$2" == "x" || "$2" == "all" ]]; then
-                    found=1
-                    make_arch_repo 'macos' $arch
-                fi
-            done
-            
-            if [[ found -eq 0 ]]; then
-                echo "unknown arch:$2 for $1"
-            fi
-        ;;
-        
-        tvOS | tvos)
-            pull_common
-            found=0
-            for arch in $tvOS_ARCHS; do
-                if [[ "$2" == "$arch" || "x$2" == "x" || "$2" == "all" ]]; then
-                    found=1
-                    make_arch_repo 'tvos' $arch
-                fi
-            done
-            
-            if [[ found -eq 0 ]]; then
-                echo "unknown arch:$2 for $1"
-            fi
-        ;;
-        
         all)
             pull_common
             for arch in $iOS_ARCHS; do
@@ -204,4 +188,4 @@ function main() {
     esac
 }
 
-main $PLAT $ARCH
+main
