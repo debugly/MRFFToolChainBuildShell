@@ -30,61 +30,77 @@ function usage() {
     echo "$0 [ios|macos|all] [<release tag>]"
 }
 
-function download() {
+function download_arch() {
     local plat=$1
-    
-    local oname="build/pre/${TAG}-$plat.zip"
-    if [[ -f "$oname" ]];then
-        echo "$oname already exist,no need download."
+    local join=$2
+
+    if [[ "$join" ]];then
+        join="-$join"
+    else
+        join=""
+    fi
+
+    JOIN="$join"
+    ONAME="build/pre/${TAG}-${plat}${join}.zip"
+    if [[ -f "$ONAME" ]];then
+        echo "$ONAME already exist,no need download."
         return
     fi
     
-    local fname="$LIB_NAME-$plat-universal-$VER.zip"
+    local fname="$LIB_NAME-$plat-universal${join}-$VER.zip"
     local url="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$TAG/$fname"
     
     echo "---[download $fname]-----------------"
     echo "$url"
     mkdir -p build/pre
-    local tname="build/pre/${TAG}.tmp"
+    local tname="build/pre/${TAG}${join}.tmp"
     curl -L "$url" -o "$tname"
     if [[ $? -eq 0 ]];then
-        mv "$tname" "$oname"
+        mv "$tname" "$ONAME"
     fi
 }
 
 function extract(){
     local plat=$1
-    local oname="build/pre/${TAG}-$plat.zip"
-    
-    if [[ -f "$oname" ]];then
-        mkdir -p build/product/$plat/universal
-        unzip -oq "$oname" -d build/product/$plat/universal
+    if [[ -f "$ONAME" ]];then
+        PRODUCT_DIR="build/product/$plat/universal${JOIN}"
+        mkdir -p "$PRODUCT_DIR"
+        unzip -oq "$ONAME" -d "$PRODUCT_DIR"
         echo "extract zip file"
         if command -v tree >/dev/null 2>&1; then
-            tree -L 2 build/product/$plat/universal
+            tree -L 2 "$PRODUCT_DIR"
         fi
     else
-        echo "you need download ${oname} firstly."
+        echo "you need download ${ONAME} firstly."
         exit 1
     fi
 }
 
 function fix_prefix(){
     local plat=$1
-    local UNI_PC_DIR="build/product/$plat/universal/$LIB_NAME/lib/pkgconfig"
-    
-    if ls ${UNI_PC_DIR}/*.pc >/dev/null 2>&1;then
-        echo "fix $plat $LIB_NAME pc file prefix"
-        p=$(cd "build/product/$plat/universal/$LIB_NAME";pwd)
-        escaped_p=$(echo $p | sed 's/\//\\\//g')
-        sed -i "" "s/^prefix=.*/prefix=$escaped_p/" "$UNI_PC_DIR/"*.pc
+    local pc_dir="$PRODUCT_DIR/$LIB_NAME/lib/pkgconfig"
+    if [[ -d "$pc_dir" ]];then
+        if ls ${pc_dir}/*.pc >/dev/null 2>&1;then
+            echo "fix $plat $LIB_NAME pc file prefix"
+            p=$(cd "$PRODUCT_DIR/$LIB_NAME";pwd)
+            escaped_p=$(echo $p | sed 's/\//\\\//g')
+            sed -i "" "s/^prefix=.*/prefix=$escaped_p/" "$pc_dir/"*.pc
+        fi
     fi
 }
 
-function install(){
-    download "$*"
-    extract "$*"
-    fix_prefix "$*"
+function install() {
+    local plat=$1
+    if [[ "$plat" == 'ios' || "$plat" == 'tvos' ]];then
+        download_arch "$plat"
+        extract "$plat"
+        fix_prefix "$plat"
+        download_arch "$plat" "simulator"
+        extract "$plat"
+        fix_prefix "$plat"
+    else
+        download_arch "$plat"
+    fi
 }
 
 if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' && "$PLAT" != 'all' ]]; then
@@ -103,10 +119,10 @@ fi
 LIB_NAME=$(echo $TAG | awk -F - '{print $1}')
 VER=$(echo $TAG | awk -F - '{print $2}')
 
-if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' ]]; then
+if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' || "$PLAT" == 'tvos' ]]; then
     install $PLAT
-    elif [[ "$PLAT" == 'all' ]]; then
-    plats="ios macos"
+elif [[ "$PLAT" == 'all' ]]; then
+    plats="ios macos tvos"
     for plat in $plats; do
         install $plat
     done
