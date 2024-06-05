@@ -39,7 +39,9 @@ jobs:
     - name: do compile macos libs
       run: |
         ./macos/compile-any.sh -c build -l ${{ env.LIB_NAME }}
-    - name: Zip macos xcframework
+        cd build/product/macos/universal
+        zip -rq macos-universal.zip ./*
+    - name: Zip apple xcframework
       run: |
         cd build/product/xcframework
         zip -rq apple-xcframework.zip ./*
@@ -54,7 +56,7 @@ jobs:
         release_name: ${{ env.LIB_NAME }}-${{ env.RELEASE_VERSION }}
         draft: false
         prerelease: false
-    - name: Upload macos Release Asset
+    - name: Upload xcframework Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -62,6 +64,15 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
         asset_path: build/product/apple-xcframework.zip
         asset_name: "${{ env.LIB_NAME }}-apple-xcframework-${{ env.RELEASE_VERSION }}.zip"
+        asset_content_type: application/zip
+    - name: Upload macOS Plat Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: build/product/macos/universal/macos-universal.zip
+        asset_name: "${{ env.LIB_NAME }}-macos-universal-${{ env.RELEASE_VERSION }}.zip"
         asset_content_type: application/zip
     - name: Upload macos src md
       uses: actions/upload-release-asset@v1
