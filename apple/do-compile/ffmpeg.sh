@@ -33,6 +33,7 @@ env_assert "XC_BUILD_SOURCE"
 env_assert "XC_BUILD_PREFIX"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XC_THREAD"
+env_assert "PKG_CONFIG_LIBDIR"
 echo "XC_DEBUG:$XC_DEBUG"
 echo "===check env end==="
 
@@ -87,49 +88,21 @@ CFG_FLAGS="$CFG_FLAGS --pkg-config-flags=--static"
 LDFLAGS="$C_FLAGS"
 FFMPEG_DEP_LIBS=
 
-echo "----------------------"
-echo "[*] check OpenSSL"
-
 # https://ffmpeg.org/doxygen/4.1/md_LICENSE.html
 # https://www.openssl.org/source/license.html
 
-MY_PKG_CONFIG_LIBDIR=''
-# with openssl
-# use pkg-config fix ff4.0--ijk0.8.8--20210426--001 use openssl 1_1_1m occur can't find openssl error.
-if [[ -f "${XC_PRODUCT_ROOT}/openssl-$_XC_ARCH/lib/pkgconfig/openssl.pc" ]]; then
-    CFG_FLAGS="$CFG_FLAGS --enable-nonfree --enable-openssl"
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/openssl-$_XC_ARCH/lib/pkgconfig"
-
-    echo "[*] --enable-openssl"
-elif [[ -f "${XC_PRODUCT_ROOT}/universal/openssl/lib/pkgconfig/openssl.pc" ]]; then
-    CFG_FLAGS="$CFG_FLAGS --enable-nonfree --enable-openssl"
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/openssl/lib/pkgconfig"
-
-    echo "[*] --enable-openssl"   
-else
-    echo "[*] --disable-openssl"
-fi
+# pkg-config --variable pc_path pkg-config
+# pkg-config --libs dav1d
+# pkg-config --cflags --libs libbluray
 
 echo "----------------------"
 echo "[*] check x264"
 
-# with x264
-if [[ -f "${XC_PRODUCT_ROOT}/x264-$_XC_ARCH/lib/pkgconfig/x264.pc" ]]; then
-    # libx264 is gpl and --enable-gpl is not specified.
-    CFG_FLAGS="$CFG_FLAGS --enable-gpl --enable-libx264"
+pkg-config --libs x264 --silence-errors >/dev/null && enable_x264=1
 
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/x264-$_XC_ARCH/lib/pkgconfig"
-
+if [[ $enable_x264 ]];then
     echo "[*] --enable-libx264"
+    CFG_FLAGS="$CFG_FLAGS --enable-gpl --enable-libx264"
 else
     echo "[*] --disable-libx264"
 fi
@@ -137,17 +110,11 @@ fi
 echo "----------------------"
 echo "[*] check fdk-aac"
 
-# with fdk-aac
-if [[ -f "${XC_PRODUCT_ROOT}/fdk-aac-$_XC_ARCH/lib/pkgconfig/fdk-aac.pc" ]]; then
+pkg-config --libs fdk-aac --silence-errors >/dev/null && enable_aac=1
 
-    CFG_FLAGS="$CFG_FLAGS --enable-nonfree --enable-libfdk-aac"
-
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/fdk-aac-$_XC_ARCH/lib/pkgconfig"
-
+if [[ $enable_aac ]];then
     echo "[*] --enable-libfdk-aac"
+    CFG_FLAGS="$CFG_FLAGS --enable-nonfree --enable-libfdk-aac"
 else
     echo "[*] --disable-libfdk-aac"
 fi
@@ -155,145 +122,79 @@ fi
 echo "----------------------"
 echo "[*] check mp3lame"
 
-# with lame
-if [[ -f "${XC_PRODUCT_ROOT}/lame-$_XC_ARCH/lib/libmp3lame.a" ]]; then
-    # libmp3lame is gpl and --enable-gpl is not specified.
-    CFG_FLAGS="$CFG_FLAGS --enable-gpl --enable-libmp3lame"
+pkg-config --libs mp3lame --silence-errors >/dev/null && enable_lame=1
 
-    FDKAAC_C_FLAGS="-I${XC_PRODUCT_ROOT}/lame-$_XC_ARCH/include"
-    FDKAAC_LD_FLAGS="-L${XC_PRODUCT_ROOT}/lame-$_XC_ARCH/lib -lmp3lame"
-
-    C_FLAGS="$C_FLAGS $FDKAAC_C_FLAGS"
-    FFMPEG_DEP_LIBS="$FFMPEG_DEP_LIBS $FDKAAC_LD_FLAGS"
+if [[ $enable_lame ]];then
     echo "[*] --enable-libmp3lame"
+    CFG_FLAGS="$CFG_FLAGS --enable-gpl --enable-libmp3lame"
 else
     echo "[*] --disable-libmp3lame"
 fi
 
 echo "----------------------"
+echo "[*] check openssl"
+# use pkg-config fix ff4.0--ijk0.8.8--20210426--001 use openssl 1_1_1m occur can't find openssl error.
+
+pkg-config --libs openssl --silence-errors >/dev/null && enable_openssl=1
+
+if [[ $enable_openssl ]];then
+    echo "[*] --enable-openssl"
+    CFG_FLAGS="$CFG_FLAGS --enable-nonfree --enable-openssl"
+else
+    echo "[*] --disable-openssl"
+fi
+
+echo "----------------------"
 echo "[*] check opus"
 
-# with opus
-if [[ -f "${XC_PRODUCT_ROOT}/opus-$_XC_ARCH/lib/pkgconfig/opus.pc" ]]; then
+pkg-config --libs opus --silence-errors >/dev/null && enable_opus=1
 
+if [[ $enable_opus ]];then
+    echo "[*] --enable-libopus"
     CFG_FLAGS="$CFG_FLAGS --enable-libopus --enable-decoder=opus"
-
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/opus-$_XC_ARCH/lib/pkgconfig"
-
-    echo "[*] --enable-libopus --enable-decoder=opus"
-elif [[ -f "${XC_PRODUCT_ROOT}/universal/opus/lib/pkgconfig/opus.pc" ]]; then
-
-    CFG_FLAGS="$CFG_FLAGS --enable-libopus --enable-decoder=opus"
-
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/opus/lib/pkgconfig"
-
-    echo "[*] --enable-libopus --enable-decoder=opus"
 else
     echo "[*] --disable-libopus"
 fi
 
 echo "----------------------"
 echo "[*] check dav1d"
-
 # FFmpeg 4.2 支持AV1、AVS2等格式
 # dav1d由VideoLAN，VLC和FFmpeg联合开发，项目由AOM联盟赞助，和libaom相比，dav1d性能普遍提升100%，最高提升400%
-if [[ -f "${XC_PRODUCT_ROOT}/dav1d-$_XC_ARCH/lib/pkgconfig/dav1d.pc" ]]; then
-
-    CFG_FLAGS="$CFG_FLAGS --enable-libdav1d --enable-decoder=libdav1d"
-
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/dav1d-$_XC_ARCH/lib/pkgconfig"
-
-    echo "[*] --enable-libdav1d --enable-decoder=libdav1d"
-elif [[ -f "${XC_PRODUCT_ROOT}/universal/dav1d/lib/pkgconfig/dav1d.pc" ]]; then
-
-    CFG_FLAGS="$CFG_FLAGS --enable-libdav1d --enable-decoder=libdav1d"
-
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/dav1d/lib/pkgconfig"
-
-    echo "[*] --enable-libdav1d --enable-decoder=libdav1d"
-else
-    echo "[*] --disable-libdav1d --disable-decoder=libdav1d"
-fi
-
 #just wait videotoolbox support decode av1
 # CFG_FLAGS="$CFG_FLAGS --enable-decoder=av1"
+
+pkg-config --libs dav1d --silence-errors >/dev/null && enable_dav1d=1
+
+if [[ $enable_dav1d ]];then
+    echo "[*] --enable-libdav1d"
+    CFG_FLAGS="$CFG_FLAGS --enable-libdav1d --enable-decoder=libdav1d"
+else
+    echo "[*] --disable-libdav1d"
+fi
 
 echo "----------------------"
 echo "[*] check bluray"
 
-# with bluray
-if [[ -f "${XC_PRODUCT_ROOT}/bluray-$_XC_ARCH/lib/pkgconfig/libbluray.pc" ]]; then
+pkg-config --libs libbluray --silence-errors >/dev/null && enable_bluray=1
 
-    # --enable-libxml2
+if [[ $enable_bluray ]];then
+    echo "[*] --enable-libbluray"
     CFG_FLAGS="$CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
-
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/bluray-$_XC_ARCH/lib/pkgconfig"
-
-    echo "[*] --enable-libbluray --enable-protocol=bluray"
-elif [[ -f "${XC_PRODUCT_ROOT}/universal/bluray/lib/pkgconfig/libbluray.pc" ]]; then
-    # --enable-libxml2
-    CFG_FLAGS="$CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
-
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-    MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/bluray/lib/pkgconfig"
-
-    echo "[*] --enable-libbluray --enable-protocol=bluray"
 else
-    echo "[*] --disable-libbluray --disable-protocol=bluray"
+    echo "[*] --disable-libbluray"
 fi
 
 echo "----------------------"
 echo "[*] check dvdread"
 
-if [[ -f "${XC_PRODUCT_ROOT}/dvdread-$_XC_ARCH/lib/pkgconfig/dvdread.pc" || -f "${XC_PRODUCT_ROOT}/universal/dvdread/lib/pkgconfig/dvdread.pc" ]]; then
+pkg-config --libs dvdread --silence-errors >/dev/null && enable_dvdread=1
 
-    CFG_FLAGS="$CFG_FLAGS --enable-libdvdread"
-
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-
-    if [[ -f "${XC_PRODUCT_ROOT}/dvdread-$_XC_ARCH/lib/pkgconfig/dvdread.pc" ]]; then
-        MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/dvdread-$_XC_ARCH/lib/pkgconfig"
-    else
-        MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/dvdread/lib/pkgconfig"
-    fi
-
+if [[ $enable_dvdread ]];then
     echo "[*] --enable-libdvdread"
+    CFG_FLAGS="$CFG_FLAGS --enable-libdvdread"
 else
     echo "[*] --disable-libdvdread"
 fi
-
-
-echo "----------------------"
-echo "[*] PKG_CONFIG_LIBDIR"
-
-if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-    export PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR"
-fi
-
-echo "export PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}"
-
-# pkg-config --variable pc_path pkg-config
-# pkg-config --libs dav1d
-# pkg-config --cflags --libs libbluray
 
 echo "----------------------"
 echo "[*] configure"

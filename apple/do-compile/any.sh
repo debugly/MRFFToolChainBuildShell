@@ -161,10 +161,6 @@ function do_compile() {
         exit 1
     fi
     
-    # disabling pkg-config-path
-    # https://gstreamer-devel.narkive.com/TeNagSKN/gst-devel-disabling-pkg-config-path
-    export PKG_CONFIG_LIBDIR=./
-    # export PKG_CONFIG_LIBDIR=${sysroot}/lib/pkgconfig
     mkdir -p "$XC_BUILD_PREFIX"
     ./do-compile/$LIB_NAME.sh
 }
@@ -179,9 +175,19 @@ function resolve_dep() {
 
 function do_clean() {
     init_arch_env $1
-    echo "XC_BUILD_SOURCE:$XC_BUILD_SOURCE"
-    [[ -f $XC_BUILD_SOURCE ]] && cd $XC_BUILD_SOURCE && git clean -xdf && cd - >/dev/null
-    rm -rf $XC_BUILD_PREFIX >/dev/null
+    
+    if [[ -d $XC_BUILD_SOURCE ]];then
+        echo "git clean:$XC_BUILD_SOURCE"
+        cd $XC_BUILD_SOURCE
+        git clean -xdf >/dev/null
+        cd - >/dev/null
+    fi
+
+    if [[ -d $XC_BUILD_PREFIX ]];then
+        echo "rm:$XC_BUILD_PREFIX"
+        rm -rf $XC_BUILD_PREFIX >/dev/null
+    fi
+    
 }
 
 function main() {
@@ -212,7 +218,7 @@ function main() {
         'rebuild')
             echo '---clean for rebuild-----------------'
             XC_CMD='clean'
-            main >/dev/null
+            main #>/dev/null
             echo '---build for rebuild-----------------'
             XC_CMD='build'
             main

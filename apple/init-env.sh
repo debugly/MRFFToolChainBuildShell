@@ -104,6 +104,30 @@ function init_plat_env() {
     export DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
 }
 
+function init_libs_pkg_config_path() {
+    
+    universal_dir=
+    if [[ "$XC_IS_SIMULATOR" ]];then
+        universal_dir="${XC_UNI_SIM_PROD_DIR}"
+    else
+        universal_dir="${XC_UNI_PROD_DIR}"
+    fi
+    
+    pkg_cfg_dir=
+    for lib in $(ls "$universal_dir"); do
+        if [[ $pkg_cfg_dir ]];then
+            pkg_cfg_dir="${pkg_cfg_dir}:${universal_dir}/${lib}/lib/pkgconfig"
+        else
+            pkg_cfg_dir="${universal_dir}/${lib}/lib/pkgconfig"
+        fi
+    done
+
+    # disabling pkg-config-path
+    # https://gstreamer-devel.narkive.com/TeNagSKN/gst-devel-disabling-pkg-config-path
+    # export PKG_CONFIG_LIBDIR=${sysroot}/lib/pkgconfig
+    export PKG_CONFIG_LIBDIR="$pkg_cfg_dir"
+}
+
 function init_arch_env () {
     
     if [[ -z "$XC_PLAT" ]]; then
@@ -163,8 +187,10 @@ function init_arch_env () {
     export XC_BUILD_SOURCE="${XC_SRC_ROOT}/${XC_BUILD_NAME}"
     # ios/ffmpeg-x86_64
     export XC_BUILD_PREFIX="${XC_PRODUCT_ROOT}/${XC_BUILD_NAME}"
+    init_libs_pkg_config_path
 }
 
+export -f init_libs_pkg_config_path
 export -f install_depends
 export -f init_plat_env
 export -f init_arch_env
