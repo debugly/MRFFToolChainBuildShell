@@ -1,1 +1,1 @@
-libyuv openssl opus bluray dav1d dvdread freetype fribidi harfbuzz unibreak ass ffmpeg
+openssl opus bluray dav1d dvdread freetype fribidi harfbuzz unibreak ass ffmpeg

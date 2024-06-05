@@ -16,9 +16,8 @@
 #
 # ./install-pre-any.sh all
 # ./install-pre-any.sh ios 'libyuv openssl opus bluray dav1d'
-# ./install-pre-any.sh macos 'openssl'
+# ./install-pre-any.sh tvos 'openssl'
 # ./install-pre-any.sh macos 'openssl ffmpeg'
-
 
 #----------------------------------------------------------
 # 当发布新版本库时，修改对应的 TAG 值
@@ -32,7 +31,7 @@ DVDREAD_TAG='dvdread-6.1.3-240605103023'
 FREETYPE_TAG='freetype-2.13.2-240605105138'
 UNIBREAK_TAG='unibreak-5.1-240604145913'
 FRIBIDI_TAG='fribidi-1.0.13-240605105200'
-HARFBUZZ_TAG='harfbuzz-8.3.0-240320182151'
+HARFBUZZ_TAG='harfbuzz-8.3.0-240605110352'
 ASS_TAG='ass-0.17.1-240320183602'
 FFMPEG_TAG='ffmpeg-5.1.4-240529153208'
 #----------------------------------------------------------
