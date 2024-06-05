@@ -43,12 +43,22 @@ jobs:
     - name: do compile macos libs
       run: |
         ./macos/compile-any.sh -c build -l ${{ env.LIB_NAME }}
+        cd build/product/macos/universal
+        zip -rq macos-universal.zip ./*
     - name: do compile ios libs
       run: |
         ./ios/compile-any.sh -c build -l ${{ env.LIB_NAME }}
+        cd build/product/ios/universal
+        zip -rq ios-universal.zip ./*
+        cd ../universal-simulator
+        zip -rq ios-universal-simulator.zip ./*
     - name: do compile tvos libs
       run: |
         ./tvos/compile-any.sh -c build -l ${{ env.LIB_NAME }}
+        cd build/product/tvos/universal
+        zip -rq tvos-universal.zip ./*
+        cd ../universal-simulator
+        zip -rq tvos-universal-simulator.zip ./*
     - name: Zip apple xcframework
       run: |
         cd build/product/xcframework
@@ -64,7 +74,7 @@ jobs:
         release_name: ${{ env.LIB_NAME }}-${{ env.RELEASE_VERSION }}
         draft: false
         prerelease: false
-    - name: Upload Apple Plat Release Asset
+    - name: Upload xcframework Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,6 +82,51 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }} 
         asset_path: build/product/apple-xcframework.zip
         asset_name: "${{ env.LIB_NAME }}-apple-xcframework-${{ env.RELEASE_VERSION }}.zip"
+        asset_content_type: application/zip
+    - name: Upload iOS Plat Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: build/product/ios/universal/ios-universal.zip
+        asset_name: "${{ env.LIB_NAME }}-ios-universal-${{ env.RELEASE_VERSION }}.zip"
+        asset_content_type: application/zip
+    - name: Upload iOS Simulator Plat Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: build/product/ios/universal-simulator/ios-universal-simulator.zip
+        asset_name: "${{ env.LIB_NAME }}-ios-universal-simulator-${{ env.RELEASE_VERSION }}.zip"
+        asset_content_type: application/zip
+    - name: Upload macOS Plat Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: build/product/macos/universal/macos-universal.zip
+        asset_name: "${{ env.LIB_NAME }}-macos-universal-${{ env.RELEASE_VERSION }}.zip"
+        asset_content_type: application/zip
+    - name: Upload tvOS Plat Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: build/product/tvos/universal/tvos-universal.zip
+        asset_name: "${{ env.LIB_NAME }}-tvos-universal-${{ env.RELEASE_VERSION }}.zip"
+        asset_content_type: application/zip
+    - name: Upload tvOS Simulator Plat Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: build/product/tvos/universal-simulator/tvos-universal-simulator.zip
+        asset_name: "${{ env.LIB_NAME }}-tvos-universal-simulator-${{ env.RELEASE_VERSION }}.zip"
         asset_content_type: application/zip
     - name: Upload macos src md
       uses: actions/upload-release-asset@v1
