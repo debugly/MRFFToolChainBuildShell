@@ -100,11 +100,13 @@ function install() {
         fix_prefix "$plat"
     else
         download_arch "$plat"
+        extract "$plat"
+        fix_prefix "$plat"
     fi
 }
 
-if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' && "$PLAT" != 'all' ]]; then
-    echo 'plat must use ios or macos'
+if [[ "$PLAT" != 'ios' && "$PLAT" != 'macos' && "$PLAT" != 'tvos' && "$PLAT" != 'all' ]]; then
+    echo 'plat must use ios or macos or tvos'
     usage
     exit
 fi

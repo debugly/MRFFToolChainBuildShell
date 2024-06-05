@@ -24,11 +24,11 @@
 # 当发布新版本库时，修改对应的 TAG 值
 #----------------------------------------------------------
 LIBYUV_TAG='libyuv-main-231127113441'
-OPUS_TAG='opus-1.4-231127183709'
-MAC_BLURAY_TAG='bluray-1.3.4-240528173418'
-DAV1D_TAG='dav1d-1.3.0-231127183948'
-OPENSSL_TAG='openssl-1.1.1w-231127183927'
-DVDREAD_TAG='dvdread-6.1.3-240108102425'
+OPUS_TAG='opus-1.4-240605102127'
+MAC_BLURAY_TAG='bluray-1.3.4-240605103055'
+DAV1D_TAG='dav1d-1.3.0-240605103034'
+OPENSSL_TAG='openssl-1.1.1w-240605103006'
+DVDREAD_TAG='dvdread-6.1.3-240605103023'
 FREETYPE_TAG='freetype-2.13.2-240320173506'
 UNIBREAK_TAG='unibreak-5.1-240604145913'
 FRIBIDI_TAG='fribidi-1.0.13-240320172504'
@@ -48,13 +48,7 @@ cd "$THIS_DIR"
 function install_lib ()
 {
     local plat=$1
-    
-    if [[ "$plat" == 'ios' || "$plat" == 'macos' ]]; then
-        ./tools/install-pre-lib.sh "$plat" "$TAG"
-    else
-        ./tools/install-pre-lib.sh 'ios' "$TAG"
-        ./tools/install-pre-lib.sh 'macos' "$TAG"
-    fi
+    ./tools/install-pre-lib.sh "$plat" "$TAG"
 }
 
 function usage() {
@@ -68,7 +62,7 @@ if [[ -z "$LIBS" || "$LIBS" == "all" ]]; then
     LIBS=$(ls init-cfgs)
 fi
 
-if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' || "$PLAT" == 'all' ]]; then
+if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' || "$PLAT" == 'tvos'|| "$PLAT" == 'all' ]]; then
     for lib in $LIBS
     do
         plat=$PLAT
