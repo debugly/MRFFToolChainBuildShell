@@ -33,7 +33,7 @@ UNIBREAK_TAG='unibreak-5.1-240604145913'
 FRIBIDI_TAG='fribidi-1.0.13-240605105200'
 HARFBUZZ_TAG='harfbuzz-8.3.0-240605110352'
 ASS_TAG='ass-0.17.1-240605112231'
-FFMPEG_TAG='ffmpeg-5.1.4-240529153208'
+FFMPEG_TAG='ffmpeg-5.1.4-240605162418'
 #----------------------------------------------------------
 
 set -e
