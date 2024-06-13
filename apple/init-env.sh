@@ -56,8 +56,9 @@ function init_plat_env() {
     
     if [[ "$XC_PLAT" != 'macos' ]]; then
         export XC_FORCE_CROSS=true
-        export PKG_CONFIG=$(which pkg-config)
     fi
+    #on intel compile arm64 harfbuzz can't find pkg-config
+    export PKG_CONFIG=$(which pkg-config)
     
     if [[ "$XC_PLAT" == 'ios' ]]; then
         export XC_OTHER_CFLAGS="-fembed-bitcode"
@@ -126,6 +127,7 @@ function init_libs_pkg_config_path() {
     # https://gstreamer-devel.narkive.com/TeNagSKN/gst-devel-disabling-pkg-config-path
     # export PKG_CONFIG_LIBDIR=${sysroot}/lib/pkgconfig
     export PKG_CONFIG_LIBDIR="$pkg_cfg_dir"
+    echo "PKG_CONFIG_LIBDIR:$PKG_CONFIG_LIBDIR"
 }
 
 function init_arch_env () {
