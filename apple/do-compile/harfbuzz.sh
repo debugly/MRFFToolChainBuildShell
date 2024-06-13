@@ -35,7 +35,7 @@ env_assert "XC_THREAD"
 echo "XC_DEBUG:$XC_DEBUG"
 echo "===check env end==="
 # prepare build config
-CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --default-library static"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --default-library static -Ddocs=disabled -Dcairo=disabled -Dchafa=disabled -Dtests=disabled"
 
 if [[ "$BUILD_OPT" == "debug" ]]; then
     CFG_FLAGS="$CFG_FLAGS --buildtype=debug"
@@ -43,25 +43,19 @@ else
     CFG_FLAGS="$CFG_FLAGS --buildtype=release"
 fi
 
-MY_PKG_CONFIG_LIBDIR=''
-# with freetype
-if [[ -f "${XC_PRODUCT_ROOT}/freetype-$XC_ARCH/lib/pkgconfig/freetype2.pc" || -f "${XC_PRODUCT_ROOT}/universal/freetype/lib/pkgconfig/freetype2.pc" ]]; then
+echo "----------------------"
+echo "[*] check freetype"
+
+pkg-config --libs freetype2
+
+pkg-config --libs freetype2 --silence-errors >/dev/null && enable_freetype2=1
+
+if [[ $enable_freetype2 ]];then
     echo "[*] --enable-freetype"
-    if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-        MY_PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR:"
-    fi
-    
-    if [[ -f "${XC_PRODUCT_ROOT}/freetype-$XC_ARCH/lib/pkgconfig/freetype2.pc" ]]; then
-        MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/freetype-$XC_ARCH/lib/pkgconfig"
-    else
-        MY_PKG_CONFIG_LIBDIR="${MY_PKG_CONFIG_LIBDIR}${XC_PRODUCT_ROOT}/universal/freetype/lib/pkgconfig"
-    fi
+    CFG_FLAGS="$CFG_FLAGS -Dfreetype=enabled"
 else
     echo "[*] --disable-freetype"
-fi
-
-if [[ -n "$MY_PKG_CONFIG_LIBDIR" ]]; then
-    export PKG_CONFIG_LIBDIR="$MY_PKG_CONFIG_LIBDIR"
+    CFG_FLAGS="$CFG_FLAGS -Dfreetype=disabled"
 fi
 
 cd $XC_BUILD_SOURCE
@@ -69,7 +63,6 @@ export CC="$XCRUN_CC"
 export CXX="$XCRUN_CXX"
 
 if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]]; then
-    export PKG_CONFIG=$(which pkg-config)
     if [[ $XC_IS_SIMULATOR != 1 ]]; then
         echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
         CFG_FLAGS="$CFG_FLAGS --cross-file $THIS_DIR/../compile-cfgs/meson-crossfiles/$XC_ARCH-$XC_PLAT.meson"
@@ -83,7 +76,6 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "CC: $XCRUN_CC"
 echo "CFG_FLAGS: $CFG_FLAGS"
-echo "PKG_CONFIG_LIBDIR: $MY_PKG_CONFIG_LIBDIR"
 echo "----------------------"
 echo
 
@@ -92,12 +84,12 @@ if [[ -d $build ]]; then
     rm -rf $build
 fi
 
-meson setup $build $CFG_FLAGS 1>/dev/null
-
-cd $build
 # show all configure
 # https://mesonbuild.com/Build-options.html
-# meson configure
-meson configure -Ddocs=disabled -Dcairo=disabled -Dchafa=disabled -Dfreetype=enabled -Dtests=disabled
-meson compile
-meson install 1>/dev/null
+meson setup $build $CFG_FLAGS
+
+cd $build
+
+echo "compile"
+
+meson compile && meson install

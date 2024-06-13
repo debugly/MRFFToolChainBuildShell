@@ -20,9 +20,9 @@ set -e
 
 source $1
 
-iOS_ARCHS="arm64 x86_64_simulator"
+iOS_ARCHS="arm64 arm64_simulator x86_64_simulator"
 macOS_ARCHS="x86_64 arm64"
-tvOS_ARCHS="arm64 arm64_simulator"
+tvOS_ARCHS="arm64 arm64_simulator x86_64_simulator"
 
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 source ${THIS_DIR}/env_assert.sh

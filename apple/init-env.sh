@@ -61,13 +61,13 @@ function init_plat_env() {
     
     if [[ "$XC_PLAT" == 'ios' ]]; then
         export XC_OTHER_CFLAGS="-fembed-bitcode"
-        ALL_ARCHS="arm64 x86_64_simulator"
+        ALL_ARCHS="arm64 arm64_simulator x86_64_simulator"
     elif [[ "$XC_PLAT" == 'macos' ]]; then
         export XC_OTHER_CFLAGS=""
         ALL_ARCHS="x86_64 arm64"
     elif [[ "$XC_PLAT" == 'tvos' ]]; then
         export XC_OTHER_CFLAGS=''
-        ALL_ARCHS="arm64 arm64_simulator"
+        ALL_ARCHS="arm64 arm64_simulator x86_64_simulator"
     fi
 
     if [[ -z "$XC_ALL_ARCHS" ]];then
@@ -139,7 +139,7 @@ function init_arch_env () {
 
     if [[ "$XC_PLAT" == 'ios' ]]; then
         case $_XC_ARCH in
-            'x86_64_simulator')
+            *_simulator)
                 export XCRUN_PLATFORM='iPhoneSimulator'
                 export XC_DEPLOYMENT_TARGET='-mios-simulator-version-min=11.0'
                 export XC_IS_SIMULATOR=1
@@ -148,6 +148,10 @@ function init_arch_env () {
                 export XCRUN_PLATFORM='iPhoneOS'
                 export XC_DEPLOYMENT_TARGET='-miphoneos-version-min=11.0'
             ;;
+            *)
+                echo "wrong arch:$_XC_ARCH for $XC_PLAT"
+                exit 1
+            ;;
         esac
     elif [[ "$XC_PLAT" == 'macos' ]]; then
         export XCRUN_PLATFORM='MacOSX'
@@ -155,7 +159,7 @@ function init_arch_env () {
         export XC_DEPLOYMENT_TARGET="-mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
     elif [[ "$XC_PLAT" == 'tvos' ]]; then
         case $_XC_ARCH in
-            'arm64_simulator')
+            *_simulator)
                 export XCRUN_PLATFORM='AppleTVSimulator'
                 export XC_DEPLOYMENT_TARGET="-mtvos-simulator-version-min=12.0"
                 export XC_IS_SIMULATOR=1
@@ -163,6 +167,10 @@ function init_arch_env () {
             'arm64')
                 export XCRUN_PLATFORM='AppleTVOS'
                 export XC_DEPLOYMENT_TARGET="-mtvos-version-min=12.0"
+            ;;
+            *)
+                echo "wrong arch:$_XC_ARCH for $XC_PLAT"
+                exit 1
             ;;
         esac
     fi

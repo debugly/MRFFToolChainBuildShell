@@ -78,29 +78,29 @@ do_lipo_all() {
     
     for arch in $archs; do
 
-        local ARCH_INC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/include"
+        local inc_src_dir="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/include"
         if [[ $arch == *simulator ]];then
-            local UNI_DIR="$XC_UNI_SIM_PROD_DIR"
+            local uni_dir="$XC_UNI_SIM_PROD_DIR"
         else
-            local UNI_DIR="$XC_UNI_PROD_DIR"
+            local uni_dir="$XC_UNI_PROD_DIR"
         fi
         
-        local ARCH_OUT_DIR="$UNI_DIR/$LIB_NAME/include"
+        local inc_dst_dir="$uni_dir/$LIB_NAME/include"
 
-        if [[ -d "$ARCH_INC_DIR" && ! -d "$ARCH_OUT_DIR" ]]; then
-            echo "copy include dir to $ARCH_OUT_DIR"
-            cp -R "$ARCH_INC_DIR" "$ARCH_OUT_DIR"
+        if [[ -d "$inc_src_dir" ]]; then
+            echo "copy include dir to $inc_dst_dir"
+            cp -R "$inc_src_dir" "$inc_dst_dir"
             
-            local ARCH_PC_DIR="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/pkgconfig"
-            if ls ${ARCH_PC_DIR}/*.pc >/dev/null 2>&1;then
-                local UNI_PC_DIR="$UNI_DIR/$LIB_NAME/lib/pkgconfig/"
-                mkdir -p "$UNI_PC_DIR"
-                echo "copy pkgconfig file to $UNI_PC_DIR"
-                cp ${ARCH_PC_DIR}/*.pc "$UNI_PC_DIR"
+            local pc_src_dir="$XC_PRODUCT_ROOT/$LIB_NAME-$arch/lib/pkgconfig"
+            if ls ${pc_src_dir}/*.pc >/dev/null 2>&1;then
+                local pc_dst_dir="$uni_dir/$LIB_NAME/lib/pkgconfig/"
+                mkdir -p "$pc_dst_dir"
+                echo "copy pkgconfig file to $pc_dst_dir"
+                cp ${pc_src_dir}/*.pc "$pc_dst_dir"
                 #fix prefix path
-                p="$UNI_DIR/$LIB_NAME"
+                p="$uni_dir/$LIB_NAME"
                 escaped_p=$(echo $p | sed 's/\//\\\//g')
-                sed -i "" "s/^prefix=.*/prefix=$escaped_p/" "$UNI_PC_DIR/"*.pc
+                sed -i "" "s/^prefix=.*/prefix=$escaped_p/" "$pc_dst_dir/"*.pc
             fi
         fi
     done

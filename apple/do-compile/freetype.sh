@@ -33,7 +33,7 @@ echo "XC_DEBUG:$XC_DEBUG"
 echo "===check env end==="
 
 # prepare build config
-CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --default-library static -Dpng=disabled"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --default-library static -Dpng=disabled -Dharfbuzz=disabled"
 
 if [[ "$BUILD_OPT" == "debug" ]]; then
     CFG_FLAGS="$CFG_FLAGS --buildtype=debug"
