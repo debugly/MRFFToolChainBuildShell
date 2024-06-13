@@ -32,7 +32,7 @@ FREETYPE_TAG='freetype-2.13.2-240613162051'
 UNIBREAK_TAG='unibreak-5.1-240613162028'
 FRIBIDI_TAG='fribidi-1.0.13-240613162046'
 HARFBUZZ_TAG='harfbuzz-8.3.0-240613170910'
-ASS_TAG='ass-0.17.1-240605112231'
+ASS_TAG='ass-0.17.1-240613173921'
 FFMPEG_TAG='ffmpeg-5.1.4-240605162418'
 #----------------------------------------------------------
 
