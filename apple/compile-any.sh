@@ -46,6 +46,7 @@ do
     case $opt in
         h)
             usage
+            exit 1
         ;;
         p)
             XC_PLAT="$OPTARG"

@@ -6,6 +6,14 @@ MRFFToolChain products was built for ijkplayer : [https://github.com/debugly/ijk
 
 At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、freetype、fribidi、harfbuzz、libyuv、openssl、opus、unibreak`.
 
+## Supported Plat
+
+| Plat  | Arch                                   |
+| ----- | -------------------------------------- |
+| iOS   | arm64、arm64_simulator、x86_64_simulator |
+| macOS | arm64、x86_64                           |
+| tvOS  | arm64、arm64_simulator、x86_64_simulator |
+
 ## Folder structure
 
 ```
@@ -47,6 +55,8 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 │   └── compile-any.sh
 ├── macos             #macos 平台编译脚本
 │   └── compile-any.sh
+├── tvos             #tvos 平台编译脚本
+│   └── compile-any.sh
 ├── patches            #补丁
 │   ├── README.md
 │   ├── ffmpeg -> ffmpeg-release-5.1
@@ -64,14 +74,16 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 
 ## Download Pre-compiled libs
 
-可以跳过自己编译，直接从github上下载预编译好的库，节省时间！
-预编译库已经打了 extra/patches/ 目录下的补丁，调用示例：
+不修改三方库的源码时，没有必要自己编译，直接从 github 上下载预编译好的就行，可节省大量时间！
+预编译库已经打了 extra/patches/ 目录下的补丁，使用方法：
 
 ```bash
+# 第一个参数是平台，支持的值： ios,macos,tvos,all 其中 all 的意思是所有平台
+# 第二个参数指定要下载的库，可以是全部，可以是一个，也可以是多个
 ./install-pre-any.sh all
-./install-pre-any.sh ios 'libyuv openssl opus bluray dav1d'
+./install-pre-any.sh ios 'openssl opus bluray dav1d'
 ./install-pre-any.sh macos 'openssl'
-./install-pre-any.sh macos 'openssl ffmpeg'
+./install-pre-any.sh tvos all
 ```
 
 ## Compile by yourself
@@ -99,51 +111,18 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 
 ### Compile
 
-根据编译的平台，进入相应的目录，比如编译 macos 平台：
+第一次使用编译脚本，可以先看下帮助：`./apple/compile-any.sh -h`
+
+根据帮助可知 -p 参数指定平台；-c 参数指定行为，比如：build是编译，rebuild是重编等; -l 指定要编译的库；-a 指定 cpu 架构。
 
 ```
-# 编译 macos arm64 架构下的所有库
-./macos/compile-any.sh build all arm64
-# 编译 macos x86_64 架构下的所有库
-./macos/compile-any.sh build all x86_64
-# 编译 macos 所有架构下的所有库
-./macos/compile-any.sh build all
+#比如编译 ios 平台所有依赖库
+./apple/compile-any.sh -c build -p ios -l all
+#比如编译 ios 平台 arm64 架构下的 libass 库
+./apple/compile-any.sh -c build -p ios -a arm64 -l ass
 ```
 
-编译指定库，比如 openssl，ffmpeg
-
-```
-# 编译 macos arm64 架构 debug 版
-./macos/compile-any.sh build "openssl ffmpeg" arm64 debug
-# 编译 macos x86_64 架构
-./macos/compile-any.sh build "openssl ffmpeg" x86_64
-# 编译 macos 所有架构
-./macos/compile-any.sh build "openssl ffmpeg"
-```
-
-清理 macos 平台编译产物
-
-```
-# 清理 macos arm64 架构下的所有库的产物
-./macos/compile-any.sh clean all arm64
-# 清理 macos x86_64 架构下的所有库的产物
-./macos/compile-any.sh clean all x86_64
-# 清理 macos 所有架构下的所有库的产物
-./macos/compile-any.sh clean all
-```
-
-将 macos 平台编译产物合并成 fat 版本放到 universal 文件夹下（build 所有架构时会自动lipo，只有手动编译不同架构时才会用到 lipo）
-
-```
-# 合并 macos 所有架构下的所有库的产物
-./macos/compile-any.sh lipo all
-# 将 macos arm64 架构下的所有库的产物复制到 universal
-./macos/compile-any.sh lipo all arm64
-# 将 macos x86_64 架构下的所有库的产物复制到 universal
-./macos/compile-any.sh lipo all x86_64
-```
-
-编译 ios 平台跟 macos 是一样的流程，只需要将 macos 改成 ios 即可。
+脚本对于这些参数的顺序没有要求，可以随意摆放。
 
 ### Support Mirror
 

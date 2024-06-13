@@ -38,7 +38,7 @@ jobs:
         ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../macos-src-log.md
     - name: do compile macos libs
       run: |
-        ./macos/compile-any.sh -c build -l ${{ env.LIB_NAME }}
+        ./apple/compile-any.sh -p macos -c build -l ${{ env.LIB_NAME }}
         cd build/product/macos/universal
         zip -rq macos-universal.zip ./*
     - name: Zip apple xcframework
