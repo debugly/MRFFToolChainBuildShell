@@ -145,7 +145,6 @@ function do_make_xcframework() {
         rm -rf "$output"
         xcodebuild -create-xcframework $macos_inputs $ios_inputs $ios_sim_inputs $tvos_inputs $tvos_sim_inputs -output "$output"
     done
-    
 }
 
 function do_compile() {
