@@ -23,17 +23,16 @@
 #----------------------------------------------------------
 # 当发布新版本库时，修改对应的 TAG 值
 #----------------------------------------------------------
-UNIBREAK_TAG='unibreak-5.1-240604135117'
-OPUS_TAG=''
-MAC_BLURAY_TAG=''
-DAV1D_TAG=''
-OPENSSL_TAG=''
-DVDREAD_TAG=''
-FREETYPE_TAG=''
-FRIBIDI_TAG=''
-HARFBUZZ_TAG=''
-ASS_TAG=''
-FFMPEG_TAG=''
+OPUS_TAG='opus-1.4-240613155640'
+DAV1D_TAG='dav1d-1.3.0-240613162104'
+OPENSSL_TAG='openssl-1.1.1w-240613155307'
+DVDREAD_TAG='dvdread-6.1.3-240613162057'
+FREETYPE_TAG='freetype-2.13.2-240613162051'
+UNIBREAK_TAG='unibreak-5.1-240613162028'
+FRIBIDI_TAG='fribidi-1.0.13-240613162046'
+HARFBUZZ_TAG='harfbuzz-8.3.0-240613170910'
+ASS_TAG='ass-0.17.1-240613173921'
+FFMPEG_TAG='ffmpeg-5.1.4-240613175211'
 #----------------------------------------------------------
 
 set -e
@@ -67,9 +66,6 @@ do
         'ffmpeg')
             TAG=$FFMPEG_TAG
         ;;
-        'libyuv')
-            TAG=$LIBYUV_TAG
-        ;;
         'openssl')
             TAG=$OPENSSL_TAG
         ;;
@@ -77,7 +73,7 @@ do
             TAG=$OPUS_TAG
         ;;
         'bluray')
-            TAG=$MAC_BLURAY_TAG
+            TAG=
         ;;
         'dav1d')
             TAG=$DAV1D_TAG
