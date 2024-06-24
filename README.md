@@ -14,6 +14,20 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 | macOS | arm64、x86_64                           |
 | tvOS  | arm64、arm64_simulator、x86_64_simulator |
 
+## Denpendency
+
+Harfbuzz: freetype
+Ass: harfbuzz fribidi unibreak
+FFmpeg: openssl,opus,dav1d,dvdread
+
+Tips: 
+
+```
+1、FFmpeg is not denpendent on Ass.
+2、ijkplayer is denpendent on FFmpeg and Ass.
+3、when install pre-compiled lib, will containes it's denpendencies.
+```
+
 ## Folder structure
 
 ```
