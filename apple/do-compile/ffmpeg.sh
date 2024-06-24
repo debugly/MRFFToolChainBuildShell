@@ -191,7 +191,7 @@ pkg-config --libs dvdread --silence-errors >/dev/null && enable_dvdread=1
 
 if [[ $enable_dvdread ]];then
     echo "[*] --enable-libdvdread"
-    CFG_FLAGS="$CFG_FLAGS --enable-libdvdread"
+    CFG_FLAGS="$CFG_FLAGS --enable-libdvdread --enable-protocol=dvd"
 else
     echo "[*] --disable-libdvdread"
 fi

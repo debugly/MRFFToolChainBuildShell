@@ -44,6 +44,61 @@ LIBS=$2
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
+function fix_prefix(){
+    local plat=$1
+    local dir=${PWD}
+    
+    echo "fix $plat platform pc files prefix"
+    
+    if [[ "$plat" == 'all' ]];then
+        cd "build/product"
+    else
+        cd "build/product/$plat"
+    fi
+    
+    for pc in `find . -type f -name "*.pc"` ;
+    do
+        echo "$pc"
+        local pc_dir=$(dirname "$pc")
+        local lib_dir=$(dirname "$pc_dir")
+        local base_dir=$(dirname "$lib_dir")
+
+        base_dir=$(cd "$base_dir";pwd)        
+        local escaped_base_dir=$(echo $base_dir | sed 's/\//\\\//g')
+        local escaped_lib_dir=$(echo "${base_dir}/lib" | sed 's/\//\\\//g')
+        local escaped_include_dir=$(echo "${base_dir}/include" | sed 's/\//\\\//g')
+
+        sed -i "" "s/^prefix=.*/prefix=$escaped_base_dir/" "$pc"
+        sed -i "" "s/^libdir=.*/libdir=$escaped_lib_dir/" "$pc"
+        sed -i "" "s/^includedir=.*/includedir=$escaped_include_dir/" "$pc"
+        
+        # filte Libs using -L/ absolute path
+        local str=
+        for t in `cat "$pc" | grep "Libs: " | grep "\-L/"` ;
+        do
+            if [[ "$t" != -L/* ]];then
+                if [[ $str ]];then
+                    str="${str} $t"
+                else
+                    str="$t"
+                fi
+            fi
+        done
+        [[ ! -z $str ]] && sed -i "" "s/^Libs:.*/$str/" "$pc"
+    done
+    
+    if command -v tree >/dev/null 2>&1; then
+        
+        if [[ "$plat" == 'all' ]];then
+            tree -L 3 ./
+        else
+            tree -L 2 ./
+        fi
+        
+    fi
+    cd "$dir"
+}
+
 function install_lib ()
 {
     local plat=$1
@@ -128,6 +183,8 @@ if [[ "$PLAT" == 'ios' || "$PLAT" == 'macos' || "$PLAT" == 'tvos'|| "$PLAT" == '
         fi
         echo "===================================="
     done
+    
+    fix_prefix $plat
 else
     usage
 fi

@@ -27,7 +27,7 @@ cd ../
 function usage() {
     echo "=== useage ===================="
     echo "Download precompiled libs from github,The usage is as follows:"
-    echo "$0 [ios|macos|all] [<release tag>]"
+    echo "$0 [ios|macos|tvos|all] [<release tag>]"
 }
 
 function download_arch() {
@@ -67,25 +67,9 @@ function extract(){
         mkdir -p "$PRODUCT_DIR"
         unzip -oq "$ONAME" -d "$PRODUCT_DIR"
         echo "extract zip file"
-        if command -v tree >/dev/null 2>&1; then
-            tree -L 2 "$PRODUCT_DIR"
-        fi
     else
         echo "you need download ${ONAME} firstly."
         exit 1
-    fi
-}
-
-function fix_prefix(){
-    local plat=$1
-    local pc_dir="$PRODUCT_DIR/$LIB_NAME/lib/pkgconfig"
-    if [[ -d "$pc_dir" ]];then
-        if ls ${pc_dir}/*.pc >/dev/null 2>&1;then
-            echo "fix $plat $LIB_NAME pc file prefix"
-            p=$(cd "$PRODUCT_DIR/$LIB_NAME";pwd)
-            escaped_p=$(echo $p | sed 's/\//\\\//g')
-            sed -i "" "s/^prefix=.*/prefix=$escaped_p/" "$pc_dir/"*.pc
-        fi
     fi
 }
 
@@ -94,14 +78,11 @@ function install() {
     if [[ "$plat" == 'ios' || "$plat" == 'tvos' ]];then
         download_arch "$plat"
         extract "$plat"
-        fix_prefix "$plat"
         download_arch "$plat" "simulator"
         extract "$plat"
-        fix_prefix "$plat"
     else
         download_arch "$plat"
         extract "$plat"
-        fix_prefix "$plat"
     fi
 }
 

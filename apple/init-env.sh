@@ -63,14 +63,14 @@ function init_plat_env() {
     if [[ "$XC_PLAT" == 'ios' ]]; then
         export XC_OTHER_CFLAGS="-fembed-bitcode"
         ALL_ARCHS="arm64 arm64_simulator x86_64_simulator"
-    elif [[ "$XC_PLAT" == 'macos' ]]; then
+        elif [[ "$XC_PLAT" == 'macos' ]]; then
         export XC_OTHER_CFLAGS=""
         ALL_ARCHS="x86_64 arm64"
-    elif [[ "$XC_PLAT" == 'tvos' ]]; then
+        elif [[ "$XC_PLAT" == 'tvos' ]]; then
         export XC_OTHER_CFLAGS=''
         ALL_ARCHS="arm64 arm64_simulator x86_64_simulator"
     fi
-
+    
     if [[ -z "$XC_ALL_ARCHS" ]];then
         export XC_ALL_ARCHS=$ALL_ARCHS
     else
@@ -94,12 +94,12 @@ function init_plat_env() {
     export XC_PRODUCT_ROOT="${THIS_DIR}/../build/product/${XC_PLAT}"
     export XC_UNI_PROD_DIR="${XC_PRODUCT_ROOT}/universal"
     export XC_UNI_SIM_PROD_DIR="${XC_PRODUCT_ROOT}/universal-simulator"
-
+    
     export XC_IOS_PRODUCT_ROOT="${THIS_DIR}/../build/product/ios"
     export XC_MACOS_PRODUCT_ROOT="${THIS_DIR}/../build/product/macos"
     export XC_TVOS_PRODUCT_ROOT="${THIS_DIR}/../build/product/tvos"
     export XC_XCFRMK_DIR="${THIS_DIR}/../build/product/xcframework"
-
+    
     #common xcode configuration
     export XC_TAGET_OS="darwin"
     export DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
@@ -115,14 +115,27 @@ function init_libs_pkg_config_path() {
     fi
     
     pkg_cfg_dir=
-    for lib in $(ls "$universal_dir"); do
-        if [[ $pkg_cfg_dir ]];then
-            pkg_cfg_dir="${pkg_cfg_dir}:${universal_dir}/${lib}/lib/pkgconfig"
-        else
-            pkg_cfg_dir="${universal_dir}/${lib}/lib/pkgconfig"
+    
+    for dir in `find "${XC_PRODUCT_ROOT}" -type f -name "*.pc" | xargs dirname | uniq` ;
+    do
+        if [[ "$dir" =~ "$_XC_ARCH" ]];then
+            if [[ $pkg_cfg_dir ]];then
+                pkg_cfg_dir="${pkg_cfg_dir}:${dir}"
+            else
+                pkg_cfg_dir="${dir}"
+            fi
         fi
     done
-
+    
+    for dir in `find "${universal_dir}" -type f -name "*.pc" | xargs dirname | uniq` ;
+    do
+        if [[ $pkg_cfg_dir ]];then
+            pkg_cfg_dir="${pkg_cfg_dir}:${dir}"
+        else
+            pkg_cfg_dir="${dir}"
+        fi
+    done
+    
     # disabling pkg-config-path
     # https://gstreamer-devel.narkive.com/TeNagSKN/gst-devel-disabling-pkg-config-path
     # export PKG_CONFIG_LIBDIR=${sysroot}/lib/pkgconfig
@@ -138,7 +151,7 @@ function init_arch_env () {
     fi
     
     export _XC_ARCH="$1"
-
+    
     if [[ "$XC_PLAT" == 'ios' ]]; then
         case $_XC_ARCH in
             *_simulator)
@@ -155,11 +168,11 @@ function init_arch_env () {
                 exit 1
             ;;
         esac
-    elif [[ "$XC_PLAT" == 'macos' ]]; then
+        elif [[ "$XC_PLAT" == 'macos' ]]; then
         export XCRUN_PLATFORM='MacOSX'
         export MACOSX_DEPLOYMENT_TARGET=10.11
         export XC_DEPLOYMENT_TARGET="-mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
-    elif [[ "$XC_PLAT" == 'tvos' ]]; then
+        elif [[ "$XC_PLAT" == 'tvos' ]]; then
         case $_XC_ARCH in
             *_simulator)
                 export XCRUN_PLATFORM='AppleTVSimulator'
@@ -188,7 +201,7 @@ function init_arch_env () {
     # xcrun -sdk macosx --show-sdk-path
     # /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.3.sdk
     export XCRUN_SDK_PATH=`xcrun -sdk $XCRUN_SDK --show-sdk-path`
-
+    
     # x86_64
     export XC_ARCH="${_XC_ARCH/_simulator/}"
     # ffmpeg-x86_64
