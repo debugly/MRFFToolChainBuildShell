@@ -33,7 +33,7 @@ jobs:
     - name: init src
       run: |
         ./init-any.sh all ${{ env.LIB_NAME }}
-        ./install-pre-any.sh all 'freetype harfbuzz fribidi unibreak'
+        ./install-pre-any.sh all 'harfbuzz fribidi unibreak'
     - name: generate src log
       run: |
         cd build/src/macos
