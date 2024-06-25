@@ -35,7 +35,7 @@ MAC_BLURAY_TAG='bluray-1.3.4-240605103055'
 DAV1D_TAG='dav1d-1.3.0-240624161020'
 OPENSSL_TAG='openssl-1.1.1w-240624161043'
 DVDREAD_TAG='dvdread-6.1.3-240624161023'
-FFMPEG_TAG='ffmpeg-5.1.4-240624162039'
+FFMPEG_TAG='ffmpeg-5.1.4-240625145613'
 #----------------------------------------------------------
 
 set -e
