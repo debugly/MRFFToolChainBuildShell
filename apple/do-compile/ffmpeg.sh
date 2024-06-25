@@ -241,6 +241,7 @@ echo "[*] install"
 cp config.* $XC_BUILD_PREFIX
 make install >/dev/null
 mkdir -p $XC_BUILD_PREFIX/include/libffmpeg
-cp -f config.h $XC_BUILD_PREFIX/include/libffmpeg/config.h
+cp -f config.h $XC_BUILD_PREFIX/include/libffmpeg/
+cp -f config_components.h $XC_BUILD_PREFIX/include/libffmpeg/
 # copy private header.
 #cp -f $XC_BUILD_SOURCE/libavformat/avc.h $XC_BUILD_PREFIX/include/libavformat/avc.h
