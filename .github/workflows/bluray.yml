@@ -31,14 +31,14 @@ jobs:
       with:
         envFile: 'constants.env'
     - name: init src
-      run: ./init-any.sh macos ${{ env.LIB_NAME }}
+      run: ./main.sh init -p macos -l ${{ env.LIB_NAME }}
     - name: generate src log
       run: |
         cd build/src/macos
         ls  | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > ../macos-src-log.md
     - name: do compile macos libs
       run: |
-        ./apple/compile-any.sh -p macos -c build -l ${{ env.LIB_NAME }}
+        ./main.sh compile -p macos -c build -l ${{ env.LIB_NAME }}
         cd build/product/macos/universal
         zip -rq macos-universal.zip ./*
     - name: Zip apple xcframework

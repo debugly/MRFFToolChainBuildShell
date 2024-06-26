@@ -1,1 +1,0 @@
-openssl opus dav1d dvdread freetype fribidi harfbuzz unibreak ass ffmpeg
