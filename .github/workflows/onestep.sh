@@ -22,11 +22,9 @@ function init_platform
 {
     local plat=$1
     echo "---init $plat src--------------------------------------"
-    
     ./main.sh init -p $plat -l ${LIB_NAME}
     
     echo "---generate src log--------------------------------------"
-    
     cd build/src/$plat
     ls | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > $DIST_DIR/$plat-src-log-$RELEASE_VERSION.md
     cd $ROOT_DIR
