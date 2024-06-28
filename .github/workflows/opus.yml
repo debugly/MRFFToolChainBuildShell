@@ -13,6 +13,8 @@ jobs:
     runs-on: macos-13
     env:
       GH_TOKEN: ${{ github.token }}
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v3

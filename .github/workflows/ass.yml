@@ -11,6 +11,8 @@ jobs:
   build:
     name: compile ass then deploy
     runs-on: macos-12
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
