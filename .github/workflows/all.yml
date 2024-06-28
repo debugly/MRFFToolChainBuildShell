@@ -1,0 +1,61 @@
+on:
+  # push:
+  #   branches: [master]
+  workflow_dispatch:
+  pull_request:
+    branches: [master]
+
+name: Create all library Release
+
+jobs:
+  build:
+    name: compile all lib then deploy
+    runs-on: macos-13
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: One Step
+      run: |
+        echo '------compile unibreak------------------------------------'
+        .github/workflows/onestep.sh unibreak all
+        echo '------compile fribidi------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh fribidi all
+        echo '------compile freetype------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh freetype all
+        echo '------compile harfbuzz------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        ./main.sh install -p ios -l 'freetype'
+        ./main.sh install -p tvos -l 'freetype'
+        ./main.sh install -p macos -l 'freetype'
+        .github/workflows/onestep.sh harfbuzz all
+        echo '------compile ass------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        ./main.sh install -p ios -l 'harfbuzz fribidi unibreak'
+        ./main.sh install -p tvos -l 'harfbuzz fribidi unibreak'
+        ./main.sh install -p macos -l 'harfbuzz fribidi unibreak'
+        .github/workflows/onestep.sh ass all
+        echo '------compile opus------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh opus all
+        echo '------compile openssl------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh openssl all
+        echo '------compile dvdread------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh dvdread all
+        echo '------compile bluray------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh bluray macos
+        echo '------compile dav1d------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh dav1d all
+        echo '------compile ffmpeg------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        ./main.sh install -p ios -l 'openssl opus dav1d dvdread'
+        ./main.sh install -p tvos -l 'openssl opus dav1d dvdread'
+        ./main.sh install -p macos -l 'openssl opus bluray dav1d dvdread'
+        .github/workflows/onestep.sh ffmpeg all

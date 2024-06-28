@@ -15,7 +15,7 @@ export TAG=${LIB_NAME}-${RELEASE_VERSION}-${RELEASE_DATE}
 export TITLE="👏👏${LIB_NAME}-${RELEASE_VERSION}"
 
 ROOT_DIR=$PWD
-DIST_DIR=$ROOT_DIR/dist
+DIST_DIR=$ROOT_DIR/build/dist
 mkdir -p $DIST_DIR
 
 function init_platform
