@@ -79,8 +79,7 @@ function make_bundle()
 function publish()
 {
     echo "---Create Release--------------------------------------"
-
-    gh release create $TAG -p -t $TITLE $DIST_DIR/*.*
+    gh release create $TAG -t $TITLE $DIST_DIR/*.*
 }
 
 function main()
@@ -118,14 +117,20 @@ function main()
     
 }
 
-if [[ $LIB_NAME == 'test' ]];then
-    echo "test" > $DIST_DIR/test.md
-    publish
+function upgrade()
+{
     file="configs/libs/${LIB_NAME}.sh"
     sed -i "" "s/^export PRE_COMPILE_TAG=.*/export PRE_COMPILE_TAG=$TAG/" $file
     git add $file
-    git commit -m "upgrade $LIB_NAME pre-compile version by cd"
+    git commit -m "upgrade $LIB_NAME to $TAG by cd"
     git push origin
+}
+
+if [[ $LIB_NAME == 'test' ]];then
+    echo "test" > $DIST_DIR/test.md
+    publish
+    upgrade
 else
     main
+    upgrade
 fi

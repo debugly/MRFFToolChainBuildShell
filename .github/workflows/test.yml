@@ -9,7 +9,7 @@ name: Test Release
 
 jobs:
   build:
-    name: compile unibreak then deploy
+    name: compile none then deploy
     runs-on: macos-13
     env:
       GH_TOKEN: ${{ github.token }}
