@@ -73,12 +73,11 @@ function compile_tvos_platform
 function make_bundle()
 {
     echo "---Zip apple xcframework--------------------------------------"
-    
     cd build/product/xcframework
     zip -rq apple-xcframework.zip ./* && mv apple-xcframework.zip $DIST_DIR/${LIB_NAME}-apple-xcframework-${RELEASE_VERSION}.zip && cd - >/dev/null
+    cd $ROOT_DIR
     
     echo "---Create Release--------------------------------------"
-    
     gh release create $TAG -p -t $TITLE ./dist/*.*
 }
 
