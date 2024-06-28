@@ -74,34 +74,58 @@ function make_bundle()
     cd build/product/xcframework
     zip -rq apple-xcframework.zip ./* && mv apple-xcframework.zip $DIST_DIR/${LIB_NAME}-apple-xcframework-${RELEASE_VERSION}.zip && cd - >/dev/null
     cd $ROOT_DIR
-    
+}
+
+function publish()
+{
     echo "---Create Release--------------------------------------"
+
     gh release create $TAG -p -t $TITLE $DIST_DIR/*.*
 }
 
-case $PLAT in
-    ios)
-        init_platform $PLAT
-        compile_ios_platform
-        make_bundle
-    ;;
-    macos)
-        init_platform $PLAT
-        compile_macos_platform
-        make_bundle
-    ;;
-    tvos)
-        init_platform $PLAT
-        compile_tvos_platform
-        make_bundle
-    ;;
-    all)
-        init_platform ios
-        init_platform macos
-        init_platform tvos
-        compile_ios_platform
-        compile_macos_platform
-        compile_tvos_platform
-        make_bundle
-    ;;
-esac
+function main()
+{
+    case $PLAT in
+        ios)
+            init_platform $PLAT
+            compile_ios_platform
+            make_bundle
+            publish
+        ;;
+        macos)
+            init_platform $PLAT
+            compile_macos_platform
+            make_bundle
+            publish
+        ;;
+        tvos)
+            init_platform $PLAT
+            compile_tvos_platform
+            make_bundle
+            publish
+        ;;
+        all)
+            init_platform ios
+            init_platform macos
+            init_platform tvos
+            compile_ios_platform
+            compile_macos_platform
+            compile_tvos_platform
+            make_bundle
+            publish
+        ;;
+    esac
+    
+}
+
+if [[ $LIB_NAME == 'test' ]];then
+    echo "test" > $DIST_DIR/test.md
+    publish
+    file="configs/libs/${LIB_NAME}.sh"
+    sed -i "" "s/^export PRE_COMPILE_TAG=.*/export PRE_COMPILE_TAG=$TAG/" $file
+    git add $file
+    git commit -m "upgrade $LIB_NAME pre-compile version by cd"
+    git push origin
+else
+    main
+fi

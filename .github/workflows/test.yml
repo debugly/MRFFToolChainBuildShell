@@ -5,14 +5,14 @@ on:
   pull_request:
     branches: [master]
 
-name: Create dvdread Release
+name: Test Release
 
 jobs:
   build:
-    name: compile dvdread then deploy
+    name: compile unibreak then deploy
     runs-on: macos-13
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
     - name: One Step
-      run: .github/workflows/onestep.sh dvdread all
+      run: .github/workflows/onestep.sh test all

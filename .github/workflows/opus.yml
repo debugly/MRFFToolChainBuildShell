@@ -17,5 +17,4 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
     - name: One Step
-      run: |
-        ./.github/workflows/onestep.sh opus all
+      run: .github/workflows/onestep.sh opus all
