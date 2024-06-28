@@ -76,7 +76,9 @@ function make_bundle()
     cd $ROOT_DIR
     
     echo "---Create Release--------------------------------------"
-    gh release create $TAG -p -t $TITLE ./dist/*.*
+    echo $DIST_DIR
+    ls $DIST_DIR
+    gh release create $TAG -p -t $TITLE $DIST_DIR/*.*
 }
 
 case $PLAT in
