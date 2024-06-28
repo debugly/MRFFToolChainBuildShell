@@ -15,7 +15,7 @@ export TAG=${LIB_NAME}-${RELEASE_VERSION}-${RELEASE_DATE}
 export TITLE="👏👏${LIB_NAME}-${RELEASE_VERSION}"
 
 ROOT_DIR=$PWD
-DIST_DIR=$ROOT_DIR/$dist
+DIST_DIR=$ROOT_DIR/dist
 mkdir -p $DIST_DIR
 
 function init_platform
@@ -76,8 +76,6 @@ function make_bundle()
     cd $ROOT_DIR
     
     echo "---Create Release--------------------------------------"
-    echo $DIST_DIR
-    ls $DIST_DIR
     gh release create $TAG -p -t $TITLE $DIST_DIR/*.*
 }
 
