@@ -1,0 +1,289 @@
+From b6f145c72151ce07758c5b1172f3f403d7695f6e Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Mon, 22 Jul 2024 11:14:26 +0800
+Subject: [PATCH 03] restore ijk custom protocols except long url
+
+---
+ libavcodec/Makefile      |  1 +
+ libavformat/Makefile     |  9 ++++
+ libavformat/allformats.c |  3 ++
+ libavformat/async.c      |  2 +-
+ libavformat/avformat.h   |  5 +++
+ libavformat/demux.c      | 17 ++++++-
+ libavformat/ijkutils.c   | 97 ++++++++++++++++++++++++++++++++++++++++
+ libavformat/protocols.c  |  6 +++
+ libavutil/Makefile       |  1 +
+ 9 files changed, 139 insertions(+), 2 deletions(-)
+ create mode 100644 libavformat/ijkutils.c
+
+diff --git a/libavcodec/Makefile b/libavcodec/Makefile
+index ec57e53..2ec7ad8 100644
+--- a/libavcodec/Makefile
++++ b/libavcodec/Makefile
+@@ -26,6 +26,7 @@ HEADERS = ac3_parser.h                                                  \
+           videotoolbox.h                                                \
+           vorbis_parser.h                                               \
+           xvmc.h                                                        \
++          packet_internal.h                                             \
+ 
+ OBJS = ac3_parser.o                                                     \
+        adts_parser.o                                                    \
+diff --git a/libavformat/Makefile b/libavformat/Makefile
+index 329055c..586aacd 100644
+--- a/libavformat/Makefile
++++ b/libavformat/Makefile
+@@ -5,6 +5,14 @@ HEADERS = avformat.h                                                    \
+           avio.h                                                        \
+           version.h                                                     \
+           version_major.h                                               \
++		  avc.h                                                         \
++          url.h                                                         \
++          internal.h                                                    \
++          avio_internal.h                                               \
++          flv.h                                                         \
++          id3v2.h                                                       \
++          os_support.h                                                  \
++          metadata.h                                                    \
+ 
+ OBJS = allformats.o         \
+        avformat.o           \
+@@ -30,6 +38,7 @@ OBJS = allformats.o         \
+        url.o                \
+        utils.o              \
+        version.o            \
++       ijkutils.o           \
+ 
+ OBJS-$(HAVE_LIBC_MSVCRT)                 += file_open.o
+ 
+diff --git a/libavformat/allformats.c b/libavformat/allformats.c
+index d4b505a..107df91 100644
+--- a/libavformat/allformats.c
++++ b/libavformat/allformats.c
+@@ -567,6 +567,9 @@ extern const AVInputFormat  ff_libmodplug_demuxer;
+ extern const AVInputFormat  ff_libopenmpt_demuxer;
+ extern const AVInputFormat  ff_vapoursynth_demuxer;
+ 
++extern AVInputFormat  ff_ijklivehook_demuxer;
++extern AVInputFormat  ff_ijklas_demuxer;
++
+ #include "libavformat/muxer_list.c"
+ #include "libavformat/demuxer_list.c"
+ 
+diff --git a/libavformat/async.c b/libavformat/async.c
+index e096b0b..ec4a57a 100644
+--- a/libavformat/async.c
++++ b/libavformat/async.c
+@@ -489,7 +489,7 @@ static const AVClass async_context_class = {
+     .version    = LIBAVUTIL_VERSION_INT,
+ };
+ 
+-const URLProtocol ff_async_protocol = {
++URLProtocol ff_async_protocol = {
+     .name                = "async",
+     .url_open2           = async_open,
+     .url_read            = async_read,
+diff --git a/libavformat/avformat.h b/libavformat/avformat.h
+index 9e7eca0..1593537 100644
+--- a/libavformat/avformat.h
++++ b/libavformat/avformat.h
+@@ -621,6 +621,11 @@ typedef struct AVInputFormat {
+      */
+     int (*read_header)(struct AVFormatContext *);
+ 
++    /**
++     * Used by format which open further nested input.
++     */
++    int (*read_header2)(struct AVFormatContext *, AVDictionary **options);
++
+     /**
+      * Read one packet and put it in 'pkt'. pts and flags are also
+      * set. 'avformat_new_stream' can be called only if the flag
+diff --git a/libavformat/demux.c b/libavformat/demux.c
+index 6f640b9..91dd1b0 100644
+--- a/libavformat/demux.c
++++ b/libavformat/demux.c
+@@ -229,6 +229,7 @@ int avformat_open_input(AVFormatContext **ps, const char *filename,
+     AVFormatContext *s = *ps;
+     FFFormatContext *si;
+     AVDictionary *tmp = NULL;
++    AVDictionary *tmp2 = NULL;
+     ID3v2ExtraMeta *id3v2_extra_meta = NULL;
+     int ret = 0;
+ 
+@@ -312,12 +313,24 @@ int avformat_open_input(AVFormatContext **ps, const char *filename,
+     if (s->pb)
+         ff_id3v2_read_dict(s->pb, &si->id3v2_meta, ID3v2_DEFAULT_MAGIC, &id3v2_extra_meta);
+ 
+-    if (s->iformat->read_header)
++    if (s->iformat->read_header2) {
++        if (options)
++            av_dict_copy(&tmp2,*options, 0);
++        if ((ret = s->iformat->read_header2(s, &tmp2)) < 0) {
++            if (s->iformat->flags_internal & FF_FMT_INIT_CLEANUP)
++                goto close;
++            goto fail;
++        }
++    } else if (s->iformat->read_header) {
+         if ((ret = s->iformat->read_header(s)) < 0) {
+             if (s->iformat->flags_internal & FF_FMT_INIT_CLEANUP)
+                 goto close;
+             goto fail;
+         }
++    } else {
++        av_log(s, AV_LOG_ERROR, "wtf? iformat not implement read_header.\n");
++        goto fail;
++    }
+ 
+     if (!s->metadata) {
+         s->metadata    = si->id3v2_meta;
+@@ -354,6 +367,7 @@ int avformat_open_input(AVFormatContext **ps, const char *filename,
+     if (options) {
+         av_dict_free(options);
+         *options = tmp;
++        av_dict_free(&tmp2);
+     }
+     *ps = s;
+     return 0;
+@@ -364,6 +378,7 @@ close:
+ fail:
+     ff_id3v2_free_extra_meta(&id3v2_extra_meta);
+     av_dict_free(&tmp);
++    av_dict_free(&tmp2);
+     if (s->pb && !(s->flags & AVFMT_FLAG_CUSTOM_IO))
+         avio_closep(&s->pb);
+     avformat_free_context(s);
+diff --git a/libavformat/ijkutils.c b/libavformat/ijkutils.c
+new file mode 100644
+index 0000000..25faad1
+--- /dev/null
++++ b/libavformat/ijkutils.c
+@@ -0,0 +1,97 @@
++/*
++ * utils.c
++ *
++ * Copyright (c) 2003 Fabrice Bellard
++ * Copyright (c) 2013 Zhang Rui <bbcallen@gmail.com>
++ *
++ * This file is part of ijkPlayer.
++ *
++ * ijkPlayer is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * ijkPlayer is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with ijkPlayer; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#include <stdlib.h>
++#include "url.h"
++#include "avformat.h"
++
++
++#define IJK_FF_PROTOCOL(x)                                                                          \
++extern URLProtocol ff_##x##_protocol;                                                               \
++int ijkav_register_##x##_protocol(URLProtocol *protocol, int protocol_size);                        \
++int ijkav_register_##x##_protocol(URLProtocol *protocol, int protocol_size)                         \
++{                                                                                                   \
++    if (protocol_size != sizeof(URLProtocol)) {                                                     \
++        av_log(NULL, AV_LOG_ERROR, "ijkav_register_##x##_protocol: ABI mismatch.\n");               \
++        return -1;                                                                                  \
++    }                                                                                               \
++    memcpy(&ff_##x##_protocol, protocol, protocol_size);                                            \
++    return 0;                                                                                       \
++}
++
++#define IJK_DUMMY_PROTOCOL(x)                                       \
++IJK_FF_PROTOCOL(x);                                                 \
++static const AVClass ijk_##x##_context_class = {                    \
++    .class_name = #x,                                               \
++    .item_name  = av_default_item_name,                             \
++    .version    = LIBAVUTIL_VERSION_INT,                            \
++    };                                                              \
++                                                                    \
++URLProtocol ff_##x##_protocol = {                                   \
++    .name                = #x,                                      \
++    .url_open2           = ijkdummy_open,                           \
++    .priv_data_size      = 1,                                       \
++    .priv_data_class     = &ijk_##x##_context_class,                \
++};
++
++static int ijkdummy_open(URLContext *h, const char *arg, int flags, AVDictionary **options)
++{
++    return -1;
++}
++
++IJK_FF_PROTOCOL(async);
++IJK_DUMMY_PROTOCOL(ijkmediadatasource);
++IJK_DUMMY_PROTOCOL(ijkhttphook);
++IJK_DUMMY_PROTOCOL(ijksegment);
++IJK_DUMMY_PROTOCOL(ijktcphook);
++IJK_DUMMY_PROTOCOL(ijkio);
++
++#define IJK_FF_DEMUXER(x)                                                                          \
++extern AVInputFormat ff_##x##_demuxer;                                                               \
++int ijkav_register_##x##_demuxer(AVInputFormat *demuxer, int demuxer_size);                        \
++int ijkav_register_##x##_demuxer(AVInputFormat *demuxer, int demuxer_size)                         \
++{                                                                                                   \
++    if (demuxer_size != sizeof(AVInputFormat)) {                                                     \
++        av_log(NULL, AV_LOG_ERROR, "ijkav_register_##x##_demuxer: ABI mismatch.\n");               \
++        return -1;                                                                                  \
++    }                                                                                               \
++    memcpy(&ff_##x##_demuxer, demuxer, demuxer_size);                                            \
++    return 0;                                                                                       \
++}
++
++#define IJK_DUMMY_DEMUXER(x)                                        \
++IJK_FF_DEMUXER(x);                                                  \
++static const AVClass ijk_##x##_demuxer_class = {                    \
++    .class_name = #x,                                               \
++    .item_name  = av_default_item_name,                             \
++    .version    = LIBAVUTIL_VERSION_INT,                            \
++    };                                                              \
++                                                                    \
++AVInputFormat ff_##x##_demuxer = {                                  \
++    .name                = #x,                                      \
++    .priv_data_size      = 1,                                       \
++    .priv_class          = &ijk_##x##_demuxer_class,                \
++};
++
++IJK_DUMMY_DEMUXER(ijklivehook);
++IJK_DUMMY_DEMUXER(ijklas);
+diff --git a/libavformat/protocols.c b/libavformat/protocols.c
+index 360018b..fd64780 100644
+--- a/libavformat/protocols.c
++++ b/libavformat/protocols.c
+@@ -78,6 +78,12 @@ extern const URLProtocol ff_libzmq_protocol;
+ extern const URLProtocol ff_ipfs_gateway_protocol;
+ extern const URLProtocol ff_ipns_gateway_protocol;
+ 
++extern const URLProtocol ff_ijkhttphook_protocol;
++extern const URLProtocol ff_ijkmediadatasource_protocol;
++extern const URLProtocol ff_ijksegment_protocol;
++extern const URLProtocol ff_ijktcphook_protocol;
++extern const URLProtocol ff_ijkio_protocol;
++
+ #include "libavformat/protocol_list.c"
+ 
+ const AVClass *ff_urlcontext_child_class_iterate(void **iter)
+diff --git a/libavutil/Makefile b/libavutil/Makefile
+index 4711f8c..d47d3ef 100644
+--- a/libavutil/Makefile
++++ b/libavutil/Makefile
+@@ -80,6 +80,7 @@ HEADERS = adler32.h                                                     \
+           spherical.h                                                   \
+           stereo3d.h                                                    \
+           threadmessage.h                                               \
++          thread.h                                                      \
+           time.h                                                        \
+           timecode.h                                                    \
+           timestamp.h                                                   \
+-- 
+2.39.3 (Apple Git-146)
+
