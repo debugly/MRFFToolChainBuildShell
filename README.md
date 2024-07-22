@@ -139,7 +139,7 @@ Tips:
 | libbluray   | https://code.videolan.org/videolan/libbluray.git     | 1.3.4  | export GIT_BLURAY_UPSTREAM = git@xx:yy/libbluray.git     |
 | dav1d       | https://code.videolan.org/videolan/dav1d.git         | 1.3.0  | export GIT_DAV1D_UPSTREAM = git@xx:yy/dav1d.git          |
 | libdvdread  | https://code.videolan.org/videolan/libdvdread.git    | 6.1.3  | export GIT_DVDREAD_UPSTREAM = git@xx:yy/libdvdread.git   |
-| FFmpeg      | https://github.com/FFmpeg/FFmpeg.git                 | 5.1.4  | export GIT_FFMPEG_UPSTREAM = git@xx:yy/FFmpeg.git        |
+| FFmpeg      | https://github.com/FFmpeg/FFmpeg.git                 | 6.1.1  | export GIT_FFMPEG_UPSTREAM = git@xx:yy/FFmpeg.git        |
 | freetype    | https://gitlab.freedesktop.org/freetype/freetype.git | 2.13.2 | export GIT_FREETYPE_UPSTREAM = git@xx:yy/freetype.git    |
 | fribidi     | https://github.com/fribidi/fribidi.git               | 1.0.13 | export GIT_FRIBIDI_UPSTREAM = git@xx:yy/fribidi.git      |
 | harfbuzz    | https://github.com/harfbuzz/harfbuzz.git             | 8.3.0  | export GIT_HARFBUZZ_UPSTREAM = git@xx:yy/harfbuzz.git    |
