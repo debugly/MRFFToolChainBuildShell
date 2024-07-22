@@ -24,7 +24,7 @@ export LIB_DEPENDS_BIN="nasm"
 
 export GIT_LOCAL_REPO=build/extra/ffmpeg
 export REPO_DIR=ffmpeg
-export PRE_COMPILE_TAG=ffmpeg-5.1.4-240628162045
+export PRE_COMPILE_TAG=ffmpeg--240722162257
 
 # you can export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git use your mirror
 if [[ "$GIT_FFMPEG_UPSTREAM" != "" ]] ;then
