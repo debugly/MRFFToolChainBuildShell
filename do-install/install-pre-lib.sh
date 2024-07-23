@@ -59,6 +59,7 @@ function extract(){
         mkdir -p "$PRODUCT_DIR"
         unzip -oq "$ONAME" -d "$PRODUCT_DIR"
         echo "extract zip file"
+        PRODUCT_DIR=
     else
         echo "you need download ${ONAME} firstly."
         exit 1
