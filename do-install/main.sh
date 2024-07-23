@@ -34,6 +34,7 @@ OPTIONS:
    -p            Specify platform (ios,macos,tvos), can't be nil
    -l            Specify which libs need 'cmd' (all|libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
    -f            Install xcframework bundle instead of .a
+   -d            Specify install destination dir
 EOF
 }
 
@@ -43,7 +44,11 @@ function fix_prefix(){
     
     echo "fix $plat platform pc files prefix"
     
-    cd "../build/product/$plat"
+    if [[ -z $PRODUCT_DIR ]];then
+        PRODUCT_DIR="../build/product/$plat"
+    fi
+    
+    cd "$PRODUCT_DIR"
     
     for pc in `find . -type f -name "*.pc"` ;
     do
@@ -93,7 +98,7 @@ if [[ -z "$1" ]];then
     exit 1
 fi
 
-while getopts "hp:l:f" opt
+while getopts "hp:l:fd:" opt
 do
     #echo "opt:$opt,OPTIND:[$OPTIND],OPTARG:[$OPTARG]"
     case $opt in
@@ -113,6 +118,11 @@ do
         ;;
         f)
             FORCE_XCFRAMEWORK=1
+        ;;
+        d)
+            PRODUCT_DIR="$THIS_DIR/../$OPTARG"
+            mkdir -p "$PRODUCT_DIR"
+            export PRODUCT_DIR
         ;;
     esac
 done
