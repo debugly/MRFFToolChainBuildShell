@@ -236,5 +236,9 @@ make install >/dev/null
 mkdir -p $XC_BUILD_PREFIX/include/libffmpeg
 cp -f config.h $XC_BUILD_PREFIX/include/libffmpeg/
 cp -f config_components.h $XC_BUILD_PREFIX/include/libffmpeg/
-# copy private header.
-#cp -f $XC_BUILD_SOURCE/libavformat/avc.h $XC_BUILD_PREFIX/include/libavformat/avc.h
+# copy private header for ffmpeg-kit.
+cp -f $XC_BUILD_SOURCE/libavutil/getenv_utf8.h $XC_BUILD_PREFIX/include/libavutil/
+cp -f $XC_BUILD_SOURCE/libavutil/internal.h $XC_BUILD_PREFIX/include/libavutil/
+cp -f $XC_BUILD_SOURCE/libavutil/libm.h $XC_BUILD_PREFIX/include/libavutil/
+cp -f $XC_BUILD_SOURCE/libavutil/attributes_internal.h $XC_BUILD_PREFIX/include/libavutil/
+cp -f $XC_BUILD_SOURCE/libavcodec/mathops.h $XC_BUILD_PREFIX/include/libavcodec/
