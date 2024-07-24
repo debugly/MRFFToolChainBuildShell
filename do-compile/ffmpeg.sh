@@ -242,3 +242,5 @@ cp -f $XC_BUILD_SOURCE/libavutil/internal.h $XC_BUILD_PREFIX/include/libavutil/
 cp -f $XC_BUILD_SOURCE/libavutil/libm.h $XC_BUILD_PREFIX/include/libavutil/
 cp -f $XC_BUILD_SOURCE/libavutil/attributes_internal.h $XC_BUILD_PREFIX/include/libavutil/
 cp -f $XC_BUILD_SOURCE/libavcodec/mathops.h $XC_BUILD_PREFIX/include/libavcodec/
+cp -f $XC_BUILD_SOURCE/libavcodec/x86/mathops.h $XC_BUILD_PREFIX/include/libavcodec/x86/
+cp -f $XC_BUILD_SOURCE/libavutil/x86/asm.h $XC_BUILD_PREFIX/include/libavutil/x86/
