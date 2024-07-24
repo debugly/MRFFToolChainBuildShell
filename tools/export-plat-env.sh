@@ -19,7 +19,7 @@
 set -e
 
 #THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
-THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+export TOOLS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 XCRUN_DEVELOPER=`xcode-select -print-path`
 if [ ! -d "$XCRUN_DEVELOPER" ]; then
@@ -48,7 +48,7 @@ function install_depends() {
     else
         echo "will use brew install ${name}."
         if [[ "$name" == 'meson' ]];then
-            brew install $THIS_DIR/meson-0.60.1.all.bottle.tar.gz
+            brew install $TOOLS_DIR/meson-0.60.1.all.bottle.tar.gz
         else
             brew install "$name"
         fi
