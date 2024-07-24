@@ -48,7 +48,7 @@ function install_depends() {
     else
         echo "will use brew install ${name}."
         if [[ "$name" == 'meson' ]];then
-            brew install $TOOLS_DIR/meson-0.60.1.all.bottle.tar.gz
+            brew install -f $TOOLS_DIR/meson-0.60.1.all.bottle.tar.gz
         else
             brew install "$name"
         fi
