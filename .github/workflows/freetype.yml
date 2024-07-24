@@ -11,6 +11,9 @@ jobs:
   build:
     name: compile freetype then deploy
     runs-on: macos-12
+    strategy:
+      matrix:
+        xcode: [ '13.1' ]
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
