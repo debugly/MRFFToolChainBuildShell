@@ -53,13 +53,10 @@ function download_plat() {
 function extract(){
     local plat=$1
     if [[ -f "$ONAME" ]];then
-        if [[ -z $PRODUCT_DIR ]];then
-            PRODUCT_DIR="build/product/$plat/universal${JOIN}"
-        fi
+        PRODUCT_DIR="build/product/$plat/universal${JOIN}"
         mkdir -p "$PRODUCT_DIR"
         unzip -oq "$ONAME" -d "$PRODUCT_DIR"
         echo "extract zip file"
-        PRODUCT_DIR=
     else
         echo "you need download ${ONAME} firstly."
         exit 1

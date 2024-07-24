@@ -34,21 +34,16 @@ OPTIONS:
    -p            Specify platform (ios,macos,tvos), can't be nil
    -l            Specify which libs need 'cmd' (all|libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
    -f            Install xcframework bundle instead of .a
-   -d            Specify install destination dir
+   -c            Specify a path for correct the pc file prefix recursion
 EOF
 }
 
 function fix_prefix(){
-    local plat=$XC_PLAT
+    local fix_path="$1"
     local dir=${PWD}
     
-    echo "fix $plat platform pc files prefix"
-    
-    if [[ -z $PRODUCT_DIR ]];then
-        PRODUCT_DIR="../build/product/$plat"
-    fi
-    
-    cd "$PRODUCT_DIR"
+    echo "fix pc files prefix: $fix_path"
+    cd "$fix_path"
     
     for pc in `find . -type f -name "*.pc"` ;
     do
@@ -82,13 +77,7 @@ function fix_prefix(){
     done
     
     if command -v tree >/dev/null 2>&1; then
-        
-        if [[ "$plat" == 'all' ]];then
-            tree -L 3 ./
-        else
-            tree -L 2 ./
-        fi
-        
+        tree -L 2 ./
     fi
     cd "$dir"
 }
@@ -98,7 +87,7 @@ if [[ -z "$1" ]];then
     exit 1
 fi
 
-while getopts "hp:l:fd:" opt
+while getopts "hp:l:fc:" opt
 do
     #echo "opt:$opt,OPTIND:[$OPTIND],OPTARG:[$OPTARG]"
     case $opt in
@@ -119,10 +108,9 @@ do
         f)
             FORCE_XCFRAMEWORK=1
         ;;
-        d)
-            PRODUCT_DIR="$THIS_DIR/../$OPTARG"
-            mkdir -p "$PRODUCT_DIR"
-            export PRODUCT_DIR
+        c)
+            fix_prefix "$OPTARG"
+            exit 0
         ;;
     esac
 done
@@ -165,6 +153,6 @@ do
     echo "===================================="
 done
 
-fix_prefix
+fix_prefix "../build/product/$XC_PLAT"
 
 
