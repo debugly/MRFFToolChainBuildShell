@@ -29,7 +29,7 @@ export GIT_LOCAL_REPO=build/extra/fribidi
 export GIT_COMMIT=v1.0.13
 export REPO_DIR=fribidi
 export GIT_REPO_VERSION=1.0.13
-export PRE_COMPILE_TAG=fribidi-1.0.13-240724171205
+export PRE_COMPILE_TAG=fribidi-1.0.13-240724232744
 
 # you can export GIT_FRIBIDI_UPSTREAM=git@xx:yy/FRIBIDI.git use your mirror
 if [[ "$GIT_FRIBIDI_UPSTREAM" != "" ]] ;then
