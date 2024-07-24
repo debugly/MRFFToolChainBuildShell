@@ -173,6 +173,7 @@ function init_arch_env () {
             'arm64')
                 export XCRUN_PLATFORM='iPhoneOS'
                 export XC_DEPLOYMENT_TARGET='-miphoneos-version-min=11.0'
+                export XC_IS_SIMULATOR=0
             ;;
             *)
                 echo "wrong arch:$_XC_ARCH for $XC_PLAT"
@@ -183,6 +184,7 @@ function init_arch_env () {
         export XCRUN_PLATFORM='MacOSX'
         export MACOSX_DEPLOYMENT_TARGET=10.11
         export XC_DEPLOYMENT_TARGET="-mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
+        export XC_IS_SIMULATOR=0
         elif [[ "$XC_PLAT" == 'tvos' ]]; then
         case $_XC_ARCH in
             *_simulator)
@@ -193,6 +195,7 @@ function init_arch_env () {
             'arm64')
                 export XCRUN_PLATFORM='AppleTVOS'
                 export XC_DEPLOYMENT_TARGET="-mtvos-version-min=12.0"
+                export XC_IS_SIMULATOR=0
             ;;
             *)
                 echo "wrong arch:$_XC_ARCH for $XC_PLAT"

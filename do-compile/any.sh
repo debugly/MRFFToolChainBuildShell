@@ -179,7 +179,7 @@ function resolve_dep() {
 }
 
 function do_clean() {
-    init_arch_env $1
+    init_arch_env $1 >/dev/null
     
     if [[ -d $XC_BUILD_SOURCE ]];then
         echo "git clean:$XC_BUILD_SOURCE"
