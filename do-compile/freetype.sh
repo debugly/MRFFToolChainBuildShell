@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-# set -e
+set -e
 
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
@@ -70,7 +70,7 @@ fi
 
 meson setup $build $CFG_FLAGS
 
-cat $XC_BUILD_SOURCE/build-$XC_ARCH/meson-logs/meson-log.txt
+#cat $XC_BUILD_SOURCE/build-$XC_ARCH/meson-logs/meson-log.txt
 
 cd $build
 
