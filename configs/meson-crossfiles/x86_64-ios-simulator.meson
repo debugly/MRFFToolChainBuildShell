@@ -22,6 +22,7 @@ objcpp_args = ['-arch', 'x86_64', '-mios-simulator-version-min=9.0', '-fembed-bi
 root = '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer'
 has_function_printf = true
 has_function_hfkerhisadf = false
+needs_exe_wrapper = true
 
 [host_machine]
 system = 'darwin'
