@@ -14,10 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+#https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
 
 set -e
 
-THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
+#THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
+THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 XCRUN_DEVELOPER=`xcode-select -print-path`
 if [ ! -d "$XCRUN_DEVELOPER" ]; then
     echo "xcode path is not set correctly $XCRUN_DEVELOPER does not exist (most likely because of xcode > 4.3)"
