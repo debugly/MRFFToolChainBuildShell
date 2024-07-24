@@ -22,6 +22,7 @@ objcpp_args = ['-arch', 'x86_64', '-mtvos-simulator-version-min=12.0', '-fembed-
 root = '/Applications/Xcode.app/Contents/Developer/Platforms/AppleTVSimulator.platform/Developer'
 has_function_printf = true
 has_function_hfkerhisadf = false
+needs_exe_wrapper = true
 
 [host_machine]
 system = 'darwin'
