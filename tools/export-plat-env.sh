@@ -67,7 +67,7 @@ function init_plat_env() {
         export XC_OTHER_CFLAGS=""
         ALL_ARCHS="x86_64 arm64"
         elif [[ "$XC_PLAT" == 'tvos' ]]; then
-        export XC_OTHER_CFLAGS=''
+        export XC_OTHER_CFLAGS="-fembed-bitcode"
         ALL_ARCHS="arm64 arm64_simulator x86_64_simulator"
     fi
     
