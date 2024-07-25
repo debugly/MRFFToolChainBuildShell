@@ -115,7 +115,7 @@ function init_plat_env() {
 function init_libs_pkg_config_path() {
     
     universal_dir=
-    if [[ "$XC_IS_SIMULATOR" ]];then
+    if [[ "$XC_IS_SIMULATOR" == 1 ]];then
         universal_dir="${XC_UNI_SIM_PROD_DIR}"
     else
         universal_dir="${XC_UNI_PROD_DIR}"

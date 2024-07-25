@@ -35,12 +35,10 @@ function compile_ios_platform
     echo "---do compile ios libs--------------------------------------"
     ./main.sh compile -p ios -c build -l ${LIB_NAME}
     cd build/product/ios/universal
-    zip -rq ios-universal.zip ./*
-    mv ios-universal.zip $DIST_DIR/${LIB_NAME}-ios-universal-${RELEASE_VERSION}.zip
+    zip -rq $DIST_DIR/${LIB_NAME}-ios-universal-${RELEASE_VERSION}.zip ./*
     
     cd ../universal-simulator
-    zip -rq ios-universal-simulator.zip ./*
-    mv ios-universal-simulator.zip $DIST_DIR/${LIB_NAME}-ios-universal-simulator-${RELEASE_VERSION}.zip
+    zip -rq $DIST_DIR/${LIB_NAME}-ios-universal-simulator-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
 
@@ -49,8 +47,7 @@ function compile_macos_platform
     echo "---do compile macos libs--------------------------------------"
     ./main.sh compile -p macos -c build -l ${LIB_NAME}
     cd build/product/macos/universal
-    zip -rq macos-universal.zip ./*
-    mv macos-universal.zip $DIST_DIR/${LIB_NAME}-macos-universal-${RELEASE_VERSION}.zip
+    zip -rq $DIST_DIR/${LIB_NAME}-macos-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
 
@@ -59,12 +56,10 @@ function compile_tvos_platform
     echo "---do compile tvos libs--------------------------------------"
     ./main.sh compile -p tvos -c build -l ${LIB_NAME}
     cd build/product/tvos/universal
-    zip -rq tvos-universal.zip ./*
-    mv tvos-universal.zip $DIST_DIR/${LIB_NAME}-tvos-universal-${RELEASE_VERSION}.zip
+    zip -rq $DIST_DIR/${LIB_NAME}-tvos-universal-${RELEASE_VERSION}.zip ./*
     
     cd ../universal-simulator
-    zip -rq tvos-universal-simulator.zip ./*
-    mv tvos-universal-simulator.zip $DIST_DIR/${LIB_NAME}-tvos-universal-simulator-${RELEASE_VERSION}.zip
+    zip -rq $DIST_DIR/${LIB_NAME}-tvos-universal-simulator-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
 
@@ -72,7 +67,7 @@ function make_bundle()
 {
     echo "---Zip apple xcframework--------------------------------------"
     cd build/product/xcframework
-    zip -rq apple-xcframework.zip ./* && mv apple-xcframework.zip $DIST_DIR/${LIB_NAME}-apple-xcframework-${RELEASE_VERSION}.zip && cd - >/dev/null
+    zip -rq $DIST_DIR/${LIB_NAME}-apple-xcframework-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
 
