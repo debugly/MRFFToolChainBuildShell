@@ -445,7 +445,7 @@ export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-protocol=unix"
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-devices"
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-filters"
 
-export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-filter=nullsink,scale,fps"
+export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-filter=nullsink,scale,fps,trim"
 
 # External library support:
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-iconv"
