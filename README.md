@@ -153,3 +153,18 @@ Tips:
 - 初始化仓库时，可跳过拉取远端到本地，只需要在 init 时加上 -b 参数
 - 初始化仓库时，可跳过应用 FFmpeg 的补丁，只需要在 init 时加上 -k 参数
 - 目前 FFmpeg 使用的是 module-full.sh 配置选项，所以包体积略大
+
+
+## Donate
+
+编译三方库很费时间，本人想为开源社区贡献一份微薄的力量，因此将 debugly/ijkplayer 依赖的三方库，全部预编成静态库和 xcframework 供大家使用。
+
+如果您想要为开源社区贡献一份力量，请买杯咖啡给我提提神儿。
+
+![donate.jpg](https://i.postimg.cc/xdVqnBLp/IMG-7481.jpg)
+
+感谢以下朋友对 debugly/MRFFToolChainBuildShell 的支持：
+
+- 海阔天也空
+- 小猪猪
+- 1996GJ
