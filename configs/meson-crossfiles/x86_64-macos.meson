@@ -22,6 +22,7 @@ objcpp_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11', '-Os']
 root = '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer'
 has_function_printf = true
 has_function_hfkerhisadf = false
+has_function_posix_memalign = true
 
 [host_machine]
 system = 'darwin'

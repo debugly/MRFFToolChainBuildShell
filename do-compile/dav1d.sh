@@ -69,7 +69,7 @@ if [[ -d $build ]]; then
     rm -rf $build
 fi
 
-meson setup $build $CFG_FLAGS >/dev/null
+meson setup $build $CFG_FLAGS
 
 cd $build
 

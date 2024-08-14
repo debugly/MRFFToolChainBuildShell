@@ -22,6 +22,7 @@ objcpp_args = ['-arch', 'arm64', '-mtvos-version-min=12.0', '-fembed-bitcode', '
 root = '/Applications/Xcode.app/Contents/Developer/Platforms/AppleTVOS.platform/Developer'
 has_function_printf = true
 has_function_hfkerhisadf = false
+has_function_posix_memalign = true
 
 [host_machine]
 system = 'darwin'

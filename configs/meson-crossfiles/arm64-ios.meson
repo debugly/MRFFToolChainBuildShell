@@ -22,6 +22,7 @@ objcpp_args = ['-arch', 'arm64', '-miphoneos-version-min=9.0', '-fembed-bitcode'
 root = '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer'
 has_function_printf = true
 has_function_hfkerhisadf = false
+has_function_posix_memalign = true
 
 [host_machine]
 system = 'darwin'

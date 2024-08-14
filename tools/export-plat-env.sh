@@ -40,12 +40,11 @@ echo $(xcodebuild -version)
 function install_depends() {
     local name="$1"
     local r=$(brew list | grep "$name")
-    if [[ $r != '' ]]; then
-        echo "[✅] ${name} is right."
-    else
+    if [[ -z $r ]]; then
         echo "will use brew install ${name}."
         brew install "$name"
     fi
+    echo "[✅] ${name}: $(eval $name --version)"
 }
 
 function init_plat_env() {
