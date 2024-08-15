@@ -23,6 +23,7 @@ root = '/Applications/Xcode.app/Contents/Developer/Platforms/AppleTVSimulator.pl
 has_function_printf = true
 has_function_hfkerhisadf = false
 has_function_posix_memalign = true
+has_function_getopt_long = true
 needs_exe_wrapper = true
 
 [host_machine]

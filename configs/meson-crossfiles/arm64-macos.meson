@@ -23,6 +23,7 @@ root = '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Dev
 has_function_printf = true
 has_function_hfkerhisadf = false
 has_function_posix_memalign = true
+has_function_getopt_long = true
 
 [host_machine]
 system = 'darwin'
