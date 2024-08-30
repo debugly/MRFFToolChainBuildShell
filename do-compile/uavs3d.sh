@@ -17,6 +17,7 @@
 # https://stackoverflow.com/questions/6003374/what-is-cmake-equivalent-of-configure-prefix-dir-make-all-install
 # https://cmake.org/cmake/help/v3.28/variable/CMAKE_OSX_SYSROOT.html
 # https://cmake.org/cmake/help/v3.14/manual/cmake-toolchains.7.html#switching-between-device-and-simulator
+# https://stackoverflow.com/questions/27660048/cmake-check-if-mac-os-x-use-apple-or-apple
 
 set -e
 
@@ -61,15 +62,11 @@ elif [[ "$XC_PLAT" == 'tvos' ]];then
     else
         sys_root='appletvos'
     fi
+elif [[ "$XC_PLAT" == 'macos' ]];then
+    sys_name='Darwin'
 fi
 
-echo "----------------------"
-echo "[*] configurate $LIB_NAME"
-echo "[*] sys_name $sys_name"
-echo "[*] sys_root $sys_root"
-echo "----------------------"
-
-cfg="-GXcode -DBUILD_SHARED_LIBS=0 -DENABLE_BITCODE=TRUE"
+cfg="-GXcode -DBUILD_SHARED_LIBS=0"
 
 cfg="$cfg -DCMAKE_OSX_ARCHITECTURES=$XC_ARCH"
 
@@ -82,8 +79,13 @@ if [[ ! -z "$sys_root" ]];then
 fi
 
 cfg="$cfg -DCMAKE_INSTALL_PREFIX=${XC_BUILD_PREFIX}"
-
 cfg="$cfg -DCOMPILE_10BIT=1"
+
+echo "----------------------"
+echo "[*] configurate $LIB_NAME"
+echo "[*] cmake config $cfg"
+echo "----------------------"
+
 
 cmake -B "$build" $cfg
     
@@ -91,5 +93,5 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-cmake --build "$build" --target uavs3d --config Release -- CODE_SIGNING_ALLOWED=NO
+cmake --build "$build" --target uavs3d --config Release -- CODE_SIGNING_ALLOWED=NO -- ENABLE_BITCODE=TRUE
 cmake --install "$build"
