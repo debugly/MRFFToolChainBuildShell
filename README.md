@@ -17,8 +17,8 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 ## Denpendency
 
 Harfbuzz: freetype
-Ass: harfbuzz fribidi unibreak
-FFmpeg: openssl,opus,dav1d,dvdread
+Ass: harfbuzz,fribidi,unibreak
+FFmpeg: openssl,opus,dav1d,dvdread,uavs3d
 
 Tips: 
 
