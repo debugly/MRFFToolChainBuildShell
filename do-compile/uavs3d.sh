@@ -39,59 +39,51 @@ env_assert "XC_PLAT"
 echo "XC_DEBUG:$XC_DEBUG"
 echo "===check env end==="
 
+
 toolchain=$PWD/../tools/ios.toolchain.cmake
-
-build="${XC_BUILD_SOURCE}/_tmp"
-
-cd $XC_BUILD_SOURCE
-
-sys_name=
-sys_root=
-
-if [[ "$XC_PLAT" == 'ios' ]];then
-    sys_name='iOS'
-    if [[ $_XC_ARCH == *simulator ]];then
-        sys_root='iphonesimulator'
-    else
-        sys_root='iphoneos'
-    fi
-elif [[ "$XC_PLAT" == 'tvos' ]];then
-    sys_name='tvOS'
-    if [[ $_XC_ARCH == *simulator ]];then
-        sys_root='appletvsimulator'
-    else
-        sys_root='appletvos'
-    fi
-elif [[ "$XC_PLAT" == 'macos' ]];then
-    sys_name='Darwin'
-fi
-
-cfg="-GXcode -DBUILD_SHARED_LIBS=0"
-
-cfg="$cfg -DCMAKE_OSX_ARCHITECTURES=$XC_ARCH"
-
-if [[ ! -z "$sys_name" ]];then
-    cfg="$cfg -DCMAKE_SYSTEM_NAME=$sys_name"
-fi
-
-if [[ ! -z "$sys_root" ]];then
-    cfg="$cfg -DCMAKE_OSX_SYSROOT=$sys_root"
-fi
-
-cfg="$cfg -DCMAKE_INSTALL_PREFIX=${XC_BUILD_PREFIX}"
-cfg="$cfg -DCOMPILE_10BIT=1"
 
 echo "----------------------"
 echo "[*] configurate $LIB_NAME"
 echo "[*] cmake config $cfg"
+echo "[*] cmake toolchain $toolchain"
 echo "----------------------"
 
+build="${XC_BUILD_SOURCE}/_tmp"
+rm -rf "$build"
+mkdir -p "$build"
 
-cmake -B "$build" $cfg
-    
+cd "$build"
+
+pf=
+if [[ "$XC_PLAT" == 'ios' ]];then
+    if [[ $_XC_ARCH == 'arm64_simulator' ]];then
+        pf='SIMULATORARM64'
+    elif [[ $_XC_ARCH == 'x86_64_simulator' ]];then
+        pf='SIMULATOR64'
+    else
+        pf='OS64'
+    fi
+elif [[ "$XC_PLAT" == 'tvos' ]];then
+    if [[ $_XC_ARCH == 'arm64_simulator' ]];then
+        pf='SIMULATORARM64_TVOS'
+    elif [[ $_XC_ARCH == 'x86_64_simulator' ]];then
+        pf='SIMULATOR_TVOS'
+    else
+        pf='TVOS'
+    fi
+elif [[ "$XC_PLAT" == 'macos' ]];then
+    if [[ $_XC_ARCH == 'arm64' ]];then
+        pf='MAC_ARM64'
+    elif [[ $_XC_ARCH == 'x86_64' ]];then
+        pf='MAC'
+    fi
+fi
+
+cmake -S ${XC_BUILD_SOURCE} -DCMAKE_INSTALL_PREFIX=${XC_BUILD_PREFIX} -GXcode -DBUILD_SHARED_LIBS=0 -DCMAKE_TOOLCHAIN_FILE=$toolchain -DCOMPILE_10BIT=1 -DPLATFORM=$pf
+
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-cmake --build "$build" --target uavs3d --config Release -- CODE_SIGNING_ALLOWED=NO -- ENABLE_BITCODE=TRUE
-cmake --install "$build"
+cmake --build . --target uavs3d --config Release -- CODE_SIGNING_ALLOWED=NO -- ENABLE_BITCODE=TRUE
+cmake --install .
