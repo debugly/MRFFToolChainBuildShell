@@ -53,9 +53,12 @@ jobs:
         echo '------compile dav1d------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/onestep.sh dav1d all
+        echo '------compile uavs3d------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh uavs3d all
         echo '------compile ffmpeg------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        ./main.sh install -p ios -l 'openssl opus dav1d dvdread'
-        ./main.sh install -p tvos -l 'openssl opus dav1d dvdread'
-        ./main.sh install -p macos -l 'openssl opus bluray dav1d dvdread'
+        ./main.sh install -p ios -l 'openssl opus dav1d dvdread uavs3d'
+        ./main.sh install -p tvos -l 'openssl opus dav1d dvdread uavs3d'
+        ./main.sh install -p macos -l 'openssl opus bluray dav1d dvdread uavs3d'
         .github/workflows/onestep.sh ffmpeg all
