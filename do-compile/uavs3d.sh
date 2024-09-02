@@ -79,11 +79,11 @@ elif [[ "$XC_PLAT" == 'macos' ]];then
     fi
 fi
 
-cmake -S ${XC_BUILD_SOURCE} -DCMAKE_INSTALL_PREFIX=${XC_BUILD_PREFIX} -GXcode -DBUILD_SHARED_LIBS=0 -DCMAKE_TOOLCHAIN_FILE=$toolchain -DCOMPILE_10BIT=1 -DPLATFORM=$pf
+cmake -S ${XC_BUILD_SOURCE} -DCMAKE_INSTALL_PREFIX=${XC_BUILD_PREFIX} -GXcode -DBUILD_SHARED_LIBS=0 -DENABLE_BITCODE=ON -DCMAKE_TOOLCHAIN_FILE=$toolchain -DCOMPILE_10BIT=1 -DPLATFORM=$pf
 
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-cmake --build . --target uavs3d --config Release -- CODE_SIGNING_ALLOWED=NO -- ENABLE_BITCODE=TRUE
+cmake --build . --target uavs3d --config Release -- CODE_SIGNING_ALLOWED=NO
 cmake --install .
