@@ -624,6 +624,14 @@ if(NOT DEFINED ENABLE_BITCODE)
 endif()
 set(ENABLE_BITCODE_INT ${ENABLE_BITCODE} CACHE BOOL
         "Whether or not to enable bitcode" FORCE)
+
+
+# /Users/matt/GitWorkspace/MRFFToolChainBuildShell/build/src/ios/uavs3d-arm64/_tmp/uavs3d.xcodeproj: warning: Ignoring ENABLE_BITCODE because building with bitcode is no longer supported. (in target 'uavs3d' from project 'uavs3d')
+# -DENABLE_BITCODE=1
+if(ENABLE_BITCODE_INT)
+  add_compile_options(-fembed-bitcode)
+endif()
+
 # Use ARC or not
 if(NOT DEFINED ENABLE_ARC)
   # Unless specified, enable ARC support by default
