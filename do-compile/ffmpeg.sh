@@ -20,6 +20,14 @@
 
 set -e
 
+
+error_handler() {
+    echo "An error occurred!"
+    tail -n20 ${XC_BUILD_SOURCE}/ffbuild/config.log
+}
+
+trap 'error_handler' ERR
+
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 source ../tools/env_assert.sh
