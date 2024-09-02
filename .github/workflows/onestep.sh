@@ -110,10 +110,10 @@ function main()
         ;;
         all)
             init_platform ios
-            init_platform macos
-            init_platform tvos
             compile_ios_platform
+            init_platform macos
             compile_macos_platform
+            init_platform tvos
             compile_tvos_platform
             make_bundle
             publish
