@@ -238,7 +238,7 @@ fi
 echo "----------------------"
 echo "[*] compile"
 
-make -j$XC_THREAD >/dev/null
+make -j$XC_THREAD
 
 echo "----------------------"
 echo "[*] install"
