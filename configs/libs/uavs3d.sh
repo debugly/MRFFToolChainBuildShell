@@ -26,7 +26,7 @@ export LIB_DEPENDS_BIN="cmake"
 export GIT_LOCAL_REPO=build/extra/uavs3d
 export GIT_COMMIT=1fd0491
 export REPO_DIR=uavs3d
-export GIT_REPO_VERSION=1fd0491
+export GIT_REPO_VERSION=1.2.1
 export PRE_COMPILE_TAG=uavs3d-1fd0491-240830181856
 
 # you can export GIT_UAVS3D_UPSTREAM=git@xx:yy/UAVS3D.git use your mirror
