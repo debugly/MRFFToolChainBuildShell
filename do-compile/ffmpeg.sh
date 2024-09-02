@@ -230,7 +230,8 @@ else
         --cc="$XCRUN_CC" \
         --extra-cflags="$C_FLAGS" \
         --extra-cxxflags="$C_FLAGS" \
-        --extra-ldflags="$LDFLAGS $FFMPEG_DEP_LIBS"
+        --extra-ldflags="$LDFLAGS $FFMPEG_DEP_LIBS" \
+        --enable-debug
 fi
 
 #----------------------
