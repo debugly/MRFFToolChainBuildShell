@@ -1,3 +1,6 @@
+
+> MRFFToolChain will remove bitcode support about 2025.01.01
+
 ## MRFFToolChain Build Shell
 
 **What's MRFFToolChain?**
