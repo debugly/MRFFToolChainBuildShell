@@ -92,6 +92,7 @@ if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]]; then
 fi
 
 
+# --enable-debug
 CFG_FLAGS="$CFG_FLAGS --pkg-config-flags=--static"
 
 LDFLAGS="$C_FLAGS"
@@ -238,15 +239,14 @@ else
         --cc="$XCRUN_CC" \
         --extra-cflags="$C_FLAGS" \
         --extra-cxxflags="$C_FLAGS" \
-        --extra-ldflags="$LDFLAGS $FFMPEG_DEP_LIBS" \
-        --enable-debug
+        --extra-ldflags="$LDFLAGS $FFMPEG_DEP_LIBS"
 fi
 
 #----------------------
 echo "----------------------"
 echo "[*] compile"
 
-make -j$XC_THREAD
+make -j$XC_THREAD >/dev/null
 
 echo "----------------------"
 echo "[*] install"

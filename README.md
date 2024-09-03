@@ -14,6 +14,16 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 | macOS | arm64、x86_64                           |
 | tvOS  | arm64、arm64_simulator、x86_64_simulator |
 
+## Deprecations
+
+**MRFFToolChain will remove bitcode support about 2025.01.01**
+
+Starting with Xcode 14, bitcode is no longer required for watchOS and tvOS applications, and the App Store no longer accepts bitcode submissions from Xcode 14.
+
+Xcode no longer builds bitcode by default and generates a warning message if a project explicitly enables bitcode: “Building with bitcode is deprecated. Please update your project and/or target settings to disable bitcode.” The capability to build with bitcode will be removed in a future Xcode release. IPAs that contain bitcode will have the bitcode stripped before being submitted to the App Store. Debug symbols can only be downloaded from App Store Connect / TestFlight for existing bitcode submissions and are no longer available for submissions made with Xcode 14. (86118779)
+
+[https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes#Deprecations](https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes#Deprecations)
+
 ## Denpendency
 
 Harfbuzz: freetype
@@ -56,6 +66,7 @@ Tips:
 │   ├── main.sh   #三方库编译入口
 │   ├── openssl.sh
 │   ├── opus.sh
+│   ├── uavs3d.sh
 │   └── unibreak.sh
 ├── do-init       #初始化三方库仓库
 │   ├── copy-local-repo.sh
@@ -67,20 +78,25 @@ Tips:
 │   └── main.sh
 ├── main.sh      #脚本入口
 ├── patches      #给三方库打的补丁
-│   ├── README.md
 │   ├── bluray
-│   ├── ffmpeg -> ffmpeg-release-5.1
+│   ├── ffmpeg -> ffmpeg-n6.1
 │   ├── ffmpeg-n4.0
+│   ├── ffmpeg-n5.1
+│   ├── ffmpeg-n6.1
 │   └── ffmpeg-release-5.1
 └── tools
     ├── env_assert.sh
-    └── export-plat-env.sh
+    ├── export-plat-env.sh
+    └── ios.toolchain.cmake
 ```
 
-## Download Pre-compiled libs
+## Download/Install Pre-compiled libs
 
-不修改三方库的源码时，没有必要自己编译，直接从 github 上下载预编译好的就行，可节省大量时间！
-预编译库已经打了 patches 目录下的补丁，使用方法：
+直接从 github 下载我预编译好的库，这种方式可节省大量时间。
+
+预编译库已经将 patches 目录下的补丁全部打上了。
+
+安装方法：
 
 ```bash
 #查看帮助是个好习惯
@@ -94,6 +110,9 @@ Tips:
 ## Compile by yourself
 
 ### Init lib repos
+
+不要浪费自己的时间去编译这些库，除非你修改了源码！
+直接下载我白嫖 github 预先编译好的库不好么！
 
 脚本参数比较灵活，可根据需要搭配使用，常用方式举例：
 
