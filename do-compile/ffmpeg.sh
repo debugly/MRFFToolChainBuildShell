@@ -204,7 +204,7 @@ pkg-config --libs uavs3d --silence-errors >/dev/null && enable_uavs3d=1
 
 if [[ $enable_uavs3d ]];then
     echo "[✅] --enable-libuavs3d"
-    CFG_FLAGS="$CFG_FLAGS --enable-libuavs3d"
+    CFG_FLAGS="$CFG_FLAGS --enable-libuavs3d --enable-decoder=libuavs3d"
 else
     echo "[❌] --disable-libuavs3d"
 fi
