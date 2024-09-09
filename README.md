@@ -4,7 +4,7 @@
 
 MRFFToolChain products was built for ijkplayer : [https://github.com/debugly/ijkplayer](https://github.com/debugly/ijkplayer).
 
-At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、freetype、fribidi、harfbuzz、openssl、opus、unibreak、uavs3d`.
+At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、freetype、fribidi、harfbuzz、openssl、opus、unibreak、uavs3d、smb2`.
 
 ## Supported Plat
 
@@ -66,6 +66,7 @@ Tips:
 │   ├── main.sh   #三方库编译入口
 │   ├── openssl.sh
 │   ├── opus.sh
+│   ├── smb2.sh
 │   ├── uavs3d.sh
 │   └── unibreak.sh
 ├── do-init       #初始化三方库仓库
@@ -166,6 +167,7 @@ Tips:
 | opus        | https://gitlab.xiph.org/xiph/opus.git                | 1.4    | export GIT_OPUS_UPSTREAM = git@xx:yy/opus.git            |
 | libunibreak | https://github.com/adah1972/libunibreak.git          | 5.1    | export GIT_UNIBREAK_UPSTREAM = git@xx:yy/libunibreak.git |
 | libuavs3d | https://github.com/uavs3/uavs3d.git | 1.2.1 |export GIT_UAVS3D_UPSTREAM=git@xx:yy/UAVS3D.git|
+| libsmb2   | https://github.com/sahlberg/libsmb2.git | 4.0.0 | export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git
 
 ## Tips
 

@@ -56,6 +56,9 @@ jobs:
         echo '------compile uavs3d------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/onestep.sh uavs3d all
+        echo '------compile smb2------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh smb2 all
         echo '------compile ffmpeg------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         ./main.sh install -p ios -l 'openssl opus dav1d dvdread uavs3d'
