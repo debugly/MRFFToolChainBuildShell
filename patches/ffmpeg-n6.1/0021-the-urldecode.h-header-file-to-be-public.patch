@@ -1,0 +1,24 @@
+From 3c8e53d1b4aa99379a3c10d78151e8531f8ed703 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Thu, 19 Sep 2024 17:43:38 +0800
+Subject: [PATCH 21] the urldecode.h header file to be public.
+
+---
+ libavformat/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libavformat/Makefile b/libavformat/Makefile
+index dfcec9f..271c0f4 100644
+--- a/libavformat/Makefile
++++ b/libavformat/Makefile
+@@ -13,6 +13,7 @@ HEADERS = avformat.h                                                    \
+           id3v2.h                                                       \
+           os_support.h                                                  \
+           metadata.h                                                    \
++          urldecode.h                                                   \
+ 
+ OBJS = allformats.o         \
+        avformat.o           \
+-- 
+2.39.3 (Apple Git-146)
+
