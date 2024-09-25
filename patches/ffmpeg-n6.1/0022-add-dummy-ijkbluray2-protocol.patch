@@ -1,7 +1,7 @@
 From 83ee53a2f7f4f3c92ca8d0a18ea2d5e94fb69bc1 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Thu, 19 Sep 2024 17:41:32 +0800
-Subject: [PATCH 20] add dummy ijkbluray2 protocol
+Subject: [PATCH 22] add dummy ijkbluray2 protocol
 
 ---
  libavformat/ijkutils.c  | 1 +

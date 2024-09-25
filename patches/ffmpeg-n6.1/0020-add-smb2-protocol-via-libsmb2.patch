@@ -1,0 +1,344 @@
+From 789800dc6276293de35978556d6591339d226272 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Wed, 25 Sep 2024 09:11:44 +0800
+Subject: [PATCH 20] add smb2 protocol via libsmb2
+
+---
+ configure               |   5 +
+ libavformat/Makefile    |   1 +
+ libavformat/libsmb2.c   | 261 ++++++++++++++++++++++++++++++++++++++++
+ libavformat/protocols.c |   1 +
+ 4 files changed, 268 insertions(+)
+ create mode 100644 libavformat/libsmb2.c
+
+diff --git a/configure b/configure
+index 3f2fd2d..16d0177 100755
+--- a/configure
++++ b/configure
+@@ -266,6 +266,7 @@ External library support:
+   --enable-libshaderc      enable GLSL->SPIRV compilation via libshaderc [no]
+   --enable-libshine        enable fixed-point MP3 encoding via libshine [no]
+   --enable-libsmbclient    enable Samba protocol via libsmbclient [no]
++  --enable-libsmb2         enable Samba protocol via libsmb2 [no]
+   --enable-libsnappy       enable Snappy compression, needed for hap encoding [no]
+   --enable-libsoxr         enable Include libsoxr resampling [no]
+   --enable-libspeex        enable Speex de/encoding via libspeex [no]
+@@ -1887,6 +1888,7 @@ EXTERNAL_LIBRARY_LIST="
+     libshaderc
+     libshine
+     libsmbclient
++    libsmb2
+     libsnappy
+     libsoxr
+     libspeex
+@@ -3676,6 +3678,7 @@ librtmps_protocol_deps="librtmp"
+ librtmpt_protocol_deps="librtmp"
+ librtmpte_protocol_deps="librtmp"
+ libsmbclient_protocol_deps="libsmbclient gplv3"
++libsmb2_protocol_deps="libsmb2"
+ libsrt_protocol_deps="libsrt"
+ libsrt_protocol_select="network"
+ libssh_protocol_deps="libssh"
+@@ -6798,6 +6801,8 @@ enabled libshaderc        && require_pkg_config spirv_compiler "shaderc >= 2019.
+ enabled libshine          && require_pkg_config libshine shine shine/layer3.h shine_encode_buffer
+ enabled libsmbclient      && { check_pkg_config libsmbclient smbclient libsmbclient.h smbc_init ||
+                                require libsmbclient libsmbclient.h smbc_init -lsmbclient; }
++enabled libsmb2           && { check_pkg_config libsmb2 libsmb2 smb2/smb2-errors.h SMB2_STATUS_SUCCESS ||
++                               require libsmb2 smb2/smb2-errors.h SMB2_STATUS_SUCCESS -lsmb2; }
+ enabled libsnappy         && require libsnappy snappy-c.h snappy_compress -lsnappy -lstdc++
+ enabled libsoxr           && require libsoxr soxr.h soxr_create -lsoxr
+ enabled libssh            && require_pkg_config libssh "libssh >= 0.6.0" libssh/sftp.h sftp_init
+diff --git a/libavformat/Makefile b/libavformat/Makefile
+index dfcec9f..faaeab0 100644
+--- a/libavformat/Makefile
++++ b/libavformat/Makefile
+@@ -720,6 +720,7 @@ OBJS-$(CONFIG_LIBRTMPS_PROTOCOL)         += librtmp.o
+ OBJS-$(CONFIG_LIBRTMPT_PROTOCOL)         += librtmp.o
+ OBJS-$(CONFIG_LIBRTMPTE_PROTOCOL)        += librtmp.o
+ OBJS-$(CONFIG_LIBSMBCLIENT_PROTOCOL)     += libsmbclient.o
++OBJS-$(CONFIG_LIBSMB2_PROTOCOL)          += libsmb2.o
+ OBJS-$(CONFIG_LIBSRT_PROTOCOL)           += libsrt.o
+ OBJS-$(CONFIG_LIBSSH_PROTOCOL)           += libssh.o
+ OBJS-$(CONFIG_LIBZMQ_PROTOCOL)           += libzmq.o
+diff --git a/libavformat/libsmb2.c b/libavformat/libsmb2.c
+new file mode 100644
+index 0000000..6457a97
+--- /dev/null
++++ b/libavformat/libsmb2.c
+@@ -0,0 +1,261 @@
++/*
++ * Copyright (c) 2014 Lukasz Marek <lukasz.m.luki@gmail.com>
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++
++#include <fcntl.h>
++
++#include "libavutil/avstring.h"
++#include "libavutil/opt.h"
++#include "libavutil/avstring.h"
++#include "url.h"
++#include "urldecode.h"
++
++#include <smb2/smb2.h>
++#include <smb2/libsmb2.h>
++#include <smb2/libsmb2-raw.h>
++
++typedef struct
++{
++    const AVClass *class;
++
++    struct smb2_context *ctx;
++    struct smb2_url *url;
++    struct smb2fh *fh;
++    uint64_t filesize;
++} LIBSMB2Context;
++
++static void destroy_smb2(LIBSMB2Context *libsmb2)
++{
++    if (libsmb2->fh && libsmb2->ctx)
++    {
++        smb2_close(libsmb2->ctx, libsmb2->fh);
++    }
++    if (libsmb2->ctx)
++    {
++        smb2_disconnect_share(libsmb2->ctx);
++        smb2_destroy_context(libsmb2->ctx);
++    }
++    if (libsmb2->url)
++    {
++        smb2_destroy_url(libsmb2->url);
++    }
++    libsmb2->fh = NULL;
++    libsmb2->ctx = NULL;
++    libsmb2->url = NULL;
++}
++
++static av_cold int libsmb2_close(URLContext *h)
++{
++    LIBSMB2Context *libsmb2 = h->priv_data;
++    destroy_smb2(libsmb2);
++    return 0;
++}
++
++static av_cold int libsmb2_open(URLContext *h, const char *uri, int flags)
++{
++    LIBSMB2Context *libsmb2 = h->priv_data;
++    int access;
++
++    libsmb2->filesize = -1;
++    libsmb2->ctx = smb2_init_context();
++
++    if (!libsmb2->ctx)
++    {
++        int ret = AVERROR(errno);
++        av_log(h, AV_LOG_ERROR, "Cannot create context: %s.\n", strerror(errno));
++        return ret;
++    }
++
++    const char *smb_url = av_strireplace(uri, "smb2", "smb");
++    smb_url = ff_urldecode(smb_url, 0);
++
++    struct smb2_url *url = smb2_parse_url(libsmb2->ctx, smb_url);
++
++    if (url == NULL)
++    {
++        av_log(h, AV_LOG_ERROR, "Failed to parse url: %s\n",
++               smb2_get_error(libsmb2->ctx));
++        goto failed;
++    }
++    else
++    {
++        char *user = strchr(url->user, ':');
++        if (user)
++        {
++            *user = '\0';
++            char *password = user + 1;
++            if (strlen(password) > 0)
++            {
++                smb2_set_password(libsmb2->ctx, password);
++            }
++        }
++        if (url->domain) {
++            smb2_set_domain(libsmb2->ctx, url->domain);
++        }
++        libsmb2->url = url;
++    }
++
++    smb2_set_security_mode(libsmb2->ctx, SMB2_NEGOTIATE_SIGNING_ENABLED);
++
++    if (smb2_connect_share(libsmb2->ctx, url->server, url->share, url->user) != 0)
++    {
++        av_log(h, AV_LOG_ERROR, "smb2_connect_share failed. %s\n", smb2_get_error(libsmb2->ctx));
++        goto failed;
++    }
++
++    if ((flags & AVIO_FLAG_WRITE) && (flags & AVIO_FLAG_READ))
++    {
++        access = O_CREAT | O_RDWR;
++    }
++    else if (flags & AVIO_FLAG_WRITE)
++    {
++        access = O_CREAT | O_WRONLY;
++    }
++    else
++        access = O_RDONLY;
++
++    if ((libsmb2->fh = smb2_open(libsmb2->ctx, url->path, O_RDONLY)) == NULL)
++    {
++        av_log(h, AV_LOG_ERROR, "smb2_open failed. %s\n", smb2_get_error(libsmb2->ctx));
++        goto failed;
++    }
++
++    struct smb2_stat_64 st = {0};
++
++    if (smb2_stat(libsmb2->ctx, url->path, &st) < 0)
++        av_log(h, AV_LOG_WARNING, "Cannot stat file: %s\n", smb2_get_error(libsmb2->ctx));
++    else
++        libsmb2->filesize = st.smb2_size;
++
++    return 0;
++failed:
++    if (libsmb2->fh && libsmb2->ctx)
++    {
++        smb2_close(libsmb2->ctx, libsmb2->fh);
++    }
++    if (libsmb2->ctx)
++    {
++        smb2_disconnect_share(libsmb2->ctx);
++        smb2_destroy_context(libsmb2->ctx);
++    }
++    if (libsmb2->url)
++    {
++        smb2_destroy_url(libsmb2->url);
++    }
++    libsmb2->fh = NULL;
++    libsmb2->ctx = NULL;
++    libsmb2->url = NULL;
++    return -1;
++}
++
++static int64_t libsmb2_seek(URLContext *h, int64_t pos, int whence)
++{
++    LIBSMB2Context *libsmb2 = h->priv_data;
++    int64_t newpos;
++
++    if (whence == AVSEEK_SIZE)
++    {
++        if (libsmb2->filesize == -1)
++        {
++            av_log(h, AV_LOG_ERROR, "Error during seeking: filesize is unknown.\n");
++            return AVERROR(EIO);
++        }
++        else
++            return libsmb2->filesize;
++    }
++
++    if ((newpos = smb2_lseek(libsmb2->ctx, libsmb2->fh, pos, whence, NULL)) < 0)
++    {
++        int err = errno;
++        av_log(h, AV_LOG_ERROR, "Error during seeking: %s\n", strerror(err));
++        return AVERROR(err);
++    }
++
++    return newpos;
++}
++
++static int libsmb2_read(URLContext *h, unsigned char *buf, int size)
++{
++    LIBSMB2Context *libsmb2 = h->priv_data;
++
++    uint8_t *buf1 = buf;
++    int buf_size1 = size;
++
++    while (buf_size1 > 0) {
++        int read = smb2_read(libsmb2->ctx, libsmb2->fh, buf1, buf_size1);
++        if (read == -EAGAIN) {
++            continue;
++        }
++        if (read < 0) {
++            av_log(h, AV_LOG_ERROR, "Failed to read file. %s\n",
++                    smb2_get_error(libsmb2->ctx));
++            break;
++        }
++        if (read == 0) {
++            //eof
++            break;
++        }
++        buf1 += read;
++        buf_size1 -= read;
++    }
++
++    int bytes_read = size - buf_size1;
++    return bytes_read ? bytes_read : AVERROR_EOF;
++}
++
++static int libsmb2_write(URLContext *h, const unsigned char *buf, int size)
++{
++    LIBSMB2Context *libsmb2 = h->priv_data;
++    int bytes_written;
++
++    if ((bytes_written = smb2_write(libsmb2->ctx, libsmb2->fh, buf, size)) < 0)
++    {
++        int ret = AVERROR(errno);
++        av_log(h, AV_LOG_ERROR, "Write error: %s\n", strerror(errno));
++        return ret;
++    }
++
++    return bytes_written;
++}
++
++#define OFFSET(x) offsetof(LIBSMB2Context, x)
++#define D AV_OPT_FLAG_DECODING_PARAM
++#define E AV_OPT_FLAG_ENCODING_PARAM
++static const AVOption options[] = {
++    {NULL}};
++
++static const AVClass libsmb2lient_context_class = {
++    .class_name = "libsmb2",
++    .item_name = av_default_item_name,
++    .option = options,
++    .version = LIBAVUTIL_VERSION_INT,
++};
++
++const URLProtocol ff_libsmb2_protocol = {
++    .name = "smb2",
++    .url_open = libsmb2_open,
++    .url_read = libsmb2_read,
++    .url_write = libsmb2_write,
++    .url_seek = libsmb2_seek,
++    .url_close = libsmb2_close,
++    .priv_data_size = sizeof(LIBSMB2Context),
++    .priv_data_class = &libsmb2lient_context_class,
++    .flags = URL_PROTOCOL_FLAG_NETWORK,
++};
+diff --git a/libavformat/protocols.c b/libavformat/protocols.c
+index 73df344..2bda874 100644
+--- a/libavformat/protocols.c
++++ b/libavformat/protocols.c
+@@ -74,6 +74,7 @@ extern const URLProtocol ff_librtmpte_protocol;
+ extern const URLProtocol ff_libsrt_protocol;
+ extern const URLProtocol ff_libssh_protocol;
+ extern const URLProtocol ff_libsmbclient_protocol;
++extern const URLProtocol ff_libsmb2_protocol;
+ extern const URLProtocol ff_libzmq_protocol;
+ extern const URLProtocol ff_ipfs_gateway_protocol;
+ extern const URLProtocol ff_ipns_gateway_protocol;
+-- 
+2.39.3 (Apple Git-146)
+

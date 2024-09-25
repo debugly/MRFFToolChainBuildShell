@@ -178,6 +178,17 @@ fi
 
 echo "----------------------"
 
+pkg-config --libs libsmb2 --silence-errors >/dev/null && enable_smb2=1
+
+if [[ $enable_smb2 ]];then
+    echo "[✅] --enable-libsmb2"
+    CFG_FLAGS="$CFG_FLAGS --enable-libsmb2 --enable-protocol=libsmb2"
+else
+    echo "[❌] --disable-libsmb2"
+fi
+
+echo "----------------------"
+
 # pkg-config --libs libbluray --silence-errors >/dev/null && enable_bluray=1
 
 # if [[ $enable_bluray ]];then
