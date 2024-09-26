@@ -49,7 +49,7 @@ jobs:
         .github/workflows/onestep.sh dvdread all
         echo '------compile bluray------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh bluray macos
+        .github/workflows/onestep.sh bluray all
         echo '------compile dav1d------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/onestep.sh dav1d all
@@ -61,7 +61,7 @@ jobs:
         .github/workflows/onestep.sh smb2 all
         echo '------compile ffmpeg------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        ./main.sh install -p ios -l 'openssl opus dav1d dvdread uavs3d smb2'
-        ./main.sh install -p tvos -l 'openssl opus dav1d dvdread uavs3d smb2'
-        ./main.sh install -p macos -l 'openssl opus bluray dav1d dvdread uavs3d smb2'
+        ./main.sh install -p ios   -l 'openssl opus dav1d dvdread uavs3d smb2 bluray'
+        ./main.sh install -p tvos  -l 'openssl opus dav1d dvdread uavs3d smb2 bluray'
+        ./main.sh install -p macos -l 'openssl opus dav1d dvdread uavs3d smb2 bluray'
         .github/workflows/onestep.sh ffmpeg all
