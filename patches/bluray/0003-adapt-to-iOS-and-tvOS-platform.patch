@@ -1,0 +1,567 @@
+From f399d0f4f60d71bde973c8e8f9d7e35f16877f06 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Thu, 26 Sep 2024 10:27:06 +0800
+Subject: [PATCH 3] adapt to iOS and tvOS platform
+
+---
+ Makefile.am               | 20 +++++++-
+ configure.ac              | 21 ++++++++-
+ src/libbluray/bluray.c    | 99 +++++++++++++++++++++++++++++----------
+ src/libbluray/disc/disc.c |  6 ++-
+ 4 files changed, 115 insertions(+), 31 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 24b60f7..152ce56 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -12,12 +12,16 @@ EXTRA_DIST = \
+ 	COPYING \
+ 	doc \
+ 	README.md \
++	contrib/asm
++
++if USING_BDJAVA_BUILD_JAR
++EXTRA_DIST += \
+ 	src/libbluray/bdj/build.xml \
+ 	src/libbluray/bdj/java \
+ 	src/libbluray/bdj/java-build-support \
+ 	src/libbluray/bdj/java-j2me \
+-	src/libbluray/bdj/java-j2se \
+-	contrib/asm
++	src/libbluray/bdj/java-j2se
++endif
+ 
+ AM_CFLAGS = \
+ 	-std=c99
+@@ -145,6 +149,7 @@ libbluray_la_SOURCES = \
+ 	src/util/time.c
+ 
+ # bd-j
++if USING_BDJAVA_BUILD_JAR
+ libbluray_la_SOURCES += \
+ 	src/libbluray/bdj/bdj.h \
+ 	src/libbluray/bdj/bdj.c \
+@@ -165,6 +170,7 @@ libbluray_la_SOURCES += \
+ 	src/libbluray/bdj/native/register_native.c \
+ 	src/libbluray/bdj/native/util.h \
+ 	src/libbluray/bdj/native/util.c
++endif
+ 
+ # libudfread
+ libbluray_la_SOURCES += \
+@@ -181,6 +187,13 @@ libbluray_la_SOURCES += \
+ 	contrib/libudfread/src/udfread.c
+ endif
+ 
++if !HAVE_MOUNT
++libbluray_la_SOURCES+= \
++	src/file/dir_posix.c \
++	src/file/dirs_darwin.c \
++	src/file/dl_posix.c \
++	src/file/file_posix.c
++else
+ if HAVE_DARWIN
+ libbluray_la_SOURCES+= \
+ 	src/file/dir_posix.c \
+@@ -214,10 +227,12 @@ libbluray_la_SOURCES+= \
+ endif
+ endif
+ endif
++endif
+ 
+ libbluray_la_LDFLAGS= -no-undefined -version-info $(LT_VERSION_INFO) -export-symbols-regex "^bd_"
+ libbluray_la_LIBADD= $(LIBXML2_LIBS) $(FT2_LIBS) $(FONTCONFIG_LIBS) $(LIBUDFREAD_LIBS) $(EXTRA_LIBS)
+ 
++if USING_BDJAVA_BUILD_JAR
+ noinst_HEADERS = \
+ 	jni/jni.h \
+ 	jni/linux/jni_md.h \
+@@ -226,6 +241,7 @@ noinst_HEADERS = \
+ 	jni/freebsd/jni_md.h \
+ 	jni/netbsd/jni_md.h \
+ 	jni/openbsd/jni_md.h
++endif
+ 
+ pkginclude_HEADERS = \
+ 	src/file/filesystem.h \
+diff --git a/configure.ac b/configure.ac
+index c701634..bc4c1d9 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -44,10 +44,14 @@ case "${host_os}" in
+         ;;
+     esac
+     ;;
+-  *darwin*)
++  *darwin* | *macos*)
+     SYS=darwin
+     EXTRA_LIBS="${EXTRA_LIBS} -framework CoreFoundation -framework DiskArbitration"
+     ;;
++  *ios* | *tvos*)
++    SYS=mobile
++    EXTRA_LIBS="${EXTRA_LIBS} -framework CoreFoundation"
++    ;;
+   netbsd*)
+     SYS=netbsd
+     CFLAGS="${CFLAGS} -D_NETBSD_SOURCE"
+@@ -78,7 +82,14 @@ AC_CHECK_FUNCS([getvfsstat])
+ 
+ AM_CONDITIONAL(HAVE_WIN32,   test "${SYS}" = "mingw32")
+ AM_CONDITIONAL(HAVE_DARWIN,  test "${SYS}" = "darwin")
+-AM_CONDITIONAL(HAVE_GETFSSTAT, test "${ac_cv_func_getfsstat}" = "yes" -o "${ac_cv_func_getvfsstat}" = "yes")
++AM_CONDITIONAL(HAVE_MOUNT,   test "${SYS}" != "mobile")
++AM_CONDITIONAL(HAVE_GETFSSTAT, test "${ac_cv_func_getfsstat1}" = "yes" -o "${ac_cv_func_getvfsstat1}" = "yes")
++
++if test "${SYS}" = "mobile";then
++  AC_DEFINE_UNQUOTED([HAVE_MOUNT], [0], ["mobile platform can't mount iso image"])
++else
++  AC_DEFINE_UNQUOTED([HAVE_MOUNT], [1], ["pc platform can mount iso image"])
++fi
+ 
+ dnl messages
+ library_not_found="Could not find required library!"
+@@ -305,6 +316,12 @@ AM_CONDITIONAL([USING_BDJAVA_BUILD_JAR], [ test $use_bdjava_jar = "yes" ])
+ AM_CONDITIONAL([USING_JAVAC_9], [ test x"$with_java9" = x"yes" ])
+ AM_CONDITIONAL([USING_JAVAC_12], [ test x"$with_java12" = x"yes" ])
+ 
++if test $use_bdjava_jar = "yes";then
++  AC_DEFINE_UNQUOTED([USING_BDJAVA_BUILD_JAR], [1], ["use java"])
++else
++  AC_DEFINE_UNQUOTED([USING_BDJAVA_BUILD_JAR], [0], ["not use java"])
++fi
++
+ dnl BD-J type
+ if test "$BDJ_TYPE" = "j2me"; then
+   AC_DEFINE([HAVE_BDJ_J2ME], [1], [Define to 1 if using libbluray J2ME stack])
+diff --git a/src/libbluray/bluray.c b/src/libbluray/bluray.c
+index 8036d29..07bc1d7 100644
+--- a/src/libbluray/bluray.c
++++ b/src/libbluray/bluray.c
+@@ -50,9 +50,10 @@
+ #include "disc/disc.h"
+ #include "disc/enc_info.h"
+ #include "file/file.h"
++#if USING_BDJAVA_BUILD_JAR
+ #include "bdj/bdj.h"
+ #include "bdj/bdjo_parse.h"
+-
++#endif
+ #include <stdio.h> // SEEK_
+ #include <stdlib.h>
+ #include <inttypes.h>
+@@ -148,12 +149,12 @@ struct bluray {
+     HDMV_VM        *hdmv_vm;
+     uint8_t         hdmv_suspended;
+     uint8_t         hdmv_num_invalid_pl;
+-
++#if USING_BDJAVA_BUILD_JAR
+     /* BD-J */
+     BDJAVA         *bdjava;
+     BDJ_CONFIG      bdj_config;
+     uint8_t         bdj_wait_start;  /* BD-J has selected playlist (prefetch) but not yet started playback */
+-
++#endif
+     /* HDMV graphics */
+     GRAPHICS_CONTROLLER *graphics_controller;
+     SOUND_DATA          *sound_effects;
+@@ -973,9 +974,7 @@ static int _run_gc(BLURAY *bd, gc_ctrl_e msg, uint32_t param)
+ 
+ static void _check_bdj(BLURAY *bd)
+ {
+-    BD_DEBUG(DBG_BLURAY, "skip check bdj!\n");
+-    return;
+-
++#if USING_BDJAVA_BUILD_JAR    
+     if (!bd->disc_info.bdj_handled) {
+         if (!bd->disc || bd->disc_info.bdj_detected) {
+ 
+@@ -991,6 +990,9 @@ static void _check_bdj(BLURAY *bd)
+             }
+         }
+     }
++#else
++    BD_DEBUG(DBG_BLURAY, "skip check bdj!\n");
++#endif    
+ }
+ 
+ static void _fill_disc_info(BLURAY *bd, BD_ENC_INFO *enc_info)
+@@ -1251,12 +1253,12 @@ void bd_select_rate(BLURAY *bd, float rate, int reason)
+         /* playback stop. Might want to wait for buffers empty here. */
+         return;
+     }
+-
++#if USING_BDJAVA_BUILD_JAR
+     if (reason == BDJ_PLAYBACK_START) {
+         /* playback is triggered by bd_select_rate() */
+         bd->bdj_wait_start = 0;
+     }
+-
++#endif
+     if (rate < 0.5) {
+         _queue_event(bd, BD_EVENT_STILL, 1);
+     } else {
+@@ -1437,6 +1439,7 @@ void bd_bdj_osd_cb(BLURAY *bd, const unsigned *img, int w, int h,
+ 
+ static int _start_bdj(BLURAY *bd, unsigned title)
+ {
++#if USING_BDJAVA_BUILD_JAR    
+     if (bd->bdjava == NULL) {
+         const char *root = disc_root(bd->disc);
+         bd->bdjava = bdj_open(root, bd, bd->disc_info.bdj_disc_id, &bd->bdj_config);
+@@ -1446,31 +1449,40 @@ static int _start_bdj(BLURAY *bd, unsigned title)
+     }
+ 
+     return !bdj_process_event(bd->bdjava, BDJ_EVENT_START, title);
++#else
++    return -1;
++#endif    
+ }
+ 
+ static int _bdj_event(BLURAY *bd, unsigned ev, unsigned param)
+ {
++#if USING_BDJAVA_BUILD_JAR    
+     if (bd->bdjava != NULL) {
+         return bdj_process_event(bd->bdjava, ev, param);
+     }
++#endif    
+     return -1;
+ }
+ 
+ static void _stop_bdj(BLURAY *bd)
+ {
++#if USING_BDJAVA_BUILD_JAR        
+     if (bd->bdjava != NULL) {
+         bdj_process_event(bd->bdjava, BDJ_EVENT_STOP, 0);
+         _queue_event(bd, BD_EVENT_STILL, 0);
+         _queue_event(bd, BD_EVENT_KEY_INTEREST_TABLE, 0);
+     }
++#endif    
+ }
+ 
+ static void _close_bdj(BLURAY *bd)
+ {
++#if USING_BDJAVA_BUILD_JAR    
+     if (bd->bdjava != NULL) {
+         bdj_close(bd->bdjava);
+         bd->bdjava = NULL;
+     }
++#endif    
+ }
+ 
+ /*
+@@ -1499,13 +1511,13 @@ BLURAY *bd_init(void)
+ 
+     bd_mutex_init(&bd->mutex);
+     bd_mutex_init(&bd->argb_buffer_mutex);
+-
++#if USING_BDJAVA_BUILD_JAR
+     env = getenv("LIBBLURAY_PERSISTENT_STORAGE");
+     if (env) {
+         int v = (!strcmp(env, "yes")) ? 1 : (!strcmp(env, "no")) ? 0 : atoi(env);
+         bd->bdj_config.no_persistent_storage = !v;
+     }
+-
++#endif
+     BD_DEBUG(DBG_BLURAY, "BLURAY initialized!\n");
+ 
+     return bd;
+@@ -1644,8 +1656,9 @@ void bd_close(BLURAY *bd)
+ 
+     event_queue_destroy(&bd->event_queue);
+     array_free((void**)&bd->titles);
++#if USING_BDJAVA_BUILD_JAR
+     bdj_config_cleanup(&bd->bdj_config);
+-
++#endif
+     disc_close(&bd->disc);
+ 
+     bd_mutex_destroy(&bd->mutex);
+@@ -1685,8 +1698,9 @@ static void _playmark_reached(BLURAY *bd)
+         BD_DEBUG(DBG_BLURAY, "PlayMark %d reached (%" PRIu64 ")\n", bd->next_mark, bd->next_mark_pos);
+ 
+         _queue_event(bd, BD_EVENT_PLAYMARK, bd->next_mark);
++#if USING_BDJAVA_BUILD_JAR        
+         _bdj_event(bd, BDJ_EVENT_MARK, bd->next_mark);
+-
++#endif
+         /* update next mark */
+         bd->next_mark++;
+         if ((unsigned)bd->next_mark < bd->title->mark_list.count) {
+@@ -1723,8 +1737,9 @@ static void _seek_internal(BLURAY *bd,
+             media_time = media_time - clip->in_time + clip->title_time;
+         }
+         _queue_event(bd, BD_EVENT_SEEK, media_time);
++#if USING_BDJAVA_BUILD_JAR        
+         _bdj_event(bd, BDJ_EVENT_SEEK, media_time);
+-
++#endif
+         /* playmark tracking */
+         _find_next_playmark(bd);
+ 
+@@ -2566,9 +2581,9 @@ static int _play_playlist_at(BLURAY *bd, int playlist, int playitem, int playmar
+     if (!_open_playlist(bd, playlist, 0)) {
+         return 0;
+     }
+-
++#if USING_BDJAVA_BUILD_JAR
+     bd->bdj_wait_start = 1;  /* playback is triggered by bd_select_rate() */
+-
++#endif
+     bd_bdj_seek(bd, playitem, playmark, time);
+ 
+     return 1;
+@@ -2989,7 +3004,7 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
+         bd_mutex_unlock(&bd->mutex);
+         return result;
+     }
+-
++#if USING_BDJAVA_BUILD_JAR
+     if (idx == BLURAY_PLAYER_SETTING_PERSISTENT_STORAGE) {
+         if (bd->title_type != title_undef) {
+             BD_DEBUG(DBG_BLURAY | DBG_CRIT, "Can't disable persistent storage during playback\n");
+@@ -2998,7 +3013,7 @@ int bd_set_player_setting(BLURAY *bd, uint32_t idx, uint32_t value)
+         bd->bdj_config.no_persistent_storage = !value;
+         return 1;
+     }
+-
++#endif
+     for (i = 0; i < sizeof(map) / sizeof(map[0]); i++) {
+         if (idx == map[i].idx) {
+             bd_mutex_lock(&bd->mutex);
+@@ -3021,7 +3036,7 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
+ 
+         case BLURAY_PLAYER_SETTING_COUNTRY_CODE:
+             return bd_set_player_setting(bd, idx, str_to_uint32(s, 2));
+-
++#if USING_BDJAVA_BUILD_JAR
+         case BLURAY_PLAYER_CACHE_ROOT:
+             bd_mutex_lock(&bd->mutex);
+             X_FREE(bd->bdj_config.cache_root);
+@@ -3045,7 +3060,7 @@ int bd_set_player_setting_str(BLURAY *bd, uint32_t idx, const char *s)
+             bd_mutex_unlock(&bd->mutex);
+             BD_DEBUG(DBG_BDJ, "Java home set to %s\n", bd->bdj_config.java_home ? bd->bdj_config.java_home : "<auto>");
+             return 1;
+-
++#endif
+         default:
+             return 0;
+     }
+@@ -3191,20 +3206,27 @@ static void _process_psr_write_event(BLURAY *bd, const BD_PSR_EVENT *ev)
+         /* current playback position */
+ 
+         case PSR_ANGLE_NUMBER:
++        #if USING_BDJAVA_BUILD_JAR
+             _bdj_event  (bd, BDJ_EVENT_ANGLE,   ev->new_val);
++        #endif            
+             _queue_event(bd, BD_EVENT_ANGLE,    ev->new_val);
+             break;
+         case PSR_TITLE_NUMBER:
+             _queue_event(bd, BD_EVENT_TITLE,    ev->new_val);
+             break;
+         case PSR_PLAYLIST:
++        #if USING_BDJAVA_BUILD_JAR
+             _bdj_event  (bd, BDJ_EVENT_PLAYLIST,ev->new_val);
++        #endif            
+             _queue_event(bd, BD_EVENT_PLAYLIST, ev->new_val);
+             break;
+         case PSR_PLAYITEM:
++        #if USING_BDJAVA_BUILD_JAR
+             _bdj_event  (bd, BDJ_EVENT_PLAYITEM,ev->new_val);
++        #endif            
+             _queue_event(bd, BD_EVENT_PLAYITEM, ev->new_val);
+             break;
++    #if USING_BDJAVA_BUILD_JAR    
+         case PSR_TIME:
+             _bdj_event  (bd, BDJ_EVENT_PTS,     ev->new_val);
+             break;
+@@ -3212,6 +3234,7 @@ static void _process_psr_write_event(BLURAY *bd, const BD_PSR_EVENT *ev)
+         case 102:
+             _bdj_event  (bd, BDJ_EVENT_PSR102,  ev->new_val);
+             break;
++    #endif
+         case 103:
+             disc_event(bd->disc, DISC_EVENT_APPLICATION, ev->new_val);
+             break;
+@@ -3235,7 +3258,9 @@ static void _process_psr_change_event(BLURAY *bd, const BD_PSR_EVENT *ev)
+             break;
+ 
+         case PSR_CHAPTER:
++        #if USING_BDJAVA_BUILD_JAR
+             _bdj_event  (bd, BDJ_EVENT_CHAPTER, ev->new_val);
++        #endif            
+             if (ev->new_val != 0xffff) {
+                 _queue_event(bd, BD_EVENT_CHAPTER,  ev->new_val);
+             }
+@@ -3248,12 +3273,16 @@ static void _process_psr_change_event(BLURAY *bd, const BD_PSR_EVENT *ev)
+             break;
+ 
+         case PSR_PRIMARY_AUDIO_ID:
++        #if USING_BDJAVA_BUILD_JAR
+             _bdj_event(bd, BDJ_EVENT_AUDIO_STREAM, ev->new_val);
++        #endif    
+             _queue_event(bd, BD_EVENT_AUDIO_STREAM, ev->new_val);
+             break;
+ 
+         case PSR_PG_STREAM:
++        #if USING_BDJAVA_BUILD_JAR
+             _bdj_event(bd, BDJ_EVENT_SUBTITLE, ev->new_val);
++        #endif            
+             if ((ev->new_val & 0x80000fff) != (ev->old_val & 0x80000fff)) {
+                 _queue_event(bd, BD_EVENT_PG_TEXTST,        !!(ev->new_val & 0x80000000));
+                 _queue_event(bd, BD_EVENT_PG_TEXTST_STREAM,    ev->new_val & 0xfff);
+@@ -3283,7 +3312,9 @@ static void _process_psr_change_event(BLURAY *bd, const BD_PSR_EVENT *ev)
+                 _queue_event(bd, BD_EVENT_SECONDARY_AUDIO, !!(ev->new_val & 0x40000000));
+                 _queue_event(bd, BD_EVENT_SECONDARY_AUDIO_STREAM, ev->new_val & 0xff);
+             }
++            #if USING_BDJAVA_BUILD_JAR
+             _bdj_event(bd, BDJ_EVENT_SECONDARY_STREAM, ev->new_val);
++            #endif
+             break;
+ 
+         /* 3D status */
+@@ -3502,8 +3533,10 @@ static int _try_play_title(BLURAY *bd, unsigned title)
+     }
+ 
+     if (bd->uo_mask.title_search) {
++#if USING_BDJAVA_BUILD_JAR          
+         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "title search masked\n");
+         _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_TITLE_SEARCH_INDEX);
++#endif        
+         return 0;
+     }
+ 
+@@ -3535,8 +3568,10 @@ static int _try_menu_call(BLURAY *bd, int64_t pts)
+     }
+ 
+     if (bd->uo_mask.menu_call) {
++    #if USING_BDJAVA_BUILD_JAR
+         BD_DEBUG(DBG_BLURAY | DBG_CRIT, "menu call masked\n");
+         _bdj_event(bd, BDJ_EVENT_UO_MASKED, UO_MASK_MENU_CALL_INDEX);
++    #endif        
+         return 0;
+     }
+ 
+@@ -3714,7 +3749,9 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
+ 
+     if (bd->title_type == title_bdj) {
+         if (bd->end_of_playlist == 1) {
++            #if USING_BDJAVA_BUILD_JAR
+             _bdj_event(bd, BDJ_EVENT_END_OF_PLAYLIST, bd_psr_read(bd->regs, PSR_PLAYLIST));
++            #endif
+             bd->end_of_playlist |= 2;
+         }
+ 
+@@ -3724,11 +3761,13 @@ static int _read_ext(BLURAY *bd, unsigned char *buf, int len, BD_EVENT *event)
+             return 0;
+         }
+ 
++        #if USING_BDJAVA_BUILD_JAR
+         if (bd->bdj_wait_start) {
+             /* BD-J playlist prefethed but not yet playing */
+             _queue_event(bd, BD_EVENT_IDLE, 1);
+             return 0;
+         }
++        #endif
+     }
+ 
+     int bytes = _bd_read_locked(bd, buf, len);
+@@ -3790,11 +3829,11 @@ static int _set_rate(BLURAY *bd, uint32_t rate)
+     if (!bd->title) {
+         return -1;
+     }
+-
++#if USING_BDJAVA_BUILD_JAR
+     if (bd->title_type == title_bdj) {
+         return _bdj_event(bd, BDJ_EVENT_RATE, rate);
+     }
+-
++#endif
+     return 0;
+ }
+ 
+@@ -3820,10 +3859,12 @@ int bd_mouse_select(BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)
+ 
+     if (bd->title_type == title_hdmv) {
+         result = _run_gc(bd, GC_CTRL_MOUSE_MOVE, param);
+-    } else if (bd->title_type == title_bdj) {
++    }
++#if USING_BDJAVA_BUILD_JAR    
++    else if (bd->title_type == title_bdj) {
+         result = _bdj_event(bd, BDJ_EVENT_MOUSE, param);
+     }
+-
++#endif
+     bd_mutex_unlock(&bd->mutex);
+ 
+     return result;
+@@ -3857,14 +3898,16 @@ int bd_user_input(BLURAY *bd, int64_t pts, uint32_t key)
+             result = 0;
+         }
+ 
+-    } else if (bd->title_type == title_bdj) {
++    }
++#if USING_BDJAVA_BUILD_JAR    
++    else if (bd->title_type == title_bdj) {
+         if (!BD_VK_FLAGS(key)) {
+             /* No flags --> single key press event */
+             key |= BD_VK_KEY_PRESSED | BD_VK_KEY_TYPED | BD_VK_KEY_RELEASED;
+         }
+         result = _bdj_event(bd, BDJ_EVENT_VK_KEY, key);
+     }
+-
++#endif
+     bd_mutex_unlock(&bd->mutex);
+ 
+     return result;
+@@ -4066,10 +4109,16 @@ void bd_free_mobj(struct mobj_objects *obj)
+ 
+ struct bdjo_data *bd_read_bdjo(const char *bdjo_file)
+ {
++#if USING_BDJAVA_BUILD_JAR
+     return bdjo_parse(bdjo_file);
++#else
++    return NULL;    
++#endif    
+ }
+ 
+ void bd_free_bdjo(struct bdjo_data *obj)
+ {
++#if USING_BDJAVA_BUILD_JAR
+     bdjo_free(&obj);
++#endif    
+ }
+diff --git a/src/libbluray/disc/disc.c b/src/libbluray/disc/disc.c
+index d5e39c4..9bf4202 100644
+--- a/src/libbluray/disc/disc.c
++++ b/src/libbluray/disc/disc.c
+@@ -290,6 +290,7 @@ static BD_DISC *_disc_init()
+     return p;
+ }
+ 
++#if HAVE_MOUNT
+ static void _set_paths(BD_DISC *p, const char *device_path)
+ {
+     if (device_path) {
+@@ -304,6 +305,7 @@ static void _set_paths(BD_DISC *p, const char *device_path)
+         }
+     }
+ }
++#endif
+ 
+ BD_DISC *disc_open(const char *device_path,
+                    fs_access *p_fs,
+@@ -322,9 +324,9 @@ BD_DISC *disc_open(const char *device_path,
+         p->pf_file_open_bdrom = p_fs->open_file;
+         p->pf_dir_open_bdrom  = p_fs->open_dir;
+     }
+-
++#if HAVE_MOUNT
+     _set_paths(p, device_path);
+-
++#endif
+     /* check if disc root directory can be opened. If not, treat it as device/image file. */
+     BD_DIR_H *dp_img = device_path ? dir_open(device_path) : NULL;
+     if (!dp_img) {
+-- 
+2.39.3 (Apple Git-146)
+

@@ -23,6 +23,7 @@ source ../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_ARCH"
+env_assert "XC_PLAT"
 env_assert "XC_BUILD_NAME"
 env_assert "XCRUN_CC"
 env_assert "XC_DEPLOYMENT_TARGET"
@@ -31,6 +32,7 @@ env_assert "XC_BUILD_PREFIX"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XC_THREAD"
 echo "XC_DEBUG:$XC_DEBUG"
+echo "XC_FORCE_CROSS:$XC_FORCE_CROSS"
 echo "XC_OTHER_CFLAGS:$XC_OTHER_CFLAGS"
 echo "===check env end==="
 
@@ -41,7 +43,7 @@ else
 fi
 
 # prepare build config
-CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --disable-shared --disable-dependency-tracking --disable-silent-rules --disable-bdjava-jar --without-freetype --without-fontconfig --disable-doxygen-doc"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --disable-shared --disable-dependency-tracking --disable-silent-rules --disable-bdjava-jar --without-freetype --without-fontconfig --disable-doxygen-doc --disable-examples"
 CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
 if [[ "$XC_DEBUG" == "debug" ]];then
@@ -53,7 +55,8 @@ if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]];then
     echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
     CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
-    CFG_FLAGS="$CFG_FLAGS --host=$XC_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
+    # $XC_ARCH-apple-darwin
+    CFG_FLAGS="$CFG_FLAGS --host=$XC_ARCH-apple-$XC_PLAT --with-sysroot=$XCRUN_SDK_PATH"
 fi
 
 echo "----------------------"
@@ -61,8 +64,8 @@ echo "[*] configurate $LIB_NAME"
 echo "----------------------"
 
 # use system xml2 lib
-export LIBXML2_CFLAGS=$(xml2-config --cflags)
-export LIBXML2_LIBS=$(xml2-config --libs)
+export LIBXML2_CFLAGS=$(xml2-config --prefix=${XCRUN_SDK_PATH}/usr --cflags)
+export LIBXML2_LIBS=$(xml2-config --prefix=${XCRUN_SDK_PATH}/usr --libs)
 
 cd $XC_BUILD_SOURCE
 
@@ -73,25 +76,24 @@ else
    ./bootstrap >/dev/null
 fi
 
-
 echo 
 echo "CC: $XCRUN_CC"
 echo "CFG_FLAGS: $CFG_FLAGS"
 echo "CFLAGS: $CFLAGS"
 echo 
 
-./configure $CFG_FLAGS \
-   CC="$XCRUN_CC" \
-   CFLAGS="$CFLAGS" \
-   LDFLAGS="$CFLAGS" \
-   >/dev/null
+export CC="$XCRUN_CC"
+export CFLAGS="$CFLAGS"
+export LDFLAGS="$CFLAGS"
+
+./configure $CFG_FLAGS
 
 #----------------------
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-make install -j$XC_THREAD >/dev/null
+make install -j$XC_THREAD
 # system xml2 lib has no pc file,when compile ffmepg, pkg-config can't find the private xml2 lib
 echo "mv private xml lib to system"
 
