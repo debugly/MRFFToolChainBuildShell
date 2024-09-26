@@ -1,14 +1,14 @@
-From 789800dc6276293de35978556d6591339d226272 Mon Sep 17 00:00:00 2001
+From 8af266360d6bb1edb3a94f15cb27322a78822659 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Wed, 25 Sep 2024 09:11:44 +0800
-Subject: [PATCH 20] add smb2 protocol via libsmb2
+Date: Thu, 26 Sep 2024 15:44:30 +0800
+Subject: [PATCH] add smb2 protocol via libsmb2
 
 ---
  configure               |   5 +
  libavformat/Makefile    |   1 +
- libavformat/libsmb2.c   | 261 ++++++++++++++++++++++++++++++++++++++++
+ libavformat/libsmb2.c   | 280 ++++++++++++++++++++++++++++++++++++++++
  libavformat/protocols.c |   1 +
- 4 files changed, 268 insertions(+)
+ 4 files changed, 287 insertions(+)
  create mode 100644 libavformat/libsmb2.c
 
 diff --git a/configure b/configure
@@ -62,10 +62,10 @@ index dfcec9f..faaeab0 100644
  OBJS-$(CONFIG_LIBZMQ_PROTOCOL)           += libzmq.o
 diff --git a/libavformat/libsmb2.c b/libavformat/libsmb2.c
 new file mode 100644
-index 0000000..6457a97
+index 0000000..900a82a
 --- /dev/null
 +++ b/libavformat/libsmb2.c
-@@ -0,0 +1,261 @@
+@@ -0,0 +1,280 @@
 +/*
 + * Copyright (c) 2014 Lukasz Marek <lukasz.m.luki@gmail.com>
 + *
@@ -152,8 +152,6 @@ index 0000000..6457a97
 +    }
 +
 +    const char *smb_url = av_strireplace(uri, "smb2", "smb");
-+    smb_url = ff_urldecode(smb_url, 0);
-+
 +    struct smb2_url *url = smb2_parse_url(libsmb2->ctx, smb_url);
 +
 +    if (url == NULL)
@@ -171,12 +169,29 @@ index 0000000..6457a97
 +            char *password = user + 1;
 +            if (strlen(password) > 0)
 +            {
++                password = ff_urldecode(password, 0);
 +                smb2_set_password(libsmb2->ctx, password);
 +            }
 +        }
-+        if (url->domain) {
++        if (url->domain)
++        {
 +            smb2_set_domain(libsmb2->ctx, url->domain);
 +        }
++
++        if (url->share)
++        {
++            char *share = ff_urldecode(url->share, 0);
++            bzero((char *)url->share,strlen(url->share));
++            memcpy(url->share, share, strlen(share));
++        }
++
++        if (url->path)
++        {
++            char *path = ff_urldecode(url->path, 0);
++            bzero((char *)url->path,strlen(url->path));
++            memcpy(url->path, path, strlen(path));
++        }
++
 +        libsmb2->url = url;
 +    }
 +
@@ -266,18 +281,22 @@ index 0000000..6457a97
 +    uint8_t *buf1 = buf;
 +    int buf_size1 = size;
 +
-+    while (buf_size1 > 0) {
++    while (buf_size1 > 0)
++    {
 +        int read = smb2_read(libsmb2->ctx, libsmb2->fh, buf1, buf_size1);
-+        if (read == -EAGAIN) {
++        if (read == -EAGAIN)
++        {
 +            continue;
 +        }
-+        if (read < 0) {
++        if (read < 0)
++        {
 +            av_log(h, AV_LOG_ERROR, "Failed to read file. %s\n",
-+                    smb2_get_error(libsmb2->ctx));
++                   smb2_get_error(libsmb2->ctx));
 +            break;
 +        }
-+        if (read == 0) {
-+            //eof
++        if (read == 0)
++        {
++            // eof
 +            break;
 +        }
 +        buf1 += read;
