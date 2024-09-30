@@ -1,0 +1,109 @@
+From a399d951e3cbebc74d50e7541098bd7d69726270 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Mon, 30 Sep 2024 16:36:03 +0800
+Subject: [PATCH 22] public ff_is_bluray_video func
+
+---
+ libavformat/Makefile      |  1 +
+ libavformat/bluray.c      | 30 ++++++++++++++++++++++++++++++
+ libavformat/bluray_util.h | 27 +++++++++++++++++++++++++++
+ 3 files changed, 58 insertions(+)
+ create mode 100644 libavformat/bluray_util.h
+
+diff --git a/libavformat/Makefile b/libavformat/Makefile
+index 5abe34c..29c42ee 100644
+--- a/libavformat/Makefile
++++ b/libavformat/Makefile
+@@ -13,6 +13,7 @@ HEADERS = avformat.h                                                    \
+           id3v2.h                                                       \
+           os_support.h                                                  \
+           metadata.h                                                    \
++          bluray_util.h
+ 
+ OBJS = allformats.o         \
+        avformat.o           \
+diff --git a/libavformat/bluray.c b/libavformat/bluray.c
+index 4b00c99..08649b6 100644
+--- a/libavformat/bluray.c
++++ b/libavformat/bluray.c
+@@ -28,6 +28,7 @@
+ #include "libavutil/dict.h"
+ #include "libavformat/avformat.h"
+ #include "bluray_custom_fs.h"
++#include "bluray_util.h"
+ 
+ #define BLURAY_PROTO_PREFIX     "bluray:"
+ #define MIN_PLAYLIST_LENGTH     180     /* 3 min */
+@@ -127,6 +128,35 @@ static void bluray_DebugHandler(const char *psz)
+ }
+ #endif
+ 
++int ff_is_bluray_video(const char *path, AVDictionary **options)
++{
++#ifdef DEBUG_BLURAY
++    bd_set_debug_mask(BLURAY_DEBUG_MASK);
++    bd_set_debug_handler(bluray_DebugHandler);
++#endif
++    const char *diskname = path;
++
++    av_strstart(path, BLURAY_PROTO_PREFIX, &diskname);
++
++    fs_access *access = NULL;
++
++    if (av_strstart(diskname, "file://", NULL) || av_strstart(diskname, "/", NULL)) {
++        access = NULL;
++    } else {
++        access = create_bluray_custom_access(diskname, options);
++    }
++
++    BLURAY *bd = bd_open_fs(diskname, NULL, access);
++    if (!bd) {
++        destroy_bluray_custom_access(&access);
++        av_log(NULL, AV_LOG_ERROR, "bd_open() failed\n");
++        return 0;
++    }
++    bd_close(bd);
++    destroy_bluray_custom_access(&access);
++    return 1;
++}
++
+ static int bluray_open(URLContext *h, const char *path, int flags, AVDictionary **options)
+ {
+ #ifdef DEBUG_BLURAY
+diff --git a/libavformat/bluray_util.h b/libavformat/bluray_util.h
+new file mode 100644
+index 0000000..62301b2
+--- /dev/null
++++ b/libavformat/bluray_util.h
+@@ -0,0 +1,27 @@
++//
++//  bluray_custom_fs.h
++//
++//  Created by Reach Matt on 2024/9/13.
++//
++//
++// Copyright (C) 2021 Matt Reach<qianlongxu@gmail.com>//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++
++#ifndef bluray_util_h
++#define bluray_util_h
++
++typedef struct AVDictionary AVDictionary;
++
++int ff_is_bluray_video(const char *path, AVDictionary **options);
++
++#endif
+\ No newline at end of file
+-- 
+2.39.3 (Apple Git-146)
+
