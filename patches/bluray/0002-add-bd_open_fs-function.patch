@@ -1,18 +1,72 @@
-From 9777015ccd549001704ca5fc6ba31f1f3c360a87 Mon Sep 17 00:00:00 2001
+From b33fcbfab5625e3c31915e954c0b2ce1aa0a388b Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Wed, 25 Sep 2024 10:48:01 +0800
+Date: Mon, 30 Sep 2024 15:23:43 +0800
 Subject: [PATCH 2] add bd_open_fs function
 
 ---
- src/libbluray/bluray.c | 23 +++++++++++++++++++++++
- src/libbluray/bluray.h | 15 ++++++++++++++-
- 2 files changed, 37 insertions(+), 1 deletion(-)
+ Makefile.am               |  1 +
+ src/libbluray/bluray-fs.h | 22 ++++++++++++++++++++++
+ src/libbluray/bluray.c    | 24 ++++++++++++++++++++++++
+ src/libbluray/bluray.h    | 14 ++++++++++++++
+ src/libbluray/disc/disc.c |  2 +-
+ src/libbluray/disc/disc.h | 18 ++----------------
+ 6 files changed, 64 insertions(+), 17 deletions(-)
+ create mode 100644 src/libbluray/bluray-fs.h
 
+diff --git a/Makefile.am b/Makefile.am
+index 24b60f7..a2d9e74 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -231,6 +231,7 @@ pkginclude_HEADERS = \
+ 	src/file/filesystem.h \
+ 	src/libbluray/bluray.h \
+ 	src/libbluray/bluray-version.h \
++	src/libbluray/bluray-fs.h \
+ 	src/libbluray/keys.h \
+ 	src/libbluray/player_settings.h \
+ 	src/libbluray/bdnav/clpi_data.h \
+diff --git a/src/libbluray/bluray-fs.h b/src/libbluray/bluray-fs.h
+new file mode 100644
+index 0000000..8f7156f
+--- /dev/null
++++ b/src/libbluray/bluray-fs.h
+@@ -0,0 +1,22 @@
++
++/* application provided file system access (optional) */
++
++#if !defined(_BLURAY_FS_H_)
++#define _BLURAY_FS_H_
++
++struct bd_file_s;
++struct bd_dir_s;
++
++/* application provided file system access (optional) */
++typedef struct fs_access {
++    void *fs_handle;
++
++    /* method 1: block (device) access */
++    int (*read_blocks)(void *fs_handle, void *buf, int lba, int num_blocks);
++
++    /* method 2: file access */
++    struct bd_dir_s  *(*open_dir) (void *fs_handle, const char *rel_path);
++    struct bd_file_s *(*open_file)(void *fs_handle, const char *rel_path);
++} fs_access;
++
++#endif
+\ No newline at end of file
 diff --git a/src/libbluray/bluray.c b/src/libbluray/bluray.c
-index e9ff566..8036d29 100644
+index e9ff566..2406966 100644
 --- a/src/libbluray/bluray.c
 +++ b/src/libbluray/bluray.c
-@@ -1597,6 +1597,29 @@ BLURAY *bd_open(const char *device_path, const char *keyfile_path)
+@@ -26,6 +26,7 @@
+ #include "bluray-version.h"
+ #include "bluray.h"
+ #include "bluray_internal.h"
++#include "bluray-fs.h"
+ #include "keys.h"
+ #include "register.h"
+ #include "util/array.h"
+@@ -1597,6 +1598,29 @@ BLURAY *bd_open(const char *device_path, const char *keyfile_path)
      return bd;
  }
  
@@ -43,19 +97,18 @@ index e9ff566..8036d29 100644
  {
      if (!bd) {
 diff --git a/src/libbluray/bluray.h b/src/libbluray/bluray.h
-index 756520e..040150a 100644
+index 756520e..f5546c7 100644
 --- a/src/libbluray/bluray.h
 +++ b/src/libbluray/bluray.h
-@@ -331,7 +331,7 @@ void bd_get_version(int *major, int *minor, int *micro);
- struct bd_dir_s;
- struct bd_file_s;
- struct meta_dl;
--
-+struct fs_access;
- /**
-  *  Open BluRay disc
-  *
-@@ -343,6 +343,19 @@ struct meta_dl;
+@@ -32,6 +32,7 @@ extern "C" {
+ #endif
+ 
+ #include <stdint.h>
++#include "bluray-fs.h"
+ 
+ #define TITLES_ALL              0    /**< all titles. */
+ #define TITLES_FILTER_DUP_TITLE 0x01 /**< remove duplicate titles. */
+@@ -343,6 +344,19 @@ struct meta_dl;
   */
  BLURAY *bd_open(const char *device_path, const char *keyfile_path);
  
@@ -75,6 +128,56 @@ index 756520e..040150a 100644
  /**
   *  Initialize BLURAY object
   *
+diff --git a/src/libbluray/disc/disc.c b/src/libbluray/disc/disc.c
+index d5e39c4..d479242 100644
+--- a/src/libbluray/disc/disc.c
++++ b/src/libbluray/disc/disc.c
+@@ -22,7 +22,7 @@
+ #endif
+ 
+ #include "disc.h"
+-
++#include "../bluray-fs.h"
+ #include "dec.h"
+ #include "properties.h"
+ 
+diff --git a/src/libbluray/disc/disc.h b/src/libbluray/disc/disc.h
+index 418c5b1..d44b68e 100644
+--- a/src/libbluray/disc/disc.h
++++ b/src/libbluray/disc/disc.h
+@@ -25,22 +25,8 @@
+ #include <stdint.h>
+ #include <stddef.h> /* size_t */
+ 
+-struct bd_file_s;
+-struct bd_dir_s;
+ struct bd_enc_info;
+-
+-/* application provided file system access (optional) */
+-typedef struct fs_access {
+-    void *fs_handle;
+-
+-    /* method 1: block (device) access */
+-    int (*read_blocks)(void *fs_handle, void *buf, int lba, int num_blocks);
+-
+-    /* method 2: file access */
+-    struct bd_dir_s  *(*open_dir) (void *fs_handle, const char *rel_path);
+-    struct bd_file_s *(*open_file)(void *fs_handle, const char *rel_path);
+-} fs_access;
+-
++struct fs_access;
+ /*
+  * BluRay Virtual File System
+  *
+@@ -50,7 +36,7 @@ typedef struct fs_access {
+ typedef struct bd_disc BD_DISC;
+ 
+ BD_PRIVATE BD_DISC *disc_open(const char *device_path,
+-                              fs_access *p_fs,
++                              struct fs_access *p_fs,
+                               struct bd_enc_info *enc_info,
+                               const char *keyfile_path,
+                               void *regs, void *psr_read, void *psr_write);
 -- 
 2.39.3 (Apple Git-146)
 
