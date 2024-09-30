@@ -1,14 +1,14 @@
-From 10f9a85ef598057874d0fc907c3b8f16994049ac Mon Sep 17 00:00:00 2001
+From c087ec93cbd9880bf3f50e509059ca1954cbd9b9 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Fri, 27 Sep 2024 15:24:32 +0800
+Date: Mon, 30 Sep 2024 14:30:50 +0800
 Subject: [PATCH 20] add built-in smb2 protocol via libsmb2
 
 ---
  configure               |   5 +
  libavformat/Makefile    |   1 +
- libavformat/libsmb2.c   | 282 ++++++++++++++++++++++++++++++++++++++++
+ libavformat/libsmb2.c   | 292 ++++++++++++++++++++++++++++++++++++++++
  libavformat/protocols.c |   1 +
- 4 files changed, 289 insertions(+)
+ 4 files changed, 299 insertions(+)
  create mode 100644 libavformat/libsmb2.c
 
 diff --git a/configure b/configure
@@ -62,10 +62,10 @@ index dfcec9f..faaeab0 100644
  OBJS-$(CONFIG_LIBZMQ_PROTOCOL)           += libzmq.o
 diff --git a/libavformat/libsmb2.c b/libavformat/libsmb2.c
 new file mode 100644
-index 0000000..1a5c743
+index 0000000..01daaf4
 --- /dev/null
 +++ b/libavformat/libsmb2.c
-@@ -0,0 +1,282 @@
+@@ -0,0 +1,292 @@
 +/*
 + * Copyright (c) 2014 Lukasz Marek <lukasz.m.luki@gmail.com>
 + *
@@ -92,6 +92,7 @@ index 0000000..1a5c743
 +#include "libavutil/avstring.h"
 +#include "libavutil/opt.h"
 +#include "libavutil/avstring.h"
++#include "libavutil/application.h"
 +#include "url.h"
 +#include "urldecode.h"
 +
@@ -107,6 +108,8 @@ index 0000000..1a5c743
 +    struct smb2_url *url;
 +    struct smb2fh *fh;
 +    uint64_t filesize;
++    char *app_ctx_intptr;
++    AVApplicationContext *app_ctx;
 +} LIBSMB2Context;
 +
 +static void destroy_smb2(LIBSMB2Context *libsmb2)
@@ -194,7 +197,7 @@ index 0000000..1a5c743
 +
 +        libsmb2->url = url;
 +    }
-+    
++
 +    //https://github.com/sahlberg/libsmb2/issues/271
 +    //fix Very slow performance w/MacOS SMB server
 +    //smb2_set_security_mode(libsmb2->ctx, SMB2_NEGOTIATE_SIGNING_ENABLED);
@@ -216,7 +219,7 @@ index 0000000..1a5c743
 +    else
 +        access = O_RDONLY;
 +
-+    if ((libsmb2->fh = smb2_open(libsmb2->ctx, url->path, O_RDONLY)) == NULL)
++    if ((libsmb2->fh = smb2_open(libsmb2->ctx, url->path, access)) == NULL)
 +    {
 +        av_log(h, AV_LOG_ERROR, "smb2_open failed. %s\n", smb2_get_error(libsmb2->ctx));
 +        goto failed;
@@ -228,6 +231,8 @@ index 0000000..1a5c743
 +        av_log(h, AV_LOG_WARNING, "Cannot stat file: %s\n", smb2_get_error(libsmb2->ctx));
 +    else
 +        libsmb2->filesize = st.smb2_size;
++
++    libsmb2->app_ctx = (AVApplicationContext *)av_dict_strtoptr(libsmb2->app_ctx_intptr);
 +
 +    return 0;
 +failed:
@@ -306,6 +311,9 @@ index 0000000..1a5c743
 +    }
 +
 +    int bytes_read = size - buf_size1;
++    if (bytes_read > 0)
++        av_application_did_io_tcp_read(libsmb2->app_ctx, (void*)h, bytes_read);
++
 +    return bytes_read ? bytes_read : AVERROR_EOF;
 +}
 +
@@ -328,7 +336,9 @@ index 0000000..1a5c743
 +#define D AV_OPT_FLAG_DECODING_PARAM
 +#define E AV_OPT_FLAG_ENCODING_PARAM
 +static const AVOption options[] = {
-+    {NULL}};
++    { "ijkapplication", "AVApplicationContext", OFFSET(app_ctx_intptr), AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, .flags = D },
++    {NULL}
++};
 +
 +static const AVClass libsmb2lient_context_class = {
 +    .class_name = "libsmb2",

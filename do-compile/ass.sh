@@ -81,7 +81,6 @@ echo
 echo "CC: $XCRUN_CC"
 echo "CFG_FLAGS: $CFG_FLAGS"
 echo "CFLAGS: $CFLAGS"
-echo "PKG_CONFIG_LIBDIR: $MY_PKG_CONFIG_LIBDIR"
 echo
 
 ./configure $CFG_FLAGS \
