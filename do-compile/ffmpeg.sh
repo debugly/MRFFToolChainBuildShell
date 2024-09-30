@@ -189,16 +189,14 @@ fi
 
 echo "----------------------"
 
-# pkg-config --libs libbluray --silence-errors >/dev/null && enable_bluray=1
+pkg-config --libs libbluray --silence-errors >/dev/null && enable_bluray=1
 
-# if [[ $enable_bluray ]];then
-#     echo "[✅] --enable-libbluray"
-#     CFG_FLAGS="$CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
-# else
-#     echo "[❌] --disable-libbluray"
-# fi
-CFG_FLAGS="$CFG_FLAGS --disable-libbluray"
-echo "[❌] --disable-libbluray"
+if [[ $enable_bluray ]];then
+    echo "[✅] --enable-libbluray"
+    CFG_FLAGS="$CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
+else
+    echo "[❌] --disable-libbluray"
+fi
 echo "----------------------"
 
 pkg-config --libs dvdread --silence-errors >/dev/null && enable_dvdread=1
