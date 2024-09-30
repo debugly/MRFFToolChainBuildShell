@@ -1,13 +1,13 @@
-From a399d951e3cbebc74d50e7541098bd7d69726270 Mon Sep 17 00:00:00 2001
+From 78b23ccfadff2e4af94406663a54c9f0ea5f92ad Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Mon, 30 Sep 2024 16:36:03 +0800
+Date: Mon, 30 Sep 2024 18:09:41 +0800
 Subject: [PATCH 22] public ff_is_bluray_video func
 
 ---
  libavformat/Makefile      |  1 +
- libavformat/bluray.c      | 30 ++++++++++++++++++++++++++++++
+ libavformat/bluray.c      | 27 +++++++++++++++++++++++++++
  libavformat/bluray_util.h | 27 +++++++++++++++++++++++++++
- 3 files changed, 58 insertions(+)
+ 3 files changed, 55 insertions(+)
  create mode 100644 libavformat/bluray_util.h
 
 diff --git a/libavformat/Makefile b/libavformat/Makefile
@@ -23,7 +23,7 @@ index 5abe34c..29c42ee 100644
  OBJS = allformats.o         \
         avformat.o           \
 diff --git a/libavformat/bluray.c b/libavformat/bluray.c
-index 4b00c99..08649b6 100644
+index 4b07fb1..edeceb5 100644
 --- a/libavformat/bluray.c
 +++ b/libavformat/bluray.c
 @@ -28,6 +28,7 @@
@@ -32,31 +32,29 @@ index 4b00c99..08649b6 100644
  #include "bluray_custom_fs.h"
 +#include "bluray_util.h"
  
- #define BLURAY_PROTO_PREFIX     "bluray:"
+ #define BLURAY_PROTO_PREFIX     "bluray://"
  #define MIN_PLAYLIST_LENGTH     180     /* 3 min */
-@@ -127,6 +128,35 @@ static void bluray_DebugHandler(const char *psz)
- }
- #endif
- 
+@@ -338,3 +339,29 @@ const URLProtocol ff_bluray_protocol = {
+     .priv_data_size  = sizeof(BlurayContext),
+     .priv_data_class = &bluray_context_class,
+ };
++
 +int ff_is_bluray_video(const char *path, AVDictionary **options)
 +{
 +#ifdef DEBUG_BLURAY
 +    bd_set_debug_mask(BLURAY_DEBUG_MASK);
 +    bd_set_debug_handler(bluray_DebugHandler);
 +#endif
-+    const char *diskname = path;
-+
-+    av_strstart(path, BLURAY_PROTO_PREFIX, &diskname);
-+
++    
 +    fs_access *access = NULL;
 +
-+    if (av_strstart(diskname, "file://", NULL) || av_strstart(diskname, "/", NULL)) {
++    if (av_strstart(path, "file://", NULL) || av_strstart(path, "/", NULL)) {
 +        access = NULL;
 +    } else {
-+        access = create_bluray_custom_access(diskname, options);
++        access = create_bluray_custom_access(path, options);
 +    }
 +
-+    BLURAY *bd = bd_open_fs(diskname, NULL, access);
++    BLURAY *bd = bd_open_fs(path, NULL, access);
 +    if (!bd) {
 +        destroy_bluray_custom_access(&access);
 +        av_log(NULL, AV_LOG_ERROR, "bd_open() failed\n");
@@ -66,10 +64,6 @@ index 4b00c99..08649b6 100644
 +    destroy_bluray_custom_access(&access);
 +    return 1;
 +}
-+
- static int bluray_open(URLContext *h, const char *path, int flags, AVDictionary **options)
- {
- #ifdef DEBUG_BLURAY
 diff --git a/libavformat/bluray_util.h b/libavformat/bluray_util.h
 new file mode 100644
 index 0000000..62301b2
