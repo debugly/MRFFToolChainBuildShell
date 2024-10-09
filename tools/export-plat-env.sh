@@ -113,16 +113,16 @@ function init_plat_env() {
 
 function init_libs_pkg_config_path() {
     
-    universal_dir=
+    local universal_dir=
     if [[ "$XC_IS_SIMULATOR" == 1 ]];then
         universal_dir="${XC_UNI_SIM_PROD_DIR}"
     else
         universal_dir="${XC_UNI_PROD_DIR}"
     fi
     
-    pkg_cfg_dir=
-    
-    for dir in `find "${XC_PRODUCT_ROOT}" -type f -name "*.pc" | xargs dirname | uniq` ;
+    local pkg_cfg_dir=
+
+    for dir in `[ -d ${XC_PRODUCT_ROOT} ] && find "${XC_PRODUCT_ROOT}" -type f -name "*.pc" | xargs dirname | uniq` ;
     do
         # dir is /Users/matt/GitWorkspace/ijkplayer/shell/do-compile/../build/product/ios/harfbuzz-arm64/lib/pkgconfig
         local d1=$(dirname $dir)
@@ -138,7 +138,7 @@ function init_libs_pkg_config_path() {
         fi
     done
     
-    for dir in `find "${universal_dir}" -type f -name "*.pc" | xargs dirname | uniq` ;
+    for dir in `[ -d ${universal_dir} ] && find "${universal_dir}" -type f -name "*.pc" | xargs dirname | uniq` ;
     do
         if [[ $pkg_cfg_dir ]];then
             pkg_cfg_dir="${pkg_cfg_dir}:${dir}"

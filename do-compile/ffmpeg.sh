@@ -42,7 +42,7 @@ env_assert "XC_BUILD_SOURCE"
 env_assert "XC_BUILD_PREFIX"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XC_THREAD"
-env_assert "PKG_CONFIG_LIBDIR"
+echo "PKG_CONFIG_LIBDIR:$PKG_CONFIG_LIBDIR"
 echo "XC_DEBUG:$XC_DEBUG"
 echo "===check env end==="
 
