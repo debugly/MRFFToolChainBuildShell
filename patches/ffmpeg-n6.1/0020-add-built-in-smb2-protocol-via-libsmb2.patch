@@ -336,7 +336,7 @@ index 0000000..d8a8ca6
 +#define E AV_OPT_FLAG_ENCODING_PARAM
 +static const AVOption options[] = {
 +    { "ijkapplication", "AVApplicationContext", OFFSET(app_ctx_intptr), AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, .flags = D },
-+    { "smb2_seal", "enable smb3 encrypted connection", OFFSET(smb2_seal), AV_OPT_TYPE_BOOL, { .i64 = 1 }, 0, 1, .flags = D },
++    { "smb2_seal", "enable smb3 encrypted connection", OFFSET(smb2_seal), AV_OPT_TYPE_BOOL, { .i64 = 0 }, 0, 1, .flags = D },
 +    {NULL}
 +};
 +
