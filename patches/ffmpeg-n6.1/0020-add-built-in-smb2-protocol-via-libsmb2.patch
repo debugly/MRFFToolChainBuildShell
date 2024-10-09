@@ -1,6 +1,6 @@
-From c087ec93cbd9880bf3f50e509059ca1954cbd9b9 Mon Sep 17 00:00:00 2001
+From cdeb1709f296a7ec88909c30e0de8b201031159e Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Mon, 30 Sep 2024 14:30:50 +0800
+Date: Wed, 9 Oct 2024 16:49:01 +0800
 Subject: [PATCH 20] add built-in smb2 protocol via libsmb2
 
 ---
@@ -62,7 +62,7 @@ index dfcec9f..faaeab0 100644
  OBJS-$(CONFIG_LIBZMQ_PROTOCOL)           += libzmq.o
 diff --git a/libavformat/libsmb2.c b/libavformat/libsmb2.c
 new file mode 100644
-index 0000000..01daaf4
+index 0000000..d8a8ca6
 --- /dev/null
 +++ b/libavformat/libsmb2.c
 @@ -0,0 +1,292 @@
@@ -110,6 +110,7 @@ index 0000000..01daaf4
 +    uint64_t filesize;
 +    char *app_ctx_intptr;
 +    AVApplicationContext *app_ctx;
++    int smb2_seal;
 +} LIBSMB2Context;
 +
 +static void destroy_smb2(LIBSMB2Context *libsmb2)
@@ -201,6 +202,8 @@ index 0000000..01daaf4
 +    //https://github.com/sahlberg/libsmb2/issues/271
 +    //fix Very slow performance w/MacOS SMB server
 +    //smb2_set_security_mode(libsmb2->ctx, SMB2_NEGOTIATE_SIGNING_ENABLED);
++    smb2_set_seal(libsmb2->ctx, libsmb2->smb2_seal);
++    smb2_set_authentication(libsmb2->ctx, 1);//SMB2_SEC_NTLMSSP
 +
 +    if (smb2_connect_share(libsmb2->ctx, url->server, url->share, url->user) != 0)
 +    {
@@ -291,10 +294,6 @@ index 0000000..01daaf4
 +    while (buf_size1 > 0)
 +    {
 +        int read = smb2_read(libsmb2->ctx, libsmb2->fh, buf1, buf_size1);
-+        if (read == -EAGAIN)
-+        {
-+            continue;
-+        }
 +        if (read < 0)
 +        {
 +            av_log(h, AV_LOG_ERROR, "Failed to read file. %s\n",
@@ -337,6 +336,7 @@ index 0000000..01daaf4
 +#define E AV_OPT_FLAG_ENCODING_PARAM
 +static const AVOption options[] = {
 +    { "ijkapplication", "AVApplicationContext", OFFSET(app_ctx_intptr), AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, .flags = D },
++    { "smb2_seal", "enable smb3 encrypted connection", OFFSET(smb2_seal), AV_OPT_TYPE_BOOL, { .i64 = 1 }, 0, 1, .flags = D },
 +    {NULL}
 +};
 +
@@ -349,12 +349,12 @@ index 0000000..01daaf4
 +
 +const URLProtocol ff_libsmb2_protocol = {
 +    .name = "smb2",
-+    .url_open = libsmb2_open,
-+    .url_read = libsmb2_read,
++    .url_open  = libsmb2_open,
++    .url_read  = libsmb2_read,
 +    .url_write = libsmb2_write,
-+    .url_seek = libsmb2_seek,
++    .url_seek  = libsmb2_seek,
 +    .url_close = libsmb2_close,
-+    .priv_data_size = sizeof(LIBSMB2Context),
++    .priv_data_size  = sizeof(LIBSMB2Context),
 +    .priv_data_class = &libsmb2lient_context_class,
 +    .flags = URL_PROTOCOL_FLAG_NETWORK,
 +};
