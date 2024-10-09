@@ -1,14 +1,14 @@
-From 95222d1fad494d3b368552bbf65db22c994d2b8c Mon Sep 17 00:00:00 2001
+From e75b8c9aee98e919871e567137406e9309392de4 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Mon, 30 Sep 2024 18:03:00 +0800
+Date: Wed, 9 Oct 2024 16:55:01 +0800
 Subject: [PATCH 21] custom bluray fs for network Blu-ray Disc
 
 ---
  libavformat/Makefile           |   2 +-
- libavformat/bluray.c           |  22 ++--
+ libavformat/bluray.c           |  28 +++--
  libavformat/bluray_custom_fs.c | 190 +++++++++++++++++++++++++++++++++
  libavformat/bluray_custom_fs.h |  29 +++++
- 4 files changed, 236 insertions(+), 7 deletions(-)
+ 4 files changed, 242 insertions(+), 7 deletions(-)
  create mode 100644 libavformat/bluray_custom_fs.c
  create mode 100644 libavformat/bluray_custom_fs.h
 
@@ -26,7 +26,7 @@ index faaeab0..5abe34c 100644
  OBJS-$(CONFIG_CONCAT_PROTOCOL)           += concat.o
  OBJS-$(CONFIG_CONCATF_PROTOCOL)          += concat.o
 diff --git a/libavformat/bluray.c b/libavformat/bluray.c
-index bf5b88d..4b07fb1 100644
+index bf5b88d..d88c414 100644
 --- a/libavformat/bluray.c
 +++ b/libavformat/bluray.c
 @@ -27,15 +27,16 @@
@@ -66,7 +66,7 @@ index bf5b88d..4b07fb1 100644
  {
  #ifdef DEBUG_BLURAY
      bd_set_debug_mask(BLURAY_DEBUG_MASK);
-@@ -138,11 +139,20 @@ static int bluray_open(URLContext *h, const char *path, int flags)
+@@ -138,11 +139,26 @@ static int bluray_open(URLContext *h, const char *path, int flags)
  
      av_strstart(path, BLURAY_PROTO_PREFIX, &diskname);
  
@@ -76,19 +76,25 @@ index bf5b88d..4b07fb1 100644
 +    if (av_strstart(diskname, "file://", NULL) || av_strstart(diskname, "/", NULL)) {
 +        access = NULL;
 +    } else {
++        //set read packet buffer size is important! the default packet size is 32768, when use smb2 protocol, download speed is limited to 2MB; but when set the size to 1048576, download speed is 16MB;
++        h->max_packet_size = 1048576;
 +        access = create_bluray_custom_access(diskname, options);
 +    }
 +
 +    bd->bd = bd_open_fs(diskname, NULL, access);
++
      if (!bd->bd) {
          av_log(h, AV_LOG_ERROR, "bd_open() failed\n");
++        if (access) {
++            destroy_bluray_custom_access(&access);
++        }
          return AVERROR(EIO);
      }
 +    bd->access = access;
  
      /* check if disc can be played */
      if (check_disc_info(h) < 0) {
-@@ -321,7 +331,7 @@ fail:
+@@ -321,7 +337,7 @@ fail:
  const URLProtocol ff_bluray_protocol = {
      .name            = "bluray",
      .url_close       = bluray_close,
