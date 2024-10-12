@@ -1,6 +1,6 @@
-From cdeb1709f296a7ec88909c30e0de8b201031159e Mon Sep 17 00:00:00 2001
+From cc8d0424637fce7950dc10f6e1da12c6063363bc Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Wed, 9 Oct 2024 16:49:01 +0800
+Date: Sat, 12 Oct 2024 18:33:37 +0800
 Subject: [PATCH 20] add built-in smb2 protocol via libsmb2
 
 ---
@@ -49,10 +49,10 @@ index 3f2fd2d..16d0177 100755
  enabled libsoxr           && require libsoxr soxr.h soxr_create -lsoxr
  enabled libssh            && require_pkg_config libssh "libssh >= 0.6.0" libssh/sftp.h sftp_init
 diff --git a/libavformat/Makefile b/libavformat/Makefile
-index dfcec9f..faaeab0 100644
+index ae952eb..427c45a 100644
 --- a/libavformat/Makefile
 +++ b/libavformat/Makefile
-@@ -720,6 +720,7 @@ OBJS-$(CONFIG_LIBRTMPS_PROTOCOL)         += librtmp.o
+@@ -724,6 +724,7 @@ OBJS-$(CONFIG_LIBRTMPS_PROTOCOL)         += librtmp.o
  OBJS-$(CONFIG_LIBRTMPT_PROTOCOL)         += librtmp.o
  OBJS-$(CONFIG_LIBRTMPTE_PROTOCOL)        += librtmp.o
  OBJS-$(CONFIG_LIBSMBCLIENT_PROTOCOL)     += libsmbclient.o
@@ -62,7 +62,7 @@ index dfcec9f..faaeab0 100644
  OBJS-$(CONFIG_LIBZMQ_PROTOCOL)           += libzmq.o
 diff --git a/libavformat/libsmb2.c b/libavformat/libsmb2.c
 new file mode 100644
-index 0000000..d8a8ca6
+index 0000000..fdfa7eb
 --- /dev/null
 +++ b/libavformat/libsmb2.c
 @@ -0,0 +1,292 @@
@@ -92,7 +92,7 @@ index 0000000..d8a8ca6
 +#include "libavutil/avstring.h"
 +#include "libavutil/opt.h"
 +#include "libavutil/avstring.h"
-+#include "libavutil/application.h"
++#include "application.h"
 +#include "url.h"
 +#include "urldecode.h"
 +

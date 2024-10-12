@@ -1,16 +1,17 @@
-From b33fcbfab5625e3c31915e954c0b2ce1aa0a388b Mon Sep 17 00:00:00 2001
+From 9e37c2db7c233b4696437a8921125920d4e7594c Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Mon, 30 Sep 2024 15:23:43 +0800
-Subject: [PATCH 2] add bd_open_fs function
+Date: Fri, 11 Oct 2024 11:48:11 +0800
+Subject: [PATCH] add bd_open_fs function
 
 ---
- Makefile.am               |  1 +
- src/libbluray/bluray-fs.h | 22 ++++++++++++++++++++++
- src/libbluray/bluray.c    | 24 ++++++++++++++++++++++++
- src/libbluray/bluray.h    | 14 ++++++++++++++
- src/libbluray/disc/disc.c |  2 +-
- src/libbluray/disc/disc.h | 18 ++----------------
- 6 files changed, 64 insertions(+), 17 deletions(-)
+ Makefile.am               |   1 +
+ src/file/filesystem.h     | 110 +-------------------------------
+ src/libbluray/bluray-fs.h | 129 ++++++++++++++++++++++++++++++++++++++
+ src/libbluray/bluray.c    |  24 +++++++
+ src/libbluray/bluray.h    |  14 +++++
+ src/libbluray/disc/disc.c |   2 +-
+ src/libbluray/disc/disc.h |  18 +-----
+ 7 files changed, 172 insertions(+), 126 deletions(-)
  create mode 100644 src/libbluray/bluray-fs.h
 
 diff --git a/Makefile.am b/Makefile.am
@@ -25,20 +26,248 @@ index 24b60f7..a2d9e74 100644
  	src/libbluray/keys.h \
  	src/libbluray/player_settings.h \
  	src/libbluray/bdnav/clpi_data.h \
+diff --git a/src/file/filesystem.h b/src/file/filesystem.h
+index 6c12439..3d4cf85 100644
+--- a/src/file/filesystem.h
++++ b/src/file/filesystem.h
+@@ -33,115 +33,7 @@
+ extern "C" {
+ #endif
+ 
+-#include <stdint.h>
+-
+-/**
+- * File access
+- */
+-typedef struct bd_file_s BD_FILE_H;
+-struct bd_file_s
+-{
+-    /** Reserved for BD_FILE_H implementation use.
+-     *  Implementation can store here ex. file handle, FILE*, ...
+-     */
+-    void* internal;
+-
+-    /**
+-     *  Close file
+-     *
+-     *  @param file BD_FILE_H object
+-     */
+-    void    (*close) (BD_FILE_H *file);
+-
+-    /**
+-     *  Reposition file offset
+-     *
+-     *  - SEEK_SET: seek to 'offset' bytes from file start
+-     *  - SEEK_CUR: seek 'offset' bytes from current position
+-     *  - SEEK_END: seek 'offset' bytes from file end
+-     *
+-     *  @param file BD_FILE_H object
+-     *  @param offset byte offset
+-     *  @param origin SEEK_SET, SEEK_CUR or SEEK_END
+-     *  @return current file offset, < 0 on error
+-     */
+-    int64_t (*seek)  (BD_FILE_H *file, int64_t offset, int32_t origin);
+-
+-    /**
+-     *  Get current read or write position
+-     *
+-     *  @param file BD_FILE_H object
+-     *  @return current file offset, < 0 on error
+-     */
+-    int64_t (*tell)  (BD_FILE_H *file);
+-
+-    /**
+-     *  Check for end of file
+-     *
+-     *  - optional, currently not used
+-     *
+-     *  @param file BD_FILE_H object
+-     *  @return 1 on EOF, < 0 on error, 0 if not EOF
+-     */
+-    int     (*eof)   (BD_FILE_H *file);
+-
+-    /**
+-     *  Read from file
+-     *
+-     *  @param file BD_FILE_H object
+-     *  @param buf buffer where to store the data
+-     *  @param size bytes to read
+-     *  @return number of bytes read, 0 on EOF, < 0 on error
+-     */
+-    int64_t (*read)  (BD_FILE_H *file, uint8_t *buf, int64_t size);
+-
+-    /**
+-     *  Write to file
+-     *
+-     *  Writing 0 bytes can be used to flush previous writes and check for errors.
+-     *
+-     *  @param file BD_FILE_H object
+-     *  @param buf data to be written
+-     *  @param size bytes to write
+-     *  @return number of bytes written, < 0 on error
+-     */
+-    int64_t (*write) (BD_FILE_H *file, const uint8_t *buf, int64_t size);
+-};
+-
+-/**
+- * Directory entry
+- */
+-
+-typedef struct
+-{
+-    char    d_name[256];  /**< Null-terminated filename */
+-} BD_DIRENT;
+-
+-/**
+- * Directory access
+- */
+-
+-typedef struct bd_dir_s BD_DIR_H;
+-struct bd_dir_s
+-{
+-    void* internal; /**< reserved for BD_DIR_H implementation use */
+-
+-    /**
+-     *  Close directory stream
+-     *
+-     *  @param dir BD_DIR_H object
+-     */
+-    void (*close)(BD_DIR_H *dir);
+-
+-    /**
+-     *  Read next directory entry
+-     *
+-     *  @param dir BD_DIR_H object
+-     *  @param entry BD_DIRENT where to store directory entry data
+-     *  @return 0 on success, 1 on EOF, <0 on error
+-     */
+-    int (*read)(BD_DIR_H *dir, BD_DIRENT *entry);
+-};
++#include "../libbluray/bluray-fs.h"
+ 
+ /**
+  *  Open a file
 diff --git a/src/libbluray/bluray-fs.h b/src/libbluray/bluray-fs.h
 new file mode 100644
-index 0000000..8f7156f
+index 0000000..3a76a4e
 --- /dev/null
 +++ b/src/libbluray/bluray-fs.h
-@@ -0,0 +1,22 @@
+@@ -0,0 +1,129 @@
 +
 +/* application provided file system access (optional) */
 +
 +#if !defined(_BLURAY_FS_H_)
 +#define _BLURAY_FS_H_
 +
-+struct bd_file_s;
-+struct bd_dir_s;
++#include <stdint.h>
++
++/**
++ * File access
++ */
++typedef struct bd_file_s BD_FILE_H;
++struct bd_file_s
++{
++    /** Reserved for BD_FILE_H implementation use.
++     *  Implementation can store here ex. file handle, FILE*, ...
++     */
++    void* internal;
++
++    /**
++     *  Close file
++     *
++     *  @param file BD_FILE_H object
++     */
++    void    (*close) (BD_FILE_H *file);
++
++    /**
++     *  Reposition file offset
++     *
++     *  - SEEK_SET: seek to 'offset' bytes from file start
++     *  - SEEK_CUR: seek 'offset' bytes from current position
++     *  - SEEK_END: seek 'offset' bytes from file end
++     *
++     *  @param file BD_FILE_H object
++     *  @param offset byte offset
++     *  @param origin SEEK_SET, SEEK_CUR or SEEK_END
++     *  @return current file offset, < 0 on error
++     */
++    int64_t (*seek)  (BD_FILE_H *file, int64_t offset, int32_t origin);
++
++    /**
++     *  Get current read or write position
++     *
++     *  @param file BD_FILE_H object
++     *  @return current file offset, < 0 on error
++     */
++    int64_t (*tell)  (BD_FILE_H *file);
++
++    /**
++     *  Check for end of file
++     *
++     *  - optional, currently not used
++     *
++     *  @param file BD_FILE_H object
++     *  @return 1 on EOF, < 0 on error, 0 if not EOF
++     */
++    int     (*eof)   (BD_FILE_H *file);
++
++    /**
++     *  Read from file
++     *
++     *  @param file BD_FILE_H object
++     *  @param buf buffer where to store the data
++     *  @param size bytes to read
++     *  @return number of bytes read, 0 on EOF, < 0 on error
++     */
++    int64_t (*read)  (BD_FILE_H *file, uint8_t *buf, int64_t size);
++
++    /**
++     *  Write to file
++     *
++     *  Writing 0 bytes can be used to flush previous writes and check for errors.
++     *
++     *  @param file BD_FILE_H object
++     *  @param buf data to be written
++     *  @param size bytes to write
++     *  @return number of bytes written, < 0 on error
++     */
++    int64_t (*write) (BD_FILE_H *file, const uint8_t *buf, int64_t size);
++};
++
++/**
++ * Directory entry
++ */
++
++typedef struct
++{
++    char    d_name[256];  /**< Null-terminated filename */
++} BD_DIRENT;
++
++/**
++ * Directory access
++ */
++
++typedef struct bd_dir_s BD_DIR_H;
++struct bd_dir_s
++{
++    void* internal; /**< reserved for BD_DIR_H implementation use */
++
++    /**
++     *  Close directory stream
++     *
++     *  @param dir BD_DIR_H object
++     */
++    void (*close)(BD_DIR_H *dir);
++
++    /**
++     *  Read next directory entry
++     *
++     *  @param dir BD_DIR_H object
++     *  @param entry BD_DIRENT where to store directory entry data
++     *  @return 0 on success, 1 on EOF, <0 on error
++     */
++    int (*read)(BD_DIR_H *dir, BD_DIRENT *entry);
++};
 +
 +/* application provided file system access (optional) */
 +typedef struct fs_access {

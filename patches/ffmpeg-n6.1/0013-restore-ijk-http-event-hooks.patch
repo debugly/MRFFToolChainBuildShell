@@ -1,6 +1,6 @@
-From ff5d2b84052735e4b51d917f238960c6537ea187 Mon Sep 17 00:00:00 2001
+From d1b10fc4f49148e7119894aa37af3fde443299b3 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Sat, 11 May 2024 15:12:54 +0800
+Date: Sat, 12 Oct 2024 17:18:23 +0800
 Subject: [PATCH 13] restore ijk http event hooks
 
 ---
@@ -10,17 +10,17 @@ Subject: [PATCH 13] restore ijk http event hooks
  3 files changed, 92 insertions(+), 7 deletions(-)
 
 diff --git a/libavformat/http.c b/libavformat/http.c
-index c0fe7c3..1a036f5 100644
+index c0fe7c3..06f1bdd 100644
 --- a/libavformat/http.c
 +++ b/libavformat/http.c
-@@ -34,6 +34,7 @@
- #include "libavutil/opt.h"
- #include "libavutil/time.h"
- #include "libavutil/parseutils.h"
-+#include "libavutil/application.h"
+@@ -43,6 +43,7 @@
+ #include "os_support.h"
+ #include "url.h"
+ #include "version.h"
++#include "application.h"
  
- #include "avformat.h"
- #include "http.h"
+ /* XXX: POST protocol is not completely implemented because ffmpeg uses
+  * only a subset of it. */
 @@ -137,6 +138,9 @@ typedef struct HTTPContext {
      char *new_location;
      AVDictionary *redirect_cache;
@@ -135,18 +135,19 @@ index c0fe7c3..1a036f5 100644
  redo:
      ret = ffurl_open_whitelist(&s->hd, lower_url, AVIO_FLAG_READ_WRITE,
 diff --git a/libavformat/tcp.c b/libavformat/tcp.c
-index db41394..d298d1c 100644
+index db41394..0ffceee 100644
 --- a/libavformat/tcp.c
 +++ b/libavformat/tcp.c
-@@ -23,6 +23,8 @@
+@@ -23,7 +23,9 @@
  #include "libavutil/parseutils.h"
  #include "libavutil/opt.h"
  #include "libavutil/time.h"
 +#include "libavutil/avstring.h"
-+#include "libavutil/application.h"
  
++#include "application.h"
  #include "internal.h"
  #include "network.h"
+ #include "os_support.h"
 @@ -47,6 +49,9 @@ typedef struct TCPContext {
  #if !HAVE_WINSOCK2_H
      int tcp_mss;

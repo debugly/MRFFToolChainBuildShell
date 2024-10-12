@@ -1,17 +1,12 @@
-From a61d455bbbf32497be62ae1aba9674ae94b3af1f Mon Sep 17 00:00:00 2001
+From db7baf885ddafb4705d3d81751e66e0de3fdbfd2 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Mon, 22 Jul 2024 15:43:54 +0800
+Date: Sat, 12 Oct 2024 17:31:15 +0800
 Subject: [PATCH 14] restore ijk dns cache
 
 ---
- libavformat/hls.c     |  45 +++++-
- libavformat/tcp.c     | 322 ++++++++++++++++++++++++++++++++++++++++--
- libavutil/Makefile    |   2 +
- libavutil/dns_cache.c | 232 ++++++++++++++++++++++++++++++
- libavutil/dns_cache.h |  39 +++++
- 5 files changed, 623 insertions(+), 17 deletions(-)
- create mode 100644 libavutil/dns_cache.c
- create mode 100644 libavutil/dns_cache.h
+ libavformat/hls.c |  45 ++++++-
+ libavformat/tcp.c | 323 ++++++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 350 insertions(+), 18 deletions(-)
 
 diff --git a/libavformat/hls.c b/libavformat/hls.c
 index 1a49c79..1cf3057 100644
@@ -115,18 +110,19 @@ index 1a49c79..1cf3057 100644
      .read_close     = hls_close,
      .read_seek      = hls_read_seek,
 diff --git a/libavformat/tcp.c b/libavformat/tcp.c
-index d298d1c..4e0cd95 100644
+index 0ffceee..5711572 100644
 --- a/libavformat/tcp.c
 +++ b/libavformat/tcp.c
-@@ -25,6 +25,7 @@
+@@ -24,7 +24,7 @@
+ #include "libavutil/opt.h"
  #include "libavutil/time.h"
  #include "libavutil/avstring.h"
- #include "libavutil/application.h"
-+#include "libavutil/dns_cache.h"
- 
+-
++#include "dns_cache.h"
+ #include "application.h"
  #include "internal.h"
  #include "network.h"
-@@ -33,6 +34,9 @@
+@@ -33,6 +33,9 @@
  #if HAVE_POLL_H
  #include <poll.h>
  #endif
@@ -136,7 +132,7 @@ index d298d1c..4e0cd95 100644
  
  typedef struct TCPContext {
      const AVClass *class;
-@@ -51,6 +55,10 @@ typedef struct TCPContext {
+@@ -51,6 +54,10 @@ typedef struct TCPContext {
  #endif /* !HAVE_WINSOCK2_H */
  
      char * app_ctx_intptr;
@@ -147,7 +143,7 @@ index d298d1c..4e0cd95 100644
      AVApplicationContext *app_ctx;
  } TCPContext;
  
-@@ -71,9 +79,261 @@ static const AVOption options[] = {
+@@ -71,9 +78,261 @@ static const AVOption options[] = {
  #endif /* !HAVE_WINSOCK2_H */
      { "ijkapplication",   "AVApplicationContext",                              OFFSET(app_ctx_intptr),   AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, .flags = D },
      { "connect_timeout",  "set connect timeout (in microseconds) of socket", OFFSET(open_timeout),     AV_OPT_TYPE_INT, { .i64 = -1 },         -1, INT_MAX, .flags = D|E },
@@ -409,7 +405,7 @@ index d298d1c..4e0cd95 100644
  static const AVClass tcp_class = {
      .class_name = "tcp",
      .item_name  = av_default_item_name,
-@@ -155,7 +415,7 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
+@@ -155,7 +414,7 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
      char hostname[1024],proto[1024],path[1024];
      char portstr[10];
      AVAppTcpIOControl control = {0};
@@ -418,7 +414,7 @@ index d298d1c..4e0cd95 100644
      int ret2;
      if (s->open_timeout < 0) {
          s->open_timeout = 15000000;
-@@ -221,18 +481,37 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
+@@ -221,18 +480,37 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
      snprintf(portstr, sizeof(portstr), "%d", port);
      if (s->listen)
          hints.ai_flags |= AI_PASSIVE;
@@ -466,7 +462,7 @@ index d298d1c..4e0cd95 100644
  
  #if HAVE_STRUCT_SOCKADDR_IN6
      // workaround for IOS9 getaddrinfo in IPv6 only network use hardcode IPv4 address can not resolve port number.
-@@ -288,19 +567,36 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
+@@ -288,19 +566,36 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
              ret = ret2;
              goto fail1;
          }
@@ -505,309 +501,6 @@ index d298d1c..4e0cd95 100644
      return ret;
  }
  
-diff --git a/libavutil/Makefile b/libavutil/Makefile
-index 9a027b0..0111948 100644
---- a/libavutil/Makefile
-+++ b/libavutil/Makefile
-@@ -29,6 +29,7 @@ HEADERS = adler32.h                                                     \
-           display.h                                                     \
-           dovi_meta.h                                                   \
-           downmix_info.h                                                \
-+          dns_cache.h                                                   \
-           encryption_info.h                                             \
-           error.h                                                       \
-           eval.h                                                        \
-@@ -112,6 +113,7 @@ OBJS = adler32.o                                                        \
-        avstring.o                                                       \
-        avsscanf.o                                                       \
-        application.o                                                    \
-+       dns_cache.o                                                      \
-        base64.o                                                         \
-        blowfish.o                                                       \
-        bprint.o                                                         \
-diff --git a/libavutil/dns_cache.c b/libavutil/dns_cache.c
-new file mode 100644
-index 0000000..fc054aa
---- /dev/null
-+++ b/libavutil/dns_cache.c
-@@ -0,0 +1,232 @@
-+/*
-+ * copyright (c) 2017 Raymond Zheng
-+ *
-+ * This file is part of FFmpeg.
-+ *
-+ * FFmpeg is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU Lesser General Public
-+ * License as published by the Free Software Foundation; either
-+ * version 2.1 of the License, or (at your option) any later version.
-+ *
-+ * FFmpeg is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * Lesser General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU Lesser General Public
-+ * License along with FFmpeg; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-+ */
-+
-+#include "libavutil/dns_cache.h"
-+#include "libavutil/time.h"
-+#include "libavutil/mem.h"
-+#include "libavformat/network.h"
-+#include <string.h>
-+#include <stdlib.h>
-+
-+#if HAVE_PTHREADS
-+#include <pthread.h>
-+#endif
-+
-+typedef struct DnsCacheContext DnsCacheContext;
-+typedef struct DnsCacheContext {
-+    AVDictionary *dns_dictionary;
-+    pthread_mutex_t dns_dictionary_mutex;
-+    int initialized;
-+} DnsCacheContext;
-+
-+static DnsCacheContext *context = NULL;
-+static pthread_once_t key_once = PTHREAD_ONCE_INIT;
-+
-+static void inner_init(void) {
-+    int ret = 0;
-+    context = (DnsCacheContext *) av_mallocz(sizeof(DnsCacheContext));
-+    if (context) {
-+        ret = pthread_mutex_init(&context->dns_dictionary_mutex, NULL);
-+        if (!ret) {
-+            context->initialized = 1;
-+        } else {
-+            av_freep(&context);
-+        }
-+    }
-+}
-+
-+static void free_private_addrinfo(struct addrinfo **p_ai) {
-+    struct addrinfo *ai = *p_ai;
-+
-+    if (ai) {
-+        if (ai->ai_addr) {
-+            av_freep(&ai->ai_addr);
-+        }
-+        av_freep(p_ai);
-+    }
-+}
-+
-+static int inner_remove_dns_cache(const char *uri, DnsCacheEntry *dns_cache_entry) {
-+    if (context && dns_cache_entry) {
-+        if (dns_cache_entry->ref_count == 0) {
-+            av_dict_set_int(&context->dns_dictionary, uri, 0, 0);
-+            free_private_addrinfo(&dns_cache_entry->res);
-+            av_freep(&dns_cache_entry);
-+        } else {
-+            dns_cache_entry->delete_flag = 1;
-+        }
-+    }
-+
-+    return 0;
-+}
-+
-+static DnsCacheEntry *new_dns_cache_entry(const char *uri, struct addrinfo *cur_ai, int64_t timeout) {
-+    DnsCacheEntry *new_entry = NULL;
-+    int64_t cur_time         = av_gettime_relative();
-+
-+    if (cur_time < 0) {
-+        goto fail;
-+    }
-+
-+    new_entry = (DnsCacheEntry *) av_mallocz(sizeof(struct DnsCacheEntry));
-+    if (!new_entry) {
-+        goto fail;
-+    }
-+
-+    new_entry->res = (struct addrinfo *) av_mallocz(sizeof(struct addrinfo));
-+    if (!new_entry->res) {
-+        av_freep(&new_entry);
-+        goto fail;
-+    }
-+
-+    memcpy(new_entry->res, cur_ai, sizeof(struct addrinfo));
-+
-+    new_entry->res->ai_addr = (struct sockaddr *) av_mallocz(sizeof(struct sockaddr));
-+    if (!new_entry->res->ai_addr) {
-+        av_freep(&new_entry->res);
-+        av_freep(&new_entry);
-+        goto fail;
-+    }
-+
-+    memcpy(new_entry->res->ai_addr, cur_ai->ai_addr, sizeof(struct sockaddr));
-+    new_entry->res->ai_canonname = NULL;
-+    new_entry->res->ai_next      = NULL;
-+    new_entry->ref_count         = 0;
-+    new_entry->delete_flag       = 0;
-+    new_entry->expired_time      = cur_time + timeout * 1000;
-+
-+    return new_entry;
-+
-+fail:
-+    return NULL;
-+}
-+
-+DnsCacheEntry *get_dns_cache_reference(const char *uri) {
-+    AVDictionaryEntry *elem = NULL;
-+    DnsCacheEntry *dns_cache_entry = NULL;
-+    int64_t cur_time = av_gettime_relative();
-+
-+    if (cur_time < 0 || !uri || strlen(uri) == 0) {
-+        return NULL;
-+    }
-+
-+    if (!context || !context->initialized) {
-+#if HAVE_PTHREADS
-+        pthread_once(&key_once, inner_init);
-+#endif
-+    }
-+
-+    if (context && context->initialized) {
-+        pthread_mutex_lock(&context->dns_dictionary_mutex);
-+        elem = av_dict_get(context->dns_dictionary, uri, NULL, AV_DICT_MATCH_CASE);
-+        if (elem) {
-+            dns_cache_entry = (DnsCacheEntry *) (intptr_t) strtoll(elem->value, NULL, 10);
-+            if (dns_cache_entry) {
-+                if (dns_cache_entry->expired_time < cur_time) {
-+                    inner_remove_dns_cache(uri, dns_cache_entry);
-+                    dns_cache_entry = NULL;
-+                } else {
-+                    dns_cache_entry->ref_count++;
-+                }
-+            }
-+        }
-+        pthread_mutex_unlock(&context->dns_dictionary_mutex);
-+    }
-+
-+    return dns_cache_entry;
-+}
-+
-+int release_dns_cache_reference(const char *uri, DnsCacheEntry **p_entry) {
-+    DnsCacheEntry *entry = *p_entry;
-+
-+    if (!uri || strlen(uri) == 0) {
-+        return -1;
-+    }
-+
-+    if (context && context->initialized && entry) {
-+        pthread_mutex_lock(&context->dns_dictionary_mutex);
-+        entry->ref_count--;
-+        if (entry->delete_flag && entry->ref_count == 0) {
-+            inner_remove_dns_cache(uri, entry);
-+            entry = NULL;
-+        }
-+        pthread_mutex_unlock(&context->dns_dictionary_mutex);
-+    }
-+    return 0;
-+}
-+
-+int remove_dns_cache_entry(const char *uri) {
-+    AVDictionaryEntry *elem = NULL;
-+    DnsCacheEntry *dns_cache_entry = NULL;
-+
-+    if (!uri || strlen(uri) == 0) {
-+        return -1;
-+    }
-+
-+    if (context && context->initialized) {
-+        pthread_mutex_lock(&context->dns_dictionary_mutex);
-+        elem = av_dict_get(context->dns_dictionary, uri, NULL, AV_DICT_MATCH_CASE);
-+        if (elem) {
-+            dns_cache_entry = (DnsCacheEntry *) (intptr_t) strtoll(elem->value, NULL, 10);
-+            if (dns_cache_entry) {
-+                inner_remove_dns_cache(uri, dns_cache_entry);
-+            }
-+        }
-+        pthread_mutex_unlock(&context->dns_dictionary_mutex);
-+    }
-+
-+    return 0;
-+}
-+
-+int add_dns_cache_entry(const char *uri, struct addrinfo *cur_ai, int64_t timeout) {
-+    DnsCacheEntry *new_entry = NULL;
-+    DnsCacheEntry *old_entry = NULL;
-+    AVDictionaryEntry *elem  = NULL;
-+
-+    if (!uri || strlen(uri) == 0 || timeout <= 0) {
-+        goto fail;
-+    }
-+
-+    if (cur_ai == NULL || cur_ai->ai_addr == NULL) {
-+        goto fail;
-+    }
-+
-+    if (context && context->initialized) {
-+        pthread_mutex_lock(&context->dns_dictionary_mutex);
-+        elem = av_dict_get(context->dns_dictionary, uri, NULL, AV_DICT_MATCH_CASE);
-+        if (elem) {
-+            old_entry = (DnsCacheEntry *) (intptr_t) strtoll(elem->value, NULL, 10);
-+            if (old_entry) {
-+                pthread_mutex_unlock(&context->dns_dictionary_mutex);
-+                goto fail;
-+            }
-+        }
-+        new_entry = new_dns_cache_entry(uri, cur_ai, timeout);
-+        if (new_entry) {
-+            av_dict_set_int(&context->dns_dictionary, uri, (int64_t) (intptr_t) new_entry, 0);
-+        }
-+        pthread_mutex_unlock(&context->dns_dictionary_mutex);
-+
-+        return 0;
-+    }
-+
-+fail:
-+    return -1;
-+}
-diff --git a/libavutil/dns_cache.h b/libavutil/dns_cache.h
-new file mode 100644
-index 0000000..23c695e
---- /dev/null
-+++ b/libavutil/dns_cache.h
-@@ -0,0 +1,39 @@
-+/*
-+ * copyright (c) 2017 Raymond Zheng
-+ *
-+ * This file is part of FFmpeg.
-+ *
-+ * FFmpeg is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU Lesser General Public
-+ * License as published by the Free Software Foundation; either
-+ * version 2.1 of the License, or (at your option) any later version.
-+ *
-+ * FFmpeg is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * Lesser General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU Lesser General Public
-+ * License along with FFmpeg; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-+ */
-+
-+#ifndef AVUTIL_DNS_CACHE_H
-+#define AVUTIL_DNS_CACHE_H
-+
-+#include "libavutil/log.h"
-+#include <stdint.h>
-+
-+typedef struct DnsCacheEntry {
-+    volatile int ref_count;
-+    volatile int delete_flag;
-+    int64_t expired_time;
-+    struct addrinfo *res;  // construct by private function, not support ai_next and ai_canonname, can only be released using free_private_addrinfo
-+} DnsCacheEntry;
-+
-+DnsCacheEntry *get_dns_cache_reference(const char *uri);
-+int release_dns_cache_reference(const char *uri, DnsCacheEntry **p_entry);
-+int remove_dns_cache_entry(const char *uri);
-+int add_dns_cache_entry(const char *uri, struct addrinfo *cur_ai, int64_t timeout);
-+
-+#endif /* AVUTIL_DNS_CACHE_H */
 -- 
 2.39.3 (Apple Git-146)
 

@@ -1,22 +1,22 @@
-From e75b8c9aee98e919871e567137406e9309392de4 Mon Sep 17 00:00:00 2001
+From d3529ca5da62530e204de6df66799935e634d3f1 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Wed, 9 Oct 2024 16:55:01 +0800
+Date: Sat, 12 Oct 2024 18:29:02 +0800
 Subject: [PATCH 21] custom bluray fs for network Blu-ray Disc
 
 ---
  libavformat/Makefile           |   2 +-
- libavformat/bluray.c           |  28 +++--
+ libavformat/bluray.c           |  31 ++++--
  libavformat/bluray_custom_fs.c | 190 +++++++++++++++++++++++++++++++++
  libavformat/bluray_custom_fs.h |  29 +++++
- 4 files changed, 242 insertions(+), 7 deletions(-)
+ 4 files changed, 244 insertions(+), 8 deletions(-)
  create mode 100644 libavformat/bluray_custom_fs.c
  create mode 100644 libavformat/bluray_custom_fs.h
 
 diff --git a/libavformat/Makefile b/libavformat/Makefile
-index faaeab0..5abe34c 100644
+index 427c45a..ffc32b9 100644
 --- a/libavformat/Makefile
 +++ b/libavformat/Makefile
-@@ -662,7 +662,7 @@ OBJS-$(CONFIG_VAPOURSYNTH_DEMUXER)       += vapoursynth.o
+@@ -666,7 +666,7 @@ OBJS-$(CONFIG_VAPOURSYNTH_DEMUXER)       += vapoursynth.o
  # protocols I/O
  OBJS-$(CONFIG_ASYNC_PROTOCOL)            += async.o
  OBJS-$(CONFIG_APPLEHTTP_PROTOCOL)        += hlsproto.o
@@ -26,10 +26,17 @@ index faaeab0..5abe34c 100644
  OBJS-$(CONFIG_CONCAT_PROTOCOL)           += concat.o
  OBJS-$(CONFIG_CONCATF_PROTOCOL)          += concat.o
 diff --git a/libavformat/bluray.c b/libavformat/bluray.c
-index bf5b88d..d88c414 100644
+index bf5b88d..62c7727 100644
 --- a/libavformat/bluray.c
 +++ b/libavformat/bluray.c
-@@ -27,15 +27,16 @@
+@@ -21,21 +21,22 @@
+  */
+ 
+ #include <libbluray/bluray.h>
+-
++#include "libavformat/urldecode.h"
+ #include "libavutil/avstring.h"
+ #include "libavformat/url.h"
  #include "libavutil/opt.h"
  #include "libavutil/dict.h"
  #include "libavformat/avformat.h"
@@ -66,7 +73,7 @@ index bf5b88d..d88c414 100644
  {
  #ifdef DEBUG_BLURAY
      bd_set_debug_mask(BLURAY_DEBUG_MASK);
-@@ -138,11 +139,26 @@ static int bluray_open(URLContext *h, const char *path, int flags)
+@@ -138,11 +139,27 @@ static int bluray_open(URLContext *h, const char *path, int flags)
  
      av_strstart(path, BLURAY_PROTO_PREFIX, &diskname);
  
@@ -78,6 +85,7 @@ index bf5b88d..d88c414 100644
 +    } else {
 +        //set read packet buffer size is important! the default packet size is 32768, when use smb2 protocol, download speed is limited to 2MB; but when set the size to 1048576, download speed is 16MB;
 +        h->max_packet_size = 1048576;
++        diskname = ff_urldecode(diskname, 0);
 +        access = create_bluray_custom_access(diskname, options);
 +    }
 +
@@ -94,7 +102,7 @@ index bf5b88d..d88c414 100644
  
      /* check if disc can be played */
      if (check_disc_info(h) < 0) {
-@@ -321,7 +337,7 @@ fail:
+@@ -321,7 +338,7 @@ fail:
  const URLProtocol ff_bluray_protocol = {
      .name            = "bluray",
      .url_close       = bluray_close,
@@ -105,7 +113,7 @@ index bf5b88d..d88c414 100644
      .url_parse_priv  = bluray_parse_priv,
 diff --git a/libavformat/bluray_custom_fs.c b/libavformat/bluray_custom_fs.c
 new file mode 100644
-index 0000000..3473eef
+index 0000000..183bec4
 --- /dev/null
 +++ b/libavformat/bluray_custom_fs.c
 @@ -0,0 +1,190 @@
@@ -133,7 +141,7 @@ index 0000000..3473eef
 +#include "libavutil/mem.h"
 +#include "libavutil/error.h"
 +#include "libavutil/avstring.h"
-+#include "libavutil/application.h"
++#include "application.h"
 +#include <memory.h>
 +#include <libbluray/bluray-fs.h>
 +

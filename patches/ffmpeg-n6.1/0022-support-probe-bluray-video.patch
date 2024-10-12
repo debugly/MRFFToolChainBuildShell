@@ -1,40 +1,41 @@
-From 78b23ccfadff2e4af94406663a54c9f0ea5f92ad Mon Sep 17 00:00:00 2001
+From b3f5a8272c73164325f4c9f3847926012c51e99e Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Mon, 30 Sep 2024 18:09:41 +0800
-Subject: [PATCH 22] public ff_is_bluray_video func
+Date: Sat, 12 Oct 2024 18:04:29 +0800
+Subject: [PATCH 22] support probe bluray video
 
 ---
  libavformat/Makefile      |  1 +
- libavformat/bluray.c      | 27 +++++++++++++++++++++++++++
+ libavformat/bluray.c      | 28 +++++++++++++++++++++++++++-
  libavformat/bluray_util.h | 27 +++++++++++++++++++++++++++
- 3 files changed, 55 insertions(+)
+ 3 files changed, 55 insertions(+), 1 deletion(-)
  create mode 100644 libavformat/bluray_util.h
 
 diff --git a/libavformat/Makefile b/libavformat/Makefile
-index 5abe34c..29c42ee 100644
+index ffc32b9..dbdc5b9 100644
 --- a/libavformat/Makefile
 +++ b/libavformat/Makefile
-@@ -13,6 +13,7 @@ HEADERS = avformat.h                                                    \
-           id3v2.h                                                       \
-           os_support.h                                                  \
+@@ -15,6 +15,7 @@ HEADERS = avformat.h                                                    \
            metadata.h                                                    \
-+          bluray_util.h
+           application.h                                                 \
+ 		  dns_cache.h                                                   \
++		  bluray_util.h                                                 \
  
  OBJS = allformats.o         \
         avformat.o           \
 diff --git a/libavformat/bluray.c b/libavformat/bluray.c
-index 4b07fb1..edeceb5 100644
+index 62c7727..f4de84d 100644
 --- a/libavformat/bluray.c
 +++ b/libavformat/bluray.c
-@@ -28,6 +28,7 @@
+@@ -28,7 +28,7 @@
  #include "libavutil/dict.h"
  #include "libavformat/avformat.h"
  #include "bluray_custom_fs.h"
+-
 +#include "bluray_util.h"
- 
  #define BLURAY_PROTO_PREFIX     "bluray://"
  #define MIN_PLAYLIST_LENGTH     180     /* 3 min */
-@@ -338,3 +339,29 @@ const URLProtocol ff_bluray_protocol = {
+ 
+@@ -345,3 +345,29 @@ const URLProtocol ff_bluray_protocol = {
      .priv_data_size  = sizeof(BlurayContext),
      .priv_data_class = &bluray_context_class,
  };
