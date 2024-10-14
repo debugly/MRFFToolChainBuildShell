@@ -1,0 +1,570 @@
+From 11fc8207f0a6c1857e009dc6048feb65c0e5fb1d Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Sat, 12 Oct 2024 19:05:14 +0800
+Subject: [PATCH 21] custom bluray fs for network Blu-ray Disc and BDMV
+
+---
+ libavformat/Makefile           |   2 +-
+ libavformat/bluray.c           |  31 ++-
+ libavformat/bluray_custom_fs.c | 413 +++++++++++++++++++++++++++++++++
+ libavformat/bluray_custom_fs.h |  29 +++
+ 4 files changed, 467 insertions(+), 8 deletions(-)
+ create mode 100644 libavformat/bluray_custom_fs.c
+ create mode 100644 libavformat/bluray_custom_fs.h
+
+diff --git a/libavformat/Makefile b/libavformat/Makefile
+index 427c45a..ffc32b9 100644
+--- a/libavformat/Makefile
++++ b/libavformat/Makefile
+@@ -666,7 +666,7 @@ OBJS-$(CONFIG_VAPOURSYNTH_DEMUXER)       += vapoursynth.o
+ # protocols I/O
+ OBJS-$(CONFIG_ASYNC_PROTOCOL)            += async.o
+ OBJS-$(CONFIG_APPLEHTTP_PROTOCOL)        += hlsproto.o
+-OBJS-$(CONFIG_BLURAY_PROTOCOL)           += bluray.o
++OBJS-$(CONFIG_BLURAY_PROTOCOL)           += bluray_custom_fs.o bluray.o
+ OBJS-$(CONFIG_CACHE_PROTOCOL)            += cache.o
+ OBJS-$(CONFIG_CONCAT_PROTOCOL)           += concat.o
+ OBJS-$(CONFIG_CONCATF_PROTOCOL)          += concat.o
+diff --git a/libavformat/bluray.c b/libavformat/bluray.c
+index bf5b88d..62c7727 100644
+--- a/libavformat/bluray.c
++++ b/libavformat/bluray.c
+@@ -21,21 +21,22 @@
+  */
+ 
+ #include <libbluray/bluray.h>
+-
++#include "libavformat/urldecode.h"
+ #include "libavutil/avstring.h"
+ #include "libavformat/url.h"
+ #include "libavutil/opt.h"
+ #include "libavutil/dict.h"
+ #include "libavformat/avformat.h"
++#include "bluray_custom_fs.h"
+ 
+-#define BLURAY_PROTO_PREFIX     "bluray:"
++#define BLURAY_PROTO_PREFIX     "bluray://"
+ #define MIN_PLAYLIST_LENGTH     180     /* 3 min */
+ 
+ typedef struct {
+     const AVClass *class;
+ 
+     BLURAY *bd;
+-
++    fs_access *access;
+     int playlist;
+     int angle;
+     int chapter;
+@@ -110,7 +111,7 @@ static int bluray_close(URLContext *h)
+     if (bd->bd) {
+         bd_close(bd->bd);
+     }
+-
++    destroy_bluray_custom_access(&bd->access);
+     return 0;
+ }
+ 
+@@ -126,7 +127,7 @@ static void bluray_DebugHandler(const char *psz)
+ }
+ #endif
+ 
+-static int bluray_open(URLContext *h, const char *path, int flags)
++static int bluray_open(URLContext *h, const char *path, int flags, AVDictionary **options)
+ {
+ #ifdef DEBUG_BLURAY
+     bd_set_debug_mask(BLURAY_DEBUG_MASK);
+@@ -138,11 +139,27 @@ static int bluray_open(URLContext *h, const char *path, int flags)
+ 
+     av_strstart(path, BLURAY_PROTO_PREFIX, &diskname);
+ 
+-    bd->bd = bd_open(diskname, NULL);
++    fs_access *access = NULL;
++
++    if (av_strstart(diskname, "file://", NULL) || av_strstart(diskname, "/", NULL)) {
++        access = NULL;
++    } else {
++        //set read packet buffer size is important! the default packet size is 32768, when use smb2 protocol, download speed is limited to 2MB; but when set the size to 1048576, download speed is 16MB;
++        h->max_packet_size = 1048576;
++        diskname = ff_urldecode(diskname, 0);
++        access = create_bluray_custom_access(diskname, options);
++    }
++
++    bd->bd = bd_open_fs(diskname, NULL, access);
++
+     if (!bd->bd) {
+         av_log(h, AV_LOG_ERROR, "bd_open() failed\n");
++        if (access) {
++            destroy_bluray_custom_access(&access);
++        }
+         return AVERROR(EIO);
+     }
++    bd->access = access;
+ 
+     /* check if disc can be played */
+     if (check_disc_info(h) < 0) {
+@@ -321,7 +338,7 @@ fail:
+ const URLProtocol ff_bluray_protocol = {
+     .name            = "bluray",
+     .url_close       = bluray_close,
+-    .url_open        = bluray_open,
++    .url_open2       = bluray_open,
+     .url_read        = bluray_read,
+     .url_seek        = bluray_seek,
+     .url_parse_priv  = bluray_parse_priv,
+diff --git a/libavformat/bluray_custom_fs.c b/libavformat/bluray_custom_fs.c
+new file mode 100644
+index 0000000..9062a2b
+--- /dev/null
++++ b/libavformat/bluray_custom_fs.c
+@@ -0,0 +1,413 @@
++//
++//  bluray_custom_fs_smb2.c
++//
++//  Created by Reach Matt on 2024/9/13.
++//
++//
++// Copyright (C) 2021 Matt Reach<qianlongxu@gmail.com>//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++
++#include "bluray_custom_fs.h"
++#include "url.h"
++#include "application.h"
++#include "libavutil/mem.h"
++#include "libavutil/error.h"
++#include "libavutil/avstring.h"
++#include <memory.h>
++#include <libbluray/bluray-fs.h>
++
++#ifndef UDF_BLOCK_SIZE
++#  define UDF_BLOCK_SIZE  2048
++#endif
++
++typedef struct ff_builtin_io {
++    URLContext *url_context;
++    int64_t offset;
++    AVApplicationContext *app_ctx;
++} ff_builtin_io;
++
++typedef struct ff_bluray_access {
++    const char *url;
++    AVDictionary *opts;
++    ff_builtin_io *io;
++} ff_bluray_access;
++
++static int interrupt_cb(void *ctx)
++{
++    return 0;
++}
++
++static void close_builtin_io(ff_builtin_io *io) {
++    if (!io) {
++        return;
++    }
++    if (io->url_context) {
++        ffurl_closep(&io->url_context);
++    }
++}
++
++static int create_builtin_io(ff_builtin_io **io, const char *url, AVDictionary **opts, int is_dir)
++{
++    if (!io) {
++        return -1;
++    }
++    
++    ff_builtin_io * app = av_mallocz(sizeof(ff_builtin_io));
++    if (!app) {
++        return -2;
++    }
++
++    char *protocol_whitelist = NULL;
++
++    if (opts) {
++        const AVDictionary *dict = *opts;
++
++        if (!av_strstart(url, "http", NULL) && !av_strstart(url, "smb2", NULL)) {
++            AVDictionaryEntry *app_dict = av_dict_get(dict, "ijkapplication", NULL, 0);
++            if (app_dict) {
++                app->app_ctx = (AVApplicationContext *)av_dict_strtoptr(app_dict->value);
++                av_application_will_http_open(app->app_ctx, NULL, url);
++            }
++        }
++
++        AVDictionaryEntry *proto_dict = av_dict_get(dict, "protocol_whitelist", NULL, 0);
++        if (proto_dict) {
++            protocol_whitelist = av_strdup(proto_dict->value);
++        }
++    }
++
++    if (protocol_whitelist == NULL || strlen(protocol_whitelist) == 0) {
++        protocol_whitelist = "ijkio,ijkhttphook,http,tcp,https,tls,file,smb2";
++    }
++
++    AVIOInterruptCB cb = {&interrupt_cb, app};
++    int flags = AVIO_FLAG_READ;
++    if (is_dir) {
++        flags |= AVIO_FLAG_DIRECT;
++    }
++    
++    int ret = ffurl_open_whitelist(&app->url_context,
++                               url,
++                               flags,
++                               &cb,
++                               opts,
++                               protocol_whitelist,
++                               NULL,
++                               NULL);
++
++    av_application_did_http_open(app->app_ctx, (void*)app->url_context, url, ret < 0 ? AVERROR(errno) : 0, ret < 0 ? 500 : 200, 0);
++    
++    if (ret < 0) {    
++        close_builtin_io(app);
++        av_freep(&app);
++    }
++    *io = app;
++    return ret;
++}
++
++static int64_t seek_builtin_io(ff_builtin_io *io, int64_t offset, int origin)
++{
++    if (!io) {
++        return 0;
++    }
++
++    if (io->offset == offset && origin == SEEK_SET) {
++        return offset;
++    }
++
++    av_application_will_http_seek(io->app_ctx, (void*)io->url_context, io->url_context->filename, offset);
++        
++    int64_t pos = io->url_context->prot->url_seek(io->url_context, offset, origin);
++    if (pos < 0) {
++        av_application_did_http_seek(io->app_ctx, (void*)io->url_context, io->url_context->filename, offset, AVERROR(errno), 500);
++        return AVERROR(errno); 
++    }
++    io->offset = pos;
++
++    av_application_did_http_seek(io->app_ctx, (void*)io->url_context, io->url_context->filename, offset, 0, 200);
++    return pos;
++}
++
++static int read_builtin_io(ff_builtin_io *io, uint8_t *buf, int buf_size)
++{
++    if (!io) {
++        return 0;
++    }
++
++    uint8_t *buf1 = buf;
++    int buf_size1 = buf_size;
++    int read = 0;
++
++    while (buf_size1 > 0) {
++        read = io->url_context->prot->url_read(io->url_context, buf1, buf_size1);
++        if (read <= 0) {
++            //maybe AVERROR_EOF
++            break;
++        }
++
++        io->offset += read;
++        buf1 += read;
++        buf_size1 -= read;
++    }
++
++    int bytes = buf_size - buf_size1;
++    if (bytes == 0 && read == AVERROR_EOF) {
++        return AVERROR_EOF; 
++    } else {
++        av_application_did_io_tcp_read(io->app_ctx, (void*)io->url_context, bytes);
++        return bytes;
++    }
++}
++
++static int write_builtin_io(ff_builtin_io *io, uint8_t *buf, int buf_size)
++{
++    if (!io) {
++        return 0;
++    }
++
++    return io->url_context->prot->url_write(io->url_context, buf, buf_size);
++}
++
++static int read_blocks(void * fs_handle, void *buf, int lba, int num_blocks)
++{
++    ff_bluray_access *access = fs_handle;
++    ff_builtin_io *io = access->io;
++    if (!io) {
++        return -1;
++    }
++    int got = -1;
++    int64_t pos = (int64_t)lba * UDF_BLOCK_SIZE;
++
++    seek_builtin_io(io, pos, SEEK_SET);
++    int bytes = read_builtin_io(io, (uint8_t*)buf, num_blocks * UDF_BLOCK_SIZE);
++    if (bytes > 0) {
++        got = (int)(bytes / UDF_BLOCK_SIZE);
++    }
++    return got;
++}
++
++void destroy_bluray_custom_access(fs_access **p)
++{
++    if (p) {
++        fs_access *access = *p;
++        if (access) {
++            ff_bluray_access* ba = access->fs_handle;
++            ff_builtin_io *io = ba->io;
++            if (io) {
++                close_builtin_io(io);
++                av_freep(&io);
++            }
++            av_free(ba->url);
++            av_dict_free(&ba->opts);
++        }
++        av_freep(p);
++    }
++}
++
++// -------------------------------------------------------------------------------------------
++// open_file for bdmv
++
++static void _file_close(BD_FILE_H *file)
++{
++    if (file) {
++        ff_builtin_io *io = file->internal;
++        if (io) {
++            close_builtin_io(io);
++            av_free(io);
++            file->internal = NULL;
++        }
++        av_freep(&file);
++    }
++}
++
++static int64_t _file_read(BD_FILE_H *file, uint8_t *buf, int64_t size)
++{
++    if (size <= 0) {
++        return 0;
++    }
++    ff_builtin_io *io = file->internal;
++    if (!io) {
++        return -1;
++    }
++    return read_builtin_io(io, buf, size);
++}
++
++static int64_t _file_write(BD_FILE_H *file, const uint8_t *buf, int64_t size)
++{
++    if (size <= 0) {
++        return 0;
++    }
++    ff_builtin_io *io = file->internal;
++    if (!io) {
++        return -1;
++    }
++    return write_builtin_io(io, buf, size);
++}
++
++// origin: SEEK_SET, SEEK_CUR or SEEK_END
++static int64_t _file_seek(BD_FILE_H *file, int64_t offset, int32_t origin)
++{
++    ff_builtin_io *io = file->internal;
++    if (!io) {
++        return -1;
++    }
++    return seek_builtin_io(io, offset, origin);
++}
++
++static int64_t _file_tell(BD_FILE_H *file)
++{
++    ff_builtin_io *io = file->internal;
++    if (!io) {
++        return -1;
++    }
++    return seek_builtin_io(io, 0, SEEK_CUR);
++}
++
++static struct bd_file_s* open_file(void *fs_handle, const char *rel_path)
++{
++    ff_bluray_access *access = fs_handle;
++
++    char *url = NULL;
++    url = av_append_path_component(access->url, rel_path);
++    if (!url) {
++        return NULL;
++    }
++    AVDictionary *opts = NULL;
++    av_dict_copy(&opts, access->opts, 0);
++    
++    ff_builtin_io *io = NULL;
++    int ret = create_builtin_io(&io, url, &opts, 0);
++    av_dict_free(&opts);
++    av_free(url);
++    
++    if (0 != ret) {
++        av_log(NULL, AV_LOG_ERROR, "can't open url %s,error:%s", url, av_err2str(ret));
++        return NULL;
++    }
++
++    BD_FILE_H *file = av_malloc(sizeof(BD_FILE_H));
++    if (!file) {
++        close_builtin_io(io);
++        av_free(io);
++        return NULL;
++    }
++
++    file->internal = io;
++    file->close    = _file_close;
++    file->seek     = _file_seek;
++    file->read     = _file_read;
++    file->write    = _file_write;
++    file->tell     = _file_tell;
++
++    return file;
++}
++
++// open_dir for bdmv
++static void _dir_close(BD_DIR_H *dir)
++{
++    if (dir) {
++        ff_builtin_io *io = dir->internal;
++        if (!io) {
++            return;
++        }
++        close_builtin_io(io);
++        av_free(io);
++        dir->internal = NULL;
++        av_freep(&dir);
++    }
++}
++
++static int _dir_read(BD_DIR_H *dir, BD_DIRENT *entry)
++{
++    ff_builtin_io *io = dir->internal;
++    if (!io) {
++        return -1;
++    }
++
++    AVIODirEntry *next = NULL;
++    
++    if (io->url_context->prot->url_read_dir(io->url_context, &next) < 0 || !next) {
++        return -2;
++    }
++    
++    strncpy(entry->d_name, next->name, sizeof(entry->d_name));
++    entry->d_name[sizeof(entry->d_name) - 1] = 0;
++
++    return 0;
++}
++
++static struct bd_dir_s* open_dir (void *fs_handle, const char *rel_path)
++{
++    ff_bluray_access *access = fs_handle;
++
++    char *url = NULL;
++    url = av_append_path_component(access->url, rel_path);
++    if (!url) {
++        return NULL;
++    }
++    AVDictionary *opts = NULL;
++    av_dict_copy(&opts, access->opts, 0);
++    
++    ff_builtin_io *io = NULL;
++    int ret = create_builtin_io(&io, url, &opts, 1);
++    av_dict_free(&opts);
++    av_free(url);
++    
++    if (0 != ret) {
++        av_log(NULL, AV_LOG_ERROR, "can't open dir %s,error:%s", url, av_err2str(ret));
++        return NULL;
++    }
++
++    BD_DIR_H *dir = av_malloc(sizeof(BD_DIR_H));
++    if (!dir) {
++        close_builtin_io(io);
++        av_free(io);
++        return NULL;
++    }
++
++    dir->internal = io;
++    dir->close    = _dir_close;
++    dir->read     = _dir_read;
++    
++    return dir;
++}
++
++// 构建fs_access结构体
++fs_access * create_bluray_custom_access(const char *url, AVDictionary **options)
++{
++    ff_bluray_access * opaque = av_mallocz(sizeof(ff_bluray_access));
++    if (!opaque) {
++        return NULL;
++    }
++
++    if (opaque) {
++        opaque->url = av_strdup(url);
++        if (options) {
++            av_dict_copy(&opaque->opts, *options, 0);    
++        }
++        
++        int ret = create_builtin_io(&opaque->io, url, options, 0);
++        if (0 != ret) {
++            av_log(NULL, AV_LOG_ERROR, "can't open file %s,error:%s", url, av_err2str(ret));
++        }
++
++        fs_access *access = av_malloc(sizeof(fs_access));
++        access->fs_handle = opaque;
++        access->read_blocks = read_blocks;
++        access->open_file = open_file;
++        access->open_dir = open_dir;
++        
++        return access;
++    }
++    return NULL;
++}
+diff --git a/libavformat/bluray_custom_fs.h b/libavformat/bluray_custom_fs.h
+new file mode 100644
+index 0000000..806fe29
+--- /dev/null
++++ b/libavformat/bluray_custom_fs.h
+@@ -0,0 +1,29 @@
++//
++//  bluray_custom_fs.h
++//
++//  Created by Reach Matt on 2024/9/13.
++//
++//
++// Copyright (C) 2021 Matt Reach<qianlongxu@gmail.com>//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++
++#ifndef bluray_custom_fs_h
++#define bluray_custom_fs_h
++
++#include <stdio.h>
++
++typedef struct fs_access fs_access;
++typedef struct AVDictionary AVDictionary;
++void destroy_bluray_custom_access(fs_access **p);
++fs_access * create_bluray_custom_access(const char *url, AVDictionary **options);
++#endif /* bluray_custom_fs_smb2_h */
+-- 
+2.39.3 (Apple Git-146)
+
