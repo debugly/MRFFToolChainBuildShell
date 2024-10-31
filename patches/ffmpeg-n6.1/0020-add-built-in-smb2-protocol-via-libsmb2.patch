@@ -1,14 +1,14 @@
-From cc86f00f024eab0e4164faac4ac32196b6dd2294 Mon Sep 17 00:00:00 2001
+From 4d97173c68e40e94f90af90341107fe0b8944133 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Mon, 14 Oct 2024 11:05:15 +0800
-Subject: [PATCH 20] add built-in smb2 protocol via libsmb2
+Date: Thu, 31 Oct 2024 14:19:42 +0800
+Subject: [PATCH] add built-in smb2 protocol via libsmb2
 
 ---
  configure               |   5 +
  libavformat/Makefile    |   1 +
- libavformat/libsmb2.c   | 407 ++++++++++++++++++++++++++++++++++++++++
+ libavformat/libsmb2.c   | 410 ++++++++++++++++++++++++++++++++++++++++
  libavformat/protocols.c |   1 +
- 4 files changed, 414 insertions(+)
+ 4 files changed, 417 insertions(+)
  create mode 100644 libavformat/libsmb2.c
 
 diff --git a/configure b/configure
@@ -62,10 +62,10 @@ index ae952eb..427c45a 100644
  OBJS-$(CONFIG_LIBZMQ_PROTOCOL)           += libzmq.o
 diff --git a/libavformat/libsmb2.c b/libavformat/libsmb2.c
 new file mode 100644
-index 0000000..a590f7e
+index 0000000..bf31726
 --- /dev/null
 +++ b/libavformat/libsmb2.c
-@@ -0,0 +1,407 @@
+@@ -0,0 +1,410 @@
 +/*
 + * Copyright (c) 2014 Lukasz Marek <lukasz.m.luki@gmail.com>
 + *
@@ -167,15 +167,18 @@ index 0000000..a590f7e
 +        ret = AVERROR(ENOMEM);
 +        goto failed;
 +    } else {
-+        char *user = strchr(url->user, ':');
-+        if (user) {
-+            *user = '\0';
-+            char *password = user + 1;
-+            if (strlen(password) > 0) {
-+                password = ff_urldecode(password, 0);
-+                smb2_set_password(libsmb2->ctx, password);
++        if (url->user) {
++            char *user = strchr(url->user, ':');
++            if (user) {
++                *user = '\0';
++                char *password = user + 1;
++                if (strlen(password) > 0) {
++                    password = ff_urldecode(password, 0);
++                    smb2_set_password(libsmb2->ctx, password);
++                }
 +            }
 +        }
++        
 +        if (url->domain) {
 +            smb2_set_domain(libsmb2->ctx, url->domain);
 +        }
@@ -201,7 +204,7 @@ index 0000000..a590f7e
 +    smb2_set_seal(libsmb2->ctx, libsmb2->smb2_seal);
 +    smb2_set_authentication(libsmb2->ctx, 1);//SMB2_SEC_NTLMSSP
 +    smb2_set_timeout(libsmb2->ctx, 60);
-+    
++
 +    if (smb2_connect_share(libsmb2->ctx, url->server, url->share, url->user) != 0) {
 +        av_log(h, AV_LOG_ERROR, "smb2_connect_share failed. %s\n", smb2_get_error(libsmb2->ctx));
 +        ret = AVERROR(ECONNREFUSED);
@@ -219,13 +222,13 @@ index 0000000..a590f7e
 +
 +    if (flags & AVIO_FLAG_DIRECT) {
 +        if ((libsmb2->dir = smb2_opendir(libsmb2->ctx, url->path)) == NULL) {
-+            av_log(h, AV_LOG_ERROR, "smb2_open dir failed. %s\n", smb2_get_error(libsmb2->ctx));
++            av_log(h, AV_LOG_ERROR, "smb2_open dir failed:%s,error:%s\n", url->path, smb2_get_error(libsmb2->ctx));
 +            ret = AVERROR(ENOTDIR);
 +            goto failed;
 +        }
 +    } else {
 +        if ((libsmb2->fh = smb2_open(libsmb2->ctx, url->path, access)) == NULL) {
-+            av_log(h, AV_LOG_ERROR, "smb2_open file failed. %s\n", smb2_get_error(libsmb2->ctx));
++            av_log(h, AV_LOG_ERROR, "smb2_open file failed:%s,error:%s\n", url->path, smb2_get_error(libsmb2->ctx));
 +            ret = AVERROR(ENOENT);
 +            goto failed;
 +        }
@@ -272,7 +275,7 @@ index 0000000..a590f7e
 +    }
 +
 +    av_application_will_http_seek(libsmb2->app_ctx, (void *)h, h->filename, pos);
-+    
++
 +    if ((newpos = smb2_lseek(libsmb2->ctx, libsmb2->fh, pos, whence, NULL)) < 0) {
 +        av_log(h, AV_LOG_ERROR, "Error during seeking: %s\n", smb2_get_error(libsmb2->ctx));
 +        av_application_did_http_seek(libsmb2->app_ctx, (void *)h, h->filename, pos, AVERROR(errno), 500);
@@ -347,7 +350,7 @@ index 0000000..a590f7e
 +    {
 +        return -1;
 +    }
-+    
++
 +    struct smb2_url *src_url = smb2_parse_url(libsmb2->ctx, h_src->filename);
 +    struct smb2_url *dst_url = smb2_parse_url(libsmb2->ctx, h_dst->filename);
 +
@@ -486,5 +489,5 @@ index 73df344..2bda874 100644
  extern const URLProtocol ff_ipfs_gateway_protocol;
  extern const URLProtocol ff_ipns_gateway_protocol;
 -- 
-2.39.3 (Apple Git-146)
+2.39.5 (Apple Git-154)
 
