@@ -33,6 +33,12 @@ env_assert "XC_THREAD"
 echo "XC_DEBUG:$XC_DEBUG"
 echo "===check env end==="
 
+if [[ "$XC_DEBUG" == "debug" ]];then
+    export XC_OTHER_CFLAGS="${XC_OTHER_CFLAGS} -g"
+else
+    export XC_OTHER_CFLAGS="${XC_OTHER_CFLAGS} -Os"
+fi
+
 # prepare build config --silent
 CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --disable-dependency-tracking --disable-shared --enable-silent-rules --disable-fontconfig --enable-coretext"
 CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
@@ -51,12 +57,6 @@ echo "----------------------"
 
 cd $XC_BUILD_SOURCE
 
-if [[ -f 'configure' ]]; then
-    echo "reuse configure"
-else
-    echo "auto generate configure"
-    ./autogen.sh 1>/dev/null
-fi
 
 function check_lib()
 {
@@ -83,10 +83,17 @@ echo "CFG_FLAGS: $CFG_FLAGS"
 echo "CFLAGS: $CFLAGS"
 echo
 
-./configure $CFG_FLAGS \
-CC="$XCRUN_CC" \
-CFLAGS="$CFLAGS" \
-LDFLAGS="$CFLAGS"
+if [[ -f 'configure' ]]; then
+    echo "reuse configure"
+else
+    echo "auto generate configure"
+    ./autogen.sh 1>/dev/null
+
+    ./configure $CFG_FLAGS \
+    CC="$XCRUN_CC" \
+    CFLAGS="$CFLAGS" \
+    LDFLAGS="$CFLAGS"
+fi
 
 #----------------------
 echo "----------------------"
