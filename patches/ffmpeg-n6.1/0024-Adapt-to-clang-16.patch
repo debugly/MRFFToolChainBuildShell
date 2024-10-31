@@ -1,0 +1,31 @@
+From 338d6fb305a992bc2a24347e4d7793e02b54345d Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Thu, 31 Oct 2024 10:55:33 +0800
+Subject: [PATCH 24] Adapt to clang 16
+
+---
+ configure | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/configure b/configure
+index 16d0177..edbb925 100755
+--- a/configure
++++ b/configure
+@@ -5623,7 +5623,13 @@ case $target_os in
+         enabled x86_32 && append SHFLAGS -Wl,-read_only_relocs,suppress
+         strip="${strip} -x"
+         add_ldflags -Wl,-dynamic,-search_paths_first
+-        check_cflags -Werror=partial-availability
++        # https://gitlab.gnome.org/GNOME/gimp/-/issues/8649
++        # from clang 15 int <-> pointer conversions now defaults as an error
++        check_cflags -Wno-int-conversion
++        # from clang 16 VTPixelTransferSessionCreate' has been marked as being introduced in tvOS 16.0 here, but the deployment target is tvOS 12.0.0 
++        check_cflags -Wno-unguarded-availability -Wno-unguarded-availability-new
++
++        # check_cflags -Werror=partial-availability
+         SLIBSUF=".dylib"
+         SLIBNAME_WITH_VERSION='$(SLIBPREF)$(FULLNAME).$(LIBVERSION)$(SLIBSUF)'
+         SLIBNAME_WITH_MAJOR='$(SLIBPREF)$(FULLNAME).$(LIBMAJOR)$(SLIBSUF)'
+-- 
+2.39.5 (Apple Git-154)
+
