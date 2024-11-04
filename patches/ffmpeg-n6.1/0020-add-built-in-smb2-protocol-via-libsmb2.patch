@@ -1,14 +1,14 @@
-From 4d97173c68e40e94f90af90341107fe0b8944133 Mon Sep 17 00:00:00 2001
+From dd3692c5f2b6eb587c0853de3b7f9b6f0b30dc6a Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Thu, 31 Oct 2024 14:19:42 +0800
-Subject: [PATCH] add built-in smb2 protocol via libsmb2
+Date: Mon, 4 Nov 2024 14:47:57 +0800
+Subject: [PATCH 20] add built-in smb2 protocol via libsmb2
 
 ---
  configure               |   5 +
  libavformat/Makefile    |   1 +
- libavformat/libsmb2.c   | 410 ++++++++++++++++++++++++++++++++++++++++
+ libavformat/libsmb2.c   | 412 ++++++++++++++++++++++++++++++++++++++++
  libavformat/protocols.c |   1 +
- 4 files changed, 417 insertions(+)
+ 4 files changed, 419 insertions(+)
  create mode 100644 libavformat/libsmb2.c
 
 diff --git a/configure b/configure
@@ -62,10 +62,10 @@ index ae952eb..427c45a 100644
  OBJS-$(CONFIG_LIBZMQ_PROTOCOL)           += libzmq.o
 diff --git a/libavformat/libsmb2.c b/libavformat/libsmb2.c
 new file mode 100644
-index 0000000..bf31726
+index 0000000..741014c
 --- /dev/null
 +++ b/libavformat/libsmb2.c
-@@ -0,0 +1,410 @@
+@@ -0,0 +1,412 @@
 +/*
 + * Copyright (c) 2014 Lukasz Marek <lukasz.m.luki@gmail.com>
 + *
@@ -117,17 +117,16 @@ index 0000000..bf31726
 +
 +static void destroy_smb2(LIBSMB2Context *libsmb2)
 +{
-+    if (libsmb2->fh && libsmb2->ctx)
-+    {
++    if (libsmb2->fh && libsmb2->ctx) {
 +        smb2_close(libsmb2->ctx, libsmb2->fh);
 +    }
-+    if (libsmb2->ctx)
-+    {
++
++    if (libsmb2->ctx) {
 +        smb2_disconnect_share(libsmb2->ctx);
 +        smb2_destroy_context(libsmb2->ctx);
 +    }
-+    if (libsmb2->url)
-+    {
++
++    if (libsmb2->url) {
 +        smb2_destroy_url(libsmb2->url);
 +    }
 +    libsmb2->fh = NULL;
@@ -153,7 +152,7 @@ index 0000000..bf31726
 +    av_application_will_http_open(libsmb2->app_ctx, (void *)h, uri);
 +
 +    if (!libsmb2->ctx) {
-+        av_log(h, AV_LOG_ERROR, "Cannot create context: %s.\n", smb2_get_error(libsmb2->ctx));
++        av_log(h, AV_LOG_ERROR, "smb2 create context failed: %s.\n", smb2_get_error(libsmb2->ctx));
 +        ret = AVERROR(ENOMEM);
 +        goto failed;
 +    }
@@ -162,8 +161,7 @@ index 0000000..bf31726
 +    struct smb2_url *url = smb2_parse_url(libsmb2->ctx, smb_url);
 +
 +    if (url == NULL) {
-+        av_log(h, AV_LOG_ERROR, "Failed to parse url: %s\n",
-+               smb2_get_error(libsmb2->ctx));
++        av_log(h, AV_LOG_ERROR, "smb2 parse url failed: %s\n", smb2_get_error(libsmb2->ctx));
 +        ret = AVERROR(ENOMEM);
 +        goto failed;
 +    } else {
@@ -178,7 +176,7 @@ index 0000000..bf31726
 +                }
 +            }
 +        }
-+        
++
 +        if (url->domain) {
 +            smb2_set_domain(libsmb2->ctx, url->domain);
 +        }
@@ -206,7 +204,7 @@ index 0000000..bf31726
 +    smb2_set_timeout(libsmb2->ctx, 60);
 +
 +    if (smb2_connect_share(libsmb2->ctx, url->server, url->share, url->user) != 0) {
-+        av_log(h, AV_LOG_ERROR, "smb2_connect_share failed. %s\n", smb2_get_error(libsmb2->ctx));
++        av_log(h, AV_LOG_ERROR, "smb2 connect share failed: %s\n", smb2_get_error(libsmb2->ctx));
 +        ret = AVERROR(ECONNREFUSED);
 +        goto failed;
 +    }
@@ -222,13 +220,13 @@ index 0000000..bf31726
 +
 +    if (flags & AVIO_FLAG_DIRECT) {
 +        if ((libsmb2->dir = smb2_opendir(libsmb2->ctx, url->path)) == NULL) {
-+            av_log(h, AV_LOG_ERROR, "smb2_open dir failed:%s,error:%s\n", url->path, smb2_get_error(libsmb2->ctx));
++            av_log(h, AV_LOG_ERROR, "smb2 open dir failed: %s, error: %s\n", url->path, smb2_get_error(libsmb2->ctx));
 +            ret = AVERROR(ENOTDIR);
 +            goto failed;
 +        }
 +    } else {
 +        if ((libsmb2->fh = smb2_open(libsmb2->ctx, url->path, access)) == NULL) {
-+            av_log(h, AV_LOG_ERROR, "smb2_open file failed:%s,error:%s\n", url->path, smb2_get_error(libsmb2->ctx));
++            av_log(h, AV_LOG_ERROR, "smb2 open file failed: %s, error: %s\n", url->path, smb2_get_error(libsmb2->ctx));
 +            ret = AVERROR(ENOENT);
 +            goto failed;
 +        }
@@ -267,7 +265,7 @@ index 0000000..bf31726
 +
 +    if (whence == AVSEEK_SIZE) {
 +        if (libsmb2->filesize == -1) {
-+            av_log(h, AV_LOG_ERROR, "Error during seeking: filesize is unknown.\n");
++            av_log(h, AV_LOG_ERROR, "smb2 seek failed,filesize is unknown.\n");
 +            return AVERROR(EIO);
 +        } else {
 +            return libsmb2->filesize;
@@ -277,7 +275,7 @@ index 0000000..bf31726
 +    av_application_will_http_seek(libsmb2->app_ctx, (void *)h, h->filename, pos);
 +
 +    if ((newpos = smb2_lseek(libsmb2->ctx, libsmb2->fh, pos, whence, NULL)) < 0) {
-+        av_log(h, AV_LOG_ERROR, "Error during seeking: %s\n", smb2_get_error(libsmb2->ctx));
++        av_log(h, AV_LOG_ERROR, "smb2 seek failed: %s\n", smb2_get_error(libsmb2->ctx));
 +        av_application_did_http_seek(libsmb2->app_ctx, (void *)h, h->filename, pos, AVERROR(errno), 500);
 +        return AVERROR(errno);
 +    }
@@ -291,12 +289,14 @@ index 0000000..bf31726
 +
 +    uint8_t *buf1 = buf;
 +    int buf_size1 = size;
++    int has_error = 0;
 +
 +    while (buf_size1 > 0) {
 +        int read = smb2_read(libsmb2->ctx, libsmb2->fh, buf1, buf_size1);
 +        if (read < 0) {
-+            av_log(h, AV_LOG_ERROR, "Failed to read file. %s\n",
++            av_log(h, AV_LOG_ERROR, "smb2 read file failed: %s\n",
 +                   smb2_get_error(libsmb2->ctx));
++            has_error = 1;
 +            break;
 +        }
 +        if (read == 0) {
@@ -311,7 +311,7 @@ index 0000000..bf31726
 +    if (bytes_read > 0)
 +        av_application_did_io_tcp_read(libsmb2->app_ctx, (void*)h, bytes_read);
 +
-+    return bytes_read ? bytes_read : AVERROR_EOF;
++    return bytes_read ? bytes_read : (has_error ? AVERROR(NOTCONN) : AVERROR_EOF);
 +}
 +
 +static int libsmb2_write(URLContext *h, const unsigned char *buf, int size)
@@ -321,7 +321,7 @@ index 0000000..bf31726
 +
 +    if ((bytes_written = smb2_write(libsmb2->ctx, libsmb2->fh, buf, size)) < 0) {
 +        int ret = AVERROR(errno);
-+        av_log(h, AV_LOG_ERROR, "Write error: %s\n", strerror(errno));
++        av_log(h, AV_LOG_ERROR, "smb2 write failed: %s\n", strerror(errno));
 +        return ret;
 +    }
 +
@@ -334,7 +334,7 @@ index 0000000..bf31726
 +
 +    struct smb2_url *url = smb2_parse_url(libsmb2->ctx, h->filename);
 +    if (url == NULL) {
-+        av_log(h, AV_LOG_ERROR, "Failed to parse url: %s\n",
++        av_log(h, AV_LOG_ERROR, "smb2 parse url failed: %s\n",
 +                smb2_get_error(libsmb2->ctx));
 +        return -1;
 +    } else {
@@ -355,8 +355,7 @@ index 0000000..bf31726
 +    struct smb2_url *dst_url = smb2_parse_url(libsmb2->ctx, h_dst->filename);
 +
 +    if (src_url == NULL || dst_url == NULL) {
-+        av_log(h_src, AV_LOG_ERROR, "Failed to parse url: %s\n",
-+                smb2_get_error(libsmb2->ctx));
++        av_log(h_src, AV_LOG_ERROR, "smb2 parse url failed: %s\n", smb2_get_error(libsmb2->ctx));
 +        return -2;
 +    } else {
 +        char *src_path = ff_urldecode(src_url->path, 0);
@@ -370,13 +369,16 @@ index 0000000..bf31726
 +    LIBSMB2Context *libsmb2 = h->priv_data;
 +    struct smb2_url *url = smb2_parse_url(libsmb2->ctx, h->filename);
 +    if (url == NULL) {
-+        av_log(h, AV_LOG_ERROR, "Failed to parse url: %s\n",
-+                smb2_get_error(libsmb2->ctx));
++        av_log(h, AV_LOG_ERROR, "smb2 parse url failed: %s\n", smb2_get_error(libsmb2->ctx));
 +        return -1;
 +    } else {
 +        char *path = ff_urldecode(url->path, 0);
 +        libsmb2->dir = smb2_opendir(libsmb2->ctx, path);
-+        return libsmb2->dir ? 0 : smb2_get_error(libsmb2->ctx);
++        if (!libsmb2->dir){
++            av_log(h, AV_LOG_ERROR, "smb2 open dir failed: %s\n", smb2_get_error(libsmb2->ctx));
++            return 0;
++        }
++        return AVERROR(ENOTDIR);
 +    }
 +}
 +
@@ -475,7 +477,8 @@ index 0000000..bf31726
 +    .priv_data_size  = sizeof(LIBSMB2Context),
 +    .priv_data_class = &libsmb2lient_context_class,
 +    .flags = URL_PROTOCOL_FLAG_NETWORK,
-+};
++}
+\ No newline at end of file
 diff --git a/libavformat/protocols.c b/libavformat/protocols.c
 index 73df344..2bda874 100644
 --- a/libavformat/protocols.c
