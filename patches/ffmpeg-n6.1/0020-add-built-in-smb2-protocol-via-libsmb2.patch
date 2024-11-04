@@ -1,6 +1,6 @@
-From dd3692c5f2b6eb587c0853de3b7f9b6f0b30dc6a Mon Sep 17 00:00:00 2001
+From eddc99cb17ff667656a38cda644eb239910574a5 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Mon, 4 Nov 2024 14:47:57 +0800
+Date: Mon, 4 Nov 2024 15:27:00 +0800
 Subject: [PATCH 20] add built-in smb2 protocol via libsmb2
 
 ---
@@ -62,7 +62,7 @@ index ae952eb..427c45a 100644
  OBJS-$(CONFIG_LIBZMQ_PROTOCOL)           += libzmq.o
 diff --git a/libavformat/libsmb2.c b/libavformat/libsmb2.c
 new file mode 100644
-index 0000000..741014c
+index 0000000..5fa1ba4
 --- /dev/null
 +++ b/libavformat/libsmb2.c
 @@ -0,0 +1,412 @@
@@ -88,7 +88,7 @@ index 0000000..741014c
 +
 +
 +#include <fcntl.h>
-+
++#include <errno.h>
 +#include "libavutil/avstring.h"
 +#include "libavutil/opt.h"
 +#include "libavutil/avstring.h"
@@ -311,7 +311,7 @@ index 0000000..741014c
 +    if (bytes_read > 0)
 +        av_application_did_io_tcp_read(libsmb2->app_ctx, (void*)h, bytes_read);
 +
-+    return bytes_read ? bytes_read : (has_error ? AVERROR(NOTCONN) : AVERROR_EOF);
++    return bytes_read ? bytes_read : (has_error ? AVERROR(ENOTCONN) : AVERROR_EOF);
 +}
 +
 +static int libsmb2_write(URLContext *h, const unsigned char *buf, int size)
@@ -477,7 +477,7 @@ index 0000000..741014c
 +    .priv_data_size  = sizeof(LIBSMB2Context),
 +    .priv_data_class = &libsmb2lient_context_class,
 +    .flags = URL_PROTOCOL_FLAG_NETWORK,
-+}
++};
 \ No newline at end of file
 diff --git a/libavformat/protocols.c b/libavformat/protocols.c
 index 73df344..2bda874 100644
