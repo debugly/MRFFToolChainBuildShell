@@ -1,6 +1,6 @@
-From 471ccf6b139063fabacf243501ae0c69000bbe8e Mon Sep 17 00:00:00 2001
+From 43d61d6f8a698efa92d5cf586db38cc380c48efc Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Tue, 5 Nov 2024 18:51:46 +0800
+Date: Thu, 7 Nov 2024 18:39:45 +0800
 Subject: [PATCH 23] fix http open and http_seek (redirect) authentication bug
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH 23] fix http open and http_seek (redirect) authentication bug
  1 file changed, 23 insertions(+), 2 deletions(-)
 
 diff --git a/libavformat/http.c b/libavformat/http.c
-index 06f1bdd..dc0ba67 100644
+index 06f1bdd..4280614 100644
 --- a/libavformat/http.c
 +++ b/libavformat/http.c
 @@ -78,6 +78,7 @@ typedef struct HTTPContext {
@@ -63,7 +63,7 @@ index 06f1bdd..dc0ba67 100644
 +    }
  done:
 +    if (err != 0) {
-+        av_log(NULL, AV_LOG_ERROR, "http error %s\n", s->buffer);
++        av_log(NULL, AV_LOG_ERROR, "http error %d,%s\n", s->http_code,s->buffer);
 +    }
      av_freep(&authstr);
      av_freep(&proxyauthstr);
