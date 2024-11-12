@@ -1,6 +1,6 @@
-From 43d61d6f8a698efa92d5cf586db38cc380c48efc Mon Sep 17 00:00:00 2001
+From afb9fa8e856b5f1fa0d1e5d67192567167507aeb Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Thu, 7 Nov 2024 18:39:45 +0800
+Date: Tue, 12 Nov 2024 14:40:18 +0800
 Subject: [PATCH 23] fix http open and http_seek (redirect) authentication bug
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH 23] fix http open and http_seek (redirect) authentication bug
  1 file changed, 23 insertions(+), 2 deletions(-)
 
 diff --git a/libavformat/http.c b/libavformat/http.c
-index 06f1bdd..4280614 100644
+index 06f1bdd..7c60a66 100644
 --- a/libavformat/http.c
 +++ b/libavformat/http.c
 @@ -78,6 +78,7 @@ typedef struct HTTPContext {
@@ -58,7 +58,7 @@ index 06f1bdd..4280614 100644
 +    if (err != 0 && cur_auth_type != s->auth_state.auth_type && s->http_code == 401) {
 +        //reverte the off,otherwise can't seek the target position.
 +        s->off = off;
-+        av_log(NULL, AV_LOG_ERROR, "http 401 error,need authenticate,s->off:%llu\n", s->buffer, s->off);
++        av_log(NULL, AV_LOG_ERROR, "http 401 error,need authenticate:%s,at:%llu\n", s->buffer, s->off);
 +        err = 0;
 +    }
  done:

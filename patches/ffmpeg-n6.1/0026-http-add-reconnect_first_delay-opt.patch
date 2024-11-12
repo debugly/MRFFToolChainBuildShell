@@ -1,0 +1,41 @@
+From 18f90d0efc60ba8bee97bbe1c7c1a6f139b9ff24 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Tue, 12 Nov 2024 14:42:37 +0800
+Subject: [PATCH 26] http add reconnect_first_delay opt
+
+---
+ libavformat/http.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/libavformat/http.c b/libavformat/http.c
+index 7c60a66..c8fad90 100644
+--- a/libavformat/http.c
++++ b/libavformat/http.c
+@@ -127,6 +127,7 @@ typedef struct HTTPContext {
+     int reconnect_on_network_error;
+     int reconnect_streamed;
+     int reconnect_delay_max;
++    int reconnect_first_delay;
+     char *reconnect_on_http_error;
+     int listen;
+     char *resource;
+@@ -181,6 +182,7 @@ static const AVOption options[] = {
+     { "reconnect_on_http_error", "list of http status codes to reconnect on", OFFSET(reconnect_on_http_error), AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, D },
+     { "reconnect_streamed", "auto reconnect streamed / non seekable streams", OFFSET(reconnect_streamed), AV_OPT_TYPE_BOOL, { .i64 = 0 }, 0, 1, D },
+     { "reconnect_delay_max", "max reconnect delay in seconds after which to give up", OFFSET(reconnect_delay_max), AV_OPT_TYPE_INT, { .i64 = 120 }, 0, UINT_MAX/1000/1000, D },
++    { "reconnect_first_delay", "first reconnect delay in seconds", OFFSET(reconnect_first_delay), AV_OPT_TYPE_INT, { .i64 = 0 }, 0, UINT_MAX/1000/1000, D },
+     { "listen", "listen on HTTP", OFFSET(listen), AV_OPT_TYPE_INT, { .i64 = 0 }, 0, 2, D | E },
+     { "resource", "The resource requested by a client", OFFSET(resource), AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, E },
+     { "reply_code", "The http status code to return to a client", OFFSET(reply_code), AV_OPT_TYPE_INT, { .i64 = 200}, INT_MIN, 599, E},
+@@ -371,7 +373,7 @@ static int http_open_cnx(URLContext *h, AVDictionary **options)
+     HTTPAuthType cur_auth_type, cur_proxy_auth_type;
+     HTTPContext *s = h->priv_data;
+     int ret, attempts = 0, redirects = 0;
+-    int reconnect_delay = 0;
++    int reconnect_delay = s->reconnect_first_delay;
+     uint64_t off;
+     char *cached;
+ 
+-- 
+2.39.5 (Apple Git-154)
+
