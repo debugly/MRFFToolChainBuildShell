@@ -1,14 +1,14 @@
-From afb9fa8e856b5f1fa0d1e5d67192567167507aeb Mon Sep 17 00:00:00 2001
+From 29b3f4f302406cc546d87e5e8d26a20417bfcb63 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Tue, 12 Nov 2024 14:40:18 +0800
-Subject: [PATCH 23] fix http open and http_seek (redirect) authentication bug
+Date: Tue, 12 Nov 2024 16:00:23 +0800
+Subject: [PATCH] fix http open and http_seek (redirect) authentication bug
 
 ---
- libavformat/http.c | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ libavformat/http.c | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
 
 diff --git a/libavformat/http.c b/libavformat/http.c
-index 06f1bdd..7c60a66 100644
+index 980bfde..f6c69c2 100644
 --- a/libavformat/http.c
 +++ b/libavformat/http.c
 @@ -78,6 +78,7 @@ typedef struct HTTPContext {
@@ -27,19 +27,19 @@ index 06f1bdd..7c60a66 100644
      { "none", "No auth method set, autodetect", 0, AV_OPT_TYPE_CONST, { .i64 = HTTP_AUTH_NONE }, 0, 0, D | E, "auth_type"},
      { "basic", "HTTP basic authentication", 0, AV_OPT_TYPE_CONST, { .i64 = HTTP_AUTH_BASIC }, 0, 0, D | E, "auth_type"},
      { "send_expect_100", "Force sending an Expect: 100-continue header for POST", OFFSET(send_expect_100), AV_OPT_TYPE_BOOL, { .i64 = -1 }, -1, 1, E },
-@@ -699,7 +701,10 @@ static int http_open(URLContext *h, const char *uri, int flags,
-     HTTPContext *s = h->priv_data;
+@@ -700,6 +702,11 @@ static int http_open(URLContext *h, const char *uri, int flags,
      int ret;
      s->app_ctx = (AVApplicationContext *)av_dict_strtoptr(s->app_ctx_intptr);
--
+ 
 +    if (s->auth_type2 == HTTP_AUTH_NONE) {
 +        //backup the init auth_type, when not assign.
 +        s->auth_type2 = s->auth_state.auth_type;
 +    }
-     // av_log(NULL, AV_LOG_INFO, "%-*s: %-*s = %s\n", 12, "xql http_open verify", 28, "ijkapplication", s->app_ctx_intptr);
-     // av_log(NULL, AV_LOG_INFO, "%-*s: %-*s = %s\n", 12, "xql http_open verify", 28, "tcp_hook", s->tcp_hook);
- 
-@@ -1428,6 +1433,7 @@ static int http_connect(URLContext *h, const char *path, const char *local_path,
++
+     if( s->seekable == 1 )
+         h->is_streamed = 0;
+     else
+@@ -1425,6 +1432,7 @@ static int http_connect(URLContext *h, const char *path, const char *local_path,
      uint64_t off = s->off;
      const char *method;
      int send_expect_100 = 0;
@@ -47,7 +47,7 @@ index 06f1bdd..7c60a66 100644
  
      av_bprint_init_for_buffer(&request, s->buffer, sizeof(s->buffer));
  
-@@ -1569,9 +1575,19 @@ static int http_connect(URLContext *h, const char *path, const char *local_path,
+@@ -1566,9 +1574,19 @@ static int http_connect(URLContext *h, const char *path, const char *local_path,
  
      if (s->new_location)
          s->off = off;
@@ -68,7 +68,7 @@ index 06f1bdd..7c60a66 100644
      av_freep(&authstr);
      av_freep(&proxyauthstr);
      return err;
-@@ -1961,6 +1977,8 @@ static int64_t http_seek_internal(URLContext *h, int64_t off, int whence, int fo
+@@ -1958,6 +1976,8 @@ static int64_t http_seek_internal(URLContext *h, int64_t off, int whence, int fo
              return s->off;
      }
  
@@ -77,7 +77,7 @@ index 06f1bdd..7c60a66 100644
      /* if the location changed (redirect), revert to the original uri */
      if (strcmp(s->uri, s->location)) {
          char *new_uri;
-@@ -1969,6 +1987,9 @@ static int64_t http_seek_internal(URLContext *h, int64_t off, int whence, int fo
+@@ -1966,6 +1986,9 @@ static int64_t http_seek_internal(URLContext *h, int64_t off, int whence, int fo
              return AVERROR(ENOMEM);
          av_free(s->location);
          s->location = new_uri;
