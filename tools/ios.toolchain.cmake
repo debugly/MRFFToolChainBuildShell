@@ -98,7 +98,6 @@
 #    ON (default) = Will require "enable_language(OBJC) and/or enable_language(OBJCXX)" for full OBJC|OBJCXX support
 #    OFF = Will embed the OBJC and OBJCXX flags into the CMAKE_C_FLAGS and CMAKE_CXX_FLAGS (legacy behavior, CMake version < 3.16)
 #
-# ENABLE_BITCODE: (ON|OFF) Enables or disables bitcode support. Default OFF
 #
 # ENABLE_ARC: (ON|OFF) Enables or disables ARC support. Default ON (ARC enabled by default)
 #
@@ -322,7 +321,7 @@ elseif(PLATFORM_INT STREQUAL "OS64")
   set(SDK_NAME iphoneos)
   if(NOT ARCHS)
     if (XCODE_VERSION_INT VERSION_GREATER 10.0)
-      set(ARCHS arm64) # FIXME: Add arm64e when Apple has fixed the integration issues with it, libarclite_iphoneos.a is currently missing bitcode markers for example
+      set(ARCHS arm64) # FIXME: Add arm64e when Apple has fixed the integration issues with it
     else()
       set(ARCHS arm64)
     endif()
@@ -359,7 +358,7 @@ elseif(PLATFORM_INT STREQUAL "SIMULATOR64COMBINED")
   if(MODERN_CMAKE)
     if(NOT ARCHS)
       if (XCODE_VERSION_INT VERSION_GREATER 12.0)
-        set(ARCHS arm64 x86_64) # FIXME: Add arm64e when Apple have fixed the integration issues with it, libarclite_iphoneos.a is currently missing bitcode markers for example
+        set(ARCHS arm64 x86_64) # FIXME: Add arm64e when Apple have fixed the integration issues with it
         set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=iphoneos*] "")
         set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=iphonesimulator*] "x86_64 arm64")
         set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=iphoneos*] "")
@@ -617,21 +616,6 @@ elseif(DEFINED CMAKE_OSX_SYSROOT_INT)
   set(CMAKE_OSX_SYSROOT "${CMAKE_OSX_SYSROOT_INT}" CACHE INTERNAL "")
 endif()
 
-# Use bitcode or not
-if(NOT DEFINED ENABLE_BITCODE)
-  message(STATUS "[DEFAULTS] Disabling bitcode support by default. ENABLE_BITCODE not provided for override!")
-  set(ENABLE_BITCODE OFF)
-endif()
-set(ENABLE_BITCODE_INT ${ENABLE_BITCODE} CACHE BOOL
-        "Whether or not to enable bitcode" FORCE)
-
-
-# /Users/matt/GitWorkspace/MRFFToolChainBuildShell/build/src/ios/uavs3d-arm64/_tmp/uavs3d.xcodeproj: warning: Ignoring ENABLE_BITCODE because building with bitcode is no longer supported. (in target 'uavs3d' from project 'uavs3d')
-# -DENABLE_BITCODE=1
-if(ENABLE_BITCODE_INT)
-  add_compile_options(-fembed-bitcode)
-endif()
-
 # Use ARC or not
 if(NOT DEFINED ENABLE_ARC)
   # Unless specified, enable ARC support by default
@@ -885,15 +869,6 @@ if(PLATFORM_INT MATCHES "^MAC_CATALYST")
   set(C_TARGET_FLAGS "-isystem ${CMAKE_OSX_SYSROOT_INT}/System/iOSSupport/usr/include -iframework ${CMAKE_OSX_SYSROOT_INT}/System/iOSSupport/System/Library/Frameworks")
 endif()
 
-if(ENABLE_BITCODE_INT)
-  set(BITCODE "-fembed-bitcode")
-  set(CMAKE_XCODE_ATTRIBUTE_BITCODE_GENERATION_MODE "bitcode")
-  set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE "YES")
-else()
-  set(BITCODE "")
-  set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE "NO")
-endif()
-
 if(ENABLE_ARC_INT)
   set(FOBJC_ARC "-fobjc-arc")
   set(CMAKE_XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC "YES")
@@ -932,26 +907,26 @@ endif()
 if(CMAKE_GENERATOR MATCHES "Xcode")
   message(STATUS "Not setting any manual command-line buildflags, since Xcode is selected as the generator. Modifying the Xcode build-settings directly instead.")
 else()
-  set(CMAKE_C_FLAGS "${C_TARGET_FLAGS} ${APPLE_TARGET_TRIPLE_FLAG} ${SDK_NAME_VERSION_FLAGS} ${OBJC_LEGACY_VARS} ${BITCODE} ${VISIBILITY} ${CMAKE_C_FLAGS}" CACHE INTERNAL
+  set(CMAKE_C_FLAGS "${C_TARGET_FLAGS} ${APPLE_TARGET_TRIPLE_FLAG} ${SDK_NAME_VERSION_FLAGS} ${OBJC_LEGACY_VARS} ${VISIBILITY} ${CMAKE_C_FLAGS}" CACHE INTERNAL
      "Flags used by the compiler during all C build types.")
   set(CMAKE_C_FLAGS_DEBUG "-O0 -g ${CMAKE_C_FLAGS_DEBUG}")
   set(CMAKE_C_FLAGS_MINSIZEREL "-DNDEBUG -Os ${CMAKE_C_FLAGS_MINSIZEREL}")
   set(CMAKE_C_FLAGS_RELWITHDEBINFO "-DNDEBUG -O2 -g ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
   set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG -O3 ${CMAKE_C_FLAGS_RELEASE}")
-  set(CMAKE_CXX_FLAGS "${C_TARGET_FLAGS} ${APPLE_TARGET_TRIPLE_FLAG} ${SDK_NAME_VERSION_FLAGS} ${OBJC_LEGACY_VARS} ${BITCODE} ${VISIBILITY} ${CMAKE_CXX_FLAGS}" CACHE INTERNAL
+  set(CMAKE_CXX_FLAGS "${C_TARGET_FLAGS} ${APPLE_TARGET_TRIPLE_FLAG} ${SDK_NAME_VERSION_FLAGS} ${OBJC_LEGACY_VARS} ${VISIBILITY} ${CMAKE_CXX_FLAGS}" CACHE INTERNAL
      "Flags used by the compiler during all CXX build types.")
   set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g ${CMAKE_CXX_FLAGS_DEBUG}")
   set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG -Os ${CMAKE_CXX_FLAGS_MINSIZEREL}")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-DNDEBUG -O2 -g ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 ${CMAKE_CXX_FLAGS_RELEASE}")
   if(NAMED_LANGUAGE_SUPPORT_INT)
-    set(CMAKE_OBJC_FLAGS "${C_TARGET_FLAGS} ${APPLE_TARGET_TRIPLE_FLAG} ${SDK_NAME_VERSION_FLAGS} ${BITCODE} ${VISIBILITY} ${FOBJC_ARC} ${OBJC_VARS} ${CMAKE_OBJC_FLAGS}" CACHE INTERNAL
+    set(CMAKE_OBJC_FLAGS "${C_TARGET_FLAGS} ${APPLE_TARGET_TRIPLE_FLAG} ${SDK_NAME_VERSION_FLAGS} ${VISIBILITY} ${FOBJC_ARC} ${OBJC_VARS} ${CMAKE_OBJC_FLAGS}" CACHE INTERNAL
      "Flags used by the compiler during all OBJC build types.")
     set(CMAKE_OBJC_FLAGS_DEBUG "-O0 -g ${CMAKE_OBJC_FLAGS_DEBUG}")
     set(CMAKE_OBJC_FLAGS_MINSIZEREL "-DNDEBUG -Os ${CMAKE_OBJC_FLAGS_MINSIZEREL}")
     set(CMAKE_OBJC_FLAGS_RELWITHDEBINFO "-DNDEBUG -O2 -g ${CMAKE_OBJC_FLAGS_RELWITHDEBINFO}")
     set(CMAKE_OBJC_FLAGS_RELEASE "-DNDEBUG -O3 ${CMAKE_OBJC_FLAGS_RELEASE}")
-    set(CMAKE_OBJCXX_FLAGS "${C_TARGET_FLAGS} ${APPLE_TARGET_TRIPLE_FLAG} ${SDK_NAME_VERSION_FLAGS} ${BITCODE} ${VISIBILITY} ${FOBJC_ARC} ${OBJC_VARS} ${CMAKE_OBJCXX_FLAGS}" CACHE INTERNAL
+    set(CMAKE_OBJCXX_FLAGS "${C_TARGET_FLAGS} ${APPLE_TARGET_TRIPLE_FLAG} ${SDK_NAME_VERSION_FLAGS} ${VISIBILITY} ${FOBJC_ARC} ${OBJC_VARS} ${CMAKE_OBJCXX_FLAGS}" CACHE INTERNAL
      "Flags used by the compiler during all OBJCXX build types.")
     set(CMAKE_OBJCXX_FLAGS_DEBUG "-O0 -g ${CMAKE_OBJCXX_FLAGS_DEBUG}")
     set(CMAKE_OBJCXX_FLAGS_MINSIZEREL "-DNDEBUG -Os ${CMAKE_OBJCXX_FLAGS_MINSIZEREL}")
@@ -998,11 +973,6 @@ if(DEFINED SDK_NAME_VERSION_FLAGS)
   message(STATUS "Using version flags: ${SDK_NAME_VERSION_FLAGS}")
 endif()
 message(STATUS "Using a data_ptr size of: ${CMAKE_CXX_SIZEOF_DATA_PTR}")
-if(ENABLE_BITCODE_INT)
-  message(STATUS "Bitcode: Enabled")
-else()
-  message(STATUS "Bitcode: Disabled")
-endif()
 
 if(ENABLE_ARC_INT)
   message(STATUS "ARC: Enabled")
@@ -1032,7 +1002,6 @@ set(CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
         DEPLOYMENT_TARGET
         CMAKE_DEVELOPER_ROOT
         CMAKE_OSX_SYSROOT_INT
-        ENABLE_BITCODE
         ENABLE_ARC
         CMAKE_ASM_COMPILER
         CMAKE_C_COMPILER

@@ -14,13 +14,9 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 | macOS | arm64、x86_64                           |
 | tvOS  | arm64、arm64_simulator、x86_64_simulator |
 
-## Deprecations
+## News
 
-**MRFFToolChain will remove bitcode support about 2025.01.01**
-
-Starting with Xcode 14, bitcode is no longer required for watchOS and tvOS applications, and the App Store no longer accepts bitcode submissions from Xcode 14.
-
-Xcode no longer builds bitcode by default and generates a warning message if a project explicitly enables bitcode: “Building with bitcode is deprecated. Please update your project and/or target settings to disable bitcode.” The capability to build with bitcode will be removed in a future Xcode release. IPAs that contain bitcode will have the bitcode stripped before being submitted to the App Store. Debug symbols can only be downloaded from App Store Connect / TestFlight for existing bitcode submissions and are no longer available for submissions made with Xcode 14. (86118779)
+- using macOS 14, remove bitcode support
 
 [https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes#Deprecations](https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes#Deprecations)
 

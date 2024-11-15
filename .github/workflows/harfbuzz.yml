@@ -10,7 +10,7 @@ name: Create harfbuzz Release
 jobs:
   build:
     name: compile harfbuzz then deploy
-    runs-on: macos-13
+    runs-on: macos-14
     env:
       GH_TOKEN: ${{ github.token }}
     steps:

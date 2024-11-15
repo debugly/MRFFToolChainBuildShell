@@ -59,15 +59,13 @@ function init_plat_env() {
     fi
     #on intel compile arm64 harfbuzz can't find pkg-config
     export PKG_CONFIG=$(which pkg-config)
-    
+    export XC_OTHER_CFLAGS=""
+
     if [[ "$XC_PLAT" == 'ios' ]]; then
-        export XC_OTHER_CFLAGS="-fembed-bitcode"
         ALL_ARCHS="arm64 arm64_simulator x86_64_simulator"
         elif [[ "$XC_PLAT" == 'macos' ]]; then
-        export XC_OTHER_CFLAGS=""
         ALL_ARCHS="x86_64 arm64"
         elif [[ "$XC_PLAT" == 'tvos' ]]; then
-        export XC_OTHER_CFLAGS="-fembed-bitcode"
         ALL_ARCHS="arm64 arm64_simulator x86_64_simulator"
     fi
     
