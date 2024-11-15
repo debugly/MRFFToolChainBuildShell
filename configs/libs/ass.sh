@@ -29,7 +29,7 @@ export GIT_LOCAL_REPO=build/extra/ass
 export GIT_COMMIT=0.17.1
 export REPO_DIR=ass
 export GIT_REPO_VERSION=0.17.1
-export PRE_COMPILE_TAG=ass-0.17.1-240725101606
+export PRE_COMPILE_TAG=ass-0.17.1-241115130816
 
 # you can export GIT_ASS_UPSTREAM=git@xx:yy/ASS.git use your mirror
 if [[ "$GIT_ASS_UPSTREAM" != "" ]] ;then
