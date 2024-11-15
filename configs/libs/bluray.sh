@@ -30,7 +30,7 @@ export GIT_COMMIT=1.3.4
 export GIT_WITH_SUBMODULE=1
 export REPO_DIR=bluray
 export GIT_REPO_VERSION=1.3.4
-export PRE_COMPILE_TAG=bluray-1.3.4-241014111935
+export PRE_COMPILE_TAG=bluray-1.3.4-241115132018
 
 # you can export GIT_BLURAY_UPSTREAM=git@xx:yy/libbluray.git use your mirror
 if [[ "$GIT_BLURAY_UPSTREAM" != "" ]] ;then
