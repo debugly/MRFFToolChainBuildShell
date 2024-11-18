@@ -218,6 +218,20 @@ else
 fi
 
 echo "----------------------"
+
+# pkg-config --libs avs3ad --silence-errors >/dev/null && enable_avs3ad=1
+
+# if [[ $enable_avs3ad ]];then
+#     echo "[✅] --enable-decoder=av3a"
+#     CFG_FLAGS="$CFG_FLAGS --enable-parser=av3a"
+# else
+#     echo "[❌] --disable-decoder=av3a"
+# fi
+
+echo "[✅] --enable-parser=av3a"
+CFG_FLAGS="$CFG_FLAGS --enable-parser=av3a --enable-demuxer=av3a"
+
+echo "----------------------"
 echo "[*] configure"
 
 if [[ ! -d $XC_BUILD_SOURCE ]]; then
