@@ -11,8 +11,8 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 | Plat  | Arch                                   |
 | ----- | -------------------------------------- |
 | iOS   | arm64、arm64_simulator、x86_64_simulator |
-| macOS | arm64、x86_64                           |
 | tvOS  | arm64、arm64_simulator、x86_64_simulator |
+| macOS | arm64、x86_64                            |
 
 ## News
 
@@ -24,7 +24,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 
 Harfbuzz: freetype
 Ass: harfbuzz,fribidi,unibreak
-FFmpeg: openssl,opus,dav1d,dvdread,uavs3d
+FFmpeg: openssl,opus,dav1d,dvdread,uavs3d,libsmb2
 
 Tips: 
 
@@ -97,7 +97,7 @@ Tips:
 
 ```bash
 #查看帮助是个好习惯
-./main.sh install -h
+./main.sh install --help
 # 使用方式随便举例：
 ./main.sh install -p macos -l ffmpeg
 ./main.sh install -p ios -l 'ass ffmpeg'
@@ -115,7 +115,7 @@ Tips:
 
 ```
 #查看帮助是个好习惯
-./main.sh init -h
+./main.sh init --help
 #准备 iOS 平台源码所有库的源码
 ./main.sh init -p ios -l all
 #准备 iOS 平台x86架构下所有库的源码
@@ -131,7 +131,7 @@ Tips:
 查看帮助是个好习惯
 
 ```
-./main.sh compile -h
+./main.sh compile --help
 # 根据帮助可知 -p 参数指定平台；-c 参数指定行为，比如：build是编译，rebuild是重编等; -l 指定要编译的库；-a 指定 cpu 架构。
 ```
 使用方式随便举例：
@@ -167,11 +167,10 @@ Tips:
 
 ## Tips
 
-- 可下载预编译的 xcframework 库，只需要在 install 时加上 -f 参数
-- 初始化仓库时，可跳过拉取远端到本地，只需要在 init 时加上 -b 参数
-- 初始化仓库时，可跳过应用 FFmpeg 的补丁，只需要在 init 时加上 -k 参数
+- 可下载预编译的 xcframework 库，只需要在 install 时加上 --fmwk 参数
+- 初始化仓库时，可跳过拉取远端到本地，只需要在 init 时加上 --skip-pull-base 参数
+- 初始化仓库时，可跳过应用 FFmpeg 的补丁，只需要在 init 时加上 --skip-patches 参数
 - 目前 FFmpeg 使用的是 module-full.sh 配置选项，所以包体积略大
-
 
 ## Donate
 

@@ -30,11 +30,11 @@ usage: ./main.sh install [options]
 Download and Install Pre-compile library to product dir
 
 OPTIONS:
-   -h            Show intall help
    -p            Specify platform (ios,macos,tvos), can't be nil
    -l            Specify which libs need 'cmd' (all|libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
-   -f            Install xcframework bundle instead of .a
-   -c            Specify a path for correct the pc file prefix recursion
+   --help        Show intall help
+   --fmwk        Install xcframework bundle instead of .a
+   --correct-pc  Specify a path for correct the pc file prefix recursion
 EOF
 }
 
@@ -87,35 +87,39 @@ if [[ -z "$1" ]];then
     exit 1
 fi
 
-while getopts "hp:l:fc:" opt
-do
-    #echo "opt:$opt,OPTIND:[$OPTIND],OPTARG:[$OPTARG]"
-    case $opt in
-        h)
-            usage
-            exit 1
-        ;;
-        p)
-            XC_PLAT="$OPTARG"
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -p)
+            shift
+            XC_PLAT="$1"
             if [[ "$XC_PLAT" != 'ios' && "$XC_PLAT" != 'macos' && "$XC_PLAT" != 'tvos' ]]; then
                 echo "plat must be: [ios|macos|tvos]"
                 exit 1
             fi
         ;;
-        l)
-            LIBS="$OPTARG"
+        -l)
+            shift
+            LIBS="$1"
         ;;
-        f)
-            FORCE_XCFRAMEWORK=1
-        ;;
-        c)
-            fix_prefix "$OPTARG"
+        --help)
+            usage
             exit 0
         ;;
-    esac
-done
+        --fmwk)
+            FORCE_XCFRAMEWORK=1
+        ;;
+        --correct-pc)
+            shift
+            fix_prefix "$1"
+            exit 0
+        ;;
 
-shift $((OPTIND-1))
+        **)
+            echo "unkonwn option:$1"
+        ;;
+    esac
+    shift
+done
 
 if [[ -z "$LIBS" ]];then
     echo "libs can't be nil, use -l specify libs"

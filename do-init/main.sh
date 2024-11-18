@@ -30,12 +30,12 @@ usage: ./main.sh init [options]
 Clone vendor library git repository,Checkout specify commit,Apply patches
 
 OPTIONS:
-   -h            Show help banner of init command
-   -p            Specify platform (ios,macos,tvos), can't be nil
-   -a            Specify archs (x86_64,arm64,x86_64_simulator,arm64_simulator,all) all="x86_64,arm64,x86_64_simulator,arm64_simulator"
-   -l            Specify which libs need init (all|libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
-   -b            Ignore pull base repo
-   -k            Skip apply FFmpeg patches
+    -p                   Specify platform (ios,macos,tvos), can't be nil
+    -a                   Specify archs (x86_64,arm64,x86_64_simulator,arm64_simulator,all) all="x86_64,arm64,x86_64_simulator,arm64_simulator"
+    -l                   Specify which libs need init (all|libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
+    --help               Show help banner of init command
+    --skip-pull-base     Skip pull base repo
+    --skip-patches       Skip apply FFmpeg patches
 EOF
 }
 
@@ -44,37 +44,41 @@ if [[ -z "$1" ]];then
     exit 1
 fi
 
-while getopts "hp:a:l:kb" opt
-do
-    #echo "opt:$opt,OPTIND:[$OPTIND],OPTARG:[$OPTARG]"
-    case $opt in
-        h)
-            usage
-            exit 1
-        ;;
-        p)
-            XC_PLAT="$OPTARG"
+# 处理命令行参数
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -p)
+            shift
+            XC_PLAT="$1"
             if [[ "$XC_PLAT" != 'ios' && "$XC_PLAT" != 'macos' && "$XC_PLAT" != 'tvos' ]]; then
                 echo "plat must be: [ios|macos|tvos]"
                 exit 1
             fi
         ;;
-        a)
-            XC_ALL_ARCHS="$OPTARG"
+        -a)
+            shift
+            XC_ALL_ARCHS="$1"
         ;;
-        l)
-            LIBS="$OPTARG"
+        -l)
+            shift
+            LIBS="$1"
         ;;
-        b)
+        --help)
+            usage
+            exit 1
+        ;;
+        --skip-pull-base)
             export SKIP_PULL_BASE=1
         ;;
-        k)
+        --skip-patches)
             export SKIP_FFMPEG_PATHCHES=1
         ;;
+        **)
+            echo "unkonwn option:$1"
+        ;;
     esac
+    shift
 done
-
-shift $((OPTIND-1))
 
 if [[ -z "$LIBS" ]];then
     echo "libs can't be nil, use -l specify libs"

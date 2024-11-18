@@ -30,14 +30,14 @@ usage: ./main.sh compile [options]
 Compile libs for iOS and macOS and tvOS，such as libass、ffmpeg...
 
 OPTIONS:
-   -h            Show help banner of compile command
-   -p            Specify platform (ios,macos,tvos), can't be nil
-   -c            Specify sub command (build,clean,rebuild,lipo) rebuild=clean+build, can't be nil
-   -a            Specify archs (x86_64,arm64,x86_64_simulator,arm64_simulator,all) all="x86_64,arm64,x86_64_simulator,arm64_simulator"
-   -l            Specify which libs need 'cmd' (all|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
-   -d            Enable debug mode (disable by default)
-   -t            Force number of cores to be used
-   -k            Skip make xcframework
+    -c            Specify sub command (build,clean,rebuild,lipo) rebuild=clean+build, can't be nil
+    -p            Specify platform (ios,macos,tvos), can't be nil
+    -a            Specify archs (x86_64,arm64,x86_64_simulator,arm64_simulator,all) all="x86_64,arm64,x86_64_simulator,arm64_simulator"
+    -l            Specify which libs need 'cmd' (all|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
+    -j            Force number of cores to be used
+    --help        Show help banner of compile command
+    --debug       Enable debug mode (disable by default)
+    --skip-fmwk   Skip make xcframework
 EOF
 }
 
@@ -46,43 +46,48 @@ if [[ -z "$1" ]];then
     exit 1
 fi
 
-while getopts "hp:c:a:l:dt:k" opt
-do
-    #echo "opt:$opt,OPTIND:[$OPTIND],OPTARG:[$OPTARG]"
-    case $opt in
-        h)
-            usage
-            exit 1
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -c)
+            shift
+            XC_CMD="$1"
         ;;
-        p)
-            XC_PLAT="$OPTARG"
+        -p)
+            shift
+            XC_PLAT="$1"
             if [[ "$XC_PLAT" != 'ios' && "$XC_PLAT" != 'macos' && "$XC_PLAT" != 'tvos' ]]; then
                 echo "plat must be: [ios|macos|tvos]"
                 exit 1
             fi
         ;;
-        c)
-            XC_CMD="$OPTARG"
+        -a)
+            shift
+            XC_ALL_ARCHS="$1"
         ;;
-        a)
-            XC_ALL_ARCHS="$OPTARG"
+        -l)
+            shift
+            LIBS="$1"
         ;;
-        l)
-            LIBS="$OPTARG"
+        -j)
+            shift
+            XC_THREAD="$1"
         ;;
-        d)
+        --help)
+            usage
+            exit 0
+        ;;
+        --debug)
             XC_DEBUG='debug'
         ;;
-        t)
-            XC_THREAD="$OPTARG"
-        ;;
-        k)
+        --skip-fmwk)
             XC_SKIP_MAKE_XCFRAMEWORK=1
         ;;
+        **)
+            echo "unkonwn option:$1"
+        ;;
     esac
+    shift
 done
-
-shift $((OPTIND-1))
 
 if [[ -z "$XC_CMD" ]];then
     echo "cmd can't be nil, use -c specify cmd"
