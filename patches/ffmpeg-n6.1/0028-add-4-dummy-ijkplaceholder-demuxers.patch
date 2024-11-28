@@ -1,0 +1,41 @@
+From 6d78475920216bbc66a63d6aa7484b7ad57f7ff8 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Thu, 28 Nov 2024 11:28:43 +0800
+Subject: [PATCH 28] add 4 dummy ijkplaceholder demuxers
+
+---
+ libavformat/allformats.c | 5 +++++
+ libavformat/ijkutils.c   | 4 ++++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/libavformat/allformats.c b/libavformat/allformats.c
+index 2150721..55e7b51 100644
+--- a/libavformat/allformats.c
++++ b/libavformat/allformats.c
+@@ -571,6 +571,11 @@ extern const AVInputFormat  ff_vapoursynth_demuxer;
+ extern AVInputFormat  ff_ijklivehook_demuxer;
+ extern AVInputFormat  ff_ijklas_demuxer;
+ 
++extern AVInputFormat  ff_ijkplaceholder1_demuxer;
++extern AVInputFormat  ff_ijkplaceholder2_demuxer;
++extern AVInputFormat  ff_ijkplaceholder3_demuxer;
++extern AVInputFormat  ff_ijkplaceholder4_demuxer;
++
+ #include "libavformat/muxer_list.c"
+ #include "libavformat/demuxer_list.c"
+ 
+diff --git a/libavformat/ijkutils.c b/libavformat/ijkutils.c
+index 25faad1..5999101 100644
+--- a/libavformat/ijkutils.c
++++ b/libavformat/ijkutils.c
+@@ -95,3 +95,7 @@ AVInputFormat ff_##x##_demuxer = {                                  \
+ 
+ IJK_DUMMY_DEMUXER(ijklivehook);
+ IJK_DUMMY_DEMUXER(ijklas);
++IJK_DUMMY_DEMUXER(ijkplaceholder1);
++IJK_DUMMY_DEMUXER(ijkplaceholder2);
++IJK_DUMMY_DEMUXER(ijkplaceholder3);
++IJK_DUMMY_DEMUXER(ijkplaceholder4);
+-- 
+2.39.5 (Apple Git-154)
+
