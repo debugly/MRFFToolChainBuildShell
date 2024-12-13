@@ -27,9 +27,10 @@ env_assert "REPO_DIR"
 env_assert "GIT_COMMIT"
 env_assert "GIT_LOCAL_REPO"
 env_assert "GIT_UPSTREAM"
+env_assert "XC_WORKSPACE"
 echo "===check env end==="
 
-GIT_LOCAL_REPO="${THIS_DIR}/../${GIT_LOCAL_REPO}"
+GIT_LOCAL_REPO="${XC_WORKSPACE}/${GIT_LOCAL_REPO}"
 
 function pull_common() {
     echo "== pull $REPO_DIR base =="
@@ -71,7 +72,7 @@ function apply_patches() {
         return
     fi
     
-    local plat="$1"
+    local plat="$XC_PLAT"
     local patch_dir="${THIS_DIR}/../patches/$REPO_DIR"
     
     if [[ -d "${patch_dir}_${plat}" ]]; then
@@ -91,14 +92,14 @@ function apply_patches() {
 }
 
 function make_arch_repo() {
-    local dest_repo="$THIS_DIR/../build/src/$1/$REPO_DIR-$2"
+    local dest_repo="${XC_SRC_ROOT}/$REPO_DIR-$1"
     ./copy-local-repo.sh $GIT_LOCAL_REPO $dest_repo
     cd $dest_repo
     if [[ "$GIT_WITH_SUBMODULE" ]]; then
         git submodule update --init --depth=1
     fi
     echo "last commit:"$(git log -1 --pretty=format:"[%h] %s:%ce %cd")
-    apply_patches $1
+    apply_patches
     if ! git describe --tags >/dev/null 2>&1; then
         git tag "${GIT_REPO_VERSION}"
     fi
@@ -117,7 +118,7 @@ function main() {
         ios | macos | tvos)
             pull_common
             for arch in $XC_ALL_ARCHS; do
-                make_arch_repo "$XC_PLAT" $arch
+                make_arch_repo $arch
             done
         ;;    
         *)

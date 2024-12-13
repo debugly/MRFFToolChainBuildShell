@@ -25,7 +25,7 @@
 export LIB_NAME='harfbuzz'
 export LIPO_LIBS="libharfbuzz libharfbuzz-subset"
 export LIB_DEPENDS_BIN="meson pkg-config"
-export GIT_LOCAL_REPO=build/extra/harfbuzz
+export GIT_LOCAL_REPO=extra/harfbuzz
 export GIT_COMMIT=8.3.0
 export REPO_DIR=harfbuzz
 export GIT_REPO_VERSION=8.3.0

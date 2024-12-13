@@ -19,7 +19,7 @@
 export LIB_NAME='dav1d'
 export LIPO_LIBS="libdav1d"
 export LIB_DEPENDS_BIN="meson ninja nasm"
-export GIT_LOCAL_REPO=build/extra/dav1d
+export GIT_LOCAL_REPO=extra/dav1d
 export GIT_COMMIT=1.3.0
 export GIT_WITH_SUBMODULE=0
 export REPO_DIR=dav1d

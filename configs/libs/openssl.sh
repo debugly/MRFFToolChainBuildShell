@@ -17,7 +17,7 @@
 
 export LIB_NAME='openssl'
 export LIPO_LIBS="libssl libcrypto"
-export GIT_LOCAL_REPO=build/extra/openssl
+export GIT_LOCAL_REPO=extra/openssl
 export GIT_COMMIT=OpenSSL_1_1_1w
 export REPO_DIR=openssl
 export GIT_REPO_VERSION=1.1.1w

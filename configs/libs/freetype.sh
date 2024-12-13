@@ -22,7 +22,7 @@
 export LIB_NAME='freetype'
 export LIPO_LIBS="libfreetype"
 export LIB_DEPENDS_BIN="meson cmake"
-export GIT_LOCAL_REPO=build/extra/freetype
+export GIT_LOCAL_REPO=extra/freetype
 export GIT_COMMIT=VER-2-13-2
 export REPO_DIR=freetype
 export GIT_REPO_VERSION=2.13.2

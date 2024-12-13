@@ -22,7 +22,7 @@ export LIB_NAME='ffmpeg'
 export LIPO_LIBS="libavcodec libavformat libavutil libswscale libswresample libavfilter libavdevice"
 export LIB_DEPENDS_BIN="nasm"
 
-export GIT_LOCAL_REPO=build/extra/ffmpeg
+export GIT_LOCAL_REPO=extra/ffmpeg
 export REPO_DIR=ffmpeg
 
 # you can export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git use your mirror

@@ -21,7 +21,7 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR/.." 
 
 function download() {
-    local oname="build/pre/${PRE_COMPILE_TAG}.xcf"
+    local oname="$XC_WORKSPACE/pre/${PRE_COMPILE_TAG}.xcf"
     if [[ -f "$oname" ]];then
         echo "$oname already exist,no need download."
         return
@@ -32,8 +32,8 @@ function download() {
     
     echo "---[download $fname]-----------------"
     echo "$url"
-    mkdir -p build/pre
-    local tname="build/pre/${PRE_COMPILE_TAG}.tmp"
+    mkdir -p "$XC_WORKSPACE/pre"
+    local tname="$XC_WORKSPACE/pre/${PRE_COMPILE_TAG}.tmp"
     curl -L "$url" -o "$tname"
     if [[ $? -eq 0 ]];then
         mv "$tname" "$oname"
@@ -41,14 +41,14 @@ function download() {
 }
 
 function extract(){
-    local oname="build/pre/${PRE_COMPILE_TAG}.xcf"
+    local oname="$XC_WORKSPACE/pre/${PRE_COMPILE_TAG}.xcf"
     
     if [[ -f "$oname" ]];then
-        mkdir -p build/product/xcframework
-        unzip -oq "$oname" -d build/product/xcframework
+        mkdir -p "$XC_XCFRMK_DIR"
+        unzip -oq "$oname" -d "$XC_XCFRMK_DIR"
         echo "extract zip file"
         if command -v tree >/dev/null 2>&1; then
-            tree -L 2 build/product/xcframework
+            tree -L 2 "$XC_XCFRMK_DIR"
         fi
     else
         echo "you need download ${oname} firstly."

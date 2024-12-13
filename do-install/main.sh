@@ -22,6 +22,17 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
+function parse_path()
+{
+    SHELL_ROOT_DIR=$(cd ".."; pwd)
+    local p="$1"
+    if [[ $p == /* ]]; then
+        echo $(cd "$p"; pwd)
+    else
+        echo $(mkdir -p "$SHELL_ROOT_DIR/$p";cd "$SHELL_ROOT_DIR/$p"; pwd)
+    fi
+}
+
 function usage()
 {
 cat << EOF
@@ -32,6 +43,7 @@ Download and Install Pre-compile library to product dir
 OPTIONS:
    -p            Specify platform (ios,macos,tvos), can't be nil
    -l            Specify which libs need 'cmd' (all|libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
+   -s            Specify workspace dir
    --help        Show intall help
    --fmwk        Install xcframework bundle instead of .a
    --correct-pc  Specify a path for correct the pc file prefix recursion
@@ -101,6 +113,10 @@ while [[ $# -gt 0 ]]; do
             shift
             LIBS="$1"
         ;;
+        -s)
+            shift
+            SOURCE_DIR=$(parse_path "$1")
+        ;;
         --help)
             usage
             exit 0
@@ -113,7 +129,7 @@ while [[ $# -gt 0 ]]; do
             fix_prefix "$1"
             exit 0
         ;;
-
+        
         **)
             echo "unkonwn option:$1"
         ;;
@@ -133,6 +149,11 @@ fi
 
 export XC_PLAT
 export XC_VENDOR_LIBS="$LIBS"
+
+if [[ $SOURCE_DIR ]];then
+    export XC_WORKSPACE=$SOURCE_DIR
+    echo "XC_WORKSPACE:$XC_WORKSPACE"
+fi
 
 source '../tools/export-plat-env.sh'
 init_plat_env
@@ -157,6 +178,7 @@ do
     echo "===================================="
 done
 
-fix_prefix "../build/product/$XC_PLAT"
-
+if [[ ! "$FORCE_XCFRAMEWORK" ]];then
+    fix_prefix "$XC_WORKSPACE/product/$XC_PLAT"
+fi
 

@@ -25,7 +25,7 @@
 export LIB_NAME='smb2'
 export LIPO_LIBS="libsmb2"
 export LIB_DEPENDS_BIN="cmake automake autoconf libtool"
-export GIT_LOCAL_REPO=build/extra/smb2
+export GIT_LOCAL_REPO=extra/smb2
 export GIT_COMMIT=v4.0.0
 export REPO_DIR=smb2
 export GIT_REPO_VERSION=4.0.0

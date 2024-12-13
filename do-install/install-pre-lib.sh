@@ -31,7 +31,8 @@ function download_plat() {
     fi
     
     JOIN="$join"
-    ONAME="build/pre/${PRE_COMPILE_TAG}-${plat}${join}.zip"
+    
+    ONAME="$XC_WORKSPACE/pre/${PRE_COMPILE_TAG}-${plat}${join}.zip"
     if [[ -f "$ONAME" ]];then
         echo "$ONAME already exist,no need download."
         return
@@ -42,8 +43,8 @@ function download_plat() {
     
     echo "---[download $fname]-----------------"
     echo "$url"
-    mkdir -p build/pre
-    local tname="build/pre/${PRE_COMPILE_TAG}${join}.tmp"
+    mkdir -p $XC_WORKSPACE/pre
+    local tname="$XC_WORKSPACE/pre/${PRE_COMPILE_TAG}${join}.tmp"
     curl -L "$url" -o "$tname"
     if [[ $? -eq 0 ]];then
         mv "$tname" "$ONAME"
@@ -53,7 +54,7 @@ function download_plat() {
 function extract(){
     local plat=$1
     if [[ -f "$ONAME" ]];then
-        PRODUCT_DIR="build/product/$plat/universal${JOIN}"
+        PRODUCT_DIR="$XC_WORKSPACE/product/$plat/universal${JOIN}"
         mkdir -p "$PRODUCT_DIR"
         unzip -oq "$ONAME" -d "$PRODUCT_DIR"
         echo "extract zip file"

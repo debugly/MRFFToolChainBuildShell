@@ -25,7 +25,7 @@
 export LIB_NAME='bluray'
 export LIPO_LIBS="libbluray"
 export LIB_DEPENDS_BIN="autoconf automake libtool pkg-config"
-export GIT_LOCAL_REPO=build/extra/bluray
+export GIT_LOCAL_REPO=extra/bluray
 export GIT_COMMIT=1.3.4
 export GIT_WITH_SUBMODULE=1
 export REPO_DIR=bluray

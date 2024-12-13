@@ -60,7 +60,7 @@ function init_plat_env() {
     #on intel compile arm64 harfbuzz can't find pkg-config
     export PKG_CONFIG=$(which pkg-config)
     export XC_OTHER_CFLAGS=""
-
+    
     if [[ "$XC_PLAT" == 'ios' ]]; then
         ALL_ARCHS="arm64 arm64_simulator x86_64_simulator"
         elif [[ "$XC_PLAT" == 'macos' ]]; then
@@ -87,16 +87,19 @@ function init_plat_env() {
             fi
         done
     fi
+
+    if [[ -z "$XC_WORKSPACE" ]];then
+        export XC_WORKSPACE="${THIS_DIR}/../build"
+    fi
+    export XC_SRC_ROOT="${XC_WORKSPACE}/src/${XC_PLAT}"
+    export XC_PRODUCT_ROOT="${XC_WORKSPACE}/product/${XC_PLAT}"
+    export XC_IOS_PRODUCT_ROOT="${XC_WORKSPACE}/product/ios"
+    export XC_MACOS_PRODUCT_ROOT="${XC_WORKSPACE}/product/macos"
+    export XC_TVOS_PRODUCT_ROOT="${XC_WORKSPACE}/product/tvos"
+    export XC_XCFRMK_DIR="${XC_WORKSPACE}/product/xcframework"
     
-    export XC_SRC_ROOT="${THIS_DIR}/../build/src/${XC_PLAT}"
-    export XC_PRODUCT_ROOT="${THIS_DIR}/../build/product/${XC_PLAT}"
     export XC_UNI_PROD_DIR="${XC_PRODUCT_ROOT}/universal"
     export XC_UNI_SIM_PROD_DIR="${XC_PRODUCT_ROOT}/universal-simulator"
-    
-    export XC_IOS_PRODUCT_ROOT="${THIS_DIR}/../build/product/ios"
-    export XC_MACOS_PRODUCT_ROOT="${THIS_DIR}/../build/product/macos"
-    export XC_TVOS_PRODUCT_ROOT="${THIS_DIR}/../build/product/tvos"
-    export XC_XCFRMK_DIR="${THIS_DIR}/../build/product/xcframework"
     
     #common xcode configuration
     export XC_TAGET_OS="darwin"
@@ -119,7 +122,7 @@ function init_libs_pkg_config_path() {
     fi
     
     local pkg_cfg_dir=
-
+    
     for dir in `[ -d ${XC_PRODUCT_ROOT} ] && find "${XC_PRODUCT_ROOT}" -type f -name "*.pc" | xargs dirname | uniq` ;
     do
         # dir is /Users/matt/GitWorkspace/ijkplayer/shell/do-compile/../build/product/ios/harfbuzz-arm64/lib/pkgconfig

@@ -25,7 +25,7 @@
 export LIB_NAME='unibreak'
 export LIPO_LIBS="libunibreak"
 export LIB_DEPENDS_BIN="autoconf automake libtool"
-export GIT_LOCAL_REPO=build/extra/unibreak
+export GIT_LOCAL_REPO=extra/unibreak
 export GIT_COMMIT=libunibreak_5_1
 export REPO_DIR=unibreak
 export GIT_REPO_VERSION=5.1

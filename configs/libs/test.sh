@@ -25,7 +25,7 @@
 export LIB_NAME='test'
 export LIPO_LIBS="libtest"
 export LIB_DEPENDS_BIN="automake autoconf libtool"
-export GIT_LOCAL_REPO=build/extra/test
+export GIT_LOCAL_REPO=extra/test
 export GIT_COMMIT=v1.4
 export REPO_DIR=test
 export GIT_REPO_VERSION=1.4

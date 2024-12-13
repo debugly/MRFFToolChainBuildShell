@@ -22,6 +22,17 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
+function parse_path()
+{
+    SHELL_ROOT_DIR=$(cd ".."; pwd)
+    local p="$1"
+    if [[ $p == /* ]]; then
+        echo $(cd "$p"; pwd)
+    else
+        echo $(mkdir -p "$SHELL_ROOT_DIR/$p";cd "$SHELL_ROOT_DIR/$p"; pwd)
+    fi
+}
+
 function usage()
 {
 cat << EOF
@@ -34,6 +45,7 @@ OPTIONS:
     -p            Specify platform (ios,macos,tvos), can't be nil
     -a            Specify archs (x86_64,arm64,x86_64_simulator,arm64_simulator,all) all="x86_64,arm64,x86_64_simulator,arm64_simulator"
     -l            Specify which libs need 'cmd' (all|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
+    -s            Specify workspace dir
     -j            Force number of cores to be used
     --help        Show help banner of compile command
     --debug       Enable debug mode (disable by default)
@@ -67,6 +79,10 @@ while [[ $# -gt 0 ]]; do
         -l)
             shift
             LIBS="$1"
+        ;;
+        -s)
+            shift
+            SOURCE_DIR=$(parse_path "$1")
         ;;
         -j)
             shift
@@ -116,6 +132,11 @@ export XC_DEBUG
 export XC_VENDOR_LIBS="$LIBS"
 export XC_ALL_ARCHS
 export XC_SKIP_MAKE_XCFRAMEWORK
+
+if [[ $SOURCE_DIR ]];then
+    export XC_WORKSPACE=$SOURCE_DIR
+    echo "XC_WORKSPACE:$XC_WORKSPACE"
+fi
 
 source '../tools/export-plat-env.sh'
 init_plat_env
