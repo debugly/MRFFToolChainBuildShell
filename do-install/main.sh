@@ -44,9 +44,9 @@ OPTIONS:
    -p            Specify platform (ios,macos,tvos), can't be nil
    -l            Specify which libs need 'cmd' (all|libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
    -s            Specify workspace dir
+   -correct-pc  Specify a path for correct the pc file prefix recursion
    --help        Show intall help
    --fmwk        Install xcframework bundle instead of .a
-   --correct-pc  Specify a path for correct the pc file prefix recursion
 EOF
 }
 
@@ -54,13 +54,13 @@ function fix_prefix(){
     local fix_path="$1"
     local dir=${PWD}
     
-    echo "fix pc files prefix: $fix_path"
+    echo "fix pc files in folder: $fix_path"
     cd "$fix_path"
     
     for pc in `find . -type f -name "*.pc"` ;
     do
         echo "$pc"
-        local pc_dir=$(dirname "$pc")
+        local pc_dir=$(DIRNAME=$(dirname "$pc"); cd "$DIRNAME"; pwd)
         local lib_dir=$(dirname "$pc_dir")
         local base_dir=$(dirname "$lib_dir")
         
@@ -88,9 +88,6 @@ function fix_prefix(){
         [[ ! -z $str ]] && sed -i "" "s/^Libs:.*/$str/" "$pc"
     done
     
-    if command -v tree >/dev/null 2>&1; then
-        tree -L 2 ./
-    fi
     cd "$dir"
 }
 
@@ -124,7 +121,7 @@ while [[ $# -gt 0 ]]; do
         --fmwk)
             FORCE_XCFRAMEWORK=1
         ;;
-        --correct-pc)
+        -correct-pc)
             shift
             fix_prefix "$1"
             exit 0
