@@ -18,47 +18,16 @@
 set -e
 
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
-cd "$THIS_DIR/.." 
+cd "$THIS_DIR" 
 
-function download() {
-    local oname="$XC_WORKSPACE/pre/${PRE_COMPILE_TAG}.xcf"
-    if [[ -f "$oname" ]];then
-        echo "$oname already exist,no need download."
-        return
-    fi
-    
-    local fname="$LIB_NAME-apple-xcframework-$VER.zip"
-    local url="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$PRE_COMPILE_TAG/$fname"
-    
-    echo "---[download $fname]-----------------"
-    echo "$url"
-    mkdir -p "$XC_WORKSPACE/pre"
-    local tname="$XC_WORKSPACE/pre/${PRE_COMPILE_TAG}.tmp"
-    curl -L "$url" -o "$tname"
-    if [[ $? -eq 0 ]];then
-        mv "$tname" "$oname"
-    fi
-}
 
-function extract(){
-    local oname="$XC_WORKSPACE/pre/${PRE_COMPILE_TAG}.xcf"
+function install_plat() {
     
-    if [[ -f "$oname" ]];then
-        mkdir -p "$XC_XCFRMK_DIR"
-        unzip -oq "$oname" -d "$XC_XCFRMK_DIR"
-        echo "extract zip file"
-        if command -v tree >/dev/null 2>&1; then
-            tree -L 2 "$XC_XCFRMK_DIR"
-        fi
-    else
-        echo "you need download ${oname} firstly."
-        exit 1
-    fi
-}
+    export XC_DOWNLOAD_ONAME="$LIB_NAME-apple-xcframework-$VER.zip"
+    export XC_DOWNLOAD_URL="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$PRE_COMPILE_TAG/$XC_DOWNLOAD_ONAME"
+    export XC_UNCOMPRESS_DIR="$XC_XCFRMK_DIR"
 
-function install(){
-    download
-    extract
+    ./download-uncompress.sh
 }
 
 if test -z $PRE_COMPILE_TAG ;then
@@ -71,4 +40,4 @@ fi
 LIB_NAME=$(echo $PRE_COMPILE_TAG | awk -F - '{print $1}')
 VER=$(echo $PRE_COMPILE_TAG | awk -F - '{print $2}')
 
-install
+install_plat

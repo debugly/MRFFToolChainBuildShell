@@ -18,63 +18,28 @@
 set -e
 
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
-cd "$THIS_DIR/.."
+cd "$THIS_DIR"
 
-function download_plat() {
-    local plat=$1
-    local join=$2
-    
-    if [[ "$join" ]];then
-        join="-$join"
-    else
-        join=""
-    fi
-    
-    JOIN="$join"
-    
-    ONAME="$XC_WORKSPACE/pre/${PRE_COMPILE_TAG}-${plat}${join}.zip"
-    if [[ -f "$ONAME" ]];then
-        echo "$ONAME already exist,no need download."
-        return
-    fi
-    
-    local fname="$LIB_NAME-$plat-universal${join}-$VER.zip"
-    local url="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$PRE_COMPILE_TAG/$fname"
-    
-    echo "---[download $fname]-----------------"
-    echo "$url"
-    mkdir -p $XC_WORKSPACE/pre
-    local tname="$XC_WORKSPACE/pre/${PRE_COMPILE_TAG}${join}.tmp"
-    curl -L "$url" -o "$tname"
-    if [[ $? -eq 0 ]];then
-        mv "$tname" "$ONAME"
-    fi
-}
+source ../tools/env_assert.sh
 
-function extract(){
-    local plat=$1
-    if [[ -f "$ONAME" ]];then
-        PRODUCT_DIR="$XC_WORKSPACE/product/$plat/universal${JOIN}"
-        mkdir -p "$PRODUCT_DIR"
-        unzip -oq "$ONAME" -d "$PRODUCT_DIR"
-        echo "extract zip file"
-    else
-        echo "you need download ${ONAME} firstly."
-        exit 1
-    fi
-}
+echo "=== [$0] check env begin==="
+env_assert "XC_PLAT"
+env_assert "XC_WORKSPACE"
+env_assert "PRE_COMPILE_TAG"
+echo "===check env end==="
 
-function install() {
-    local plat=$XC_PLAT
-    if [[ "$plat" == 'ios' || "$plat" == 'tvos' ]];then
-        download_plat "$plat"
-        extract "$plat"
-        download_plat "$plat" "simulator"
-        extract "$plat"
-    else
-        download_plat "$plat"
-        extract "$plat"
+function install_plat() {
+    local join=""
+    
+    if [[ "$1" ]];then
+        join="-$1"
     fi
+    
+    export XC_DOWNLOAD_ONAME="$LIB_NAME-$XC_PLAT-universal${join}-$VER.zip"
+    export XC_DOWNLOAD_URL="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$PRE_COMPILE_TAG/$XC_DOWNLOAD_ONAME"
+    export XC_UNCOMPRESS_DIR="$XC_WORKSPACE/product/$XC_PLAT/universal${join}"
+
+    ./download-uncompress.sh
 }
 
 if test -z $PRE_COMPILE_TAG ;then
@@ -87,4 +52,9 @@ fi
 LIB_NAME=$(echo $PRE_COMPILE_TAG | awk -F - '{print $1}')
 VER=$(echo $PRE_COMPILE_TAG | awk -F - '{print $2}')
 
-install
+if [[ "$XC_PLAT" == 'ios' || "$XC_PLAT" == 'tvos' ]];then
+    install_plat
+    install_plat "simulator"
+else
+    install_plat
+fi

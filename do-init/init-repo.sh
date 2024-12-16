@@ -22,7 +22,7 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 source ${THIS_DIR}/../tools/env_assert.sh
 
-echo "===check env begin==="
+echo "=== [$0] check env begin==="
 env_assert "REPO_DIR"
 env_assert "GIT_COMMIT"
 env_assert "GIT_LOCAL_REPO"

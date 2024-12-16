@@ -91,13 +91,15 @@ function init_plat_env() {
     if [[ -z "$XC_WORKSPACE" ]];then
         export XC_WORKSPACE="${THIS_DIR}/../build"
     fi
+
     export XC_SRC_ROOT="${XC_WORKSPACE}/src/${XC_PLAT}"
     export XC_PRODUCT_ROOT="${XC_WORKSPACE}/product/${XC_PLAT}"
     export XC_IOS_PRODUCT_ROOT="${XC_WORKSPACE}/product/ios"
     export XC_MACOS_PRODUCT_ROOT="${XC_WORKSPACE}/product/macos"
     export XC_TVOS_PRODUCT_ROOT="${XC_WORKSPACE}/product/tvos"
     export XC_XCFRMK_DIR="${XC_WORKSPACE}/product/xcframework"
-    
+    export XC_PRE_ROOT="${XC_WORKSPACE}/pre"
+
     export XC_UNI_PROD_DIR="${XC_PRODUCT_ROOT}/universal"
     export XC_UNI_SIM_PROD_DIR="${XC_PRODUCT_ROOT}/universal-simulator"
     
