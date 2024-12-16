@@ -24,6 +24,7 @@ source ../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_WORKSPACE"
+env_assert "XC_PRE_ROOT"
 env_assert "XC_DOWNLOAD_URL"
 env_assert "XC_DOWNLOAD_ONAME"
 env_assert "XC_UNCOMPRESS_DIR"
