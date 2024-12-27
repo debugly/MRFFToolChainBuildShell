@@ -24,7 +24,7 @@ export GIT_COMMIT=1.5.0
 export GIT_WITH_SUBMODULE=0
 export REPO_DIR=dav1d
 export GIT_REPO_VERSION=1.5.0
-export PRE_COMPILE_TAG=dav1d-1.3.0-241115132311
+export PRE_COMPILE_TAG=dav1d-1.5.0-241227150820
 
 # you can export GIT_DAV1D_UPSTREAM=git@xx:yy/dav1d.git use your mirror
 if [[ "$GIT_DAV1D_UPSTREAM" != "" ]] ;then
