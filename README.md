@@ -23,9 +23,9 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 
 ## Denpendency
 
-Harfbuzz: freetype
-Ass: harfbuzz,fribidi,unibreak
-FFmpeg: openssl,opus,dav1d,dvdread,uavs3d,libsmb2
+- Harfbuzz: freetype
+- Ass: harfbuzz,fribidi,unibreak
+- FFmpeg: openssl,opus,dav1d,dvdread,uavs3d,libsmb2
 
 Tips: 
 
@@ -152,19 +152,19 @@ Tips:
 
 | 名称          | 默认仓库                                                 | 默认版本   | 使用镜像                                                     |
 | ----------- | ---------------------------------------------------- | ------ | -------------------------------------------------------- |
-| libass      | https://github.com/libass/libass.git                 | 0.17.1 | export GIT_ASS_UPSTREAM = git@xx:yy/libass.git           |
+| libass      | https://github.com/libass/libass.git                 | 0.17.3 | export GIT_ASS_UPSTREAM = git@xx:yy/libass.git           |
 | libbluray   | https://code.videolan.org/videolan/libbluray.git     | 1.3.4  | export GIT_BLURAY_UPSTREAM = git@xx:yy/libbluray.git     |
-| dav1d       | https://code.videolan.org/videolan/dav1d.git         | 1.3.0  | export GIT_DAV1D_UPSTREAM = git@xx:yy/dav1d.git          |
+| dav1d       | https://code.videolan.org/videolan/dav1d.git         | 1.5.0  | export GIT_DAV1D_UPSTREAM = git@xx:yy/dav1d.git          |
 | libdvdread  | https://code.videolan.org/videolan/libdvdread.git    | 6.1.3  | export GIT_DVDREAD_UPSTREAM = git@xx:yy/libdvdread.git   |
-| FFmpeg      | https://github.com/FFmpeg/FFmpeg.git                 | 6.1.1  | export GIT_FFMPEG_UPSTREAM = git@xx:yy/FFmpeg.git        |
-| freetype    | https://gitlab.freedesktop.org/freetype/freetype.git | 2.13.2 | export GIT_FREETYPE_UPSTREAM = git@xx:yy/freetype.git    |
-| fribidi     | https://github.com/fribidi/fribidi.git               | 1.0.13 | export GIT_FRIBIDI_UPSTREAM = git@xx:yy/fribidi.git      |
-| harfbuzz    | https://github.com/harfbuzz/harfbuzz.git             | 8.3.0  | export GIT_HARFBUZZ_UPSTREAM = git@xx:yy/harfbuzz.git    |
+| FFmpeg      | https://github.com/FFmpeg/FFmpeg.git                 | 6.1.2  | export GIT_FFMPEG_UPSTREAM = git@xx:yy/FFmpeg.git        |
+| freetype    | https://gitlab.freedesktop.org/freetype/freetype.git | 2.13.3 | export GIT_FREETYPE_UPSTREAM = git@xx:yy/freetype.git    |
+| fribidi     | https://github.com/fribidi/fribidi.git               | 1.0.16 | export GIT_FRIBIDI_UPSTREAM = git@xx:yy/fribidi.git      |
+| harfbuzz    | https://github.com/harfbuzz/harfbuzz.git             | 10.1.0  | export GIT_HARFBUZZ_UPSTREAM = git@xx:yy/harfbuzz.git    |
 | openssl     | https://github.com/openssl/openssl.git               | 1.1.1w | export GIT_OPENSSL_UPSTREAM = git@xx:yy/openssl.git      |
-| opus        | https://gitlab.xiph.org/xiph/opus.git                | 1.4    | export GIT_OPUS_UPSTREAM = git@xx:yy/opus.git            |
-| libunibreak | https://github.com/adah1972/libunibreak.git          | 5.1    | export GIT_UNIBREAK_UPSTREAM = git@xx:yy/libunibreak.git |
+| opus        | https://gitlab.xiph.org/xiph/opus.git                | 1.5.2    | export GIT_OPUS_UPSTREAM = git@xx:yy/opus.git            |
+| libunibreak | https://github.com/adah1972/libunibreak.git          | 6.1    | export GIT_UNIBREAK_UPSTREAM = git@xx:yy/libunibreak.git |
 | libuavs3d | https://github.com/uavs3/uavs3d.git | 1.2.1 |export GIT_UAVS3D_UPSTREAM=git@xx:yy/UAVS3D.git|
-| libsmb2   | https://github.com/sahlberg/libsmb2.git | 4.0.0 | export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git
+| libsmb2   | https://github.com/sahlberg/libsmb2.git | 6.2 | export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git
 
 ## Tips
 
