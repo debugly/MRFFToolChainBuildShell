@@ -26,9 +26,9 @@ export LIB_NAME='smb2'
 export LIPO_LIBS="libsmb2"
 export LIB_DEPENDS_BIN="cmake automake autoconf libtool"
 export GIT_LOCAL_REPO=extra/smb2
-export GIT_COMMIT=v4.0.0
+export GIT_COMMIT=v6.2
 export REPO_DIR=smb2
-export GIT_REPO_VERSION=4.0.0
+export GIT_REPO_VERSION=6.2
 export PRE_COMPILE_TAG=smb2-4.0.0-241115132844
 
 # you can export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git use your mirror

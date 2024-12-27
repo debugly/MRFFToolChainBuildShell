@@ -23,9 +23,9 @@ export LIB_NAME='freetype'
 export LIPO_LIBS="libfreetype"
 export LIB_DEPENDS_BIN="meson cmake"
 export GIT_LOCAL_REPO=extra/freetype
-export GIT_COMMIT=VER-2-13-2
+export GIT_COMMIT=VER-2-13-3
 export REPO_DIR=freetype
-export GIT_REPO_VERSION=2.13.2
+export GIT_REPO_VERSION=2.13.3
 export GIT_WITH_SUBMODULE=1
 export PRE_COMPILE_TAG=freetype-2.13.2-241115125941
 

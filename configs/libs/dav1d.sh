@@ -20,10 +20,10 @@ export LIB_NAME='dav1d'
 export LIPO_LIBS="libdav1d"
 export LIB_DEPENDS_BIN="meson ninja nasm"
 export GIT_LOCAL_REPO=extra/dav1d
-export GIT_COMMIT=1.3.0
+export GIT_COMMIT=1.5.0
 export GIT_WITH_SUBMODULE=0
 export REPO_DIR=dav1d
-export GIT_REPO_VERSION=1.3.0
+export GIT_REPO_VERSION=1.5.0
 export PRE_COMPILE_TAG=dav1d-1.3.0-241115132311
 
 # you can export GIT_DAV1D_UPSTREAM=git@xx:yy/dav1d.git use your mirror

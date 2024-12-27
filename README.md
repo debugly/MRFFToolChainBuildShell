@@ -16,6 +16,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 
 ## News
 
+- upgrade all libs to lastest,Improved optimizations
 - using macOS 14, remove bitcode support
 
 [https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes#Deprecations](https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes#Deprecations)

@@ -26,9 +26,9 @@ export LIB_NAME='opus'
 export LIPO_LIBS="libopus"
 export LIB_DEPENDS_BIN="automake autoconf libtool"
 export GIT_LOCAL_REPO=extra/opus
-export GIT_COMMIT=v1.4
+export GIT_COMMIT=v1.5.2
 export REPO_DIR=opus
-export GIT_REPO_VERSION=1.4
+export GIT_REPO_VERSION=1.5.2
 export PRE_COMPILE_TAG=opus-1.4-241115131002
 
 # you can export GIT_OPUS_UPSTREAM=git@xx:yy/opusfile.git use your mirror

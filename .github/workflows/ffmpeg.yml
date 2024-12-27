@@ -15,7 +15,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Install denpendencies
       run: |
         ./main.sh install -p ios   -l 'openssl opus dav1d dvdread uavs3d smb2 bluray'
