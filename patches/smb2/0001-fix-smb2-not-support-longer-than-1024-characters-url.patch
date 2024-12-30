@@ -1,0 +1,86 @@
+From 9c7cf436e39b4d0d49fa2752d4d9a3597f4d86b1 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Mon, 30 Dec 2024 09:58:00 +0800
+Subject: [PATCH] fix smb2 not support longer than 1024 characters url question
+
+---
+ lib/init.c | 33 ++++++++++++++++++++-------------
+ 1 file changed, 20 insertions(+), 13 deletions(-)
+
+diff --git a/lib/init.c b/lib/init.c
+index 96d8638..2a17fc3 100644
+--- a/lib/init.c
++++ b/lib/init.c
+@@ -178,33 +178,36 @@ smb2_parse_args(struct smb2_context *smb2, const char *args)
+ struct smb2_url *smb2_parse_url(struct smb2_context *smb2, const char *url)
+ {
+         struct smb2_url *u;
+-        char *ptr, *tmp, str[MAX_URL_SIZE];
++        char *ptr, *tmp, *str = NULL;
+         char *args;
+         char *shared_folder;
+         size_t len_shared_folder;
+ 
+         if (strncmp(url, "smb://", 6)) {
+                 smb2_set_error(smb2, "URL does not start with 'smb://'");
+-                return NULL;
+-        }
+-        if (strlen(url + 6) >= MAX_URL_SIZE) {
+-                smb2_set_error(smb2, "URL is too long");
+-                return NULL;
+-        }
+-
+-        strncpy(str, url + 6, MAX_URL_SIZE);
++                u = NULL;
++                goto end;
++        }
++        // if (strlen(url + 6) >= MAX_URL_SIZE) {
++        //         smb2_set_error(smb2, "URL is too long");
++        //         return NULL;
++        // }
++        str = strdup(url + 6);
++        //strncpy(str, url + 6, MAX_URL_SIZE);
+         args = strchr(str, '?');
+         if (args) {
+                 *(args++) = '\0';
+                 if (smb2_parse_args(smb2, args) != 0) {
+-                        return NULL;
++                        u = NULL;
++                        goto end;
+                 }
+         }
+ 
+         u = calloc(1, sizeof(struct smb2_url));
+         if (u == NULL) {
+                 smb2_set_error(smb2, "Failed to allocate smb2_url");
+-                return NULL;
++                u = NULL;
++                goto end;
+         }
+ 
+         ptr = str;
+@@ -212,7 +215,8 @@ struct smb2_url *smb2_parse_url(struct smb2_context *smb2, const char *url)
+         shared_folder = strchr(ptr, '/');
+         if (!shared_folder) {
+                 smb2_set_error(smb2, "Wrong URL format");
+-                return NULL;
++                u = NULL;
++                goto end;
+         }
+         len_shared_folder = strlen(shared_folder);
+ 
+@@ -248,7 +252,10 @@ struct smb2_url *smb2_parse_url(struct smb2_context *smb2, const char *url)
+         *(tmp++) = '\0';
+         u->share = strdup(ptr);
+         u->path = strdup(tmp);
+-
++end:
++        if (str){
++          free(str);
++        }
+         return u;
+ }
+ 
+-- 
+2.39.5 (Apple Git-154)
+
