@@ -1,6 +1,6 @@
-From eddc99cb17ff667656a38cda644eb239910574a5 Mon Sep 17 00:00:00 2001
+From d39c2bfe3f729b3d2e654597c6f97a8ad032f0f1 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Mon, 4 Nov 2024 15:27:00 +0800
+Date: Tue, 31 Dec 2024 09:31:32 +0800
 Subject: [PATCH 20] add built-in smb2 protocol via libsmb2
 
 ---
@@ -12,7 +12,7 @@ Subject: [PATCH 20] add built-in smb2 protocol via libsmb2
  create mode 100644 libavformat/libsmb2.c
 
 diff --git a/configure b/configure
-index 3f2fd2d..16d0177 100755
+index e8cfbb7..c8d0d27 100755
 --- a/configure
 +++ b/configure
 @@ -266,6 +266,7 @@ External library support:
@@ -31,7 +31,7 @@ index 3f2fd2d..16d0177 100755
      libsnappy
      libsoxr
      libspeex
-@@ -3676,6 +3678,7 @@ librtmps_protocol_deps="librtmp"
+@@ -3679,6 +3681,7 @@ librtmps_protocol_deps="librtmp"
  librtmpt_protocol_deps="librtmp"
  librtmpte_protocol_deps="librtmp"
  libsmbclient_protocol_deps="libsmbclient gplv3"
@@ -39,7 +39,7 @@ index 3f2fd2d..16d0177 100755
  libsrt_protocol_deps="libsrt"
  libsrt_protocol_select="network"
  libssh_protocol_deps="libssh"
-@@ -6798,6 +6801,8 @@ enabled libshaderc        && require_pkg_config spirv_compiler "shaderc >= 2019.
+@@ -6808,6 +6811,8 @@ enabled libshaderc        && require_pkg_config spirv_compiler "shaderc >= 2019.
  enabled libshine          && require_pkg_config libshine shine shine/layer3.h shine_encode_buffer
  enabled libsmbclient      && { check_pkg_config libsmbclient smbclient libsmbclient.h smbc_init ||
                                 require libsmbclient libsmbclient.h smbc_init -lsmbclient; }
@@ -62,7 +62,7 @@ index ae952eb..427c45a 100644
  OBJS-$(CONFIG_LIBZMQ_PROTOCOL)           += libzmq.o
 diff --git a/libavformat/libsmb2.c b/libavformat/libsmb2.c
 new file mode 100644
-index 0000000..5fa1ba4
+index 0000000..2514b2a
 --- /dev/null
 +++ b/libavformat/libsmb2.c
 @@ -0,0 +1,412 @@
@@ -95,7 +95,8 @@ index 0000000..5fa1ba4
 +#include "application.h"
 +#include "url.h"
 +#include "urldecode.h"
-+
++//smb2.h:37:9: error: unknown type name 'time_t';
++#include <time.h>
 +#include <smb2/smb2.h>
 +#include <smb2/libsmb2.h>
 +#include <smb2/libsmb2-raw.h>
@@ -387,7 +388,6 @@ index 0000000..5fa1ba4
 +    LIBSMB2Context *libsmb2 = h->priv_data;
 +    AVIODirEntry *entry;
 +    struct smb2dirent *dirent = NULL;
-+    char *url = NULL;
 +    int skip_entry;
 +
 +    *next = entry = ff_alloc_dir_entry();
@@ -478,7 +478,6 @@ index 0000000..5fa1ba4
 +    .priv_data_class = &libsmb2lient_context_class,
 +    .flags = URL_PROTOCOL_FLAG_NETWORK,
 +};
-\ No newline at end of file
 diff --git a/libavformat/protocols.c b/libavformat/protocols.c
 index 73df344..2bda874 100644
 --- a/libavformat/protocols.c
