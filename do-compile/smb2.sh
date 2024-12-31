@@ -68,7 +68,7 @@ if [[ -f 'configure' ]]; then
    echo "reuse configure"
 else
    echo "auto generate configure"
-   ./bootstrap >/dev/null
+   autoreconf -if >/dev/null
 fi
 
 echo 
