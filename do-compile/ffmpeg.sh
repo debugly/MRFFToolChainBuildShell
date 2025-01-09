@@ -92,8 +92,10 @@ fi
 
 # --enable-debug
 CFG_FLAGS="$CFG_FLAGS --pkg-config-flags=--static"
+ # use system xml2 lib
+C_FLAGS="$C_FLAGS $(xml2-config --prefix=${XCRUN_SDK_PATH}/usr --cflags)"
+LDFLAGS="$C_FLAGS $(xml2-config --prefix=${XCRUN_SDK_PATH}/usr --libs)"
 
-LDFLAGS="$C_FLAGS"
 FFMPEG_DEP_LIBS=
 
 # https://ffmpeg.org/doxygen/4.1/md_LICENSE.html
