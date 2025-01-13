@@ -35,8 +35,8 @@ function install_plat() {
         join="-$1"
     fi
     
-    export XC_DOWNLOAD_ONAME="$LIB_NAME-$XC_PLAT-universal${join}-$VER.zip"
-    export XC_DOWNLOAD_URL="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$PRE_COMPILE_TAG/$XC_DOWNLOAD_ONAME"
+    export XC_DOWNLOAD_ONAME="$PRE_COMPILE_TAG-$XC_PLAT${join}.zip"
+    export XC_DOWNLOAD_URL="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$PRE_COMPILE_TAG/$LIB_NAME-$XC_PLAT-universal${join}-$VER.zip"
     export XC_UNCOMPRESS_DIR="$XC_WORKSPACE/product/$XC_PLAT/universal${join}"
 
     ./download-uncompress.sh

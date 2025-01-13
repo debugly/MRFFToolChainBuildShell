@@ -23,8 +23,8 @@ cd "$THIS_DIR"
 
 function install_plat() {
     
-    export XC_DOWNLOAD_ONAME="$LIB_NAME-apple-xcframework-$VER.zip"
-    export XC_DOWNLOAD_URL="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$PRE_COMPILE_TAG/$XC_DOWNLOAD_ONAME"
+    export XC_DOWNLOAD_ONAME="$PRE_COMPILE_TAG-xcfmwk.zip"
+    export XC_DOWNLOAD_URL="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$PRE_COMPILE_TAG/$LIB_NAME-apple-xcframework-$VER.zip"
     export XC_UNCOMPRESS_DIR="$XC_XCFRMK_DIR"
 
     ./download-uncompress.sh
