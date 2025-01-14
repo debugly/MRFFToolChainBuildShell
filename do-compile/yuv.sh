@@ -86,5 +86,5 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-cmake --build . --config Release -- CODE_SIGNING_ALLOWED=NO
+cmake --build . --target yuv --config Release -- CODE_SIGNING_ALLOWED=NO
 cmake --install .
