@@ -41,7 +41,7 @@ usage: ./main.sh init [options]
 Clone vendor library git repository,Checkout specify commit,Apply patches
 
 OPTIONS:
-    -p                   Specify platform (ios,macos,tvos), can't be nil
+    -p                   Specify platform (ios,macos,tvos,android), can't be nil
     -a                   Specify archs (x86_64,arm64,x86_64_simulator,arm64_simulator,all) all="x86_64,arm64,x86_64_simulator,arm64_simulator"
     -l                   Specify which libs need init (all|libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
     -s                   Specify workspace dir
@@ -62,8 +62,8 @@ while [[ $# -gt 0 ]]; do
         -p)
             shift
             XC_PLAT="$1"
-            if [[ "$XC_PLAT" != 'ios' && "$XC_PLAT" != 'macos' && "$XC_PLAT" != 'tvos' ]]; then
-                echo "plat must be: [ios|macos|tvos]"
+            if [[ "$XC_PLAT" != 'ios' && "$XC_PLAT" != 'macos' && "$XC_PLAT" != 'tvos' && "$XC_PLAT" != 'android' ]]; then
+                echo "plat must be: [ios|macos|tvos|android]"
                 exit 1
             fi
         ;;

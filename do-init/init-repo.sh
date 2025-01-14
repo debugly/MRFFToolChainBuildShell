@@ -115,12 +115,12 @@ function usage() {
 
 function main() {
     case "$XC_PLAT" in
-        ios | macos | tvos)
+        ios | macos | tvos | android)
             pull_common
             for arch in $XC_ALL_ARCHS; do
                 make_arch_repo $arch
             done
-        ;;    
+        ;;
         *)
             usage
             exit 1

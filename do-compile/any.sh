@@ -192,7 +192,6 @@ function do_clean() {
         echo "rm:$XC_BUILD_PREFIX"
         rm -rf $XC_BUILD_PREFIX >/dev/null
     fi
-    
 }
 
 function main() {
