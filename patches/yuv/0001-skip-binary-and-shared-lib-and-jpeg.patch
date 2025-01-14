@@ -1,14 +1,14 @@
-From 95dd62cea5e195f51a7ec25041b072d47aa63fa9 Mon Sep 17 00:00:00 2001
+From adaf7690b34ade92e3cfb0af812ec8c534381b12 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Tue, 14 Jan 2025 17:38:01 +0800
-Subject: [PATCH] not install binary and shared lib
+Date: Tue, 14 Jan 2025 17:53:31 +0800
+Subject: [PATCH] skip binary and shared lib and jpeg
 
 ---
  CMakeLists.txt | 17 +++++++++++++++--
  1 file changed, 15 insertions(+), 2 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 636531e..52a6b95 100644
+index 636531e..47b9759 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -5,6 +5,7 @@
@@ -19,7 +19,7 @@ index 636531e..52a6b95 100644
  
  SET ( ly_base_dir	${PROJECT_SOURCE_DIR} )
  SET ( ly_src_dir	${ly_base_dir}/source )
-@@ -25,15 +26,19 @@ INCLUDE_DIRECTORIES( BEFORE ${ly_inc_dir} )
+@@ -25,22 +26,26 @@ INCLUDE_DIRECTORIES( BEFORE ${ly_inc_dir} )
  # this creates the static library (.a)
  ADD_LIBRARY				( ${ly_lib_static} STATIC ${ly_source_files} )
  
@@ -35,11 +35,18 @@ index 636531e..52a6b95 100644
 +if(BINARY)
  ADD_EXECUTABLE			( yuvconvert ${ly_base_dir}/util/yuvconvert.cc )
  TARGET_LINK_LIBRARIES	( yuvconvert ${ly_lib_static} )
--
-+endif()
  
+-
  INCLUDE ( FindJPEG )
  if (JPEG_FOUND)
+   include_directories( ${JPEG_INCLUDE_DIR} )
+   target_link_libraries( yuvconvert ${JPEG_LIBRARY} )
+   add_definitions( -DHAVE_JPEG )
+ endif()
++endif()
+ 
+ if(TEST)
+   find_library(GTEST_LIBRARY gtest)
 @@ -75,9 +80,17 @@ endif()
  
  
