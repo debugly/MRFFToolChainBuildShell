@@ -4,7 +4,7 @@
 
 MRFFToolChain products was built for ijkplayer : [https://github.com/debugly/ijkplayer](https://github.com/debugly/ijkplayer).
 
-At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、freetype、fribidi、harfbuzz、openssl、opus、unibreak、uavs3d、smb2、yuv`.
+At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、freetype、fribidi、harfbuzz、openssl、opus、unibreak、uavs3d、smb2、yuv、soundtouch`.
 
 ## Supported Plat
 
@@ -166,6 +166,7 @@ Tips:
 | libuavs3d | https://github.com/uavs3/uavs3d.git | 1.2.1 |export GIT_UAVS3D_UPSTREAM=git@xx:yy/UAVS3D.git  |
 | libsmb2   | https://github.com/sahlberg/libsmb2.git | 6.2 | export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git    |
 | libyuv   | https://github.com/debugly/libyuv.git | stable-eb6e7bb | export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git |
+| soundtouch | https://codeberg.org/soundtouch/soundtouch.git | 2.3.3 | export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git |
 
 ## Tips
 

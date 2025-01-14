@@ -20,6 +20,9 @@ jobs:
       run: |
         echo '------compile yuv------------------------------------'
         .github/workflows/onestep.sh yuv all
+        echo '------compile soundtouch------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh soundtouch all
         echo '------compile unibreak------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/onestep.sh unibreak all

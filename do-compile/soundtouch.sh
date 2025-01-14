@@ -80,11 +80,11 @@ elif [[ "$XC_PLAT" == 'macos' ]];then
     fi
 fi
 
-cmake -S ${XC_BUILD_SOURCE} -DCMAKE_INSTALL_PREFIX=${XC_BUILD_PREFIX} -GXcode -DCMAKE_TOOLCHAIN_FILE=$toolchain -DPLATFORM=$pf
+cmake -S ${XC_BUILD_SOURCE} -DCMAKE_INSTALL_PREFIX=${XC_BUILD_PREFIX} -GXcode -DCMAKE_TOOLCHAIN_FILE=$toolchain -DPLATFORM=$pf -DSOUNDSTRETCH=0
 
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-cmake --build . --target $LIB_NAME --config Release -- CODE_SIGNING_ALLOWED=NO
+cmake --build . --target SoundTouch --config Release -- CODE_SIGNING_ALLOWED=NO
 cmake --install .
