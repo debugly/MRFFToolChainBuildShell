@@ -24,7 +24,7 @@ export GIT_LOCAL_REPO=extra/yuv
 export GIT_COMMIT=eb6e7bb
 export REPO_DIR=yuv
 export GIT_REPO_VERSION=stable
-export PRE_COMPILE_TAG=yuv-stable-241227150449
+export PRE_COMPILE_TAG=yuv-stable-250114175447
 
 # you can export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git use your mirror
 if [[ "$GIT_YUV_UPSTREAM" != "" ]] ;then
