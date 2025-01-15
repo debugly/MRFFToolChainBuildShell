@@ -138,7 +138,9 @@ if [[ $SOURCE_DIR ]];then
     echo "XC_WORKSPACE:$XC_WORKSPACE"
 fi
 
-source '../tools/export-plat-env.sh'
+source ../../tools/export-plat-env.sh
+source ../../tools/env_assert.sh
+
 init_plat_env
 
 echo '------------------------------------------'
@@ -155,10 +157,10 @@ echo '------------------------------------------'
 # 循环编译所有的库
 for lib in $XC_VENDOR_LIBS
 do
-    [[ ! -f "../configs/libs/${lib}.sh" ]] && (echo "❌$lib config not exist,compile will stop.";exit 1;)
+    [[ ! -f "../../configs/libs/${lib}.sh" ]] && (echo "❌$lib config not exist,compile will stop.";exit 1;)
 
     echo "===[$XC_CMD $lib]===================="
-    source "../configs/libs/${lib}.sh"
+    source "../../configs/libs/${lib}.sh"
     
     ./any.sh
     if [[ $? -eq 0 ]];then

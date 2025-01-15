@@ -60,7 +60,7 @@ case $1 in
     ;;
     compile)
         shift 1
-        ./do-compile/main.sh "$@"
+        ./do-compile/apple/main.sh "$@"
         elapsed
     ;;
     *)

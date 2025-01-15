@@ -22,7 +22,6 @@ set -e
 # 当前脚本所在目录
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
-source ../tools/env_assert.sh
 
 echo "=== [do-comlile/any.sh] check env begin==="
 env_assert "XC_CMD"

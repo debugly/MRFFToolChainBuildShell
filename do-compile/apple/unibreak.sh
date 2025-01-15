@@ -19,7 +19,6 @@ set -e
 
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
-source ../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_ARCH"
@@ -31,49 +30,43 @@ env_assert "XC_BUILD_PREFIX"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XC_THREAD"
 echo "XC_DEBUG:$XC_DEBUG"
-echo "XC_IS_SIMULATOR:$XC_IS_SIMULATOR"
 echo "===check env end==="
 
-# prepare build config
-CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --default-library static"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --enable-static --disable-shared --silent"
+CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
-if [[ "$BUILD_OPT" == "debug" ]]; then
-    CFG_FLAGS="$CFG_FLAGS --buildtype=debug"
-else
-    CFG_FLAGS="$CFG_FLAGS --buildtype=release"
+# for cross compile
+if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]];then
+    echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
+    # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
+    CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
+    CFG_FLAGS="$CFG_FLAGS --host=$XC_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
 fi
 
 cd $XC_BUILD_SOURCE
-export CC="$XCRUN_CC"
-export CXX="$XCRUN_CXX"
 
-if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]]; then
-    if [[ $XC_IS_SIMULATOR != 1 ]]; then
-        echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
-        CFG_FLAGS="$CFG_FLAGS --cross-file $THIS_DIR/../configs/meson-crossfiles/$XC_ARCH-$XC_PLAT.meson"
-    else
-        echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH simulator."
-        CFG_FLAGS="$CFG_FLAGS --cross-file $THIS_DIR/../configs/meson-crossfiles/$XC_ARCH-$XC_PLAT-simulator.meson"
-    fi
-fi
-
-echo "----------------------"
-echo "[*] compile $LIB_NAME"
+echo 
 echo "CC: $XCRUN_CC"
 echo "CFG_FLAGS: $CFG_FLAGS"
+echo "CFLAGS: $CFLAGS"
+echo 
+
 echo "----------------------"
-echo
+echo "[*] configurate $LIB_NAME"
+echo "----------------------"
 
-build=./build-$XC_ARCH
-if [[ -d $build ]]; then
-    rm -rf $build
-fi
+echo "generate configure"
 
-meson setup $build $CFG_FLAGS
+./autogen.sh 1>/dev/null
 
-cd $build
+./configure $CFG_FLAGS \
+   CC="$XCRUN_CC" \
+   CFLAGS="$CFLAGS" \
+   LDFLAGS="$CFLAGS" 1>/dev/null
 
-meson compile && meson install
+#----------------------
+echo "----------------------"
+echo "[*] compile $LIB_NAME"
+echo "----------------------"
 
-# ninja -C build
-# ninja -C build install
+make -j$XC_THREAD install 1>/dev/null

@@ -14,15 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# https://github.com/harfbuzz/harfbuzz/blob/main/BUILD.md
-
-# https://trac.macports.org/ticket/60987
 
 set -e
 
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
-source ../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_ARCH"
@@ -34,27 +30,16 @@ env_assert "XC_BUILD_PREFIX"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XC_THREAD"
 echo "XC_DEBUG:$XC_DEBUG"
+echo "XC_IS_SIMULATOR:$XC_IS_SIMULATOR"
 echo "===check env end==="
+
 # prepare build config
-CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --default-library static -Ddocs=disabled -Dcairo=disabled -Dchafa=disabled -Dtests=disabled"
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --default-library static"
 
 if [[ "$BUILD_OPT" == "debug" ]]; then
     CFG_FLAGS="$CFG_FLAGS --buildtype=debug"
 else
     CFG_FLAGS="$CFG_FLAGS --buildtype=release"
-fi
-
-echo "----------------------"
-echo "[*] check freetype"
-
-pkg-config --libs freetype2 --silence-errors >/dev/null && enable_freetype2=1
-
-if [[ $enable_freetype2 ]];then
-    echo "[*] --enable-freetype"
-    CFG_FLAGS="$CFG_FLAGS -Dfreetype=enabled"
-else
-    echo "[*] --disable-freetype"
-    CFG_FLAGS="$CFG_FLAGS -Dfreetype=disabled"
 fi
 
 cd $XC_BUILD_SOURCE
@@ -83,12 +68,11 @@ if [[ -d $build ]]; then
     rm -rf $build
 fi
 
-# show all configure
-# https://mesonbuild.com/Build-options.html
 meson setup $build $CFG_FLAGS
 
 cd $build
 
-echo "compile"
-
 meson compile && meson install
+
+# ninja -C build
+# ninja -C build install

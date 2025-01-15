@@ -19,7 +19,6 @@ set -e
 
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
-source ../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "XC_ARCH"
@@ -31,24 +30,11 @@ env_assert "XC_BUILD_PREFIX"
 env_assert "XCRUN_SDK_PATH"
 env_assert "XC_THREAD"
 echo "XC_DEBUG:$XC_DEBUG"
-echo "XC_OTHER_CFLAGS:$XC_OTHER_CFLAGS"
 echo "===check env end==="
 
-if [[ "$XC_DEBUG" == "debug" ]];then
-    export XC_OTHER_CFLAGS="${XC_OTHER_CFLAGS} -g"
-else
-    export XC_OTHER_CFLAGS="${XC_OTHER_CFLAGS} -Os"
-fi
-
 # prepare build config
-CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --enable-static --disable-shared --disable-dependency-tracking --disable-silent-rules"
-CFG_FLAGS="$CFG_FLAGS --without-libkrb5 --disable-werror"
-
-CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS -Wno-everything -DHAVE_SOCKADDR_LEN=1 -DHAVE_SOCKADDR_STORAGE=1"
-
-if [[ "$XC_DEBUG" == "debug" ]];then
-   CFG_FLAGS="${CFG_FLAGS} use_examples=yes --disable-optimizations"
-fi
+CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --disable-doc --disable-dependency-tracking --disable-shared --enable-silent-rules --disable-extra-programs --silent"
+CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
 
 # for cross compile
 if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]];then
@@ -65,27 +51,28 @@ echo "----------------------"
 cd $XC_BUILD_SOURCE
 
 if [[ -f 'configure' ]]; then
-   echo "reuse configure"
+    echo "reuse configure"
 else
-   echo "auto generate configure"
-   autoreconf -if >/dev/null
+    echo "auto generate configure"
+    ./autogen.sh >/dev/null
 fi
 
-echo 
+
+echo
 echo "CC: $XCRUN_CC"
 echo "CFG_FLAGS: $CFG_FLAGS"
 echo "CFLAGS: $CFLAGS"
-echo 
+echo
 
 ./configure $CFG_FLAGS \
-   CC="$XCRUN_CC" \
-   CFLAGS="$CFLAGS" \
-   LDFLAGS="$CFLAGS"
+CC="$XCRUN_CC" \
+CFLAGS="$CFLAGS" \
+LDFLAGS="$CFLAGS" \
+>/dev/null
 
 #----------------------
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-make -j$XC_THREAD >/dev/null
-make install
+make install -j$XC_THREAD >/dev/null

@@ -127,7 +127,7 @@ function init_libs_pkg_config_path() {
     
     for dir in `[ -d ${XC_PRODUCT_ROOT} ] && find "${XC_PRODUCT_ROOT}" -type f -name "*.pc" | xargs dirname | uniq` ;
     do
-        # dir is /Users/matt/GitWorkspace/ijkplayer/shell/do-compile/../build/product/ios/harfbuzz-arm64/lib/pkgconfig
+        # dir is /Users/matt/GitWorkspace/ijkplayer/shell/do-compile/apple/../build/product/ios/harfbuzz-arm64/lib/pkgconfig
         local d1=$(dirname $dir)
         local d2=$(dirname $d1)
         local d3=$(basename $d2)
