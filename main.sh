@@ -21,49 +21,45 @@ set -e
 # 当前脚本所在目录
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
-
-function usage()
-{
-cat << EOF
-usage: ./main.sh [options]
-
-compile ijkplayer using libs for iOS and macOS and tvOS，such as libass、ffmpeg...
-
-Commands:
-   +help         Show help banner of specified command
-   +init         Clone vendor library git repository,Checkout specify commit,Apply patches
-   +compile      Compile vendor library,more parameter see ./main.sh compile -h
-   +install      Download and Install Pre-compile library to product dir
-EOF
-}
+export MR_SHELL_ROOT_DIR="$THIS_DIR"
 
 function elapsed()
 {
     local END_STMP=$(date +%s)
     local take=$(( END_STMP - START_STMP ))
-    echo time elapsed ${take} s.
     echo "===================================="
+    echo time elapsed ${take} s.
 }
 
 START_STMP=$(date +%s)
 
-case $1 in
-    init)
-        shift 1
-        ./do-init/main.sh "$@"
-        elapsed
+echo '---1.parse arguments---------------------------------------'
+source ./tools/parse-arguments.sh
+echo '--------------------'
+echo
+echo '---2.prepare build workspace-------------------------------'
+source ./tools/prepare-build-workspace.sh
+echo '--------------------'
+echo
+
+echo "---3.do $action-------------------------------"
+case $MR_PLAT in
+    ios | macos | tvos)
+        if [[ $action == "init" ]];then
+            ./do-init/main.sh "$@"
+        else
+            ./do-compile/apple/main.sh "$@"
+        fi 
     ;;
-    install)
-        shift 1
-        ./do-install/main.sh "$@"
-        elapsed
-    ;;
-    compile)
-        shift 1
-        ./do-compile/apple/main.sh "$@"
-        elapsed
-    ;;
-    *)
-        usage
+    android)
+        if [[ $action == "init" ]];then
+            ./do-init/main.sh "$@"
+        else
+            ./do-compile/android/main.sh "$@"
+        fi
     ;;
 esac
+echo "---3.$action end-------------------------------"
+echo
+
+elapsed

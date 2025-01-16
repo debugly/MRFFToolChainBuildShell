@@ -17,7 +17,8 @@
 
 # This script is based on projects below
 # https://github.com/bilibili/ijkplayer
-# https://wiki.openssl.org/index.php/Compilation_and_Installation#OS_X
+# https://github.com/openssl/openssl/blob/master/NOTES-ANDROID.md
+# https://github.com/xbmc/xbmc/pull/25092/commits/494a452cd65abe1447771874cc79ed967015d944
 
 set -e
 
@@ -26,62 +27,69 @@ cd "$THIS_DIR"
 
 echo "=== [$0] check env begin==="
 env_assert "MR_ARCH"
-env_assert "MR_BUILD_NAME"
 env_assert "XCRUN_CC"
-env_assert "MR_DEPLOYMENT_TARGET"
+env_assert "MR_TRIPLE"
+env_assert "MR_BUILD_NAME"
 env_assert "MR_BUILD_SOURCE"
 env_assert "MR_BUILD_PREFIX"
-env_assert "XCRUN_SDK_PATH"
 env_assert "MR_HOST_NPROC"
 echo "MR_DEBUG:$MR_DEBUG"
 echo "===check env end==="
 
-# prepare build config
-CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --openssldir=$MR_BUILD_PREFIX no-shared no-hw no-engine no-asm"
-
-if [ "$MR_ARCH" = "x86_64" ]; then
-    CFG_FLAGS="$CFG_FLAGS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
-elif [ "$MR_ARCH" = "arm64" ]; then
-    CFG_FLAGS="$CFG_FLAGS darwin64-arm64-cc enable-ec_nistp_64_gcc_128"
-else
-    echo "unknown architecture $FF_ARCH";
+case $_MR_ARCH in
+    armv7a)
+    target=android-arm
+    ;;
+    x86)
+    target=android-x86
+    ;;
+    x86_64)
+    target=android-x86_64
+    ;;
+    arm64)
+    target=android-arm64
+    ;;
+    *)
+    echo "unknown architecture $_MR_ARCH";
     exit 1
-fi
+    ;;
+esac
 
-CFLAGS="-arch $MR_ARCH $MR_DEPLOYMENT_TARGET $MR_OTHER_CFLAGS"
+# prepare build config
+CFG_FLAGS="no-threads enable-tls1_3 no-comp no-zlib no-zlib-dynamic no-deprecated \
+        no-shared no-filenames no-engine no-dynamic-engine no-static-engine \
+        no-dso no-err no-ui-console no-stdio no-tests \
+        --prefix=$MR_BUILD_PREFIX \
+        --openssldir=$MR_BUILD_PREFIX \
+        -U__ANDROID_API__ -D__ANDROID_API__=$MR_ANDROID_API \
+        $target"
 
-# for cross compile
-if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
-    echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
-    # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
-    CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
-fi
-
-#----------------------
-echo "----------------------"
-echo "[*] configurate $LIB_NAME"
-echo "----------------------"
+# -arch $MR_ARCH
+CFLAGS="$MR_OTHER_CFLAGS"
 
 cd $MR_BUILD_SOURCE
 if [ -f "./Makefile" ]; then
     echo 'reuse configure'
+    echo "----------------------"
+    echo "[*] reuse configurate"
 else
-    echo 
-    echo "CC: $XCRUN_CC"
+    echo "----------------------"
+    echo "[*] configurate"
     echo "CFLAGS: $CFLAGS"
     echo "Openssl CFG: $CFG_FLAGS"
-    echo 
-    ./Configure $CFG_FLAGS \
-        CC="$XCRUN_CC" \
-        CFLAGS="$CFLAGS" \
-        CXXFLAG="$CFLAGS"
+    echo "----------------------"
+
+    export CFLAGS="$CFLAGS"
+    export CXXFLAG="$CFLAGS"
+    export CC="$XCRUN_CC --target $MR_TRIPLE"
+
+    ./Configure $CFG_FLAGS
 fi
 
 #----------------------
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
-set +e
 
 make build_libs -j$MR_HOST_NPROC >/dev/null
 make install_dev >/dev/null

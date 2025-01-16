@@ -21,26 +21,26 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
 echo "=== [$0] check env begin==="
-env_assert "XC_ARCH"
-env_assert "XC_BUILD_NAME"
+env_assert "MR_ARCH"
+env_assert "MR_BUILD_NAME"
 env_assert "XCRUN_CC"
-env_assert "XC_DEPLOYMENT_TARGET"
-env_assert "XC_BUILD_SOURCE"
-env_assert "XC_BUILD_PREFIX"
+env_assert "MR_DEPLOYMENT_TARGET"
+env_assert "MR_BUILD_SOURCE"
+env_assert "MR_BUILD_PREFIX"
 env_assert "XCRUN_SDK_PATH"
-env_assert "XC_THREAD"
-echo "XC_DEBUG:$XC_DEBUG"
+env_assert "MR_HOST_NPROC"
+echo "MR_DEBUG:$MR_DEBUG"
 echo "===check env end==="
 
-CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --enable-static --disable-shared --silent --enable-silent-rules --disable-dependency-tracking"
-CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
+CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --enable-static --disable-shared --silent --enable-silent-rules --disable-dependency-tracking"
+CFLAGS="-arch $MR_ARCH $MR_DEPLOYMENT_TARGET $MR_OTHER_CFLAGS"
 
 # for cross compile
-if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]];then
-    echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
+if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
+    echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
     CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
-    CFG_FLAGS="$CFG_FLAGS --host=$XC_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
+    CFG_FLAGS="$CFG_FLAGS --host=$MR_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
 fi
 
 if [[ "$BUILD_OPT" == "debug" ]]; then
@@ -48,7 +48,7 @@ if [[ "$BUILD_OPT" == "debug" ]]; then
 fi
 
 
-cd $XC_BUILD_SOURCE
+cd $MR_BUILD_SOURCE
 
 if [[ -f 'configure' ]]; then
    echo "reuse configure"

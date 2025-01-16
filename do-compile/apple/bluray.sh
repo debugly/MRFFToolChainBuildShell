@@ -21,41 +21,41 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
 echo "=== [$0] check env begin==="
-env_assert "XC_ARCH"
-env_assert "XC_PLAT"
-env_assert "XC_BUILD_NAME"
+env_assert "MR_ARCH"
+env_assert "MR_PLAT"
+env_assert "MR_BUILD_NAME"
 env_assert "XCRUN_CC"
-env_assert "XC_DEPLOYMENT_TARGET"
-env_assert "XC_BUILD_SOURCE"
-env_assert "XC_BUILD_PREFIX"
+env_assert "MR_DEPLOYMENT_TARGET"
+env_assert "MR_BUILD_SOURCE"
+env_assert "MR_BUILD_PREFIX"
 env_assert "XCRUN_SDK_PATH"
-env_assert "XC_THREAD"
-echo "XC_DEBUG:$XC_DEBUG"
-echo "XC_FORCE_CROSS:$XC_FORCE_CROSS"
-echo "XC_OTHER_CFLAGS:$XC_OTHER_CFLAGS"
+env_assert "MR_HOST_NPROC"
+echo "MR_DEBUG:$MR_DEBUG"
+echo "MR_FORCE_CROSS:$MR_FORCE_CROSS"
+echo "MR_OTHER_CFLAGS:$MR_OTHER_CFLAGS"
 echo "===check env end==="
 
-if [[ "$XC_DEBUG" == "debug" ]];then
-    export XC_OTHER_CFLAGS="${XC_OTHER_CFLAGS} -g"
+if [[ "$MR_DEBUG" == "debug" ]];then
+    export MR_OTHER_CFLAGS="${MR_OTHER_CFLAGS} -g"
 else
-    export XC_OTHER_CFLAGS="${XC_OTHER_CFLAGS} -Os"
+    export MR_OTHER_CFLAGS="${MR_OTHER_CFLAGS} -Os"
 fi
 
 # prepare build config
-CFG_FLAGS="--prefix=$XC_BUILD_PREFIX --disable-shared --disable-dependency-tracking --disable-silent-rules --disable-bdjava-jar --without-freetype --without-fontconfig --disable-doxygen-doc --disable-examples"
-CFLAGS="-arch $XC_ARCH $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
+CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --disable-shared --disable-dependency-tracking --disable-silent-rules --disable-bdjava-jar --without-freetype --without-fontconfig --disable-doxygen-doc --disable-examples"
+CFLAGS="-arch $MR_ARCH $MR_DEPLOYMENT_TARGET $MR_OTHER_CFLAGS"
 
-if [[ "$XC_DEBUG" == "debug" ]];then
+if [[ "$MR_DEBUG" == "debug" ]];then
    CFG_FLAGS="${CFG_FLAGS} use_examples=yes --disable-optimizations"
 fi
 
 # for cross compile
-if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]];then
-    echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
+if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
+    echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
     CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
-    # $XC_ARCH-apple-darwin
-    CFG_FLAGS="$CFG_FLAGS --host=$XC_ARCH-apple-$XC_PLAT --with-sysroot=$XCRUN_SDK_PATH"
+    # $MR_ARCH-apple-darwin
+    CFG_FLAGS="$CFG_FLAGS --host=$MR_ARCH-apple-$MR_PLAT --with-sysroot=$XCRUN_SDK_PATH"
 fi
 
 echo "----------------------"
@@ -66,7 +66,7 @@ echo "----------------------"
 export LIBXML2_CFLAGS=$(xml2-config --prefix=${XCRUN_SDK_PATH}/usr --cflags)
 export LIBXML2_LIBS=$(xml2-config --prefix=${XCRUN_SDK_PATH}/usr --libs)
 
-cd $XC_BUILD_SOURCE
+cd $MR_BUILD_SOURCE
 
 if [[ -f 'configure' ]]; then
    echo "reuse configure"
@@ -92,11 +92,11 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-make install -j$XC_THREAD
+make install -j$MR_HOST_NPROC
 # system xml2 lib has no pc file,when compile ffmepg, pkg-config can't find the private xml2 lib
 echo "mv private xml lib to system"
 
-pc_file="$XC_BUILD_PREFIX/lib/pkgconfig/libbluray.pc"
+pc_file="$MR_BUILD_PREFIX/lib/pkgconfig/libbluray.pc"
 # rm line 'Requires.private'
 sed -i "" '/Requires.private/d' "$pc_file"
 # find line number

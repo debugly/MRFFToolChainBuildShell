@@ -100,8 +100,8 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         -p)
             shift
-            XC_PLAT="$1"
-            if [[ "$XC_PLAT" != 'ios' && "$XC_PLAT" != 'macos' && "$XC_PLAT" != 'tvos' ]]; then
+            MR_PLAT="$1"
+            if [[ "$MR_PLAT" != 'ios' && "$MR_PLAT" != 'macos' && "$MR_PLAT" != 'tvos' ]]; then
                 echo "plat must be: [ios|macos|tvos]"
                 exit 1
             fi
@@ -139,29 +139,29 @@ if [[ -z "$LIBS" ]];then
     exit 1
 fi
 
-if [[ -z "$XC_PLAT" ]];then
+if [[ -z "$MR_PLAT" ]];then
     echo "platform can't be nil, use -p specify platform"
     exit 1
 fi
 
-export XC_PLAT
-export XC_VENDOR_LIBS="$LIBS"
+export MR_PLAT
+export MR_VENDOR_LIBS="$LIBS"
 
 if [[ $SOURCE_DIR ]];then
-    export XC_WORKSPACE=$SOURCE_DIR
-    echo "XC_WORKSPACE:$XC_WORKSPACE"
+    export MR_WORKSPACE=$SOURCE_DIR
+    echo "MR_WORKSPACE:$MR_WORKSPACE"
 fi
 
-source '../tools/export-plat-env.sh'
+source '../tools/export-apple-env.sh'
 init_plat_env
 
 echo '------------------------------------------'
-echo "XC_PLAT         : [$XC_PLAT]"
-echo "XC_VENDOR_LIBS  : [$XC_VENDOR_LIBS]"
+echo "MR_PLAT         : [$MR_PLAT]"
+echo "MR_VENDOR_LIBS  : [$MR_VENDOR_LIBS]"
 echo '------------------------------------------'
 
 # 循环编译所有的库
-for lib in $XC_VENDOR_LIBS
+for lib in $MR_VENDOR_LIBS
 do
     [[ ! -f "../configs/libs/${lib}.sh" ]] && (echo "❌$lib config not exist,install will stop.";exit 1;)
     
@@ -176,6 +176,6 @@ do
 done
 
 if [[ ! "$FORCE_XCFRAMEWORK" ]];then
-    fix_prefix "$XC_WORKSPACE/product/$XC_PLAT"
+    fix_prefix "$MR_WORKSPACE/product/$MR_PLAT"
 fi
 

@@ -20,17 +20,16 @@ set -e
 
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
-source ${THIS_DIR}/../tools/env_assert.sh
 
 echo "=== [$0] check env begin==="
 env_assert "REPO_DIR"
 env_assert "GIT_COMMIT"
 env_assert "GIT_LOCAL_REPO"
 env_assert "GIT_UPSTREAM"
-env_assert "XC_WORKSPACE"
+env_assert "MR_WORKSPACE"
 echo "===check env end==="
 
-GIT_LOCAL_REPO="${XC_WORKSPACE}/${GIT_LOCAL_REPO}"
+GIT_LOCAL_REPO="${MR_WORKSPACE}/${GIT_LOCAL_REPO}"
 
 function pull_common() {
     echo "== pull $REPO_DIR base =="
@@ -72,7 +71,7 @@ function apply_patches() {
         return
     fi
     
-    local plat="$XC_PLAT"
+    local plat="$MR_PLAT"
     local patch_dir="${THIS_DIR}/../patches/$REPO_DIR"
     
     if [[ -d "${patch_dir}_${plat}" ]]; then
@@ -92,7 +91,7 @@ function apply_patches() {
 }
 
 function make_arch_repo() {
-    local dest_repo="${XC_SRC_ROOT}/$REPO_DIR-$1"
+    local dest_repo="${MR_SRC_ROOT}/$REPO_DIR-$1"
     ./copy-local-repo.sh $GIT_LOCAL_REPO $dest_repo
     cd $dest_repo
     if [[ "$GIT_WITH_SUBMODULE" ]]; then
@@ -114,10 +113,10 @@ function usage() {
 }
 
 function main() {
-    case "$XC_PLAT" in
+    case "$MR_PLAT" in
         ios | macos | tvos | android)
             pull_common
-            for arch in $XC_ALL_ARCHS; do
+            for arch in $MR_ACTIVE_ARCHS; do
                 make_arch_repo $arch
             done
         ;;

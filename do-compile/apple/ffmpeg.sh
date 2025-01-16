@@ -23,7 +23,7 @@ set -e
 
 error_handler() {
     echo "An error occurred!"
-    tail -n20 ${XC_BUILD_SOURCE}/ffbuild/config.log
+    tail -n20 ${MR_BUILD_SOURCE}/ffbuild/config.log
 }
 
 trap 'error_handler' ERR
@@ -32,31 +32,31 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
 echo "=== [$0] check env begin==="
-env_assert "XC_ARCH"
-env_assert "XC_TAGET_OS"
-env_assert "XC_BUILD_NAME"
+env_assert "MR_ARCH"
+env_assert "MR_TAGET_OS"
+env_assert "MR_BUILD_NAME"
 env_assert "XCRUN_CC"
-env_assert "XC_DEPLOYMENT_TARGET"
-env_assert "XC_BUILD_SOURCE"
-env_assert "XC_BUILD_PREFIX"
+env_assert "MR_DEPLOYMENT_TARGET"
+env_assert "MR_BUILD_SOURCE"
+env_assert "MR_BUILD_PREFIX"
 env_assert "XCRUN_SDK_PATH"
-env_assert "XC_THREAD"
+env_assert "MR_HOST_NPROC"
 echo "PKG_CONFIG_LIBDIR:$PKG_CONFIG_LIBDIR"
-echo "XC_DEBUG:$XC_DEBUG"
+echo "MR_DEBUG:$MR_DEBUG"
 echo "===check env end==="
 
 # ffmpeg build params
 source $THIS_DIR/../configs/ffconfig/module.sh
 CFG_FLAGS="$COMMON_FF_CFG_FLAGS"
 
-CFG_FLAGS="--prefix=$XC_BUILD_PREFIX $CFG_FLAGS"
+CFG_FLAGS="--prefix=$MR_BUILD_PREFIX $CFG_FLAGS"
 
 # Developer options (useful when working on FFmpeg itself):
 # CFG_FLAGS="$CFG_FLAGS --disable-stripping"
 
 ##
-CFG_FLAGS="$CFG_FLAGS --arch=$XC_ARCH"
-CFG_FLAGS="$CFG_FLAGS --target-os=$XC_TAGET_OS"
+CFG_FLAGS="$CFG_FLAGS --arch=$MR_ARCH"
+CFG_FLAGS="$CFG_FLAGS --target-os=$MR_TAGET_OS"
 CFG_FLAGS="$CFG_FLAGS --enable-static"
 CFG_FLAGS="$CFG_FLAGS --disable-shared"
 
@@ -66,10 +66,10 @@ CFG_FLAGS="$CFG_FLAGS --enable-neon"
 CFG_FLAGS="$CFG_FLAGS --enable-asm"
 
 C_FLAGS=
-C_FLAGS="$C_FLAGS -arch $XC_ARCH"
-C_FLAGS="$C_FLAGS $XC_DEPLOYMENT_TARGET $XC_OTHER_CFLAGS"
+C_FLAGS="$C_FLAGS -arch $MR_ARCH"
+C_FLAGS="$C_FLAGS $MR_DEPLOYMENT_TARGET $MR_OTHER_CFLAGS"
 
-if [[ "$XC_DEBUG" == "debug" ]]; then
+if [[ "$MR_DEBUG" == "debug" ]]; then
     CFG_FLAGS="$CFG_FLAGS --disable-optimizations"
     CFG_FLAGS="$CFG_FLAGS --enable-debug"
     CFG_FLAGS="$CFG_FLAGS --disable-small"
@@ -81,8 +81,8 @@ else
 fi
 
 # for cross compile
-if [[ $(uname -m) != "$XC_ARCH" || "$XC_FORCE_CROSS" ]]; then
-    echo "[*] cross compile, on $(uname -m) compile $XC_PLAT $XC_ARCH."
+if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]]; then
+    echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
     C_FLAGS="$C_FLAGS --sysroot $XCRUN_SDK_PATH"
     CFG_FLAGS="$CFG_FLAGS --enable-cross-compile"
@@ -235,16 +235,16 @@ CFG_FLAGS="$CFG_FLAGS --enable-parser=av3a --enable-demuxer=av3a"
 echo "----------------------"
 echo "[*] configure"
 
-if [[ ! -d $XC_BUILD_SOURCE ]]; then
+if [[ ! -d $MR_BUILD_SOURCE ]]; then
     echo ""
     echo "!! ERROR"
-    echo "!! Can not find $XC_BUILD_SOURCE directory for $XC_BUILD_NAME"
+    echo "!! Can not find $MR_BUILD_SOURCE directory for $MR_BUILD_NAME"
     echo "!! Run 'init-*.sh' first"
     echo ""
     exit 1
 fi
 
-cd $XC_BUILD_SOURCE
+cd $MR_BUILD_SOURCE
 if [[ -f "./config.h" ]]; then
     echo 'reuse configure'
 else
@@ -269,24 +269,24 @@ fi
 echo "----------------------"
 echo "[*] compile"
 
-make -j$XC_THREAD >/dev/null
+make -j$MR_HOST_NPROC >/dev/null
 
 echo "----------------------"
 echo "[*] install"
 
-cp config.* $XC_BUILD_PREFIX
+cp config.* $MR_BUILD_PREFIX
 make install >/dev/null
-mkdir -p $XC_BUILD_PREFIX/include/libffmpeg
-cp -f config.h $XC_BUILD_PREFIX/include/libffmpeg/
-cp -f config_components.h $XC_BUILD_PREFIX/include/libffmpeg/
+mkdir -p $MR_BUILD_PREFIX/include/libffmpeg
+cp -f config.h $MR_BUILD_PREFIX/include/libffmpeg/
+cp -f config_components.h $MR_BUILD_PREFIX/include/libffmpeg/
 # copy private header for ffmpeg-kit.
-cp -f $XC_BUILD_SOURCE/libavutil/getenv_utf8.h $XC_BUILD_PREFIX/include/libavutil/
-cp -f $XC_BUILD_SOURCE/libavutil/internal.h $XC_BUILD_PREFIX/include/libavutil/
-cp -f $XC_BUILD_SOURCE/libavutil/libm.h $XC_BUILD_PREFIX/include/libavutil/
-cp -f $XC_BUILD_SOURCE/libavutil/attributes_internal.h $XC_BUILD_PREFIX/include/libavutil/
-cp -f $XC_BUILD_SOURCE/libavcodec/mathops.h $XC_BUILD_PREFIX/include/libavcodec/
+cp -f $MR_BUILD_SOURCE/libavutil/getenv_utf8.h $MR_BUILD_PREFIX/include/libavutil/
+cp -f $MR_BUILD_SOURCE/libavutil/internal.h $MR_BUILD_PREFIX/include/libavutil/
+cp -f $MR_BUILD_SOURCE/libavutil/libm.h $MR_BUILD_PREFIX/include/libavutil/
+cp -f $MR_BUILD_SOURCE/libavutil/attributes_internal.h $MR_BUILD_PREFIX/include/libavutil/
+cp -f $MR_BUILD_SOURCE/libavcodec/mathops.h $MR_BUILD_PREFIX/include/libavcodec/
 
-mkdir -p $XC_BUILD_PREFIX/include/libavcodec/x86/
-cp -f $XC_BUILD_SOURCE/libavcodec/x86/mathops.h $XC_BUILD_PREFIX/include/libavcodec/x86/
-mkdir -p $XC_BUILD_PREFIX/include/libavutil/x86/
-cp -f $XC_BUILD_SOURCE/libavutil/x86/asm.h $XC_BUILD_PREFIX/include/libavutil/x86/
+mkdir -p $MR_BUILD_PREFIX/include/libavcodec/x86/
+cp -f $MR_BUILD_SOURCE/libavcodec/x86/mathops.h $MR_BUILD_PREFIX/include/libavcodec/x86/
+mkdir -p $MR_BUILD_PREFIX/include/libavutil/x86/
+cp -f $MR_BUILD_SOURCE/libavutil/x86/asm.h $MR_BUILD_PREFIX/include/libavutil/x86/

@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#
+# https://developer.android.com/ndk/guides/other_build_systems
+# https://developer.android.com/ndk/downloads?hl=zh-cn
 
 set -e
 
@@ -30,6 +31,13 @@ do
     echo "===[$MR_CMD $lib]===================="
     source "../../configs/libs/${lib}.sh"
     
+    echo "LIB_NAME    : [$LIB_NAME]"
+    echo "LIPO_LIBS   : [$LIPO_LIBS]"
+    echo "GIT_COMMIT  : [$GIT_COMMIT]"
+    echo "GIT_REPO_VERSION: [$GIT_REPO_VERSION]"
+    echo "PRE_COMPILE_TAG : [$PRE_COMPILE_TAG]"
+    echo "GIT_UPSTREAM    : [$GIT_UPSTREAM]"
+
     ./any.sh
     if [[ $? -eq 0 ]];then
         echo "🎉  Congrats"

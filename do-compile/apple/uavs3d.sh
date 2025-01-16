@@ -25,17 +25,17 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
 echo "=== [$0] check env begin==="
-env_assert "XC_ARCH"
-env_assert "_XC_ARCH"
-env_assert "XC_BUILD_NAME"
+env_assert "MR_ARCH"
+env_assert "_MR_ARCH"
+env_assert "MR_BUILD_NAME"
 env_assert "XCRUN_CC"
-env_assert "XC_DEPLOYMENT_TARGET"
-env_assert "XC_BUILD_SOURCE"
-env_assert "XC_BUILD_PREFIX"
+env_assert "MR_DEPLOYMENT_TARGET"
+env_assert "MR_BUILD_SOURCE"
+env_assert "MR_BUILD_PREFIX"
 env_assert "XCRUN_SDK_PATH"
-env_assert "XC_THREAD"
-env_assert "XC_PLAT"
-echo "XC_DEBUG:$XC_DEBUG"
+env_assert "MR_HOST_NPROC"
+env_assert "MR_PLAT"
+echo "MR_DEBUG:$MR_DEBUG"
 echo "===check env end==="
 
 
@@ -47,38 +47,38 @@ echo "[*] cmake config $cfg"
 echo "[*] cmake toolchain $toolchain"
 echo "----------------------"
 
-build="${XC_BUILD_SOURCE}/_tmp"
+build="${MR_BUILD_SOURCE}/_tmp"
 rm -rf "$build"
 mkdir -p "$build"
 
 cd "$build"
 
 pf=
-if [[ "$XC_PLAT" == 'ios' ]];then
-    if [[ $_XC_ARCH == 'arm64_simulator' ]];then
+if [[ "$MR_PLAT" == 'ios' ]];then
+    if [[ $_MR_ARCH == 'arm64_simulator' ]];then
         pf='SIMULATORARM64'
-    elif [[ $_XC_ARCH == 'x86_64_simulator' ]];then
+    elif [[ $_MR_ARCH == 'x86_64_simulator' ]];then
         pf='SIMULATOR64'
     else
         pf='OS64'
     fi
-elif [[ "$XC_PLAT" == 'tvos' ]];then
-    if [[ $_XC_ARCH == 'arm64_simulator' ]];then
+elif [[ "$MR_PLAT" == 'tvos' ]];then
+    if [[ $_MR_ARCH == 'arm64_simulator' ]];then
         pf='SIMULATORARM64_TVOS'
-    elif [[ $_XC_ARCH == 'x86_64_simulator' ]];then
+    elif [[ $_MR_ARCH == 'x86_64_simulator' ]];then
         pf='SIMULATOR_TVOS'
     else
         pf='TVOS'
     fi
-elif [[ "$XC_PLAT" == 'macos' ]];then
-    if [[ $_XC_ARCH == 'arm64' ]];then
+elif [[ "$MR_PLAT" == 'macos' ]];then
+    if [[ $_MR_ARCH == 'arm64' ]];then
         pf='MAC_ARM64'
-    elif [[ $_XC_ARCH == 'x86_64' ]];then
+    elif [[ $_MR_ARCH == 'x86_64' ]];then
         pf='MAC'
     fi
 fi
 
-cmake -S ${XC_BUILD_SOURCE} -DCMAKE_INSTALL_PREFIX=${XC_BUILD_PREFIX} -GXcode -DCMAKE_TOOLCHAIN_FILE=$toolchain -DPLATFORM=$pf -DCOMPILE_10BIT=1 -DBUILD_SHARED_LIBS=0
+cmake -S ${MR_BUILD_SOURCE} -DCMAKE_INSTALL_PREFIX=${MR_BUILD_PREFIX} -GXcode -DCMAKE_TOOLCHAIN_FILE=$toolchain -DPLATFORM=$pf -DCOMPILE_10BIT=1 -DBUILD_SHARED_LIBS=0
 
 echo "----------------------"
 echo "[*] compile $LIB_NAME"

@@ -20,11 +20,9 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-source ../tools/env_assert.sh
-
 echo "=== [$0] check env begin==="
-env_assert "XC_PLAT"
-env_assert "XC_WORKSPACE"
+env_assert "MR_PLAT"
+env_assert "MR_WORKSPACE"
 env_assert "PRE_COMPILE_TAG"
 echo "===check env end==="
 
@@ -35,9 +33,9 @@ function install_plat() {
         join="-$1"
     fi
     
-    export XC_DOWNLOAD_ONAME="$PRE_COMPILE_TAG-$XC_PLAT${join}.zip"
-    export XC_DOWNLOAD_URL="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$PRE_COMPILE_TAG/$LIB_NAME-$XC_PLAT-universal${join}-$VER.zip"
-    export XC_UNCOMPRESS_DIR="$XC_WORKSPACE/product/$XC_PLAT/universal${join}"
+    export MR_DOWNLOAD_ONAME="$PRE_COMPILE_TAG-$MR_PLAT${join}.zip"
+    export MR_DOWNLOAD_URL="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$PRE_COMPILE_TAG/$LIB_NAME-$MR_PLAT-universal${join}-$VER.zip"
+    export MR_UNCOMPRESS_DIR="$MR_WORKSPACE/product/$MR_PLAT/universal${join}"
 
     ./download-uncompress.sh
 }
@@ -52,7 +50,7 @@ fi
 LIB_NAME=$(echo $PRE_COMPILE_TAG | awk -F - '{print $1}')
 VER=$(echo $PRE_COMPILE_TAG | awk -F - '{print $2}')
 
-if [[ "$XC_PLAT" == 'ios' || "$XC_PLAT" == 'tvos' ]];then
+if [[ "$MR_PLAT" == 'ios' || "$MR_PLAT" == 'tvos' ]];then
     install_plat
     install_plat "simulator"
 else
