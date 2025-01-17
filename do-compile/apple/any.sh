@@ -23,15 +23,6 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-echo "=== [do-comlile/any.sh] check env begin==="
-env_assert "MR_CMD"
-env_assert "LIPO_LIBS"
-env_assert "LIB_NAME"
-env_assert "MR_ACTIVE_ARCHS"
-echo "MR_DEBUG:$MR_DEBUG"
-echo "MR_FORCE_CROSS:$MR_FORCE_CROSS"
-echo "===check env end==="
-
 do_lipo_lib() {
     local lib=$1
     local archs="$2"
@@ -175,7 +166,6 @@ function resolve_dep() {
 }
 
 function do_clean() {
-    init_arch_env $1 >/dev/null
     
     if [[ -d $MR_BUILD_SOURCE ]];then
         echo "git clean:$MR_BUILD_SOURCE"
@@ -197,6 +187,8 @@ function main() {
     case "$cmd" in
         'clean')
             for arch in $MR_ACTIVE_ARCHS; do
+                export _MR_ARCH=$arch
+                source $MR_SHELL_TOOLS_DIR/export-apple-build-env.sh
                 do_clean $arch
             done
             
@@ -210,7 +202,7 @@ function main() {
             resolve_dep
             for arch in $MR_ACTIVE_ARCHS; do
                 export _MR_ARCH=$arch
-                source $THIS_DIR/../../tools/export-apple-build-env.sh
+                source $MR_SHELL_TOOLS_DIR/export-apple-build-env.sh
                 do_compile
                 echo
             done

@@ -23,11 +23,11 @@ cd "$THIS_DIR"
 echo "=== [$0] check env begin==="
 env_assert "MR_ARCH"
 env_assert "MR_BUILD_NAME"
-env_assert "XCRUN_CC"
+env_assert "MR_CC"
 env_assert "MR_DEPLOYMENT_TARGET"
 env_assert "MR_BUILD_SOURCE"
 env_assert "MR_BUILD_PREFIX"
-env_assert "XCRUN_SDK_PATH"
+env_assert "MR_SYS_ROOT"
 env_assert "MR_HOST_NPROC"
 echo "MR_DEBUG:$MR_DEBUG"
 echo "===check env end==="
@@ -39,14 +39,14 @@ CFLAGS="-arch $MR_ARCH $MR_DEPLOYMENT_TARGET $MR_OTHER_CFLAGS"
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
     echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
-    CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
-    CFG_FLAGS="$CFG_FLAGS --host=$MR_ARCH-apple-darwin --with-sysroot=$XCRUN_SDK_PATH"
+    CFLAGS="$CFLAGS -isysroot $MR_SYS_ROOT"
+    CFG_FLAGS="$CFG_FLAGS --host=$MR_ARCH-apple-darwin --with-sysroot=$MR_SYS_ROOT"
 fi
 
 cd $MR_BUILD_SOURCE
 
 echo 
-echo "CC: $XCRUN_CC"
+echo "CC: $MR_CC"
 echo "CFG_FLAGS: $CFG_FLAGS"
 echo "CFLAGS: $CFLAGS"
 echo 
@@ -60,7 +60,7 @@ echo "generate configure"
 ./autogen.sh 1>/dev/null
 
 ./configure $CFG_FLAGS \
-   CC="$XCRUN_CC" \
+   CC="$MR_CC" \
    CFLAGS="$CFLAGS" \
    LDFLAGS="$CFLAGS" 1>/dev/null
 

@@ -23,11 +23,11 @@ cd "$THIS_DIR"
 echo "=== [$0] check env begin==="
 env_assert "MR_ARCH"
 env_assert "MR_BUILD_NAME"
-env_assert "XCRUN_CC"
+env_assert "MR_CC"
 env_assert "MR_DEPLOYMENT_TARGET"
 env_assert "MR_BUILD_SOURCE"
 env_assert "MR_BUILD_PREFIX"
-env_assert "XCRUN_SDK_PATH"
+env_assert "MR_SYS_ROOT"
 env_assert "MR_HOST_NPROC"
 echo "MR_DEBUG:$MR_DEBUG"
 echo "MR_IS_SIMULATOR:$MR_IS_SIMULATOR"
@@ -43,8 +43,8 @@ else
 fi
 
 cd $MR_BUILD_SOURCE
-export CC="$XCRUN_CC"
-export CXX="$XCRUN_CXX"
+export CC="$MR_CC"
+export CXX="$MR_CXX"
 
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]]; then
     if [[ $MR_IS_SIMULATOR != 1 ]]; then
@@ -58,7 +58,7 @@ fi
 
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
-echo "CC: $XCRUN_CC"
+echo "CC: $MR_CC"
 echo "CFG_FLAGS: $CFG_FLAGS"
 echo "----------------------"
 echo

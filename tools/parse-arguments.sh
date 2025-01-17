@@ -202,10 +202,10 @@ fi
 
 case $MR_PLAT in
     ios | macos | tvos)
-        source ./tools/export-apple-host-env.sh
+        source $MR_SHELL_TOOLS_DIR/export-apple-host-env.sh
     ;;
     android)
-        source ./tools/export-android-host-env.sh
+        source $MR_SHELL_TOOLS_DIR/export-android-host-env.sh
     ;;
     *)
         echo "wrong platform $MR_PLAT"
@@ -241,10 +241,12 @@ if [[ "$MR_VENDOR_LIBS" == "all" ]]; then
 fi
 
 # -arch $MR_ARCH
+cflags="-Wno-int-conversion -Wno-declaration-after-statement"
+
 if [[ "$MR_DEBUG" == "debug" ]];then
-    export MR_OTHER_CFLAGS="-g -O0 -D_DEBUG"
+    export MR_OTHER_CFLAGS="-g -O0 -D_DEBUG $cflags"
 else
-    export MR_OTHER_CFLAGS="-O3 -DNDEBUG"
+    export MR_OTHER_CFLAGS="-O3 -DNDEBUG $cflags"
 fi
 
 echo "MR_ACTION       : [$MR_ACTION]"

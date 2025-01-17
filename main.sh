@@ -22,6 +22,7 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 export MR_SHELL_ROOT_DIR="$THIS_DIR"
+export MR_SHELL_TOOLS_DIR="${THIS_DIR}/tools"
 
 function elapsed()
 {
@@ -34,11 +35,11 @@ function elapsed()
 START_STMP=$(date +%s)
 
 echo '---1.parse arguments---------------------------------------'
-source ./tools/parse-arguments.sh
+source $MR_SHELL_TOOLS_DIR/parse-arguments.sh
 echo '--------------------'
 echo
 echo '---2.prepare build workspace-------------------------------'
-source ./tools/prepare-build-workspace.sh
+source $MR_SHELL_TOOLS_DIR/prepare-build-workspace.sh
 echo '--------------------'
 echo
 

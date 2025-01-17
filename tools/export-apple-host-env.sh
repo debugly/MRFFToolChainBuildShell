@@ -29,7 +29,7 @@ fi
 
 # Number of physical cores in the system to facilitate parallel assembling
 export MR_HOST_NPROC=$(sysctl -n hw.physicalcpu)
-#common xcode configuration
+# for ffmpeg --target-os
 export MR_TAGET_OS="darwin"
 export DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
 

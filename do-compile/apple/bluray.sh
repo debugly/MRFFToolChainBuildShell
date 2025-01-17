@@ -24,11 +24,11 @@ echo "=== [$0] check env begin==="
 env_assert "MR_ARCH"
 env_assert "MR_PLAT"
 env_assert "MR_BUILD_NAME"
-env_assert "XCRUN_CC"
+env_assert "MR_CC"
 env_assert "MR_DEPLOYMENT_TARGET"
 env_assert "MR_BUILD_SOURCE"
 env_assert "MR_BUILD_PREFIX"
-env_assert "XCRUN_SDK_PATH"
+env_assert "MR_SYS_ROOT"
 env_assert "MR_HOST_NPROC"
 echo "MR_DEBUG:$MR_DEBUG"
 echo "MR_FORCE_CROSS:$MR_FORCE_CROSS"
@@ -53,9 +53,9 @@ fi
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
     echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
-    CFLAGS="$CFLAGS -isysroot $XCRUN_SDK_PATH"
+    CFLAGS="$CFLAGS -isysroot $MR_SYS_ROOT"
     # $MR_ARCH-apple-darwin
-    CFG_FLAGS="$CFG_FLAGS --host=$MR_ARCH-apple-$MR_PLAT --with-sysroot=$XCRUN_SDK_PATH"
+    CFG_FLAGS="$CFG_FLAGS --host=$MR_ARCH-apple-$MR_PLAT --with-sysroot=$MR_SYS_ROOT"
 fi
 
 echo "----------------------"
@@ -63,8 +63,8 @@ echo "[*] configurate $LIB_NAME"
 echo "----------------------"
 
 # use system xml2 lib
-export LIBXML2_CFLAGS=$(xml2-config --prefix=${XCRUN_SDK_PATH}/usr --cflags)
-export LIBXML2_LIBS=$(xml2-config --prefix=${XCRUN_SDK_PATH}/usr --libs)
+export LIBXML2_CFLAGS=$(xml2-config --prefix=${MR_SYS_ROOT}/usr --cflags)
+export LIBXML2_LIBS=$(xml2-config --prefix=${MR_SYS_ROOT}/usr --libs)
 
 cd $MR_BUILD_SOURCE
 
@@ -76,12 +76,12 @@ else
 fi
 
 echo 
-echo "CC: $XCRUN_CC"
+echo "CC: $MR_CC"
 echo "CFG_FLAGS: $CFG_FLAGS"
 echo "CFLAGS: $CFLAGS"
 echo 
 
-export CC="$XCRUN_CC"
+export CC="$MR_CC"
 export CFLAGS="$CFLAGS"
 export LDFLAGS="$CFLAGS"
 

@@ -20,7 +20,6 @@
 
 set -e
 
-
 error_handler() {
     echo "An error occurred!"
     tail -n20 ${MR_BUILD_SOURCE}/ffbuild/config.log
@@ -31,71 +30,31 @@ trap 'error_handler' ERR
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-echo "=== [$0] check env begin==="
-env_assert "MR_ARCH"
-env_assert "MR_TAGET_OS"
-env_assert "MR_BUILD_NAME"
-env_assert "XCRUN_CC"
-env_assert "MR_DEPLOYMENT_TARGET"
-env_assert "MR_BUILD_SOURCE"
-env_assert "MR_BUILD_PREFIX"
-env_assert "XCRUN_SDK_PATH"
-env_assert "MR_HOST_NPROC"
-echo "PKG_CONFIG_LIBDIR:$PKG_CONFIG_LIBDIR"
-echo "MR_DEBUG:$MR_DEBUG"
-echo "===check env end==="
+# ffmpeg config options
+source $THIS_DIR/../../configs/ffconfig/module.sh
+source $THIS_DIR/../../configs/ffconfig/auto-detect-third-libs.sh
 
-# ffmpeg build params
-source $THIS_DIR/../configs/ffconfig/module.sh
 CFG_FLAGS="$COMMON_FF_CFG_FLAGS"
-
-CFG_FLAGS="--prefix=$MR_BUILD_PREFIX $CFG_FLAGS"
-
-# Developer options (useful when working on FFmpeg itself):
-# CFG_FLAGS="$CFG_FLAGS --disable-stripping"
-
-##
-CFG_FLAGS="$CFG_FLAGS --arch=$MR_ARCH"
-CFG_FLAGS="$CFG_FLAGS --target-os=$MR_TAGET_OS"
-CFG_FLAGS="$CFG_FLAGS --enable-static"
-CFG_FLAGS="$CFG_FLAGS --disable-shared"
-
-# x86_64, arm64
-CFG_FLAGS="$CFG_FLAGS --enable-pic"
-CFG_FLAGS="$CFG_FLAGS --enable-neon"
-CFG_FLAGS="$CFG_FLAGS --enable-asm"
-
-C_FLAGS=
-C_FLAGS="$C_FLAGS -arch $MR_ARCH"
-C_FLAGS="$C_FLAGS $MR_DEPLOYMENT_TARGET $MR_OTHER_CFLAGS"
-
-if [[ "$MR_DEBUG" == "debug" ]]; then
-    CFG_FLAGS="$CFG_FLAGS --disable-optimizations"
-    CFG_FLAGS="$CFG_FLAGS --enable-debug"
-    CFG_FLAGS="$CFG_FLAGS --disable-small"
-    #C_FLAGS="$C_FLAGS -D DEBUG_BLURAY=1"
-else
-    CFG_FLAGS="$CFG_FLAGS --enable-optimizations"
-    CFG_FLAGS="$CFG_FLAGS --disable-debug"
-    CFG_FLAGS="$CFG_FLAGS --enable-small"
-fi
+CFG_FLAGS="$CFG_FLAGS $THIRD_CFG_FLAGS"
 
 # for cross compile
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]]; then
     echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
-    C_FLAGS="$C_FLAGS --sysroot $XCRUN_SDK_PATH"
+    C_FLAGS="$C_FLAGS --sysroot $MR_SYS_ROOT"
     CFG_FLAGS="$CFG_FLAGS --enable-cross-compile"
 fi
 
+C_FLAGS="$MR_OTHER_CFLAGS"
+LDFLAGS=$EXTRA_LDFLAGS
 
-# --enable-debug
+
 CFG_FLAGS="$CFG_FLAGS --pkg-config-flags=--static"
- # use system xml2 lib
-C_FLAGS="$C_FLAGS $(xml2-config --prefix=${XCRUN_SDK_PATH}/usr --cflags)"
-LDFLAGS="$C_FLAGS $(xml2-config --prefix=${XCRUN_SDK_PATH}/usr --libs)"
+CFG_FLAGS="$CFG_FLAGS --enable-demuxer=dash --enable-libxml2"
 
-FFMPEG_DEP_LIBS=
+ # use system xml2 lib
+C_FLAGS="$C_FLAGS $(xml2-config --prefix=${MR_SYS_ROOT}/usr --cflags)"
+LDFLAGS="$C_FLAGS $(xml2-config --prefix=${MR_SYS_ROOT}/usr --libs)"
 
 # https://ffmpeg.org/doxygen/4.1/md_LICENSE.html
 # https://www.openssl.org/source/license.html
@@ -249,20 +208,20 @@ if [[ -f "./config.h" ]]; then
     echo 'reuse configure'
 else
     echo
-    echo "CC: $XCRUN_CC"
+    echo "CC: $MR_CC"
     echo
     echo "CFLAGS: $C_FLAGS"
     echo
     echo "FF_CFG_FLAGS: $CFG_FLAGS"
     echo
-    echo "LDFLAG:$LDFLAGS $FFMPEG_DEP_LIBS"
+    echo "LDFLAG:$LDFLAGS"
     echo
     ./configure \
         $CFG_FLAGS \
-        --cc="$XCRUN_CC" \
+        --cc="$MR_CC" \
         --extra-cflags="$C_FLAGS" \
         --extra-cxxflags="$C_FLAGS" \
-        --extra-ldflags="$LDFLAGS $FFMPEG_DEP_LIBS"
+        --extra-ldflags="$LDFLAGS"
 fi
 
 #----------------------

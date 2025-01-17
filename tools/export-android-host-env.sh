@@ -34,12 +34,15 @@ else
   HOST_NPROC=$(nproc)
 fi
 
+export MR_FORCE_CROSS=true
 # The variable is used as a path segment of the toolchain path
-export MR_HOST_TAG=$HOST_TAG
+export MR_HOST_TAG="$HOST_TAG"
 # Number of physical cores in the system to facilitate parallel assembling
-export MR_HOST_NPROC=$HOST_NPROC
+export MR_HOST_NPROC="$HOST_NPROC"
+# for ffmpeg --target-os
+export MR_TAGET_OS="android"
 # 
-export MR_PLAT=android
+export MR_PLAT="android"
 # Using Make from the Android SDK
 export MR_MAKE_EXECUTABLE=${ANDROID_NDK_HOME}/prebuilt/${MR_HOST_TAG}/bin/make
 # Init Android plat env

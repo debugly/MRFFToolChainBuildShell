@@ -35,49 +35,6 @@ esac
 
 echo $(xcodebuild -version)
 
-function init_libs_pkg_config_path() {
-    
-    local universal_dir=
-    if [[ "$MR_IS_SIMULATOR" == 1 ]];then
-        universal_dir="${MR_UNI_SIM_PROD_DIR}"
-    else
-        universal_dir="${MR_UNI_PROD_DIR}"
-    fi
-    
-    local pkg_cfg_dir=
-    
-    for dir in `[ -d ${MR_PRODUCT_ROOT} ] && find "${MR_PRODUCT_ROOT}" -type f -name "*.pc" | xargs dirname | uniq` ;
-    do
-        # dir is /Users/matt/GitWorkspace/ijkplayer/shell/do-compile/apple/../build/product/ios/harfbuzz-arm64/lib/pkgconfig
-        local d1=$(dirname $dir)
-        local d2=$(dirname $d1)
-        local d3=$(basename $d2)
-        # match suffix
-        if [[ "$d3" == *$_MR_ARCH ]];then
-            if [[ $pkg_cfg_dir ]];then
-                pkg_cfg_dir="${pkg_cfg_dir}:${dir}"
-            else
-                pkg_cfg_dir="${dir}"
-            fi
-        fi
-    done
-    
-    for dir in `[ -d ${universal_dir} ] && find "${universal_dir}" -type f -name "*.pc" | xargs dirname | uniq` ;
-    do
-        if [[ $pkg_cfg_dir ]];then
-            pkg_cfg_dir="${pkg_cfg_dir}:${dir}"
-        else
-            pkg_cfg_dir="${dir}"
-        fi
-    done
-    
-    # disabling pkg-config-path
-    # https://gstreamer-devel.narkive.com/TeNagSKN/gst-devel-disabling-pkg-config-path
-    # export PKG_CONFIG_LIBDIR=${sysroot}/lib/pkgconfig
-    export PKG_CONFIG_LIBDIR="$pkg_cfg_dir"
-    echo "PKG_CONFIG_LIBDIR:$PKG_CONFIG_LIBDIR"
-}
-
 if [[ "$MR_PLAT" == 'ios' ]]; then
     case $_MR_ARCH in
         *_simulator)
@@ -120,16 +77,16 @@ if [[ "$MR_PLAT" == 'ios' ]]; then
 fi
 
 # macosx
-export XCRUN_SDK=`echo $XCRUN_PLATFORM | tr '[:upper:]' '[:lower:]'`
+XCRUN_SDK=`echo $XCRUN_PLATFORM | tr '[:upper:]' '[:lower:]'`
 # xcrun -sdk macosx clang
-export XCRUN_CC="xcrun -sdk $XCRUN_SDK clang"
-export XCRUN_CXX="xcrun -sdk $XCRUN_SDK clang++"
+export MR_CC="xcrun -sdk $XCRUN_SDK clang"
+export MR_CXX="xcrun -sdk $XCRUN_SDK clang++"
 # xcrun -sdk macosx --show-sdk-platform-path
 # /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform
-export XCRUN_SDK_PLATFORM_PATH=`xcrun -sdk $XCRUN_SDK --show-sdk-platform-path`
+# export XCRUN_SDK_PLATFORM_PATH=`xcrun -sdk $XCRUN_SDK --show-sdk-platform-path`
 # xcrun -sdk macosx --show-sdk-path
 # /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.3.sdk
-export XCRUN_SDK_PATH=`xcrun -sdk $XCRUN_SDK --show-sdk-path`
+export MR_SYS_ROOT=`xcrun -sdk $XCRUN_SDK --show-sdk-path`
 
 # x86_64
 export MR_ARCH="${_MR_ARCH/_simulator/}"
@@ -139,10 +96,16 @@ export MR_BUILD_NAME="${LIB_NAME}-${_MR_ARCH}"
 export MR_BUILD_SOURCE="${MR_SRC_ROOT}/${MR_BUILD_NAME}"
 # ios/ffmpeg-x86_64
 export MR_BUILD_PREFIX="${MR_PRODUCT_ROOT}/${MR_BUILD_NAME}"
-
-init_libs_pkg_config_path
+# 
+export MR_OTHER_CFLAGS="$MR_OTHER_CFLAGS $MR_DEPLOYMENT_TARGET"
 
 echo "MR_ARCH        : [$MR_ARCH]"
 echo "MR_BUILD_NAME  : [$MR_BUILD_NAME]"
 echo "MR_BUILD_SOURCE: [$MR_BUILD_SOURCE]"
 echo "MR_BUILD_PREFIX: [$MR_BUILD_PREFIX]"
+
+# 
+THIS_DIR=$(DIRNAME=$(dirname "${BASH_SOURCE[0]}"); cd "${DIRNAME}"; pwd)
+source "$THIS_DIR/export-pkg-config-dir.sh"
+
+echo "PKG_CONFIG_LIBDIR:$PKG_CONFIG_LIBDIR"

@@ -27,7 +27,7 @@ cd "$THIS_DIR"
 
 echo "=== [$0] check env begin==="
 env_assert "MR_ARCH"
-env_assert "XCRUN_CC"
+env_assert "MR_CC"
 env_assert "MR_TRIPLE"
 env_assert "MR_BUILD_NAME"
 env_assert "MR_BUILD_SOURCE"
@@ -65,7 +65,7 @@ CFG_FLAGS="no-threads enable-tls1_3 no-comp no-zlib no-zlib-dynamic no-deprecate
         $target"
 
 # -arch $MR_ARCH
-CFLAGS="$MR_OTHER_CFLAGS"
+C_FLAGS="$MR_OTHER_CFLAGS"
 
 cd $MR_BUILD_SOURCE
 if [ -f "./Makefile" ]; then
@@ -75,13 +75,13 @@ if [ -f "./Makefile" ]; then
 else
     echo "----------------------"
     echo "[*] configurate"
-    echo "CFLAGS: $CFLAGS"
+    echo "C_FLAGS: $C_FLAGS"
     echo "Openssl CFG: $CFG_FLAGS"
     echo "----------------------"
 
-    export CFLAGS="$CFLAGS"
-    export CXXFLAG="$CFLAGS"
-    export CC="$XCRUN_CC --target $MR_TRIPLE"
+    export C_FLAGS="$C_FLAGS"
+    export CXXFLAG="$C_FLAGS"
+    export CC="$MR_CC --target $MR_TRIPLE"
 
     ./Configure $CFG_FLAGS
 fi

@@ -152,7 +152,7 @@ if [[ $SOURCE_DIR ]];then
     echo "MR_WORKSPACE:$MR_WORKSPACE"
 fi
 
-source '../tools/export-apple-env.sh'
+source $MR_SHELL_TOOLS_DIR/export-apple-env.sh
 init_plat_env
 
 echo '------------------------------------------'

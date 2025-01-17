@@ -19,15 +19,19 @@
 case $_MR_ARCH in
     *v7a)
     export MR_TRIPLE=armv7a-linux-androideabi$MR_ANDROID_API
+    export MR_FF_ARCH=arm
     ;;
     x86)
     export MR_TRIPLE=i686-linux-android$MR_ANDROID_API
+    export MR_FF_ARCH=i686
     ;;
     x86_64)
     export MR_TRIPLE=x86_64-linux-android$MR_ANDROID_API
+    export MR_FF_ARCH=x86_64
     ;;
     arm64*)
     export MR_TRIPLE=aarch64-linux-android$MR_ANDROID_API
+    export MR_FF_ARCH=aarch64
     ;;
     *)
     echo "unknown architecture $_MR_ARCH";
@@ -39,9 +43,9 @@ esac
 export MR_ARCH="$_MR_ARCH"
 # openssl-armv7a
 export MR_BUILD_NAME="${LIB_NAME}-${_MR_ARCH}"
-# ios/ffmpeg-x86_64
+# android/ffmpeg-x86_64
 export MR_BUILD_SOURCE="${MR_SRC_ROOT}/${MR_BUILD_NAME}"
-# ios/ffmpeg-x86_64
+# android/ffmpeg-x86_64
 export MR_BUILD_PREFIX="${MR_PRODUCT_ROOT}/${MR_BUILD_NAME}"
 
 if [ -z "$ANDROID_NDK_HOME" ]; then
@@ -49,27 +53,52 @@ if [ -z "$ANDROID_NDK_HOME" ]; then
     echo "They must point to your NDK directories.\n"
     exit 1
 else
-    export MR_NDK_REL=$(grep -o '^## r[0-9]*.*' $ANDROID_NDK_HOME/CHANGELOG.md | awk '{print $2}')
-    echo "NDK$MR_NDK_REL detected"
+    export MR_NDK_REL=$(grep -m 1 -o '^## r[0-9]*.*' $ANDROID_NDK_HOME/CHANGELOG.md | awk '{print $2}')
 fi
 
+export MR_ANDROID_API=35
+
+toolchian="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/${MR_HOST_TAG}"
+export PATH="${toolchian}/bin:$PATH"
+export MR_SYS_ROOT="${toolchian}/sysroot"
+
+# Common prefix for ld, as, etc.
+CROSS_PREFIX_WITH_PATH=${toolchian}/bin/llvm-
+
+# Exporting Binutils paths, if passing just CROSS_PREFIX_WITH_PATH is not enough
+# The MR_ prefix is used to eliminate passing those values implicitly to build systems
+export  MR_ADDR2LINE=${CROSS_PREFIX_WITH_PATH}addr2line
+export         MR_AR=${CROSS_PREFIX_WITH_PATH}ar
+export         MR_AS=${CROSS_PREFIX_WITH_PATH}as
+export         MR_NM=${CROSS_PREFIX_WITH_PATH}nm
+export    MR_OBJCOPY=${CROSS_PREFIX_WITH_PATH}objcopy
+export    MR_OBJDUMP=${CROSS_PREFIX_WITH_PATH}objdump
+export     MR_RANLIB=${CROSS_PREFIX_WITH_PATH}ranlib
+export    MR_READELF=${CROSS_PREFIX_WITH_PATH}readelf
+export       MR_SIZE=${CROSS_PREFIX_WITH_PATH}size
+export    MR_STRINGS=${CROSS_PREFIX_WITH_PATH}strings
+export      MR_STRIP=${CROSS_PREFIX_WITH_PATH}strip
+export       MR_LIPO=${CROSS_PREFIX_WITH_PATH}lipo
+# ffmpeg can't use triple target clang
+export  MR_TRIPLE_CC=${toolchian}/bin/${MR_TRIPLE}-clang
+export MR_TRIPLE_CXX=${MR_TRIPLE_CC}++
 # find clang from NDK toolchain
-export XCRUN_CC="clang"
-export XCRUN_CXX="clang++"
-export MR_ANDROID_API=21
+export         MR_CC=${toolchian}/bin/clang
+export        MR_CXX=${MR_CC}++
+export       MR_YASM=${toolchian}/bin/yasm
 
-toolchian="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/${MR_HOST_TAG}/bin"
-export PATH="$toolchian:$PATH"
 
-alias ar=llvm-ar
-alias as=llvm-as
-alias ranlib=llvm-ranlib
-alias strip=llvm-strip
-
-echo "MR_ARCH        : [$MR_ARCH]"
-echo "MR_TRIPLE      : [$MR_TRIPLE]"
-echo "MR_ANDROID_API : [$MR_ANDROID_API]"
-echo "MR_BUILD_NAME  : [$MR_BUILD_NAME]"
-echo "MR_BUILD_SOURCE: [$MR_BUILD_SOURCE]"
-echo "MR_BUILD_PREFIX: [$MR_BUILD_PREFIX]"
+echo "MR_ARCH         : [$MR_ARCH]"
+echo "MR_TRIPLE       : [$MR_TRIPLE]"
+echo "MR_ANDROID_API  : [$MR_ANDROID_API]"
+echo "MR_ANDROID_NDK  : [$MR_NDK_REL]"
+echo "MR_BUILD_NAME   : [$MR_BUILD_NAME]"
+echo "MR_BUILD_SOURCE : [$MR_BUILD_SOURCE]"
+echo "MR_BUILD_PREFIX : [$MR_BUILD_PREFIX]"
 echo "MR_ANDROID_NDK_TOOLCHAIN: [$toolchian]"
+
+# 
+THIS_DIR=$(DIRNAME=$(dirname "${BASH_SOURCE[0]}"); cd "${DIRNAME}"; pwd)
+source "$THIS_DIR/export-pkg-config-dir.sh"
+
+echo "PKG_CONFIG_LIBDIR:$PKG_CONFIG_LIBDIR"

@@ -31,11 +31,10 @@ do
     echo "===[$MR_CMD $lib]===================="
     source "../../configs/libs/${lib}.sh"
     
-    echo "LIB_NAME    : [$LIB_NAME]"
-    echo "LIPO_LIBS   : [$LIPO_LIBS]"
-    echo "GIT_COMMIT  : [$GIT_COMMIT]"
-    echo "GIT_REPO_VERSION: [$GIT_REPO_VERSION]"
+    echo "LIB_NAME        : [$LIB_NAME]"
+    echo "GIT_COMMIT      : [$GIT_COMMIT]"
     echo "PRE_COMPILE_TAG : [$PRE_COMPILE_TAG]"
+    echo "LIPO_LIBS       : [$LIPO_LIBS]"
     echo "GIT_UPSTREAM    : [$GIT_UPSTREAM]"
 
     ./any.sh

@@ -28,18 +28,18 @@ echo "=== [$0] check env begin==="
 env_assert "MR_ARCH"
 env_assert "_MR_ARCH"
 env_assert "MR_BUILD_NAME"
-env_assert "XCRUN_CC"
+env_assert "MR_CC"
 env_assert "MR_DEPLOYMENT_TARGET"
 env_assert "MR_BUILD_SOURCE"
 env_assert "MR_BUILD_PREFIX"
-env_assert "XCRUN_SDK_PATH"
+env_assert "MR_SYS_ROOT"
 env_assert "MR_HOST_NPROC"
 env_assert "MR_PLAT"
 echo "MR_DEBUG:$MR_DEBUG"
 echo "===check env end==="
 
 
-toolchain=$PWD/../tools/ios.toolchain.cmake
+toolchain=$MR_SHELL_TOOLS_DIR/ios.toolchain.cmake
 
 echo "----------------------"
 echo "[*] configurate $LIB_NAME"
