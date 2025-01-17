@@ -34,25 +34,21 @@ cd "$THIS_DIR"
 source $THIS_DIR/../../configs/ffconfig/module.sh
 source $THIS_DIR/../../configs/ffconfig/auto-detect-third-libs.sh
 
-CFG_FLAGS="$COMMON_FF_CFG_FLAGS"
+CFG_FLAGS=
+CFG_FLAGS="$CFG_FLAGS $COMMON_FF_CFG_FLAGS"
 CFG_FLAGS="$CFG_FLAGS $THIRD_CFG_FLAGS"
-
-# for cross compile
-if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]]; then
-    echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
-    # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
-    CFG_FLAGS="$CFG_FLAGS --sysroot=$MR_SYS_ROOT"
-    CFG_FLAGS="$CFG_FLAGS --enable-cross-compile"
-fi
-
+# CFG_FLAGS="$CFG_FLAGS --enable-demuxer=dash --enable-libxml2"
+# # use system xml2 lib
+# XML_CFLAGS=
+# C_FLAGS="$C_FLAGS $XML_CFLAGS"
+# LDFLAGS="$XML_CFLAGS -L${MR_TOOLCHAIN_ROOT}/lib -lxml2"
 
 # Android 15 with 16 kb page size support
 # https://developer.android.com/guide/practices/page-sizes#compile-r27
 EXTRA_LDFLAGS="-Wl,-z,max-page-size=16384"
 
-
-C_FLAGS="$MR_OTHER_CFLAGS"
-LDFLAGS=$EXTRA_LDFLAGS
+C_FLAGS="$C_FLAGS $MR_OTHER_CFLAGS"
+LDFLAGS="$LDFLAGS $EXTRA_LDFLAGS"
 
 
 echo "----------------------"
@@ -72,14 +68,10 @@ cd $MR_BUILD_SOURCE
 if [[ -f "./config.h" ]]; then
     echo 'reuse configure'
 else
-
     echo
-    echo "CC: ${MR_TRIPLE_CC}"
-    echo
+    echo "CC: $MR_CC"
     echo "CFLAGS: $C_FLAGS"
-    echo
-    echo "LDFLAGS:$LDFLAGS"
-    echo
+    echo "LDFLAG:$LDFLAGS"
     echo "FF_CFG_FLAGS: $CFG_FLAGS"
     echo
 

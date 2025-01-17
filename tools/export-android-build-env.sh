@@ -56,14 +56,14 @@ else
     export MR_NDK_REL=$(grep -m 1 -o '^## r[0-9]*.*' $ANDROID_NDK_HOME/CHANGELOG.md | awk '{print $2}')
 fi
 
-export MR_ANDROID_API=35
+export MR_ANDROID_API=23
 
-toolchian="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/${MR_HOST_TAG}"
-export PATH="${toolchian}/bin:$PATH"
-export MR_SYS_ROOT="${toolchian}/sysroot"
+export MR_TOOLCHAIN_ROOT="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/${MR_HOST_TAG}"
+export PATH="${MR_TOOLCHAIN_ROOT}/bin:$PATH"
+export MR_SYS_ROOT="${MR_TOOLCHAIN_ROOT}/sysroot"
 
 # Common prefix for ld, as, etc.
-CROSS_PREFIX_WITH_PATH=${toolchian}/bin/llvm-
+CROSS_PREFIX_WITH_PATH=${MR_TOOLCHAIN_ROOT}/bin/llvm-
 
 # Exporting Binutils paths, if passing just CROSS_PREFIX_WITH_PATH is not enough
 # The MR_ prefix is used to eliminate passing those values implicitly to build systems
@@ -80,12 +80,12 @@ export    MR_STRINGS=${CROSS_PREFIX_WITH_PATH}strings
 export      MR_STRIP=${CROSS_PREFIX_WITH_PATH}strip
 export       MR_LIPO=${CROSS_PREFIX_WITH_PATH}lipo
 # ffmpeg can't use triple target clang
-export  MR_TRIPLE_CC=${toolchian}/bin/${MR_TRIPLE}-clang
+export  MR_TRIPLE_CC=${MR_TOOLCHAIN_ROOT}/bin/${MR_TRIPLE}-clang
 export MR_TRIPLE_CXX=${MR_TRIPLE_CC}++
 # find clang from NDK toolchain
-export         MR_CC=${toolchian}/bin/clang
+export         MR_CC=${MR_TOOLCHAIN_ROOT}/bin/clang
 export        MR_CXX=${MR_CC}++
-export       MR_YASM=${toolchian}/bin/yasm
+export       MR_YASM=${MR_TOOLCHAIN_ROOT}/bin/yasm
 
 
 echo "MR_ARCH         : [$MR_ARCH]"
@@ -95,7 +95,7 @@ echo "MR_ANDROID_NDK  : [$MR_NDK_REL]"
 echo "MR_BUILD_NAME   : [$MR_BUILD_NAME]"
 echo "MR_BUILD_SOURCE : [$MR_BUILD_SOURCE]"
 echo "MR_BUILD_PREFIX : [$MR_BUILD_PREFIX]"
-echo "MR_ANDROID_NDK_TOOLCHAIN: [$toolchian]"
+echo "MR_ANDROID_NDK_TOOLCHAIN: [$MR_TOOLCHAIN_ROOT]"
 
 # 
 THIS_DIR=$(DIRNAME=$(dirname "${BASH_SOURCE[0]}"); cd "${DIRNAME}"; pwd)

@@ -149,12 +149,11 @@ echo "----------------------"
 #     echo "[❌] --disable-decoder=av3a"
 # fi
 
-# echo "[✅] --enable-parser=av3a"
-# THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-parser=av3a --enable-demuxer=av3a"
-
+echo "[✅] --enable-parser=av3a"
+THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-parser=av3a --enable-demuxer=av3a"
+echo "----------------------"
 
 # --------------------------------------------------------------
-
 THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --pkg-config-flags=--static"
 THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-static"
 THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-shared"
@@ -184,13 +183,21 @@ else
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-small"
 fi
 
+# for cross compile
+if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]]; then
+    echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --sysroot=$MR_SYS_ROOT"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-cross-compile"
+fi
+
 # for apple paltform
 
 case "$MR_PLAT" in
     ios|macos|tvos)
     # enable videotoolbox hwaccel
-    CFG_FLAGS="$CFG_FLAGS --enable-videotoolbox"
-    CFG_FLAGS="$CFG_FLAGS --enable-hwaccel=*_videotoolbox"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-videotoolbox"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-hwaccel=*_videotoolbox"
+    # enable iconv
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-iconv"
     ;;
 esac
-

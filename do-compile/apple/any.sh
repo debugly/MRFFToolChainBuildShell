@@ -193,7 +193,6 @@ function main() {
             done
             
             rm -rf $MR_UNI_PROD_DIR/$LIB_NAME
-            echo 'done.'
         ;;
         'lipo')
             do_lipo_all "$MR_ACTIVE_ARCHS"

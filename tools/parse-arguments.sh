@@ -241,7 +241,7 @@ if [[ "$MR_VENDOR_LIBS" == "all" ]]; then
 fi
 
 # -arch $MR_ARCH
-cflags="-Wno-int-conversion -Wno-declaration-after-statement"
+cflags="-Wno-int-conversion -Wno-declaration-after-statement -Wno-unused-function"
 
 if [[ "$MR_DEBUG" == "debug" ]];then
     export MR_OTHER_CFLAGS="-g -O0 -D_DEBUG $cflags"
