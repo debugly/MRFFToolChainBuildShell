@@ -23,6 +23,7 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 export MR_SHELL_ROOT_DIR="$THIS_DIR"
 export MR_SHELL_TOOLS_DIR="${THIS_DIR}/tools"
+export MR_SHELL_CONFIGS_DIR="${THIS_DIR}/configs"
 
 function elapsed()
 {
@@ -43,24 +44,23 @@ source $MR_SHELL_TOOLS_DIR/prepare-build-workspace.sh
 echo '--------------------'
 echo
 
-echo "---3.do $action-------------------------------"
+echo "---3.do $MR_ACTION-------------------------------"
 case $MR_PLAT in
     ios | macos | tvos)
-        if [[ $action == "init" ]];then
-            ./do-init/main.sh "$@"
-        else
-            ./do-compile/apple/main.sh "$@"
-        fi 
+        plat=apple
     ;;
     android)
-        if [[ $action == "init" ]];then
-            ./do-init/main.sh "$@"
-        else
-            ./do-compile/android/main.sh "$@"
-        fi
+        plat=android
     ;;
 esac
-echo "---3.$action end-------------------------------"
+
+if [[ "$MR_ACTION" == "init" ]];then
+    ./do-init/main.sh "$@"
+else
+    ./do-$MR_ACTION/$plat/main.sh "$@"
+fi 
+
+echo "---3.$MR_ACTION end-------------------------------"
 echo
 
 elapsed

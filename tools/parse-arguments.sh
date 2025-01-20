@@ -69,6 +69,63 @@ OPTIONS:
 EOF
 }
 
+function install_usage()
+{
+cat << EOF
+usage: ./main.sh install [options]
+
+Download and Install Pre-compile library to product dir
+
+OPTIONS:
+   -p            Specify platform (ios,macos,tvos), can't be nil
+   -l            Specify which libs need 'cmd' (all|libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
+   -s            Specify workspace dir
+   -correct-pc  Specify a path for correct the pc file prefix recursion
+   --help        Show intall help
+   --fmwk        Install xcframework bundle instead of .a
+EOF
+}
+
+function fix_prefix(){
+    local fix_path="$1"
+    local dir=${PWD}
+    
+    echo "fix pc files in folder: $fix_path"
+    cd "$fix_path"
+    
+    for pc in `find . -type f -name "*.pc"` ;
+    do
+        echo "$pc"
+        local pc_dir=$(DIRNAME=$(dirname "$pc"); cd "$DIRNAME"; pwd)
+        local lib_dir=$(dirname "$pc_dir")
+        local base_dir=$(dirname "$lib_dir")
+        
+        base_dir=$(cd "$base_dir";pwd)
+        local escaped_base_dir=$(echo $base_dir | sed 's/\//\\\//g')
+        local escaped_lib_dir=$(echo "${base_dir}/lib" | sed 's/\//\\\//g')
+        local escaped_include_dir=$(echo "${base_dir}/include" | sed 's/\//\\\//g')
+        
+        sed -i "" "s/^prefix=.*/prefix=$escaped_base_dir/" "$pc"
+        sed -i "" "s/^libdir=.*/libdir=$escaped_lib_dir/" "$pc"
+        sed -i "" "s/^includedir=.*/includedir=$escaped_include_dir/" "$pc"
+        
+        # filte Libs using -L/ absolute path
+        local str=
+        for t in `cat "$pc" | grep "Libs: " | grep "\-L/"` ;
+        do
+            if [[ "$t" != -L/* ]];then
+                if [[ $str ]];then
+                    str="${str} $t"
+                else
+                    str="$t"
+                fi
+            fi
+        done
+        [[ ! -z $str ]] && sed -i "" "s/^Libs:.*/$str/" "$pc"
+    done
+    
+    cd "$dir"
+}
 
 function parse_path()
 {
@@ -101,10 +158,22 @@ function help()
 }
 
 action=
+cmd=
+platform=
+arch=
+libs=
+workspace=
+debug=
+
 case $1 in
-    init | install | compile)
+    init | install)
         action=$1
         shift 1
+    ;;
+    compile)
+        action=$1
+        shift 1
+        cmd=build
     ;;
     *)
         main_usage
@@ -113,13 +182,6 @@ case $1 in
 esac
 
 export MR_ACTION=$action
-
-platform=
-cmd=build
-arch=
-libs=
-workspace=
-debug=
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -163,6 +225,11 @@ while [[ $# -gt 0 ]]; do
         --skip-fmwk)
             export MR_SKIP_MAKE_XCFRAMEWORK=1
         ;;
+        -correct-pc)
+            shift
+            fix_prefix "$1"
+            exit 0
+        ;;
         **)
             echo "unkonwn option:$1"
         ;;
@@ -188,6 +255,15 @@ fi
 if [[ -n "$nproc" ]];then
     echo "override thread count:$nproc"
     export MR_HOST_NPROC=$nproc
+fi
+
+# -arch $MR_ARCH
+cflags="-Wno-int-conversion -Wno-declaration-after-statement -Wno-unused-function"
+
+if [[ "$MR_DEBUG" == "debug" ]];then
+    export MR_OTHER_CFLAGS="-g -O0 -D_DEBUG $cflags"
+else
+    export MR_OTHER_CFLAGS="-O3 -DNDEBUG $cflags"
 fi
 
 export MR_PLAT="$platform"
@@ -240,15 +316,6 @@ if [[ "$MR_VENDOR_LIBS" == "all" ]]; then
     export MR_VENDOR_LIBS="$libs"
 fi
 
-# -arch $MR_ARCH
-cflags="-Wno-int-conversion -Wno-declaration-after-statement -Wno-unused-function"
-
-if [[ "$MR_DEBUG" == "debug" ]];then
-    export MR_OTHER_CFLAGS="-g -O0 -D_DEBUG $cflags"
-else
-    export MR_OTHER_CFLAGS="-O3 -DNDEBUG $cflags"
-fi
-
 echo "MR_ACTION       : [$MR_ACTION]"
 echo "MR_PLAT         : [$MR_PLAT]"
 echo "MR_CMD          : [$MR_CMD]"
@@ -260,3 +327,5 @@ echo "MR_OTHER_CFLAGS : [$MR_OTHER_CFLAGS]"
 echo "SKIP_PULL_BASE  : [$SKIP_PULL_BASE]"
 echo "SKIP_FFMPEG_PATHCHES : [$SKIP_FFMPEG_PATHCHES]"
 echo "MR_SKIP_MAKE_XCFRAMEWORK" : [$MR_SKIP_MAKE_XCFRAMEWORK]
+
+unset platform cmd arch libs workspace debug action cflags

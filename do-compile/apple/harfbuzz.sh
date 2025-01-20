@@ -63,10 +63,10 @@ export CXX="$MR_CXX"
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]]; then
     if [[ $MR_IS_SIMULATOR != 1 ]]; then
         echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
-        CFG_FLAGS="$CFG_FLAGS --cross-file $THIS_DIR/../configs/meson-crossfiles/$MR_ARCH-$MR_PLAT.meson"
+        CFG_FLAGS="$CFG_FLAGS --cross-file $MR_SHELL_CONFIGS_DIR/meson-crossfiles/$MR_ARCH-$MR_PLAT.meson"
     else
         echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH simulator."
-        CFG_FLAGS="$CFG_FLAGS --cross-file $THIS_DIR/../configs/meson-crossfiles/$MR_ARCH-$MR_PLAT-simulator.meson"
+        CFG_FLAGS="$CFG_FLAGS --cross-file $MR_SHELL_CONFIGS_DIR/meson-crossfiles/$MR_ARCH-$MR_PLAT-simulator.meson"
     fi
 fi
 

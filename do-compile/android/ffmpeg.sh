@@ -31,8 +31,8 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
 # ffmpeg config options
-source $THIS_DIR/../../configs/ffconfig/module.sh
-source $THIS_DIR/../../configs/ffconfig/auto-detect-third-libs.sh
+source $MR_SHELL_CONFIGS_DIR/ffconfig/module.sh
+source $MR_SHELL_CONFIGS_DIR/ffconfig/auto-detect-third-libs.sh
 
 CFG_FLAGS=
 CFG_FLAGS="$CFG_FLAGS $COMMON_FF_CFG_FLAGS"

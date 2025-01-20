@@ -14,28 +14,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+#
 
-# disabling pkg-config-path
-# https://gstreamer-devel.narkive.com/TeNagSKN/gst-devel-disabling-pkg-config-path
-# export PKG_CONFIG_LIBDIR=${sysroot}/lib/pkgconfig
+set -e
 
-pkg_cfg_dir=
+# 当前脚本所在目录
+THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
+cd "$THIS_DIR"
 
-if [[ "$MR_IS_SIMULATOR" == 1 ]];then
-    uni_dir="${MR_UNI_SIM_PROD_DIR}"
-else
-    uni_dir="${MR_UNI_PROD_DIR}"
-fi
-
-for dir in `[ -d ${uni_dir} ] && find "${uni_dir}" -type f -name "*.pc" | grep "$_MR_ARCH" | xargs dirname | uniq` ;
+# 循环编译所有的库
+for lib in $MR_VENDOR_LIBS
 do
-    if [[ $pkg_cfg_dir ]];then
-        pkg_cfg_dir="${pkg_cfg_dir}:${dir}"
+    [[ ! -f "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh" ]] && (echo "❌$lib config not exist,install will stop.";exit 1;)
+    
+    echo "===[install $lib]===================="
+    source "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
+    if [[ $FORCE_XCFRAMEWORK ]];then
+        ./install-pre-xcf.sh
     else
-        pkg_cfg_dir="${dir}"
+        ./install-pre-lib.sh
     fi
+    echo "===================================="
 done
 
-export PKG_CONFIG_LIBDIR="$pkg_cfg_dir"
+if [[ ! "$FORCE_XCFRAMEWORK" ]];then
+    fix_prefix "$MR_WORKSPACE/product/$MR_PLAT"
+fi
 
-unset pkg_cfg_dir uni_dir

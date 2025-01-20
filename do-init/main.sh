@@ -25,8 +25,8 @@ cd "$THIS_DIR"
 for lib in $MR_VENDOR_LIBS
 do
     echo "===[init $lib]==========="
-    [[ ! -f "../configs/libs/${lib}.sh" ]] && (echo "❌$lib config not exist,init will stop.";exit 1;)
-    source "../configs/libs/${lib}.sh"
+    [[ ! -f "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh" ]] && (echo "❌$lib config not exist,init will stop.";exit 1;)
+    source "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
     ./init-repo.sh
     echo "========================="
 done
