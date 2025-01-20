@@ -181,6 +181,7 @@ case $1 in
     ;;
 esac
 
+export -f fix_prefix
 export MR_ACTION=$action
 
 while [[ $# -gt 0 ]]; do
