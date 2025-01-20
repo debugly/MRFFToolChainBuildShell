@@ -37,12 +37,9 @@ source $MR_SHELL_CONFIGS_DIR/ffconfig/auto-detect-third-libs.sh
 CFG_FLAGS=
 CFG_FLAGS="$CFG_FLAGS $COMMON_FF_CFG_FLAGS"
 CFG_FLAGS="$CFG_FLAGS $THIRD_CFG_FLAGS"
-
-C_FLAGS="$MR_OTHER_CFLAGS"
-LDFLAGS="$EXTRA_LDFLAGS"
-
 CFG_FLAGS="$CFG_FLAGS --enable-demuxer=dash --enable-libxml2"
 
+C_FLAGS="$MR_OTHER_CFLAGS -arch $MR_FF_ARCH"
 # use system xml2 lib
 C_FLAGS="$C_FLAGS $(xml2-config --prefix=${MR_SYS_ROOT}/usr --cflags)"
 LDFLAGS="$C_FLAGS $(xml2-config --prefix=${MR_SYS_ROOT}/usr --libs)"
