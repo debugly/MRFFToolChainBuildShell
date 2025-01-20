@@ -39,4 +39,4 @@ else
 fi
 
 export GIT_REPO_VERSION=6.1.2
-export PRE_COMPILE_TAG=ffmpeg-6.1.2-250109145043
+export PRE_COMPILE_TAG=ffmpeg-6.1.2-250120163555
