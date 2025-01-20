@@ -90,6 +90,8 @@ export MR_SYS_ROOT=`xcrun -sdk $XCRUN_SDK --show-sdk-path`
 
 # x86_64
 export MR_ARCH="${_MR_ARCH/_simulator/}"
+export MR_FF_ARCH="${MR_ARCH}"
+
 # ffmpeg-x86_64
 export MR_BUILD_NAME="${LIB_NAME}-${_MR_ARCH}"
 # ios/ffmpeg-x86_64
@@ -106,6 +108,6 @@ echo "MR_BUILD_PREFIX: [$MR_BUILD_PREFIX]"
 
 # 
 THIS_DIR=$(DIRNAME=$(dirname "${BASH_SOURCE[0]}"); cd "${DIRNAME}"; pwd)
-source "$THIS_DIR/export-pkg-config-dir.sh"
+source "$THIS_DIR/export-apple-pkg-config-dir.sh"
 
 echo "PKG_CONFIG_LIBDIR:$PKG_CONFIG_LIBDIR"

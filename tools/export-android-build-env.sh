@@ -99,6 +99,6 @@ echo "MR_ANDROID_NDK_TOOLCHAIN: [$MR_TOOLCHAIN_ROOT]"
 
 # 
 THIS_DIR=$(DIRNAME=$(dirname "${BASH_SOURCE[0]}"); cd "${DIRNAME}"; pwd)
-source "$THIS_DIR/export-pkg-config-dir.sh"
+source "$THIS_DIR/export-android-pkg-config-dir.sh"
 
 echo "PKG_CONFIG_LIBDIR:$PKG_CONFIG_LIBDIR"
