@@ -24,7 +24,6 @@ echo "=== [$0] check env begin==="
 env_assert "MR_ARCH"
 env_assert "MR_BUILD_NAME"
 env_assert "MR_CC"
-env_assert "MR_DEPLOYMENT_TARGET"
 env_assert "MR_BUILD_SOURCE"
 env_assert "MR_BUILD_PREFIX"
 env_assert "MR_SYS_ROOT"
@@ -43,7 +42,7 @@ fi
 CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --enable-static --disable-shared --disable-dependency-tracking --disable-silent-rules"
 CFG_FLAGS="$CFG_FLAGS --without-libkrb5 --disable-werror"
 
-CFLAGS="-arch $MR_ARCH $MR_DEPLOYMENT_TARGET $MR_OTHER_CFLAGS -Wno-everything -DHAVE_SOCKADDR_LEN=1 -DHAVE_SOCKADDR_STORAGE=1"
+CFLAGS="-arch $MR_ARCH $MR_OTHER_CFLAGS -Wno-everything -DHAVE_SOCKADDR_LEN=1 -DHAVE_SOCKADDR_STORAGE=1"
 
 if [[ "$MR_DEBUG" == "debug" ]];then
    CFG_FLAGS="${CFG_FLAGS} use_examples=yes --disable-optimizations"

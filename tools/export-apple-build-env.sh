@@ -39,12 +39,12 @@ if [[ "$MR_PLAT" == 'ios' ]]; then
     case $_MR_ARCH in
         *_simulator)
             export XCRUN_PLATFORM='iPhoneSimulator'
-            export MR_DEPLOYMENT_TARGET='-mios-simulator-version-min=11.0'
+            DEPLOYMENT_TARGET='-mios-simulator-version-min=11.0'
             export MR_IS_SIMULATOR=1
         ;;
         'arm64')
             export XCRUN_PLATFORM='iPhoneOS'
-            export MR_DEPLOYMENT_TARGET='-miphoneos-version-min=11.0'
+            DEPLOYMENT_TARGET='-miphoneos-version-min=11.0'
             export MR_IS_SIMULATOR=0
         ;;
         *)
@@ -53,20 +53,20 @@ if [[ "$MR_PLAT" == 'ios' ]]; then
         ;;
     esac
     elif [[ "$MR_PLAT" == 'macos' ]]; then
-    export XCRUN_PLATFORM='MacOSX'
-    export MACOSX_DEPLOYMENT_TARGET=10.11
-    export MR_DEPLOYMENT_TARGET="-mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
-    export MR_IS_SIMULATOR=0
+        export XCRUN_PLATFORM='MacOSX'
+        export MACOSX_DEPLOYMENT_TARGET=10.11
+        DEPLOYMENT_TARGET="-mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
+        export MR_IS_SIMULATOR=0
     elif [[ "$MR_PLAT" == 'tvos' ]]; then
     case $_MR_ARCH in
         *_simulator)
             export XCRUN_PLATFORM='AppleTVSimulator'
-            export MR_DEPLOYMENT_TARGET="-mtvos-simulator-version-min=12.0"
+            DEPLOYMENT_TARGET="-mtvos-simulator-version-min=12.0"
             export MR_IS_SIMULATOR=1
         ;;
         'arm64')
             export XCRUN_PLATFORM='AppleTVOS'
-            export MR_DEPLOYMENT_TARGET="-mtvos-version-min=12.0"
+            DEPLOYMENT_TARGET="-mtvos-version-min=12.0"
             export MR_IS_SIMULATOR=0
         ;;
         *)
@@ -99,7 +99,7 @@ export MR_BUILD_SOURCE="${MR_SRC_ROOT}/${MR_BUILD_NAME}"
 # ios/ffmpeg-x86_64
 export MR_BUILD_PREFIX="${MR_PRODUCT_ROOT}/${MR_BUILD_NAME}"
 # 
-export MR_OTHER_CFLAGS="$MR_OTHER_CFLAGS $MR_DEPLOYMENT_TARGET"
+export MR_OTHER_CFLAGS="$MR_OTHER_CFLAGS $DEPLOYMENT_TARGET"
 
 echo "MR_ARCH        : [$MR_ARCH]"
 echo "MR_BUILD_NAME  : [$MR_BUILD_NAME]"
@@ -110,4 +110,4 @@ echo "MR_BUILD_PREFIX: [$MR_BUILD_PREFIX]"
 THIS_DIR=$(DIRNAME=$(dirname "${BASH_SOURCE[0]}"); cd "${DIRNAME}"; pwd)
 source "$THIS_DIR/export-apple-pkg-config-dir.sh"
 
-echo "PKG_CONFIG_LIBDIR:$PKG_CONFIG_LIBDIR"
+echo "PKG_CONFIG_LIBDIR: [$PKG_CONFIG_LIBDIR]"

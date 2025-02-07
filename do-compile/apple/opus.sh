@@ -24,7 +24,6 @@ echo "=== [$0] check env begin==="
 env_assert "MR_ARCH"
 env_assert "MR_BUILD_NAME"
 env_assert "MR_CC"
-env_assert "MR_DEPLOYMENT_TARGET"
 env_assert "MR_BUILD_SOURCE"
 env_assert "MR_BUILD_PREFIX"
 env_assert "MR_SYS_ROOT"
@@ -34,7 +33,7 @@ echo "===check env end==="
 
 # prepare build config
 CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --disable-doc --disable-dependency-tracking --disable-shared --enable-silent-rules --disable-extra-programs --silent"
-CFLAGS="-arch $MR_ARCH $MR_DEPLOYMENT_TARGET $MR_OTHER_CFLAGS"
+CFLAGS="-arch $MR_ARCH $MR_OTHER_CFLAGS"
 
 # for cross compile
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
