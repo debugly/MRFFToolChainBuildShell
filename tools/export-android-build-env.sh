@@ -14,24 +14,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
+# https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
+# https://developer.android.com/ndk/guides/abis?hl=zh-cn#cmake_1
+
+
+export MR_ANDROID_API=23
 
 case $_MR_ARCH in
     *v7a)
     export MR_TRIPLE=armv7a-linux-androideabi$MR_ANDROID_API
     export MR_FF_ARCH=arm
+    export MR_ANDROID_ABI=armeabi-v7a
     ;;
     x86)
     export MR_TRIPLE=i686-linux-android$MR_ANDROID_API
     export MR_FF_ARCH=i686
+    export MR_ANDROID_ABI=x86
     ;;
     x86_64)
     export MR_TRIPLE=x86_64-linux-android$MR_ANDROID_API
     export MR_FF_ARCH=x86_64
+    export MR_ANDROID_ABI=x86_64
     ;;
     arm64*)
     export MR_TRIPLE=aarch64-linux-android$MR_ANDROID_API
     export MR_FF_ARCH=aarch64
+    export MR_ANDROID_ABI=arm64-v8a
     ;;
     *)
     echo "unknown architecture $_MR_ARCH";
@@ -56,9 +64,8 @@ else
     export MR_NDK_REL=$(grep -m 1 -o '^## r[0-9]*.*' $ANDROID_NDK_HOME/CHANGELOG.md | awk '{print $2}')
 fi
 
-export MR_ANDROID_API=23
-
-export MR_TOOLCHAIN_ROOT="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/${MR_HOST_TAG}"
+export MR_ANDROID_NDK_HOME="$ANDROID_NDK_HOME"
+export MR_TOOLCHAIN_ROOT="$MR_ANDROID_NDK_HOME/toolchains/llvm/prebuilt/${MR_HOST_TAG}"
 export PATH="${MR_TOOLCHAIN_ROOT}/bin:$PATH"
 export MR_SYS_ROOT="${MR_TOOLCHAIN_ROOT}/sysroot"
 
@@ -95,10 +102,10 @@ echo "MR_ANDROID_NDK  : [$MR_NDK_REL]"
 echo "MR_BUILD_NAME   : [$MR_BUILD_NAME]"
 echo "MR_BUILD_SOURCE : [$MR_BUILD_SOURCE]"
 echo "MR_BUILD_PREFIX : [$MR_BUILD_PREFIX]"
-echo "MR_ANDROID_NDK_TOOLCHAIN: [$MR_TOOLCHAIN_ROOT]"
+echo "MR_ANDROID_NDK_HOME: [$MR_ANDROID_NDK_HOME]"
 
 # 
 THIS_DIR=$(DIRNAME=$(dirname "${BASH_SOURCE[0]}"); cd "${DIRNAME}"; pwd)
 source "$THIS_DIR/export-android-pkg-config-dir.sh"
 
-echo "PKG_CONFIG_LIBDIR:$PKG_CONFIG_LIBDIR"
+echo "PKG_CONFIG_LIBDIR: [$PKG_CONFIG_LIBDIR]"

@@ -67,7 +67,7 @@ function do_compile() {
 }
 
 function do_clean() {
-    
+
     if [[ -d $MR_BUILD_SOURCE ]];then
         echo "git clean:$MR_BUILD_SOURCE"
         cd $MR_BUILD_SOURCE
@@ -90,6 +90,7 @@ function main() {
             for arch in $MR_ACTIVE_ARCHS; do
                 export _MR_ARCH=$arch
                 source $MR_SHELL_TOOLS_DIR/export-android-build-env.sh
+                echo "---"
                 do_clean $arch
             done
             

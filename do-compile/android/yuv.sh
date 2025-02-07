@@ -18,29 +18,15 @@
 # https://cmake.org/cmake/help/v3.28/variable/CMAKE_OSX_SYSROOT.html
 # https://cmake.org/cmake/help/v3.14/manual/cmake-toolchains.7.html#switching-between-device-and-simulator
 # https://stackoverflow.com/questions/27660048/cmake-check-if-mac-os-x-use-apple-or-apple
+# https://stackoverflow.com/questions/49711514/building-c-projects-which-have-cmake-build-files-for-android-using-ndk
 
 set -e
 
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-echo "=== [$0] check env begin==="
-env_assert "MR_ARCH"
-env_assert "_MR_ARCH"
-env_assert "MR_BUILD_NAME"
-env_assert "MR_CC"
-env_assert "MR_BUILD_SOURCE"
-env_assert "MR_BUILD_PREFIX"
-env_assert "MR_SYS_ROOT"
-env_assert "MR_HOST_NPROC"
-env_assert "MR_PLAT"
-echo "MR_DEBUG:$MR_DEBUG"
-echo "===check env end==="
-
-
 echo "----------------------"
 echo "[*] configurate $LIB_NAME"
-echo "[*] cmake config $cfg"
 echo "----------------------"
 
 build="${MR_BUILD_SOURCE}/_tmp"
@@ -49,36 +35,14 @@ rm -rf "$build"
 mkdir -p "$build"
 cd "$build"
 
-pf=
-if [[ "$MR_PLAT" == 'ios' ]];then
-    if [[ $_MR_ARCH == 'arm64_simulator' ]];then
-        pf='SIMULATORARM64'
-    elif [[ $_MR_ARCH == 'x86_64_simulator' ]];then
-        pf='SIMULATOR64'
-    else
-        pf='OS64'
-    fi
-elif [[ "$MR_PLAT" == 'tvos' ]];then
-    if [[ $_MR_ARCH == 'arm64_simulator' ]];then
-        pf='SIMULATORARM64_TVOS'
-    elif [[ $_MR_ARCH == 'x86_64_simulator' ]];then
-        pf='SIMULATOR_TVOS'
-    else
-        pf='TVOS'
-    fi
-elif [[ "$MR_PLAT" == 'macos' ]];then
-    if [[ $_MR_ARCH == 'arm64' ]];then
-        pf='MAC_ARM64'
-    elif [[ $_MR_ARCH == 'x86_64' ]];then
-        pf='MAC'
-    fi
-fi
-
-cmake -S ${MR_BUILD_SOURCE} \
-    -DCMAKE_INSTALL_PREFIX=${MR_BUILD_PREFIX} \
-    -DCMAKE_TOOLCHAIN_FILE="${MR_SHELL_TOOLS_DIR}/ios.toolchain.cmake" \
-    -DPLATFORM=$pf \
-    -GXcode
+cmake -S ${MR_BUILD_SOURCE}         \
+    -DCMAKE_INSTALL_PREFIX=${MR_BUILD_PREFIX}   \
+    -DCMAKE_TOOLCHAIN_FILE=${MR_ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake \
+    -DANDROID_NDK=${MR_ANDROID_NDK_HOME}           \
+    -DANDROID_ABI=${MR_ANDROID_ABI}                \
+    -DANDROID_PLATFORM=android-${MR_ANDROID_API}   \
+    -DANDROID_STL=c++_shared                       \
+    -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${LIB1_DIRECTORY}/libs/${MR_ANDROID_ABI}
 
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
