@@ -24,7 +24,8 @@
 
 export LIB_NAME='soundtouch'
 export LIPO_LIBS="libsoundtouch"
-export LIB_DEPENDS_BIN="automake autoconf libtool"
+export LIB_DEPENDS_BIN="cmake"
+export CMAKE_TARGET_NAME=SoundTouch
 export GIT_LOCAL_REPO=extra/soundtouch
 export REPO_DIR=soundtouch
 export GIT_COMMIT=2.3.3

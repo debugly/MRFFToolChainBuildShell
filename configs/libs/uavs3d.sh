@@ -23,6 +23,7 @@
 export LIB_NAME='uavs3d'
 export LIPO_LIBS="libuavs3d"
 export LIB_DEPENDS_BIN="cmake"
+export CMAKE_TARGET_NAME=uavs3d
 export GIT_LOCAL_REPO=extra/uavs3d
 export GIT_COMMIT=1fd0491
 export REPO_DIR=uavs3d

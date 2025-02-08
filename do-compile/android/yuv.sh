@@ -13,40 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# https://stackoverflow.com/questions/6003374/what-is-cmake-equivalent-of-configure-prefix-dir-make-all-install
-# https://cmake.org/cmake/help/v3.28/variable/CMAKE_OSX_SYSROOT.html
-# https://cmake.org/cmake/help/v3.14/manual/cmake-toolchains.7.html#switching-between-device-and-simulator
-# https://stackoverflow.com/questions/27660048/cmake-check-if-mac-os-x-use-apple-or-apple
-# https://stackoverflow.com/questions/49711514/building-c-projects-which-have-cmake-build-files-for-android-using-ndk
 
-set -e
+# call common cmake build shell
+./cmake-compatible.sh
 
-THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
-cd "$THIS_DIR"
 
-echo "----------------------"
-echo "[*] configurate $LIB_NAME"
-echo "----------------------"
-
-build="${MR_BUILD_SOURCE}/_tmp"
-
-rm -rf "$build"
-mkdir -p "$build"
-cd "$build"
-
-cmake -S ${MR_BUILD_SOURCE}         \
-    -DCMAKE_INSTALL_PREFIX=${MR_BUILD_PREFIX}   \
-    -DCMAKE_TOOLCHAIN_FILE=${MR_ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake \
-    -DANDROID_NDK=${MR_ANDROID_NDK_HOME}           \
-    -DANDROID_ABI=${MR_ANDROID_ABI}                \
-    -DANDROID_PLATFORM=android-${MR_ANDROID_API}   \
-    -DANDROID_STL=c++_shared                       \
-    -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${LIB1_DIRECTORY}/libs/${MR_ANDROID_ABI}
-
-echo "----------------------"
-echo "[*] compile $LIB_NAME"
-echo "----------------------"
-
-cmake --build . --target $LIB_NAME --config Release -- CODE_SIGNING_ALLOWED=NO
-cmake --install .
