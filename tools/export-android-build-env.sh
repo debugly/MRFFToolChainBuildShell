@@ -18,7 +18,7 @@
 # https://developer.android.com/ndk/guides/abis?hl=zh-cn#cmake_1
 
 
-export MR_ANDROID_API=23
+export MR_ANDROID_API=21
 
 case $_MR_ARCH in
     *v7a)
@@ -93,7 +93,6 @@ export MR_TRIPLE_CXX=${MR_TRIPLE_CC}++
 export         MR_CC=${MR_TOOLCHAIN_ROOT}/bin/clang
 export        MR_CXX=${MR_CC}++
 export       MR_YASM=${MR_TOOLCHAIN_ROOT}/bin/yasm
-
 
 echo "MR_ARCH         : [$MR_ARCH]"
 echo "MR_TRIPLE       : [$MR_TRIPLE]"
