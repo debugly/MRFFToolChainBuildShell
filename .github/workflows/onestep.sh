@@ -63,6 +63,16 @@ function compile_tvos_platform
     cd $ROOT_DIR
 }
 
+
+function compile_android_platform
+{
+    echo "---do compile android libs--------------------------------------"
+    ./main.sh compile -p android -c build -l ${LIB_NAME}
+    cd build/product/android
+    zip -rq $DIST_DIR/${LIB_NAME}-android-${RELEASE_VERSION}.zip ./*
+    cd $ROOT_DIR
+}
+
 function make_bundle()
 {
     echo "---Zip apple xcframework--------------------------------------"
@@ -108,6 +118,11 @@ function main()
             make_bundle
             publish
         ;;
+        android)
+            init_platform $PLAT
+            compile_android_platform
+            make_bundle
+            publish
         all)
             init_platform ios
             compile_ios_platform
@@ -116,6 +131,10 @@ function main()
             init_platform tvos
             compile_tvos_platform
             make_bundle
+
+            init_platform android
+            compile_android_platform
+
             publish
         ;;
     esac

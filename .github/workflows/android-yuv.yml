@@ -21,6 +21,7 @@ jobs:
       with:
         ndk-version: r21e
         add-to-path: false
+        local-cache: true
     - name: One Step
       run: .github/workflows/onestep.sh yuv all
       env:
