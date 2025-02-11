@@ -21,8 +21,8 @@ set -e
 # 当前脚本所在目录
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
-export MR_SHELL_ROOT_DIR="$THIS_DIR"
-export MR_SHELL_TOOLS_DIR="${THIS_DIR}/tools"
+export    MR_SHELL_ROOT_DIR="$THIS_DIR"
+export   MR_SHELL_TOOLS_DIR="${THIS_DIR}/tools"
 export MR_SHELL_CONFIGS_DIR="${THIS_DIR}/configs"
 
 function elapsed()

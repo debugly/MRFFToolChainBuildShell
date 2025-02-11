@@ -94,6 +94,7 @@ fi
 echo "----------------------"
 echo "[*] compile"
 
+# V=1
 make -j$MR_HOST_NPROC >/dev/null
 
 echo "----------------------"
@@ -103,12 +104,12 @@ cp config.* $MR_BUILD_PREFIX
 make install >/dev/null
 mkdir -p $MR_BUILD_PREFIX/include/libffmpeg
 cp -f config.h $MR_BUILD_PREFIX/include/libffmpeg/
-cp -f config_components.h $MR_BUILD_PREFIX/include/libffmpeg/
+[ -e config_components.h ] && cp -f config_components.h $MR_BUILD_PREFIX/include/libffmpeg/
 # copy private header for ffmpeg-kit.
-cp -f $MR_BUILD_SOURCE/libavutil/getenv_utf8.h $MR_BUILD_PREFIX/include/libavutil/
+[ -e $MR_BUILD_SOURCE/libavutil/getenv_utf8.h ] && cp -f $MR_BUILD_SOURCE/libavutil/getenv_utf8.h $MR_BUILD_PREFIX/include/libavutil/
 cp -f $MR_BUILD_SOURCE/libavutil/internal.h $MR_BUILD_PREFIX/include/libavutil/
 cp -f $MR_BUILD_SOURCE/libavutil/libm.h $MR_BUILD_PREFIX/include/libavutil/
-cp -f $MR_BUILD_SOURCE/libavutil/attributes_internal.h $MR_BUILD_PREFIX/include/libavutil/
+[ -e $MR_BUILD_SOURCE/libavutil/attributes_internal.h ] && cp -f $MR_BUILD_SOURCE/libavutil/attributes_internal.h $MR_BUILD_PREFIX/include/libavutil/
 cp -f $MR_BUILD_SOURCE/libavcodec/mathops.h $MR_BUILD_PREFIX/include/libavcodec/
 
 mkdir -p $MR_BUILD_PREFIX/include/libavcodec/x86/

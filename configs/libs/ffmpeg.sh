@@ -34,9 +34,10 @@ fi
 
 if [[ "$GIT_FFMPEG_COMMIT" != "" ]] ;then
     export GIT_COMMIT="$GIT_FFMPEG_COMMIT"
+    export GIT_REPO_VERSION="$GIT_FFMPEG_COMMIT"
 else
     export GIT_COMMIT=n6.1.2 #origin/release/5.1
+    export GIT_REPO_VERSION=6.1.2
 fi
 
-export GIT_REPO_VERSION=6.1.2
 export PRE_COMPILE_TAG=ffmpeg-6.1.2-250120163555
