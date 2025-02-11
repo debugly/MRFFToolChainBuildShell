@@ -258,8 +258,7 @@ if [[ -n "$nproc" ]];then
     export MR_HOST_NPROC=$nproc
 fi
 
-# -arch $MR_ARCH
-cflags="-Wno-int-conversion -Wno-declaration-after-statement -Wno-unused-function"
+cflags="-Wno-incompatible-function-pointer-types -Wno-int-conversion -Wno-declaration-after-statement -Wno-unused-function"
 
 if [[ "$MR_DEBUG" == "debug" ]];then
     export MR_OTHER_CFLAGS="-g -O0 -D_DEBUG $cflags"

@@ -45,10 +45,10 @@ CFG_FLAGS="$CFG_FLAGS $THIRD_CFG_FLAGS"
 
 # Android 15 with 16 kb page size support
 # https://developer.android.com/guide/practices/page-sizes#compile-r27
-EXTRA_LDFLAGS="-Wl,-z,max-page-size=16384"
-
+# EXTRA_LDFLAGS="-Wl,-z,max-page-size=16384 -fuse-ld=lld"
+EXTRA_LDFLAGS=
 C_FLAGS="$C_FLAGS $MR_OTHER_CFLAGS"
-LDFLAGS="$LDFLAGS $EXTRA_LDFLAGS"
+LDFLAGS="$C_FLAGS $EXTRA_LDFLAGS"
 
 
 echo "----------------------"
@@ -78,8 +78,8 @@ else
     ./configure \
         $CFG_FLAGS \
         --cc=${MR_TRIPLE_CC} \
-        --ld=${MR_TRIPLE_CC} \
         --as=${MR_TRIPLE_CC} \
+        --ld=${MR_TRIPLE_CC} \
         --ar=${MR_AR} \
         --nm=${MR_NM} \
         --strip=${MR_STRIP} \

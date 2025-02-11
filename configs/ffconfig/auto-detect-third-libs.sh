@@ -200,4 +200,14 @@ case "$MR_PLAT" in
     # enable iconv
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-iconv"
     ;;
+    android)
+    # enable mediacodec hwaccel
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-jni"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-mediacodec"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-decoder=h264_mediacodec --enable-hwaccel=h264_mediacodec"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-decoder=h265_mediacodec --enable-hwaccel=h265_mediacodec"
+    # disable iconv
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-iconv"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-bzlib"
+    ;;
 esac
