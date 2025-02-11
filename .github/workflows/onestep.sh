@@ -123,6 +123,7 @@ function main()
             compile_android_platform
             make_bundle
             publish
+        ;;
         all)
             init_platform ios
             compile_ios_platform
