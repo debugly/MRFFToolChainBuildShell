@@ -22,6 +22,6 @@ jobs:
         ndk-version: r21e
         add-to-path: false
     - name: One Step
-      run: echo "$ANDROID_NDK_HOME"
+      run: .github/workflows/onestep.sh yuv all
       env:
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
