@@ -170,7 +170,7 @@ THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --target-os=$MR_TAGET_OS"
 # x86_64, arm64
 THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-pic"
 THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-neon"
-THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-asm"
+THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-asm --enable-inline-asm"
 
 if [[ "$MR_DEBUG" == "debug" ]]; then
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-optimizations"

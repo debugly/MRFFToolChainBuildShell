@@ -69,6 +69,7 @@ else
     ./configure \
         $CFG_FLAGS \
         --cc="$MR_CC" \
+        --as="perl ${MR_GAS_PERL} -arch ${MR_ARCH} -- $MR_CC" \
         --extra-cflags="$C_FLAGS" \
         --extra-cxxflags="$C_FLAGS" \
         --extra-ldflags="$LDFLAGS"
