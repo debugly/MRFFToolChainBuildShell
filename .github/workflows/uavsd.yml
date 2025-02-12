@@ -16,5 +16,11 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    - uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r21e
+        add-to-path: false
+        local-cache: true
     - name: One Step
       run: .github/workflows/onestep.sh uavs3d all
