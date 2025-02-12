@@ -15,4 +15,4 @@
 # limitations under the License.
 
 # call common cmake build shell
-./cmake-compatible.sh "-DENABLE_LIBKRB5=0 -DENABLE_GSSAPI=0"
+./cmake-compatible.sh "-DENABLE_LIBKRB5=0 -DENABLE_GSSAPI=0 -DBUILD_SHARED_LIBS=0"
