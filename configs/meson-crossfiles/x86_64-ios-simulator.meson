@@ -2,6 +2,13 @@
 # Apple keeps changing the location and names of files so
 # these might not work for you. Use the googels and xcrun.
 
+[binaries]
+c = 'clang'
+cpp = 'clang++'
+ar = 'ar'
+strip = 'strip'
+pkgconfig = 'pkg-config'
+
 [built-in options]
 c_args = ['-arch', 'x86_64', '-mios-simulator-version-min=9.0', '-Os', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk']
 cpp_args = ['-arch', 'x86_64', '-mios-simulator-version-min=9.0', '-Os', '-isysroot', '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk']

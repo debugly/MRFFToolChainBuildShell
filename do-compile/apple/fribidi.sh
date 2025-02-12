@@ -42,7 +42,7 @@ if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
     CFG_FLAGS="$CFG_FLAGS --host=$MR_ARCH-apple-darwin --with-sysroot=$MR_SYS_ROOT"
 fi
 
-if [[ "$BUILD_OPT" == "debug" ]]; then
+if [[ "$MR_DEBUG" == "debug" ]]; then
     CFG_FLAGS="$CFG_FLAGS --enable-debug"
 fi
 

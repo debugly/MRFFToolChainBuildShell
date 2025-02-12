@@ -34,7 +34,7 @@ echo "===check env end==="
 # prepare build config
 CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --default-library static -Dpng=disabled -Dharfbuzz=disabled"
 
-if [[ "$BUILD_OPT" == "debug" ]]; then
+if [[ "$MR_DEBUG" == "debug" ]]; then
     CFG_FLAGS="$CFG_FLAGS --buildtype=debug"
 else
     CFG_FLAGS="$CFG_FLAGS --buildtype=release"
