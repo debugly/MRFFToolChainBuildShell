@@ -159,7 +159,7 @@ Tips:
 | ----------- | ---------------------------------------------------- | ------ | -------------------------------------------------------- |
 | libass      | https://github.com/libass/libass.git                 | 0.17.3 | export GIT_ASS_UPSTREAM = git@xx:yy/libass.git           |
 | libbluray   | https://code.videolan.org/videolan/libbluray.git     | 1.3.4  | export GIT_BLURAY_UPSTREAM = git@xx:yy/libbluray.git     |
-| dav1d       | https://code.videolan.org/videolan/dav1d.git         | 1.5.0  | export GIT_DAV1D_UPSTREAM = git@xx:yy/dav1d.git          |
+| dav1d       | https://code.videolan.org/videolan/dav1d.git         | 1.5.1  | export GIT_DAV1D_UPSTREAM = git@xx:yy/dav1d.git          |
 | libdvdread  | https://code.videolan.org/videolan/libdvdread.git    | 6.1.3  | export GIT_DVDREAD_UPSTREAM = git@xx:yy/libdvdread.git   |
 | FFmpeg      | https://github.com/FFmpeg/FFmpeg.git                 | 6.1.2  | export GIT_FFMPEG_UPSTREAM = git@xx:yy/FFmpeg.git        |
 | freetype    | https://gitlab.freedesktop.org/freetype/freetype.git | 2.13.3 | export GIT_FREETYPE_UPSTREAM = git@xx:yy/freetype.git    |

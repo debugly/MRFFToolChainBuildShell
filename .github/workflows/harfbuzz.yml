@@ -5,17 +5,23 @@ on:
   pull_request:
     branches: [master]
 
-name: Create harfbuzz Release
+name: Harfbuzz
 
 jobs:
   build:
-    name: compile harfbuzz then deploy
+    name: compile apple and android harfbuzz then deploy
     runs-on: macos-14
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    - uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r21e
+        add-to-path: false
+        local-cache: true
     - name: Install denpendencies
       run: |
         ./main.sh install -p ios -l 'freetype'

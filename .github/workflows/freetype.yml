@@ -5,16 +5,24 @@ on:
   pull_request:
     branches: [master]
 
-name: Create freetype Release
+name: Freetype
 
 jobs:
   build:
-    name: compile freetype then deploy
+    name: compile apple and android freetype then deploy
     runs-on: macos-14
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    - uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r21e
+        add-to-path: false
+        local-cache: true
     - name: One Step
-      run: .github/workflows/onestep.sh freetype all
+      run: .github/workflows/onestep.sh yuv all
+      env:
+        ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
