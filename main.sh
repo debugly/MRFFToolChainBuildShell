@@ -55,13 +55,13 @@ case $MR_PLAT in
     ;;
 esac
 
-if [[ "$MR_ACTION" == "init" ]];then
-    ./do-init/main.sh "$@"
+if [[ "$MR_ACTION" == "init" || "$MR_ACTION" == "install" ]];then
+    ./do-$MR_ACTION/main.sh "$@"
 else
     ./do-$MR_ACTION/$plat/main.sh "$@"
 fi 
 
-echo "---3.$MR_ACTION end-------------------------------"
+echo "---$MR_ACTION end-------------------------------"
 echo
 
 elapsed

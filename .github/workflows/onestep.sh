@@ -68,7 +68,7 @@ function compile_android_platform
 {
     echo "---do compile android libs--------------------------------------"
     ./main.sh compile -p android -c build -l ${LIB_NAME}
-    cd build/product/android/universal/${LIB_NAME}
+    cd build/product/android/universal
     zip -rq $DIST_DIR/${LIB_NAME}-android-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
