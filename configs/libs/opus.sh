@@ -30,7 +30,7 @@ export GIT_LOCAL_REPO=extra/opus
 export GIT_COMMIT=v1.5.2
 export REPO_DIR=opus
 export GIT_REPO_VERSION=1.5.2
-export PRE_COMPILE_TAG=opus-1.5.2-241227155817
+export PRE_COMPILE_TAG=opus-1.5.2-250212113037
 
 # you can export GIT_OPUS_UPSTREAM=git@xx:yy/opusfile.git use your mirror
 if [[ "$GIT_OPUS_UPSTREAM" != "" ]] ;then
