@@ -5,11 +5,11 @@ on:
   pull_request:
     branches: [master]
 
-name: Create fribidi Release
+name: Fribidi
 
 jobs:
   build:
-    name: compile fribidi then deploy
+    name: compile apple and android fribidi then deploy
     runs-on: macos-14
     env:
       GH_TOKEN: ${{ github.token }}

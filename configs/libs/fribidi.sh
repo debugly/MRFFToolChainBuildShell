@@ -24,7 +24,7 @@
 
 export LIB_NAME='fribidi'
 export LIPO_LIBS="libfribidi"
-export LIB_DEPENDS_BIN="autoconf automake libtool"
+export LIB_DEPENDS_BIN="meson pkg-config"
 export GIT_LOCAL_REPO=extra/fribidi
 export GIT_COMMIT=v1.0.16
 export REPO_DIR=fribidi
