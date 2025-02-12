@@ -26,9 +26,9 @@ export LIB_NAME='harfbuzz'
 export LIPO_LIBS="libharfbuzz libharfbuzz-subset"
 export LIB_DEPENDS_BIN="meson pkg-config"
 export GIT_LOCAL_REPO=extra/harfbuzz
-export GIT_COMMIT=10.1.0
+export GIT_COMMIT=10.2.0
 export REPO_DIR=harfbuzz
-export GIT_REPO_VERSION=10.1.0
+export GIT_REPO_VERSION=10.2.0
 export PRE_COMPILE_TAG=harfbuzz-10.1.0-250212150205
 
 # you can export GIT_HARFBUZZ_UPSTREAM=git@xx:yy/HARFBUZZ.git use your mirror

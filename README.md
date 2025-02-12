@@ -164,7 +164,7 @@ Tips:
 | FFmpeg      | https://github.com/FFmpeg/FFmpeg.git                 | 6.1.2  | export GIT_FFMPEG_UPSTREAM = git@xx:yy/FFmpeg.git        |
 | freetype    | https://gitlab.freedesktop.org/freetype/freetype.git | 2.13.3 | export GIT_FREETYPE_UPSTREAM = git@xx:yy/freetype.git    |
 | fribidi     | https://github.com/fribidi/fribidi.git               | 1.0.16 | export GIT_FRIBIDI_UPSTREAM = git@xx:yy/fribidi.git      |
-| harfbuzz    | https://github.com/harfbuzz/harfbuzz.git             | 10.1.0  | export GIT_HARFBUZZ_UPSTREAM = git@xx:yy/harfbuzz.git    |
+| harfbuzz    | https://github.com/harfbuzz/harfbuzz.git             | 10.2.0  | export GIT_HARFBUZZ_UPSTREAM = git@xx:yy/harfbuzz.git    |
 | openssl     | https://github.com/openssl/openssl.git               | 1.1.1w | export GIT_OPENSSL_UPSTREAM = git@xx:yy/openssl.git      |
 | opus        | https://gitlab.xiph.org/xiph/opus.git                | 1.5.2    | export GIT_OPUS_UPSTREAM = git@xx:yy/opus.git            |
 | libunibreak | https://github.com/adah1972/libunibreak.git          | 6.1    | export GIT_UNIBREAK_UPSTREAM = git@xx:yy/libunibreak.git |
