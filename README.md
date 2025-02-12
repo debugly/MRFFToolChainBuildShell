@@ -13,9 +13,11 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 | iOS   | arm64、arm64_simulator、x86_64_simulator |
 | tvOS  | arm64、arm64_simulator、x86_64_simulator |
 | macOS | arm64、x86_64                            |
+| Android | arm64、armv7a、x86_64、x86              |
 
 ## News
 
+- actively working to port all of apple to android
 - upgrade all libs to lastest,Improved optimizations
 - using macOS 14, remove bitcode support
 
@@ -103,6 +105,7 @@ Tips:
 ./main.sh install -p macos -l ffmpeg
 ./main.sh install -p ios -l 'ass ffmpeg'
 ./main.sh install -p tvos -l all
+./main.sh install -p android -l all
 ```
 
 ## Compile by yourself
@@ -123,8 +126,10 @@ Tips:
 ./main.sh init -p ios -l all -a x86_64_simulator
 #准备 macOS 平台源码所有库的源码
 ./main.sh init -p macos -l all
-#准备 ios 平台的某些库的源码
+#准备 iOS 平台的某些库的源码
 ./main.sh init -p ios -l "openssl ffmpeg"
+#准备 Android 平台的某些库的源码
+./main.sh init -p anroid -l "openssl ffmpeg"
 ```
 
 ### Compile
