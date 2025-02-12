@@ -73,5 +73,10 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-cmake --build . --target $CMAKE_TARGET_NAME --config Release -- CODE_SIGNING_ALLOWED=NO
+if [[ "$MR_DEBUG" == "debug" ]];then
+    cmake --build . --target $CMAKE_TARGET_NAME --config Debug -- CODE_SIGNING_ALLOWED=NO
+else
+    cmake --build . --target $CMAKE_TARGET_NAME --config Release -- CODE_SIGNING_ALLOWED=NO
+fi
+
 cmake --install .

@@ -5,11 +5,11 @@ on:
   pull_request:
     branches: [master]
 
-name: Create opus Release
+name: Opus
 
 jobs:
   build:
-    name: compile opus then deploy
+    name: compile apple and android opus then deploy
     runs-on: macos-14
     env:
       GH_TOKEN: ${{ github.token }}

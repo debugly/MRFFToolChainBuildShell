@@ -5,16 +5,22 @@ on:
   pull_request:
     branches: [master]
 
-name: Create smb2 Release
+name: Smb2
 
 jobs:
   build:
-    name: compile smb2 then deploy
+    name: compile apple and android smb2 then deploy
     runs-on: macos-14
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    - uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r21e
+        add-to-path: false
+        local-cache: true
     - name: One Step
       run: .github/workflows/onestep.sh smb2 all
