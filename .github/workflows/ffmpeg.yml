@@ -5,11 +5,11 @@ on:
   pull_request:
     branches: [master]
 
-name: Create ffmpeg Release
+name: FFmpeg
 
 jobs:
   build:
-    name: compile ffmpeg then deploy
+    name: compile apple and android ffmpeg then deploy
     runs-on: macos-14
     env:
       GH_TOKEN: ${{ github.token }}
