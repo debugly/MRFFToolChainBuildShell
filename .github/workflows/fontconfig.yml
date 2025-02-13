@@ -22,6 +22,11 @@ jobs:
         ndk-version: r21e
         add-to-path: false
         local-cache: true
+    - name: Install denpendencies
+      run: |
+        ./main.sh install -p ios -l 'freetype'
+        ./main.sh install -p tvos -l 'freetype'
+        ./main.sh install -p macos -l 'freetype'
     - name: One Step
       run: .github/workflows/onestep.sh fontconfig android
       env:

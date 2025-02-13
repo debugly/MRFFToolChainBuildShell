@@ -25,7 +25,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 
 ## Denpendency
 
-- Fontconfig: xml2
+- Fontconfig: xml2,freetype,png
 - Harfbuzz: freetype
 - Ass for Appple: harfbuzz,fribidi,unibreak
 - Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
