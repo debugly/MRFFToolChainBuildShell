@@ -35,10 +35,10 @@ function compile_ios_platform
     echo "---do compile ios libs--------------------------------------"
     ./main.sh compile -p ios -c build -l ${LIB_NAME}
     cd build/product/ios/universal
-    zip -rq $DIST_DIR/${LIB_NAME}-ios-universal-${RELEASE_VERSION}.zip ./*
+    zip -ryq $DIST_DIR/${LIB_NAME}-ios-universal-${RELEASE_VERSION}.zip ./*
     
     cd ../universal-simulator
-    zip -rq $DIST_DIR/${LIB_NAME}-ios-universal-simulator-${RELEASE_VERSION}.zip ./*
+    zip -ryq $DIST_DIR/${LIB_NAME}-ios-universal-simulator-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
 
@@ -47,7 +47,7 @@ function compile_macos_platform
     echo "---do compile macos libs--------------------------------------"
     ./main.sh compile -p macos -c build -l ${LIB_NAME}
     cd build/product/macos/universal
-    zip -rq $DIST_DIR/${LIB_NAME}-macos-universal-${RELEASE_VERSION}.zip ./*
+    zip -ryq $DIST_DIR/${LIB_NAME}-macos-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
 
@@ -56,10 +56,10 @@ function compile_tvos_platform
     echo "---do compile tvos libs--------------------------------------"
     ./main.sh compile -p tvos -c build -l ${LIB_NAME}
     cd build/product/tvos/universal
-    zip -rq $DIST_DIR/${LIB_NAME}-tvos-universal-${RELEASE_VERSION}.zip ./*
+    zip -ryq $DIST_DIR/${LIB_NAME}-tvos-universal-${RELEASE_VERSION}.zip ./*
     
     cd ../universal-simulator
-    zip -rq $DIST_DIR/${LIB_NAME}-tvos-universal-simulator-${RELEASE_VERSION}.zip ./*
+    zip -ryq $DIST_DIR/${LIB_NAME}-tvos-universal-simulator-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
 
@@ -69,7 +69,7 @@ function compile_android_platform
     echo "---do compile android libs--------------------------------------"
     ./main.sh compile -p android -c build -l ${LIB_NAME}
     cd build/product/android/universal
-    zip -rq $DIST_DIR/${LIB_NAME}-android-universal-${RELEASE_VERSION}.zip ./*
+    zip -ryq $DIST_DIR/${LIB_NAME}-android-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
 
@@ -77,7 +77,7 @@ function make_xcfmwk_bundle()
 {
     echo "---Zip apple xcframework--------------------------------------"
     cd build/product/xcframework
-    zip -rq $DIST_DIR/${LIB_NAME}-apple-xcframework-${RELEASE_VERSION}.zip ./*
+    zip -ryq $DIST_DIR/${LIB_NAME}-apple-xcframework-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
 
