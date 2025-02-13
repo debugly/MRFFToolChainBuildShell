@@ -1,0 +1,45 @@
+From d6e891f7ce811a52983c67e005bcf202d1754786 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Thu, 13 Feb 2025 15:14:06 +0800
+Subject: [PATCH] fix a mistake in CMakeLists.txt for armv7 cpu
+
+---
+ source/CMakeLists.txt | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/source/CMakeLists.txt b/source/CMakeLists.txt
+index b52363e..52f9552 100644
+--- a/source/CMakeLists.txt
++++ b/source/CMakeLists.txt
+@@ -46,17 +46,17 @@ if("${UAVS3D_TARGET_CPU}" MATCHES "x86" OR
+   list(APPEND UAVS3D_ASM_FILES ${DIR_X86_SRC})
+   list(APPEND UAVS3D_ASM_FILES ${DIR_X86_256_SRC})
+ elseif("${UAVS3D_TARGET_CPU}" MATCHES "armv7")
+-  list(APPEND UAVS3D_ASM_FILES "./decore/arm64/armv7.c")
+-  list(APPEND UAVS3D_ASM_FILES "./decore/arm64/alf_armv7.S")
+-  list(APPEND UAVS3D_ASM_FILES "./decore/arm64/deblock_armv7.S")
+-  list(APPEND UAVS3D_ASM_FILES "./decore/arm64/def_armv7.S")
+-  list(APPEND UAVS3D_ASM_FILES "./decore/arm64/inter_pred_armv7.S")
+-  list(APPEND UAVS3D_ASM_FILES "./decore/arm64/intra_pred_armv7.S")
+-  list(APPEND UAVS3D_ASM_FILES "./decore/arm64/dct2_armv7.S")
+-  list(APPEND UAVS3D_ASM_FILES "./decore/arm64/itrans_dct8_dst7_armv7.S")
+-  list(APPEND UAVS3D_ASM_FILES "./decore/arm64/pixel_armv7.S")
+-  list(APPEND UAVS3D_ASM_FILES "./decore/arm64/sao_armv7.c")
+-  list(APPEND UAVS3D_ASM_FILES "./decore/arm64/sao_kernel_armv7.S")
++  list(APPEND UAVS3D_ASM_FILES "./decore/armv7/armv7.c")
++  list(APPEND UAVS3D_ASM_FILES "./decore/armv7/alf_armv7.S")
++  list(APPEND UAVS3D_ASM_FILES "./decore/armv7/deblock_armv7.S")
++  list(APPEND UAVS3D_ASM_FILES "./decore/armv7/def_armv7.S")
++  list(APPEND UAVS3D_ASM_FILES "./decore/armv7/inter_pred_armv7.S")
++  list(APPEND UAVS3D_ASM_FILES "./decore/armv7/intra_pred_armv7.S")
++  list(APPEND UAVS3D_ASM_FILES "./decore/armv7/dct2_armv7.S")
++  list(APPEND UAVS3D_ASM_FILES "./decore/armv7/itrans_dct8_dst7_armv7.S")
++  list(APPEND UAVS3D_ASM_FILES "./decore/armv7/pixel_armv7.S")
++  list(APPEND UAVS3D_ASM_FILES "./decore/armv7/sao_armv7.c")
++  list(APPEND UAVS3D_ASM_FILES "./decore/armv7/sao_kernel_armv7.S")
+ 
+   add_definitions(-D _armv7a)
+   enable_language(ASM)
+-- 
+2.39.5 (Apple Git-154)
+
