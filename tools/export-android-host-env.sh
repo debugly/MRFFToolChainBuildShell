@@ -17,8 +17,18 @@
 
 # https://github.com/Javernaut/ffmpeg-android-maker
 
+function install_depends() {
+    local name="$1"
+    local r=$(brew list | grep "$name")
+    if [[ -z $r ]]; then
+        echo "will use brew install ${name}."
+        brew install "$name"
+    fi
+    echo "[✅] ${name}: $(eval $name --version)"
+}
+
 case "$OSTYPE" in
-  darwin*)  HOST_TAG="darwin-x86_64" ;;
+  darwin*)  HOST_TAG="darwin-x86_64"; export -f install_depends ;;
   linux*)   HOST_TAG="linux-x86_64" ;;
   msys)
     case "$(uname -m)" in

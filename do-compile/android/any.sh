@@ -66,6 +66,14 @@ function do_compile() {
     ./$LIB_NAME.sh
 }
 
+function resolve_dep() {
+    echo "[*] check depends bins: ${LIB_DEPENDS_BIN}"
+    for b in ${LIB_DEPENDS_BIN}; do
+        install_depends "$b"
+    done
+    echo "===================="
+}
+
 function do_clean() {
 
     if [[ -d $MR_BUILD_SOURCE ]];then
@@ -100,6 +108,7 @@ function main() {
             do_lipo_all "$MR_ACTIVE_ARCHS"
         ;;
         'build')
+            resolve_dep
             for arch in $MR_ACTIVE_ARCHS; do
                 export _MR_ARCH=$arch
                 source $MR_SHELL_TOOLS_DIR/export-android-build-env.sh
