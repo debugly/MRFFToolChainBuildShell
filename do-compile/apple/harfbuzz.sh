@@ -28,8 +28,8 @@ echo "[*] check freetype"
 pkg-config --libs freetype2 --silence-errors >/dev/null && enable_freetype2=1
 
 if [[ $enable_freetype2 ]];then
-    echo "[*] --enable-freetype"
-    CFG_FLAGS="$CFG_FLAGS -Dfreetype=enabled : $(pkg-config --modversion freetype2)"
+    echo "[*] --enable-freetype : $(pkg-config --modversion freetype2)"
+    CFG_FLAGS="$CFG_FLAGS -Dfreetype=enabled"
 else
     echo "[*] --disable-freetype"
     CFG_FLAGS="$CFG_FLAGS -Dfreetype=disabled"
