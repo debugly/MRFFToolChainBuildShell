@@ -5,16 +5,24 @@ on:
   pull_request:
     branches: [master]
 
-name: Create bluray Release
+name: Bluray
 
 jobs:
   build:
-    name: compile bluray then deploy
+    name: compile apple and android bluray then deploy
     runs-on: macos-14
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+    - uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r21e
+        add-to-path: false
+        local-cache: true
     - name: Checkout code
       uses: actions/checkout@v4
+    - name: Install denpendencies
+      run: ./main.sh install -p android -l 'fontconfig'
     - name: One Step
       run: .github/workflows/onestep.sh bluray all
