@@ -41,4 +41,4 @@ done
 
 export PKG_CONFIG_LIBDIR="$pkg_cfg_dir"
 
-unset uni_dir
+unset pkg_cfg_dir uni_dir
