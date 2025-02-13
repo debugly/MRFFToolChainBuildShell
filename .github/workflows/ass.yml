@@ -26,6 +26,7 @@ jobs:
       run: |
         ./main.sh install -p ios -l 'harfbuzz fribidi unibreak'
         ./main.sh install -p tvos -l 'harfbuzz fribidi unibreak'
-        ./main.sh install -p macos -l 'harfbuzz fribidi unibreak'    
+        ./main.sh install -p macos -l 'harfbuzz fribidi unibreak'
+        ./main.sh install -p android -l 'harfbuzz fribidi unibreak'    
     - name: One Step
       run: .github/workflows/onestep.sh ass all
