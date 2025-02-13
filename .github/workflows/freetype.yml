@@ -14,14 +14,14 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
     - uses: nttld/setup-ndk@v1
       id: setup-ndk
       with:
         ndk-version: r21e
         add-to-path: false
         local-cache: true
+    - name: Checkout code
+      uses: actions/checkout@v4
     - name: One Step
       run: .github/workflows/onestep.sh freetype all
       env:

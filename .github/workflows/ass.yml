@@ -5,15 +5,21 @@ on:
   pull_request:
     branches: [master]
 
-name: Create ass Release
+name: Ass
 
 jobs:
   build:
-    name: compile ass then deploy
+    name: compile apple and android ass then deploy
     runs-on: macos-14
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+    - uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r21e
+        add-to-path: false
+        local-cache: true
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Install denpendencies
