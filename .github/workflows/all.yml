@@ -72,4 +72,5 @@ jobs:
         ./main.sh install -p ios   -l 'openssl opus dav1d dvdread uavs3d smb2 bluray'
         ./main.sh install -p tvos  -l 'openssl opus dav1d dvdread uavs3d smb2 bluray'
         ./main.sh install -p macos -l 'openssl opus dav1d dvdread uavs3d smb2 bluray'
+        ./main.sh install -p android -l 'openssl opus dav1d dvdread uavs3d smb2 bluray'
         .github/workflows/onestep.sh ffmpeg all
