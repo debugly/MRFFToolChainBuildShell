@@ -27,5 +27,6 @@ jobs:
         ./main.sh install -p ios -l 'freetype'
         ./main.sh install -p tvos -l 'freetype'
         ./main.sh install -p macos -l 'freetype'
+        ./main.sh install -p android -l 'freetype'
     - name: One Step
       run: .github/workflows/onestep.sh harfbuzz all
