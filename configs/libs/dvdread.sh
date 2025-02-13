@@ -29,7 +29,7 @@ export REPO_DIR=dvdread
 export GIT_LOCAL_REPO=extra/$REPO_DIR
 export GIT_COMMIT=6.1.3
 export GIT_REPO_VERSION=6.1.3
-export PRE_COMPILE_TAG=dvdread-6.1.3-241115131834
+export PRE_COMPILE_TAG=dvdread-6.1.3-250213143409
 
 # you can export GIT_DVDREAD_UPSTREAM=git@xx:yy/opusfile.git use your mirror
 if [[ "$GIT_DVDREAD_UPSTREAM" != "" ]] ;then
