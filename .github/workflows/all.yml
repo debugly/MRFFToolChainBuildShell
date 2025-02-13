@@ -37,12 +37,14 @@ jobs:
         ./main.sh install -p ios -l 'freetype'
         ./main.sh install -p tvos -l 'freetype'
         ./main.sh install -p macos -l 'freetype'
+        ./main.sh install -p android -l 'freetype'
         .github/workflows/onestep.sh harfbuzz all
         echo '------compile ass------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         ./main.sh install -p ios -l 'harfbuzz fribidi unibreak'
         ./main.sh install -p tvos -l 'harfbuzz fribidi unibreak'
         ./main.sh install -p macos -l 'harfbuzz fribidi unibreak'
+        ./main.sh install -p android -l 'harfbuzz fribidi unibreak fontconfig'
         .github/workflows/onestep.sh ass all
         echo '------compile opus------------------------------------'
         rm -rf build || git reset --hard || git pull origin
