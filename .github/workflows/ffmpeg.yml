@@ -24,9 +24,9 @@ jobs:
       uses: actions/checkout@v4
     - name: Install denpendencies
       run: |
-        ./main.sh install -p android -l 'openssl opus dav1d dvdread uavs3d smb2 bluray'
-        ./main.sh install -p ios   -l 'openssl opus dav1d dvdread uavs3d smb2 bluray'
-        ./main.sh install -p tvos  -l 'openssl opus dav1d dvdread uavs3d smb2 bluray'
-        ./main.sh install -p macos -l 'openssl opus dav1d dvdread uavs3d smb2 bluray'
+        ./main.sh install -l 'openssl opus dav1d dvdread uavs3d smb2 bluray' -p ios     
+        ./main.sh install -l 'openssl opus dav1d dvdread uavs3d smb2 bluray' -p tvos    
+        ./main.sh install -l 'openssl opus dav1d dvdread uavs3d smb2 bluray' -p macos   
+        ./main.sh install -l 'openssl opus dav1d dvdread uavs3d smb2 bluray' -p android 
     - name: One Step
       run: .github/workflows/onestep.sh ffmpeg all

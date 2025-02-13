@@ -100,7 +100,7 @@ echo "----------------------"
 pkg-config --libs libsmb2 --silence-errors >/dev/null && enable_smb2=1
 
 if [[ $enable_smb2 ]];then
-    echo "[✅] --enable-libsmb2 : $(pkg-config --modversion libsm2)"
+    echo "[✅] --enable-libsmb2 : $(pkg-config --modversion libsmb2)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libsmb2 --enable-protocol=libsmb2"
 else
     echo "[❌] --disable-libsmb2"
@@ -121,7 +121,7 @@ echo "----------------------"
 pkg-config --libs dvdread --silence-errors >/dev/null && enable_dvdread=1
 
 if [[ $enable_dvdread ]];then
-    echo "[✅] --enable-libdvdread"
+    echo "[✅] --enable-libdvdread : $(pkg-config --modversion dvdread)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libdvdread --enable-protocol=dvd"
 else
     echo "[❌] --disable-libdvdread"
@@ -132,7 +132,7 @@ echo "----------------------"
 pkg-config --libs uavs3d --silence-errors >/dev/null && enable_uavs3d=1
 
 if [[ $enable_uavs3d ]];then
-    echo "[✅] --enable-libuavs3d"
+    echo "[✅] --enable-libuavs3d : $(pkg-config --modversion uavs3d)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libuavs3d --enable-decoder=libuavs3d"
 else
     echo "[❌] --disable-libuavs3d"
