@@ -24,7 +24,7 @@
 
 export LIB_NAME='ass'
 export LIPO_LIBS="libass"
-export LIB_DEPENDS_BIN="automake autoconf libtool pkg-config"
+export LIB_DEPENDS_BIN="meson pkg-config"
 export GIT_LOCAL_REPO=extra/ass
 export GIT_COMMIT=0.17.3
 export REPO_DIR=ass
