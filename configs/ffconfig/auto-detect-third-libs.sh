@@ -29,7 +29,7 @@ echo "----------------------"
 pkg-config --libs x264 --silence-errors >/dev/null && enable_x264=1
 
 if [[ $enable_x264 ]];then
-    echo "[✅] --enable-libx264"
+    echo "[✅] --enable-libx264 : $(pkg-config --modversion x264)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-gpl --enable-libx264"
 else
     echo "[❌] --disable-libx264"
@@ -40,7 +40,7 @@ echo "----------------------"
 pkg-config --libs fdk-aac --silence-errors >/dev/null && enable_aac=1
 
 if [[ $enable_aac ]];then
-    echo "[✅] --enable-libfdk-aac"
+    echo "[✅] --enable-libfdk-aac : $(pkg-config --modversion fdk-aac)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-nonfree --enable-libfdk-aac"
 else
     echo "[❌] --disable-libfdk-aac"
@@ -51,7 +51,7 @@ echo "----------------------"
 pkg-config --libs mp3lame --silence-errors >/dev/null && enable_lame=1
 
 if [[ $enable_lame ]];then
-    echo "[✅] --enable-libmp3lame"
+    echo "[✅] --enable-libmp3lame : $(pkg-config --modversion mp3lame)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-gpl --enable-libmp3lame"
 else
     echo "[❌] --disable-libmp3lame"
@@ -63,7 +63,7 @@ echo "----------------------"
 pkg-config --libs openssl --silence-errors >/dev/null && enable_openssl=1
 
 if [[ $enable_openssl ]];then
-    echo "[✅] --enable-openssl"
+    echo "[✅] --enable-openssl : $(pkg-config --modversion openssl)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-nonfree --enable-openssl"
 else
     echo "[❌] --disable-openssl"
@@ -74,7 +74,7 @@ echo "----------------------"
 pkg-config --libs opus --silence-errors >/dev/null && enable_opus=1
 
 if [[ $enable_opus ]];then
-    echo "[✅] --enable-libopus"
+    echo "[✅] --enable-libopus : $(pkg-config --modversion opus)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libopus --enable-decoder=opus"
 else
     echo "[❌] --disable-libopus"
@@ -89,7 +89,7 @@ echo "----------------------"
 pkg-config --libs dav1d --silence-errors >/dev/null && enable_dav1d=1
 
 if [[ $enable_dav1d ]];then
-    echo "[✅] --enable-libdav1d"
+    echo "[✅] --enable-libdav1d : $(pkg-config --modversion dav1d)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libdav1d --enable-decoder=libdav1d"
 else
     echo "[❌] --disable-libdav1d"
@@ -100,7 +100,7 @@ echo "----------------------"
 pkg-config --libs libsmb2 --silence-errors >/dev/null && enable_smb2=1
 
 if [[ $enable_smb2 ]];then
-    echo "[✅] --enable-libsmb2"
+    echo "[✅] --enable-libsmb2 : $(pkg-config --modversion libsm2)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libsmb2 --enable-protocol=libsmb2"
 else
     echo "[❌] --disable-libsmb2"
@@ -111,7 +111,7 @@ echo "----------------------"
 pkg-config --libs libbluray --silence-errors >/dev/null && enable_bluray=1
 
 if [[ $enable_bluray ]];then
-    echo "[✅] --enable-libbluray"
+    echo "[✅] --enable-libbluray : $(pkg-config --modversion libbluray)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
 else
     echo "[❌] --disable-libbluray"

@@ -29,7 +29,7 @@ pkg-config --libs freetype2 --silence-errors >/dev/null && enable_freetype2=1
 
 if [[ $enable_freetype2 ]];then
     echo "[*] --enable-freetype"
-    CFG_FLAGS="$CFG_FLAGS -Dfreetype=enabled"
+    CFG_FLAGS="$CFG_FLAGS -Dfreetype=enabled : $(pkg-config --modversion freetype2)"
 else
     echo "[*] --disable-freetype"
     CFG_FLAGS="$CFG_FLAGS -Dfreetype=disabled"

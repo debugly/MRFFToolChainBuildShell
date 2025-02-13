@@ -14,5 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 # call common meson build shell
 ./meson-compatible.sh "-Dpng=disabled -Dharfbuzz=disabled"

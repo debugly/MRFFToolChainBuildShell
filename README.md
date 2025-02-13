@@ -172,6 +172,7 @@ Tips:
 | libsmb2   | https://github.com/sahlberg/libsmb2.git | 6.2 | export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git    |
 | libyuv   | https://github.com/debugly/libyuv.git | stable-eb6e7bb | export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git |
 | soundtouch | https://codeberg.org/soundtouch/soundtouch.git | 2.3.3 | export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git |
+| fontconfig | https://gitlab.freedesktop.org/fontconfig/fontconfig.git | 2.16.0 | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git |
 
 ## Tips
 
