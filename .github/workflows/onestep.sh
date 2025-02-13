@@ -73,7 +73,7 @@ function compile_android_platform
     cd $ROOT_DIR
 }
 
-function make_bundle()
+function make_xcfmwk_bundle()
 {
     echo "---Zip apple xcframework--------------------------------------"
     cd build/product/xcframework
@@ -103,25 +103,24 @@ function main()
         ios)
             init_platform $PLAT
             compile_ios_platform
-            make_bundle
+            make_xcfmwk_bundle
             publish
         ;;
         macos)
             init_platform $PLAT
             compile_macos_platform
-            make_bundle
+            make_xcfmwk_bundle
             publish
         ;;
         tvos)
             init_platform $PLAT
             compile_tvos_platform
-            make_bundle
+            make_xcfmwk_bundle
             publish
         ;;
         android)
             init_platform $PLAT
             compile_android_platform
-            make_bundle
             publish
         ;;
         all)
@@ -131,7 +130,7 @@ function main()
             compile_macos_platform
             init_platform tvos
             compile_tvos_platform
-            make_bundle
+            make_xcfmwk_bundle
 
             init_platform android
             compile_android_platform

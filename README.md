@@ -25,9 +25,12 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 
 ## Denpendency
 
+- Fontconfig: xml2
 - Harfbuzz: freetype
-- Ass: harfbuzz,fribidi,unibreak
-- FFmpeg: openssl,opus,dav1d,dvdread,uavs3d,libsmb2
+- Ass for Appple: harfbuzz,fribidi,unibreak
+- Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
+- FFmpeg for Appple: openssl,opus,dav1d,dvdread,uavs3d,smb2
+- FFmpeg for Android: openssl,opus,dav1d,dvdread,uavs3d,smb2,soundtouch
 
 Tips: 
 
