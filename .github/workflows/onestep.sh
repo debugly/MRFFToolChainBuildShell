@@ -87,6 +87,7 @@ function upgrade()
     sed -i "" "s/^export PRE_COMPILE_TAG=.*/export PRE_COMPILE_TAG=$TAG/" $file
     git add $file
     git commit -m "upgrade $LIB_NAME to $TAG by cd"
+    git pull --rebase
     git push origin
 }
 
