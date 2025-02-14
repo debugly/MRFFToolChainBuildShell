@@ -86,7 +86,7 @@ OPTIONS:
 EOF
 }
 
-function fix_prefix(){
+function correct_pc_file(){
     local fix_path="$1"
     local dir=${PWD}
     
@@ -95,33 +95,17 @@ function fix_prefix(){
     
     for pc in `find . -type f -name "*.pc"` ;
     do
-        echo "$pc"
-        local pc_dir=$(DIRNAME=$(dirname "$pc"); cd "$DIRNAME"; pwd)
-        local lib_dir=$(dirname "$pc_dir")
-        local base_dir=$(dirname "$lib_dir")
-        
-        base_dir=$(cd "$base_dir";pwd)
-        local escaped_base_dir=$(echo $base_dir | sed 's/\//\\\//g')
-        local escaped_lib_dir=$(echo "${base_dir}/lib" | sed 's/\//\\\//g')
-        local escaped_include_dir=$(echo "${base_dir}/include" | sed 's/\//\\\//g')
-        
-        sed -i "" "s/^prefix=.*/prefix=$escaped_base_dir/" "$pc"
-        sed -i "" "s/^libdir=.*/libdir=$escaped_lib_dir/" "$pc"
-        sed -i "" "s/^includedir=.*/includedir=$escaped_include_dir/" "$pc"
-        
-        # filte Libs using -L/ absolute path
-        local str=
-        for t in `cat "$pc" | grep "Libs: " | grep "\-L/"` ;
-        do
-            if [[ "$t" != -L/* ]];then
-                if [[ $str ]];then
-                    str="${str} $t"
-                else
-                    str="$t"
-                fi
-            fi
-        done
-        [[ ! -z $str ]] && sed -i "" "s/^Libs:.*/$str/" "$pc"
+        local pkgconfig=$(cd $(dirname "$pc"); pwd)
+        local lib_dir=$(cd $(dirname "$pkgconfig"); pwd)
+        local base_dir=$(cd $(dirname "$lib_dir"); pwd)
+        local include_dir="${base_dir}/include"
+
+        sed -i "" "s|^prefix=.*|prefix=$base_dir|" "$pc"
+        sed -i "" "s|^libdir=/.*|libdir=$lib_dir|" "$pc"
+        sed -i "" "s|^includedir=/.*|includedir=$include_dir|" "$pc"
+        sed -i "" "s|-L/[^ ]*|-L$lib_dir|" "$pc"
+        sed -i "" "s|-I/[^ ]*include|-I$include_dir|" "$pc"
+
     done
     
     cd "$dir"
@@ -181,7 +165,7 @@ case $1 in
     ;;
 esac
 
-export -f fix_prefix
+export -f correct_pc_file
 export MR_ACTION=$action
 
 while [[ $# -gt 0 ]]; do
@@ -228,7 +212,7 @@ while [[ $# -gt 0 ]]; do
         ;;
         -correct-pc)
             shift
-            fix_prefix "$1"
+            correct_pc_file "$1"
             exit 0
         ;;
         **)

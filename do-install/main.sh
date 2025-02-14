@@ -38,6 +38,6 @@ do
 done
 
 if [[ ! "$FORCE_XCFRAMEWORK" ]];then
-    fix_prefix "$MR_WORKSPACE/product/$MR_PLAT"
+    correct_pc_file "$MR_WORKSPACE/product/$MR_PLAT"
 fi
 
