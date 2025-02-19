@@ -1,0 +1,72 @@
+# https://github.com/actions/runner-images
+
+on:
+  # push:
+  #   branches: [master]
+  workflow_dispatch:
+    inputs:
+      os:
+        description: 'macos version'
+        required: false
+        default: 'macos-latest-large'
+        options:
+          - macos-13
+          - macos-14
+          - macos-15
+      platform:
+        description: 'choose a platform for compile'
+        required: false
+        default: 'all'
+        options:
+          - ios
+          - tvos
+          - macos
+          - android
+          - all
+      lib:
+        description: 'choose a lib for compile'
+        required: true
+        default: 'ffmpeg'
+        options:
+          - ass
+          - bluray
+          - dav1d
+          - dvdread
+          - ffmpeg
+          - harfbuzz
+          - fontconfig
+          - freetype
+          - fribidi
+          - openssl
+          - opus
+          - smb2
+          - soundtouch
+          - uavs3d
+          - unibreak
+          - yuv
+  pull_request:
+    branches: [master]
+
+name: apple-android-common
+
+jobs:
+  build:
+    name: compile ${{ inputs.lib }} for ${{ inputs.platform }} then deploy
+    runs-on: ${{ inputs.os }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+    - uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r21e
+        add-to-path: false
+        local-cache: true
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Install denpendencies
+      run: .github/workflows/install-denpendencies.sh ${{ inputs.lib }} ${{ inputs.platform }}
+    - name: One Step
+      run: .github/workflows/onestep.sh ${{ inputs.lib }} ${{ inputs.platform }}
+      env:
+        ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
