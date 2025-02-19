@@ -8,6 +8,7 @@ on:
       os:
         description: 'macos version'
         required: false
+        type: choice
         default: 'macos-latest-large'
         options:
           - macos-13
@@ -16,16 +17,19 @@ on:
       platform:
         description: 'choose a platform for compile'
         required: false
+        type: choice
         default: 'all'
         options:
+          - apple
+          - android
+          - all
           - ios
           - tvos
           - macos
-          - android
-          - all
       lib:
         description: 'choose a lib for compile'
         required: true
+        type: choice
         default: 'ffmpeg'
         options:
           - ass
