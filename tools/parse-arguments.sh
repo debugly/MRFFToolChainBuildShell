@@ -99,13 +99,14 @@ function correct_pc_file(){
         local lib_dir=$(cd $(dirname "$pkgconfig"); pwd)
         local base_dir=$(cd $(dirname "$lib_dir"); pwd)
         local include_dir="${base_dir}/include"
-
+        local bin_dir="${base_dir}/bin"
+        
         sed -i "" "s|^prefix=.*|prefix=$base_dir|" "$pc"
-        sed -i "" "s|^libdir=/.*|libdir=$lib_dir|" "$pc"
-        sed -i "" "s|^includedir=/.*|includedir=$include_dir|" "$pc"
-        sed -i "" "s|-L/[^ ]*|-L$lib_dir|" "$pc"
+        sed -i "" "s|^exec_prefix=[^$].*|exec_prefix=$bin_dir|" $pc
+        sed -i "" "s|^libdir=[^$].*|libdir=$lib_dir|" "$pc"
+        sed -i "" "s|^includedir=[^$].*include|includedir=$include_dir|" "$pc"
+        sed -i "" "s|-L/[^ ]*lib|-L$lib_dir|" "$pc"
         sed -i "" "s|-I/[^ ]*include|-I$include_dir|" "$pc"
-
     done
     
     cd "$dir"
