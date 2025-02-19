@@ -40,10 +40,12 @@ CFG_FLAGS="$CFG_FLAGS $THIRD_CFG_FLAGS"
 CFG_FLAGS="$CFG_FLAGS --enable-demuxer=dash --enable-libxml2"
 
 C_FLAGS="$MR_OTHER_CFLAGS -arch $MR_FF_ARCH"
+# C_FLAGS="$C_FLAGS -I/Users/matt/GitWorkspace/MoltenVK/Package/Release/MoltenVK/include"
 # use system xml2 lib
 C_FLAGS="$C_FLAGS $(xml2-config --prefix=${MR_SYS_ROOT}/usr --cflags)"
 LDFLAGS="$C_FLAGS $(xml2-config --prefix=${MR_SYS_ROOT}/usr --libs)"
 
+# LDFLAGS="$LDFLAGS -framework IOKit -framework Metal -framework IOSurface -framework CoreGraphics -framework QuartzCore -framework AppKit -framework Foundation -lc++ /Users/matt/GitWorkspace/MoltenVK/Package/Release/MoltenVK/static/MoltenVK.xcframework/macos-arm64_x86_64/libMoltenVK.a"
 echo "----------------------"
 echo "[*] configure"
 

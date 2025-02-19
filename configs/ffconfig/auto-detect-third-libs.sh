@@ -140,6 +140,17 @@ fi
 
 echo "----------------------"
 
+# export PKG_CONFIG_LIBDIR=$PKG_CONFIG_LIBDIR:/opt/homebrew/Cellar/shaderc/2024.0/lib/pkgconfig:/opt/homebrew/Cellar/little-cms2/2.16/lib/pkgconfig
+# pkg-config --libs libplacebo --silence-errors >/dev/null && enable_placebo=1
+
+# if [[ $enable_placebo ]];then
+#     echo "[✅] --enable-libplacebo"
+#     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libplacebo"
+# else
+#     echo "[❌] --disable-libplacebo"
+# fi
+# echo "----------------------"
+
 # pkg-config --libs avs3ad --silence-errors >/dev/null && enable_avs3ad=1
 
 # if [[ $enable_avs3ad ]];then
