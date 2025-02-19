@@ -24,9 +24,9 @@ jobs:
       uses: actions/checkout@v4
     - name: Install denpendencies
       run: |
-        ./main.sh install -p ios -l 'harfbuzz fribidi unibreak'
-        ./main.sh install -p tvos -l 'harfbuzz fribidi unibreak'
-        ./main.sh install -p macos -l 'harfbuzz fribidi unibreak'
-        ./main.sh install -p android -l 'harfbuzz fribidi unibreak fontconfig'    
+        ./main.sh install -l 'harfbuzz fribidi unibreak' -p ios
+        ./main.sh install -l 'harfbuzz fribidi unibreak' -p tvos
+        ./main.sh install -l 'harfbuzz fribidi unibreak' -p macos
+        ./main.sh install -l 'harfbuzz fribidi unibreak fontconfig' -p android 
     - name: One Step
       run: .github/workflows/onestep.sh ass all
