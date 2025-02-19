@@ -11,6 +11,7 @@ on:
         type: choice
         default: 'macos-latest-large'
         options:
+          - macos-latest-large
           - macos-13
           - macos-14
           - macos-15
