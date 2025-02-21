@@ -30,7 +30,7 @@ export GIT_LOCAL_REPO=extra/smb2
 export GIT_COMMIT=libsmb2-6.2
 export REPO_DIR=smb2
 export GIT_REPO_VERSION=6.2
-export PRE_COMPILE_TAG=smb2-6.2-250212130635
+export PRE_COMPILE_TAG=smb2-6.2-250221174447
 
 # you can export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git use your mirror
 if [[ "$GIT_SMB2_UPSTREAM" != "" ]] ;then
