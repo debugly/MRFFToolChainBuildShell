@@ -62,11 +62,11 @@ jobs:
         fi
         echo '------compile harfbuzz------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/install-denpendencies.sh harfbuzz ${{ inputs.platform }}
+        .github/workflows/install-dependencies.sh harfbuzz ${{ inputs.platform }}
         .github/workflows/onestep.sh harfbuzz ${{ inputs.platform }}
         echo '------compile ass------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/install-denpendencies.sh ass ${{ inputs.platform }}
+        .github/workflows/install-dependencies.sh ass ${{ inputs.platform }}
         .github/workflows/onestep.sh ass ${{ inputs.platform }}
         echo '------compile opus------------------------------------'
         rm -rf build || git reset --hard || git pull origin
@@ -79,7 +79,7 @@ jobs:
         .github/workflows/onestep.sh dvdread ${{ inputs.platform }}
         echo '------compile bluray------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/install-denpendencies.sh fontconfig ${{ inputs.platform }}
+        .github/workflows/install-dependencies.sh fontconfig ${{ inputs.platform }}
         .github/workflows/onestep.sh bluray ${{ inputs.platform }}
         echo '------compile dav1d------------------------------------'
         rm -rf build || git reset --hard || git pull origin
@@ -92,7 +92,7 @@ jobs:
         .github/workflows/onestep.sh smb2 ${{ inputs.platform }}
         echo '------compile ffmpeg------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/install-denpendencies.sh ffmpeg ${{ inputs.platform }}
+        .github/workflows/install-dependencies.sh ffmpeg ${{ inputs.platform }}
         .github/workflows/onestep.sh ffmpeg ${{ inputs.platform }}
       env:
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}

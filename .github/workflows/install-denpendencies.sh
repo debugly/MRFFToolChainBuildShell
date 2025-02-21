@@ -2,17 +2,17 @@
 
 set -e
 
-export LIB_NAME=$1
-export PLAT=$2
+LIB_NAME=$1
+PLAT=$2
 
-case LIB_NAME in
+case $LIB_NAME in
     ass)
         if [[ $PLAT == all ]];then
             ./main.sh install -l 'harfbuzz fribidi unibreak' -p ios
             ./main.sh install -l 'harfbuzz fribidi unibreak' -p tvos
             ./main.sh install -l 'harfbuzz fribidi unibreak' -p macos
             ./main.sh install -l 'harfbuzz fribidi unibreak fontconfig' -p android
-            elif [[ $PLAT == apple ]];then
+        elif [[ $PLAT == apple ]];then
             ./main.sh install -l 'harfbuzz fribidi unibreak' -p ios
             ./main.sh install -l 'harfbuzz fribidi unibreak' -p tvos
             ./main.sh install -l 'harfbuzz fribidi unibreak' -p macos
@@ -35,7 +35,7 @@ case LIB_NAME in
             ./main.sh install -l 'openssl opus dav1d dvdread uavs3d smb2 bluray' -p ios
             ./main.sh install -l 'openssl opus dav1d dvdread uavs3d smb2 bluray' -p macos
             ./main.sh install -l 'openssl opus dav1d dvdread uavs3d smb2 bluray' -p android
-            elif [[ $PLAT == apple ]];then
+        elif [[ $PLAT == apple ]];then
             ./main.sh install -l 'openssl opus dav1d dvdread uavs3d smb2 bluray' -p tvos
             ./main.sh install -l 'openssl opus dav1d dvdread uavs3d smb2 bluray' -p ios
             ./main.sh install -l 'openssl opus dav1d dvdread uavs3d smb2 bluray' -p macos

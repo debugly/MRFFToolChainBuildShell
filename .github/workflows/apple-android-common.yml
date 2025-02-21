@@ -69,8 +69,8 @@ jobs:
         local-cache: false
     - name: Checkout code
       uses: actions/checkout@v4
-    - name: Install denpendencies
-      run: .github/workflows/install-denpendencies.sh ${{ inputs.lib }} ${{ inputs.platform }}
+    - name: Install dependencies
+      run: .github/workflows/install-dependencies.sh ${{ inputs.lib }} ${{ inputs.platform }}
     - name: One Step
       run: .github/workflows/onestep.sh ${{ inputs.lib }} ${{ inputs.platform }}
       env:
