@@ -8,12 +8,12 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 
 ## Supported Plat
 
-| Plat  | Arch                                   |
-| ----- | -------------------------------------- |
-| iOS   | arm64、arm64_simulator、x86_64_simulator |
-| tvOS  | arm64、arm64_simulator、x86_64_simulator |
-| macOS | arm64、x86_64                            |
-| Android | arm64、armv7a、x86_64、x86              |
+| platform  | architectures          |   minimum deployment target |
+| ----- | -------------------------------------- |----- |
+| iOS   | arm64、arm64_simulator、x86_64_simulator |  11.0   |
+| tvOS  | arm64、arm64_simulator、x86_64_simulator |  12.0   |
+| macOS | arm64、x86_64                            |  10.11   |
+| Android | arm64、armv7a、x86_64、x86              |  21   |
 
 ## News
 
@@ -54,28 +54,15 @@ Tips:
 │   ├── ffconfig #FFmpeg功能裁剪选项
 │   ├── libs     #三方库具体配置，包括库名，git仓库地址等信息
 │   └── meson-crossfiles
-├── do-compile   #三方库编译具体过程
-│   ├── any.sh   #三方库编译通用过程
-│   ├── ass.sh
-│   ├── bluray.sh
-│   ├── dav1d.sh
-│   ├── dvdread.sh
-│   ├── ffmpeg.sh
-│   ├── freetype.sh
-│   ├── fribidi.sh
-│   ├── harfbuzz.sh
-│   ├── libyuv.sh
-│   ├── main.sh   #三方库编译入口
-│   ├── openssl.sh
-│   ├── opus.sh
-│   ├── smb2.sh
-│   ├── uavs3d.sh
-│   └── unibreak.sh
-├── do-init       #初始化三方库仓库
+├── do-compile   #三方库编译过程
+│   ├── android  #安卓平台
+│   └── apple    #苹果平台
+├── do-init      #初始化三方库仓库
 │   ├── copy-local-repo.sh
 │   ├── init-repo.sh
 │   └── main.sh
 ├── do-install    #下载安装预编译的三方库
+│   ├── download-uncompress.sh
 │   ├── install-pre-lib.sh
 │   ├── install-pre-xcf.sh
 │   └── main.sh
@@ -86,11 +73,22 @@ Tips:
 │   ├── ffmpeg-n4.0
 │   ├── ffmpeg-n5.1
 │   ├── ffmpeg-n6.1
-│   └── ffmpeg-release-5.1
-└── tools
-    ├── env_assert.sh
-    ├── export-plat-env.sh
-    └── ios.toolchain.cmake
+│   ├── ffmpeg-release-5.1
+│   ├── smb2
+│   ├── smb2-4.0.0
+│   ├── uavs3d
+│   └── yuv
+└── tools         #通用工具方法
+    ├── export-android-build-env.sh
+    ├── export-android-host-env.sh
+    ├── export-android-pkg-config-dir.sh
+    ├── export-apple-build-env.sh
+    ├── export-apple-host-env.sh
+    ├── export-apple-pkg-config-dir.sh
+    ├── gas-preprocessor.pl
+    ├── ios.toolchain.cmake
+    ├── parse-arguments.sh
+    └── prepare-build-workspace.sh
 ```
 
 ## Download/Install Pre-compiled libs
