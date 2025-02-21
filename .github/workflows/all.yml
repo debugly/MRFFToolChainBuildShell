@@ -36,6 +36,12 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+    - uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r21e
+        add-to-path: true
+        local-cache: false
     - name: Checkout code
       uses: actions/checkout@v4
     - name: One Step
@@ -57,6 +63,7 @@ jobs:
         if [[ ${{ inputs.platform }} == anroid ]]; then
           echo '------compile android fontconfig------------------------------------'
           rm -rf build || git reset --hard || git pull origin
+          .github/workflows/install-dependencies.sh fontconfig android
           .github/workflows/onestep.sh fontconfig android
         fi
         echo '------compile harfbuzz------------------------------------'
