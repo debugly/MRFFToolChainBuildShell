@@ -25,17 +25,6 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-echo "=== [$0] check env begin==="
-env_assert "MR_ARCH"
-env_assert "MR_CC"
-env_assert "MR_TRIPLE"
-env_assert "MR_BUILD_NAME"
-env_assert "MR_BUILD_SOURCE"
-env_assert "MR_BUILD_PREFIX"
-env_assert "MR_HOST_NPROC"
-echo "MR_DEBUG:$MR_DEBUG"
-echo "===check env end==="
-
 case $_MR_ARCH in
     armv7a)
     target=android-arm
@@ -82,6 +71,9 @@ else
     export C_FLAGS="$C_FLAGS"
     export CXXFLAG="$C_FLAGS"
     export CC="$MR_CC --target $MR_TRIPLE"
+    export AR="$MR_AR"
+    export AS="$RM_AS"
+    export RANLIB="$MR_RANLIB"
 
     ./Configure $CFG_FLAGS
 fi

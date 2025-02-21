@@ -20,17 +20,6 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-echo "=== [$0] check env begin==="
-env_assert "MR_ARCH"
-env_assert "MR_BUILD_NAME"
-env_assert "MR_CC"
-env_assert "MR_BUILD_SOURCE"
-env_assert "MR_BUILD_PREFIX"
-env_assert "MR_SYS_ROOT"
-env_assert "MR_HOST_NPROC"
-echo "MR_DEBUG:$MR_DEBUG"
-echo "===check env end==="
-
 # prepare build config
 CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --disable-dependency-tracking --disable-silent-rules --disable-apidoc --enable-static --disable-shared"
 CFLAGS="$MR_OTHER_CFLAGS"
@@ -65,13 +54,18 @@ echo
 echo "CC: $MR_TRIPLE_CC"
 echo "CFG_FLAGS: $CFG_FLAGS"
 echo "CFLAGS: $CFLAGS"
-echo 
+echo
 
-./configure $CFG_FLAGS \
-   CC="$MR_TRIPLE_CC" \
-   CFLAGS="$CFLAGS" \
-   LDFLAGS="$CFLAGS" \
-   >/dev/null
+export CFLAGS="$CFLAGS"
+export LDFLAGS="$CFLAGS"
+
+export CC="$MR_TRIPLE_CC"
+export CXX="$MR_TRIPLE_CXX"
+export AR="$MR_AR"
+export AS="$RM_AS"
+export RANLIB="$MR_RANLIB"
+
+./configure $CFG_FLAGS
 
 #----------------------
 echo "----------------------"

@@ -36,8 +36,11 @@ else
     CFG_FLAGS="$CFG_FLAGS --buildtype=release"
 fi
 
-export CC="$MR_CC"
-export CXX="$MR_CXX"
+export CC="$MR_TRIPLE_CC"
+export CXX="$MR_TRIPLE_CXX"
+export AR="$MR_AR"
+export AS="$RM_AS"
+export RANLIB="$MR_RANLIB"
 
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]]; then
     if [[ $MR_IS_SIMULATOR == 1 ]]; then

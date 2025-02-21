@@ -17,4 +17,3 @@
 # call common cmake build shell
 ./cmake-compatible.sh
 
-

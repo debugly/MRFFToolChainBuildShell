@@ -41,6 +41,10 @@ cmake -S ${MR_BUILD_SOURCE}                         \
     -DCMAKE_INSTALL_PREFIX=${MR_BUILD_PREFIX}       \
     -DANDROID_NDK=${MR_ANDROID_NDK_HOME}            \
     -DANDROID_ABI=${MR_ANDROID_ABI}                 \
+    -DCMAKE_RANLIB=${MR_RANLIB}                     \
+    -DCMAKE_AR=${MR_AR}                             \
+    -DCMAKE_AS=${MR_AS}                             \
+    -DCMAKE_CXX_COMPILER_RANLIB=${MR_RANLIB}        \
     -DANDROID_PLATFORM=android-${MR_ANDROID_API}    \
     -DANDROID_STL=c++_shared                        \
     -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${MR_BUILD_PREFIX}/libs/${MR_ANDROID_ABI}       \

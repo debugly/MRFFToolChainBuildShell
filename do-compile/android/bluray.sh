@@ -80,9 +80,14 @@ echo "CFG_FLAGS: $CFG_FLAGS"
 echo "CFLAGS: $CFLAGS"
 echo 
 
-export CC="$MR_TRIPLE_CC"
 export CFLAGS="$CFLAGS"
 export LDFLAGS="$CFLAGS"
+
+export CC="$MR_TRIPLE_CC"
+export CXX="$MR_TRIPLE_CXX"
+export AR="$MR_AR"
+export AS="$RM_AS"
+export RANLIB="$MR_RANLIB"
 
 ./configure $CFG_FLAGS
 
