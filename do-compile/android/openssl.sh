@@ -70,7 +70,7 @@ else
 
     export C_FLAGS="$C_FLAGS"
     export CXXFLAG="$C_FLAGS"
-    export CC="$MR_CC --target $MR_TRIPLE"
+    export CC="$MR_TRIPLE_CC"
     export AR="$MR_AR"
     export AS="$RM_AS"
     export RANLIB="$MR_RANLIB"
