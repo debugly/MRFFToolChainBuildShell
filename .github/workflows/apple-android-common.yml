@@ -64,7 +64,7 @@ jobs:
       id: setup-ndk
       with:
         ndk-version: r21e
-        add-to-path: false
+        add-to-path: true
         local-cache: false
     - name: Checkout code
       uses: actions/checkout@v4
