@@ -7,9 +7,8 @@ on:
         description: 'macos version'
         required: false
         type: choice
-        default: 'macos-latest-large'
+        default: 'macos-14'
         options:
-          - macos-latest-large
           - macos-13
           - macos-14
           - macos-15
