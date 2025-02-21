@@ -66,7 +66,7 @@ jobs:
       with:
         ndk-version: r21e
         add-to-path: false
-        local-cache: true
+        local-cache: false
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Install denpendencies
