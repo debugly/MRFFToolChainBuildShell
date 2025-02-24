@@ -95,7 +95,7 @@ echo "----------------------"
 echo "[*] compile"
 
 # V=1
-make -j$MR_HOST_NPROC >/dev/null
+make V=1 -j$MR_HOST_NPROC >/dev/null
 
 echo "----------------------"
 echo "[*] install"
