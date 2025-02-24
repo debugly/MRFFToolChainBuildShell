@@ -17,6 +17,8 @@
 # call common cmake build shell
 ./cmake-compatible.sh
 
+mkdir -p ${MR_BUILD_PREFIX}/lib/pkgconfig
+
 echo "
 prefix=${MR_BUILD_PREFIX}
 includedir=\${prefix}/include

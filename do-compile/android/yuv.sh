@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # call common cmake build shell
-# ./cmake-compatible.sh
+./cmake-compatible.sh
 
 mkdir -p ${MR_BUILD_PREFIX}/lib/pkgconfig
 
