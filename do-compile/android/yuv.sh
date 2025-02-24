@@ -15,5 +15,19 @@
 # limitations under the License.
 
 # call common cmake build shell
-./cmake-compatible.sh
+# ./cmake-compatible.sh
+
+mkdir -p ${MR_BUILD_PREFIX}/lib/pkgconfig
+
+echo "
+prefix=${MR_BUILD_PREFIX}
+includedir=\${prefix}/include
+libdir=\${prefix}/lib
+
+Name: yuv
+Description: libyuv
+Version: ${GIT_REPO_VERSION}
+Libs: -L\${libdir} -lyuv
+Cflags: -I\${includedir}" > ${MR_BUILD_PREFIX}/lib/pkgconfig/yuv.pc
+
 
