@@ -1,6 +1,6 @@
-From d39c2bfe3f729b3d2e654597c6f97a8ad032f0f1 Mon Sep 17 00:00:00 2001
+From a9bacf0ca4d5eb1cb9591d6fc9930ff3077329f7 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Tue, 31 Dec 2024 09:31:32 +0800
+Date: Mon, 24 Feb 2025 14:43:36 +0800
 Subject: [PATCH 20] add built-in smb2 protocol via libsmb2
 
 ---
@@ -62,7 +62,7 @@ index ae952eb..427c45a 100644
  OBJS-$(CONFIG_LIBZMQ_PROTOCOL)           += libzmq.o
 diff --git a/libavformat/libsmb2.c b/libavformat/libsmb2.c
 new file mode 100644
-index 0000000..2514b2a
+index 0000000..0547373
 --- /dev/null
 +++ b/libavformat/libsmb2.c
 @@ -0,0 +1,412 @@
@@ -184,13 +184,13 @@ index 0000000..2514b2a
 +
 +        if (url->share) {
 +            char *share = ff_urldecode(url->share, 0);
-+            bzero((char *)url->share,strlen(url->share));
++            memset(url->share, 0, strlen(url->share));
 +            memcpy(url->share, share, strlen(share));
 +        }
 +
 +        if (url->path) {
 +            char *path = ff_urldecode(url->path, 0);
-+            bzero((char *)url->path,strlen(url->path));
++            memset(url->share, 0, strlen(url->share));
 +            memcpy(url->path, path, strlen(path));
 +        }
 +
