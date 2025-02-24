@@ -29,6 +29,7 @@ do_lipo_lib() {
     
     for arch in $archs; do
         local lib_dir="$MR_PRODUCT_ROOT/$LIB_NAME-$arch"
+        sed -i "" "s|-lpthread|-pthread|" "$lib_dir"/lib/pkgconfig/*.pc
         if [ -d "$lib_dir" ]; then
             mkdir -p "$MR_UNI_PROD_DIR/$LIB_NAME"
             cp -Rf "$lib_dir" "$MR_UNI_PROD_DIR/$LIB_NAME"
