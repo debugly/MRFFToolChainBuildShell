@@ -18,6 +18,7 @@ case $LIB_NAME in
             ./main.sh install -l 'harfbuzz fribidi unibreak' -p macos
         else
             ./main.sh install -l 'harfbuzz fribidi unibreak' -p $PLAT
+            ./main.sh install -l 'harfbuzz fribidi unibreak fontconfig' -p android
         fi
     ;;
     bluray)
