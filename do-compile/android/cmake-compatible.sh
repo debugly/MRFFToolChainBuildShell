@@ -22,13 +22,16 @@
 
 set -e
 
+CMAKE_OTHER_OPTS="$1"
+CMAKE_COMPONENT="$2"
+
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
-CMAKE_OTHER_FLAGS="$1"
 
 echo "----------------------"
 echo "[*] configurate $LIB_NAME"
-echo "[*] other cmake flags: $CMAKE_OTHER_FLAGS"
+echo "[*] cmake options: $CMAKE_OTHER_OPTS"
+echo "[*] cmake component: $CMAKE_COMPONENT"
 echo "----------------------"
 
 build="${MR_BUILD_SOURCE}/camke_wksp"
@@ -49,11 +52,20 @@ cmake -S ${MR_BUILD_SOURCE}                         \
     -DANDROID_STL=c++_shared                        \
     -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${MR_BUILD_PREFIX}/libs/${MR_ANDROID_ABI}       \
     -DCMAKE_TOOLCHAIN_FILE=${MR_ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake \
-    ${CMAKE_OTHER_FLAGS}
+    ${CMAKE_OTHER_OPTS}
 
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-cmake --build . --target $CMAKE_TARGET_NAME --config Release -- CODE_SIGNING_ALLOWED=NO
-cmake --install .
+if [[ "$MR_DEBUG" == "debug" ]];then
+    cmake --build . --target $CMAKE_TARGET_NAME --config Debug -- CODE_SIGNING_ALLOWED=NO
+else
+    cmake --build . --target $CMAKE_TARGET_NAME --config Release -- CODE_SIGNING_ALLOWED=NO
+fi
+
+if [[ -n $CMAKE_COMPONENT ]];then
+    cmake --install . --component "$CMAKE_COMPONENT"
+else
+    cmake --install .
+fi

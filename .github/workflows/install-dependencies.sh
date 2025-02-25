@@ -21,8 +21,17 @@ case $LIB_NAME in
         fi
     ;;
     bluray)
-        if [[ $PLAT == android || $PLAT == all ]];then
-            ./main.sh install -p android -l 'fontconfig'
+        if [[ $PLAT == all ]];then
+            ./main.sh install -l 'xml2' -p ios
+            ./main.sh install -l 'xml2' -p tvos
+            ./main.sh install -l 'xml2' -p macos
+            ./main.sh install -l 'xml2' -p android
+        elif [[ $PLAT == apple ]];then
+            ./main.sh install -l 'xml2' -p ios
+            ./main.sh install -l 'xml2' -p tvos
+            ./main.sh install -l 'xml2' -p macos
+        else
+            ./main.sh install -l 'xml2' -p $PLAT
         fi
     ;;
     dav1d)
@@ -58,6 +67,18 @@ case $LIB_NAME in
         fi
     ;;
     fontconfig)
+        if [[ $PLAT == all ]];then
+            ./main.sh install -l 'xml2' -p ios
+            ./main.sh install -l 'xml2' -p tvos
+            ./main.sh install -l 'xml2' -p macos
+            ./main.sh install -l 'xml2' -p android
+        elif [[ $PLAT == apple ]];then
+            ./main.sh install -l 'xml2' -p ios
+            ./main.sh install -l 'xml2' -p tvos
+            ./main.sh install -l 'xml2' -p macos
+        else
+            ./main.sh install -l 'xml2' -p $PLAT
+        fi
         if [[ $PLAT == android || $PLAT == all ]];then
             ./main.sh install -p android -l 'freetype'
         fi

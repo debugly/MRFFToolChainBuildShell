@@ -20,15 +20,14 @@
 # https://stackoverflow.com/questions/27660048/cmake-check-if-mac-os-x-use-apple-or-apple
 
 
-set -e
-
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
-CMAKE_OTHER_FLAGS="$1"
-
+CMAKE_OTHER_OPTS="$1"
+CMAKE_COMPONENT="$2"
 echo "----------------------"
 echo "[*] configurate $LIB_NAME"
-echo "[*] other cmake flags: $CMAKE_OTHER_FLAGS"
+echo "[*] cmake options: $CMAKE_OTHER_OPTS"
+echo "[*] cmake component: $CMAKE_COMPONENT"
 echo "----------------------"
 
 build="${MR_BUILD_SOURCE}/camke_wksp"
@@ -66,7 +65,7 @@ cmake -S ${MR_BUILD_SOURCE} \
     -DCMAKE_INSTALL_PREFIX=${MR_BUILD_PREFIX} \
     -DCMAKE_TOOLCHAIN_FILE="${MR_SHELL_TOOLS_DIR}/ios.toolchain.cmake" \
     -DPLATFORM=$pf \
-    ${CMAKE_OTHER_FLAGS} \
+    ${CMAKE_OTHER_OPTS} \
     -GXcode
 
 echo "----------------------"
@@ -79,4 +78,8 @@ else
     cmake --build . --target $CMAKE_TARGET_NAME --config Release -- CODE_SIGNING_ALLOWED=NO
 fi
 
-cmake --install .
+if [[ -n $CMAKE_COMPONENT ]];then
+    cmake --install . --component "$CMAKE_COMPONENT"
+else
+    cmake --install .
+fi
