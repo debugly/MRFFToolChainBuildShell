@@ -3,6 +3,7 @@ c = 'aarch64-linux-android21-clang'
 cpp = 'aarch64-linux-android21-clang++'
 ar = 'llvm-ar'
 strip = 'llvm-strip'
+ranlib = 'llvm-ranlib'
 pkgconfig = 'pkg-config'
 
 [properties]

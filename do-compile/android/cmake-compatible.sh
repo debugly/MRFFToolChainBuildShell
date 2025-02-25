@@ -47,6 +47,7 @@ cmake -S ${MR_BUILD_SOURCE}                         \
     -DCMAKE_RANLIB=${MR_RANLIB}                     \
     -DCMAKE_AR=${MR_AR}                             \
     -DCMAKE_AS=${MR_AS}                             \
+    -DCMAKE_STRIP=${MR_STRIP}                       \
     -DCMAKE_CXX_COMPILER_RANLIB=${MR_RANLIB}        \
     -DANDROID_PLATFORM=android-${MR_ANDROID_API}    \
     -DANDROID_STL=c++_shared                        \
@@ -65,7 +66,7 @@ else
 fi
 
 if [[ -n $CMAKE_COMPONENT ]];then
-    cmake --install . --component "$CMAKE_COMPONENT"
+    cmake --install . --strip --component "$CMAKE_COMPONENT"
 else
-    cmake --install .
+    cmake --install . --strip
 fi

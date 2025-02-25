@@ -41,6 +41,7 @@ export CXX="$MR_TRIPLE_CXX"
 export AR="$MR_AR"
 export AS="$RM_AS"
 export RANLIB="$MR_RANLIB"
+export STRIP="$MR_STRIP"
 
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]]; then
     if [[ $MR_IS_SIMULATOR == 1 ]]; then

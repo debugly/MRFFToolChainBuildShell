@@ -3,6 +3,7 @@ c = 'armv7a-linux-androideabi21-clang'
 cpp = 'armv7a-linux-androideabi21-clang++'
 ar = 'llvm-ar'
 strip = 'llvm-strip'
+ranlib = 'llvm-ranlib'
 pkgconfig = 'pkg-config'
 
 [properties]

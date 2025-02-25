@@ -50,9 +50,6 @@ export LDFLAGS="$CFLAGS"
 
 export CC="$MR_CC"
 export CXX="$MR_CXX"
-export AR="$MR_AR"
-export AS="$RM_AS"
-export RANLIB="$MR_RANLIB"
 
 ./autogen.sh \
     $CFG_FLAGS \

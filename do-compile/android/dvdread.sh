@@ -58,7 +58,7 @@ echo
 
 export CFLAGS="$CFLAGS"
 export LDFLAGS="$CFLAGS"
-
+export STRIP="$MR_STRIP"
 export CC="$MR_TRIPLE_CC"
 export CXX="$MR_TRIPLE_CXX"
 export AR="$MR_AR"
