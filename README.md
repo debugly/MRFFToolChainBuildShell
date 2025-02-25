@@ -26,6 +26,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 ## Denpendency
 
 - Fontconfig: xml2,freetype,png
+- Bluray: xml2
 - Harfbuzz: freetype
 - Ass for Appple: harfbuzz,fribidi,unibreak
 - Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
@@ -174,6 +175,7 @@ Tips:
 | libyuv   | https://github.com/debugly/libyuv.git | stable-eb6e7bb | export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git |
 | soundtouch | https://codeberg.org/soundtouch/soundtouch.git | 2.3.3 | export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git |
 | fontconfig | https://gitlab.freedesktop.org/fontconfig/fontconfig.git | 2.16.0 | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git |
+| xml2 | https://github.com/GNOME/libxml2.git | 2.13.6 | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git |
 
 ## Tips
 

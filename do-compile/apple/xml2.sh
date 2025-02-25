@@ -18,7 +18,6 @@
 # https://gitlab.gnome.org/GNOME/libxml2/-/issues/774#note_2174500
 # ./cmake-compatible.sh "-DBUILD_SHARED_LIBS=0 -DLIBXML2_WITH_PROGRAMS=0 -DLIBXML2_WITH_ZLIB=1 -DLIBXML2_WITH_PYTHON=0 -DLIBXML2_WITH_ICONV=1"
 
-cd $MR_BUILD_SOURCE
 
 if [[ "$MR_DEBUG" == "debug" ]];then
     export MR_OTHER_CFLAGS="${MR_OTHER_CFLAGS} -g"
