@@ -45,8 +45,7 @@ CFG_FLAGS="$CFG_FLAGS $THIRD_CFG_FLAGS"
 
 # Android 15 with 16 kb page size support
 # https://developer.android.com/guide/practices/page-sizes#compile-r27
-# EXTRA_LDFLAGS="-Wl,-z,max-page-size=16384 -fuse-ld=lld"
-EXTRA_LDFLAGS=
+EXTRA_LDFLAGS="-Wl,-z,max-page-size=16384"
 C_FLAGS="$C_FLAGS $MR_OTHER_CFLAGS"
 LDFLAGS="$C_FLAGS $EXTRA_LDFLAGS"
 

@@ -174,10 +174,6 @@ THIRD_CFG_FLAGS="--prefix=$MR_BUILD_PREFIX $THIRD_CFG_FLAGS"
 # Developer options (useful when working on FFmpeg itself):
 # THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-stripping"
 
-##
-THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --arch=$MR_FF_ARCH"
-THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --target-os=$MR_TAGET_OS"
-
 # x86_64, arm64
 THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-pic"
 THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-neon"
@@ -193,6 +189,10 @@ else
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-debug"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-small"
 fi
+
+##
+THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --arch=$MR_FF_ARCH"
+THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --target-os=$MR_TAGET_OS"
 
 # for cross compile
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]]; then

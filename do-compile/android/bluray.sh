@@ -61,10 +61,6 @@ echo "----------------------"
 echo "[*] configurate $LIB_NAME"
 echo "----------------------"
 
-# # use system xml2 lib
-# export LIBXML2_CFLAGS=$(xml2-config --prefix=${MR_SYS_ROOT}/usr --cflags)
-# export LIBXML2_LIBS=$(xml2-config --prefix=${MR_SYS_ROOT}/usr --libs)
-
 cd $MR_BUILD_SOURCE
 
 if [[ -f 'configure' ]]; then
