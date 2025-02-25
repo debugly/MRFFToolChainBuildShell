@@ -29,7 +29,7 @@ export GIT_LOCAL_REPO=extra/xml2
 export GIT_COMMIT=v2.13.6
 export REPO_DIR=xml2
 export GIT_REPO_VERSION=2.13.6
-export PRE_COMPILE_TAG=
+export PRE_COMPILE_TAG=xml2-2.13.6-250225111236
 
 # you can export GIT_XML2_UPSTREAM=git@xx:yy/xml2.git use your mirror
 if [[ "$GIT_XML2_UPSTREAM" != "" ]] ;then
