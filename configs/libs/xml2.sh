@@ -24,8 +24,7 @@
 
 export LIB_NAME='xml2'
 export LIPO_LIBS="libxml2"
-export LIB_DEPENDS_BIN="cmake"
-export CMAKE_TARGET_NAME=LibXml2
+export LIB_DEPENDS_BIN="autoconf automake libtool"
 export GIT_LOCAL_REPO=extra/xml2
 export GIT_COMMIT=v2.13.6
 export REPO_DIR=xml2
