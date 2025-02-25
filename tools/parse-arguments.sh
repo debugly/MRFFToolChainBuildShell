@@ -266,6 +266,7 @@ case $MR_PLAT in
         source $MR_SHELL_TOOLS_DIR/export-apple-host-env.sh
     ;;
     android)
+        export MR_OTHER_CFLAGS="$MR_OTHER_CFLAGS -D__ANDROID__"
         source $MR_SHELL_TOOLS_DIR/export-android-host-env.sh
     ;;
     *)

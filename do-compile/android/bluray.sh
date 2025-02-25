@@ -41,7 +41,7 @@ else
 fi
 
 # prepare build config
-CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --disable-shared --disable-dependency-tracking --disable-silent-rules --disable-bdjava-jar --without-freetype --without-fontconfig --disable-doxygen-doc --disable-examples"
+CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --with-pic --disable-shared --disable-dependency-tracking --disable-silent-rules --disable-bdjava-jar --without-freetype --without-fontconfig --disable-doxygen-doc --disable-examples"
 CFLAGS="$MR_OTHER_CFLAGS"
 
 if [[ "$MR_DEBUG" == "debug" ]];then
