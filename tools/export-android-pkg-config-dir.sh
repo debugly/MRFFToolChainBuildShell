@@ -27,7 +27,7 @@ else
     uni_dir="${MR_UNI_PROD_DIR}"
 fi
 
-for dir in `[ -d ${uni_dir} ] && find "${uni_dir}" -type f -name "*.pc" | grep "$_MR_ARCH" | xargs dirname | uniq` ;
+for dir in `[ -d ${uni_dir} ] && find "${uni_dir}" -type f -name "*.pc" | grep "$_MR_ARCH\/" | xargs dirname | uniq` ;
 do
     if [[ $pkg_cfg_dir ]];then
         pkg_cfg_dir="${pkg_cfg_dir}:${dir}"
