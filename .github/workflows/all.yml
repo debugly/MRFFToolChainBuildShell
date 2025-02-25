@@ -46,21 +46,21 @@ jobs:
       uses: actions/checkout@v4
     - name: One Step
       run: |
-        echo '------compile yuv------------------------------------'
-        .github/workflows/onestep.sh yuv ${{ inputs.platform }}
-        echo '------compile soundtouch------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh soundtouch ${{ inputs.platform }}
-        echo '------compile unibreak------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh unibreak ${{ inputs.platform }}
-        echo '------compile fribidi------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh fribidi ${{ inputs.platform }}
-        echo '------compile freetype------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh freetype ${{ inputs.platform }}
-        if [[ ${{ inputs.platform }} == anroid ]]; then
+        # echo '------compile yuv------------------------------------'
+        # .github/workflows/onestep.sh yuv ${{ inputs.platform }}
+        # echo '------compile soundtouch------------------------------------'
+        # rm -rf build || git reset --hard || git pull origin
+        # .github/workflows/onestep.sh soundtouch ${{ inputs.platform }}
+        # echo '------compile unibreak------------------------------------'
+        # rm -rf build || git reset --hard || git pull origin
+        # .github/workflows/onestep.sh unibreak ${{ inputs.platform }}
+        # echo '------compile fribidi------------------------------------'
+        # rm -rf build || git reset --hard || git pull origin
+        # .github/workflows/onestep.sh fribidi ${{ inputs.platform }}
+        # echo '------compile freetype------------------------------------'
+        # rm -rf build || git reset --hard || git pull origin
+        # .github/workflows/onestep.sh freetype ${{ inputs.platform }}
+        if [[ ${{ inputs.platform }} == android ]]; then
           echo '------compile android fontconfig------------------------------------'
           rm -rf build || git reset --hard || git pull origin
           .github/workflows/install-dependencies.sh fontconfig android
