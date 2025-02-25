@@ -19,13 +19,7 @@
 # ./cmake-compatible.sh "-DBUILD_SHARED_LIBS=0 -DLIBXML2_WITH_PROGRAMS=0 -DLIBXML2_WITH_ZLIB=1 -DLIBXML2_WITH_PYTHON=0 -DLIBXML2_WITH_ICONV=1"
 
 
-if [[ "$MR_DEBUG" == "debug" ]];then
-    export MR_OTHER_CFLAGS="${MR_OTHER_CFLAGS} -g"
-else
-    export MR_OTHER_CFLAGS="${MR_OTHER_CFLAGS} -Os"
-fi
-
-CFLAGS="$MR_OTHER_CFLAGS"
+CFLAGS="$MR_DEFAULT_CFLAGS"
 
 # prepare build config
 CFG_FLAGS="--prefix=$MR_BUILD_PREFIX"

@@ -94,6 +94,10 @@ export         MR_CC=${MR_TOOLCHAIN_ROOT}/bin/clang
 export        MR_CXX=${MR_CC}++
 export       MR_YASM=${MR_TOOLCHAIN_ROOT}/bin/yasm
 
+
+export MR_DEFAULT_CFLAGS="$MR_INIT_CFLAGS -D__ANDROID__"
+
+
 echo "MR_ARCH         : [$MR_ARCH]"
 echo "MR_TRIPLE       : [$MR_TRIPLE]"
 echo "MR_ANDROID_API  : [$MR_ANDROID_API]"
@@ -101,6 +105,7 @@ echo "MR_ANDROID_NDK  : [$MR_NDK_REL]"
 echo "MR_BUILD_NAME   : [$MR_BUILD_NAME]"
 echo "MR_BUILD_SOURCE : [$MR_BUILD_SOURCE]"
 echo "MR_BUILD_PREFIX : [$MR_BUILD_PREFIX]"
+echo "MR_DEFAULT_CFLAGS : [$MR_DEFAULT_CFLAGS]"
 echo "MR_ANDROID_NDK_HOME: [$MR_ANDROID_NDK_HOME]"
 
 # 

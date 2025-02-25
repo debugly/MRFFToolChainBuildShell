@@ -24,38 +24,38 @@
 
 THIRD_CFG_FLAGS=
 
-echo "----------------------"
+# echo "----------------------"
 
-pkg-config --libs x264 --silence-errors >/dev/null && enable_x264=1
+# pkg-config --libs x264 --silence-errors >/dev/null && enable_x264=1
 
-if [[ $enable_x264 ]];then
-    echo "[✅] --enable-libx264 : $(pkg-config --modversion x264)"
-    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-gpl --enable-libx264"
-else
-    echo "[❌] --disable-libx264"
-fi
+# if [[ $enable_x264 ]];then
+#     echo "[✅] --enable-libx264 : $(pkg-config --modversion x264)"
+#     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-gpl --enable-libx264"
+# else
+#     echo "[❌] --disable-libx264"
+# fi
 
-echo "----------------------"
+# echo "----------------------"
 
-pkg-config --libs fdk-aac --silence-errors >/dev/null && enable_aac=1
+# pkg-config --libs fdk-aac --silence-errors >/dev/null && enable_aac=1
 
-if [[ $enable_aac ]];then
-    echo "[✅] --enable-libfdk-aac : $(pkg-config --modversion fdk-aac)"
-    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-nonfree --enable-libfdk-aac"
-else
-    echo "[❌] --disable-libfdk-aac"
-fi
+# if [[ $enable_aac ]];then
+#     echo "[✅] --enable-libfdk-aac : $(pkg-config --modversion fdk-aac)"
+#     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-nonfree --enable-libfdk-aac"
+# else
+#     echo "[❌] --disable-libfdk-aac"
+# fi
 
-echo "----------------------"
+# echo "----------------------"
 
-pkg-config --libs mp3lame --silence-errors >/dev/null && enable_lame=1
+# pkg-config --libs mp3lame --silence-errors >/dev/null && enable_lame=1
 
-if [[ $enable_lame ]];then
-    echo "[✅] --enable-libmp3lame : $(pkg-config --modversion mp3lame)"
-    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-gpl --enable-libmp3lame"
-else
-    echo "[❌] --disable-libmp3lame"
-fi
+# if [[ $enable_lame ]];then
+#     echo "[✅] --enable-libmp3lame : $(pkg-config --modversion mp3lame)"
+#     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-gpl --enable-libmp3lame"
+# else
+#     echo "[❌] --disable-libmp3lame"
+# fi
 
 echo "----------------------"
 # use pkg-config fix ff4.0--ijk0.8.8--20210426--001 use openssl 1_1_1m occur can't find openssl error.
@@ -77,7 +77,7 @@ if [[ $enable_opus ]];then
     echo "[✅] --enable-libopus : $(pkg-config --modversion opus)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libopus --enable-decoder=opus"
 else
-    echo "[❌] --disable-libopus"
+    echo "[❌] --disable-libopus --disable-decoder=opus"
 fi
 
 echo "----------------------"
@@ -92,7 +92,7 @@ if [[ $enable_dav1d ]];then
     echo "[✅] --enable-libdav1d : $(pkg-config --modversion dav1d)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libdav1d --enable-decoder=libdav1d"
 else
-    echo "[❌] --disable-libdav1d"
+    echo "[❌] --disable-libdav1d --disable-decoder=libdav1d"
 fi
 
 echo "----------------------"
@@ -103,7 +103,7 @@ if [[ $enable_smb2 ]];then
     echo "[✅] --enable-libsmb2 : $(pkg-config --modversion libsmb2)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libsmb2 --enable-protocol=libsmb2"
 else
-    echo "[❌] --disable-libsmb2"
+    echo "[❌] --disable-libsmb2 --disable-protocol=libsmb2"
 fi
 
 echo "----------------------"
@@ -114,7 +114,7 @@ if [[ $enable_bluray ]];then
     echo "[✅] --enable-libbluray : $(pkg-config --modversion libbluray)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libbluray --enable-protocol=bluray"
 else
-    echo "[❌] --disable-libbluray"
+    echo "[❌] --disable-libbluray --disable-protocol=bluray"
 fi
 echo "----------------------"
 
@@ -124,7 +124,7 @@ if [[ $enable_dvdread ]];then
     echo "[✅] --enable-libdvdread : $(pkg-config --modversion dvdread)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libdvdread --enable-protocol=dvd"
 else
-    echo "[❌] --disable-libdvdread"
+    echo "[❌] --disable-libdvdread --disable-protocol=dvd"
 fi
 
 echo "----------------------"
@@ -135,7 +135,18 @@ if [[ $enable_uavs3d ]];then
     echo "[✅] --enable-libuavs3d : $(pkg-config --modversion uavs3d)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libuavs3d --enable-decoder=libuavs3d"
 else
-    echo "[❌] --disable-libuavs3d"
+    echo "[❌] --disable-libuavs3d --disable-decoder=libuavs3d"
+fi
+
+echo "----------------------"
+
+pkg-config --libs libxml-2.0 --silence-errors >/dev/null && enable_xml2=1
+
+if [[ $enable_xml2 ]];then
+    echo "[✅] --enable-libxml2 : $(pkg-config --modversion libxml-2.0)"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-demuxer=dash --enable-libxml2"
+else
+    echo "[❌] --disable-demuxer=dash --disable-libxml2"
 fi
 
 echo "----------------------"

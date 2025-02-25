@@ -20,29 +20,9 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-echo "=== [$0] check env begin==="
-env_assert "MR_ARCH"
-env_assert "MR_PLAT"
-env_assert "MR_BUILD_NAME"
-env_assert "MR_CC"
-env_assert "MR_BUILD_SOURCE"
-env_assert "MR_BUILD_PREFIX"
-env_assert "MR_SYS_ROOT"
-env_assert "MR_HOST_NPROC"
-echo "MR_DEBUG:$MR_DEBUG"
-echo "MR_FORCE_CROSS:$MR_FORCE_CROSS"
-echo "MR_OTHER_CFLAGS:$MR_OTHER_CFLAGS"
-echo "===check env end==="
-
-if [[ "$MR_DEBUG" == "debug" ]];then
-    export MR_OTHER_CFLAGS="${MR_OTHER_CFLAGS} -g"
-else
-    export MR_OTHER_CFLAGS="${MR_OTHER_CFLAGS} -Os"
-fi
-
 # prepare build config
 CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --with-pic --disable-shared --disable-dependency-tracking --disable-silent-rules --disable-bdjava-jar --without-freetype --without-fontconfig --disable-doxygen-doc --disable-examples"
-CFLAGS="$MR_OTHER_CFLAGS"
+CFLAGS="$MR_DEFAULT_CFLAGS"
 
 if [[ "$MR_DEBUG" == "debug" ]];then
    CFG_FLAGS="${CFG_FLAGS} use_examples=yes --disable-optimizations"

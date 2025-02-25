@@ -54,7 +54,7 @@ CFG_FLAGS="no-threads enable-tls1_3 no-comp no-zlib no-zlib-dynamic no-deprecate
         $target"
 
 # -arch $MR_ARCH
-C_FLAGS="$MR_OTHER_CFLAGS"
+C_FLAGS="$MR_DEFAULT_CFLAGS"
 
 cd $MR_BUILD_SOURCE
 if [ -f "./Makefile" ]; then

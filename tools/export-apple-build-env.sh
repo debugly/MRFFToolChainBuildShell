@@ -98,15 +98,16 @@ export MR_BUILD_NAME="${LIB_NAME}-${_MR_ARCH}"
 export MR_BUILD_SOURCE="${MR_SRC_ROOT}/${MR_BUILD_NAME}"
 # ios/ffmpeg-x86_64
 export MR_BUILD_PREFIX="${MR_PRODUCT_ROOT}/${MR_BUILD_NAME}"
-# 
-export MR_OTHER_CFLAGS="$MR_OTHER_CFLAGS $DEPLOYMENT_TARGET"
+# -arch x86_64 -mios-simulator-version-min=11.0
+export MR_DEFAULT_CFLAGS="-arch $MR_ARCH $MR_INIT_CFLAGS $DEPLOYMENT_TARGET -D__APPLE__"
 
-echo "MR_ARCH        : [$MR_ARCH]"
-echo "MR_BUILD_NAME  : [$MR_BUILD_NAME]"
-echo "MR_BUILD_SOURCE: [$MR_BUILD_SOURCE]"
-echo "MR_BUILD_PREFIX: [$MR_BUILD_PREFIX]"
+echo "MR_ARCH          : [$MR_ARCH]"
+echo "MR_BUILD_NAME    : [$MR_BUILD_NAME]"
+echo "MR_BUILD_SOURCE  : [$MR_BUILD_SOURCE]"
+echo "MR_BUILD_PREFIX  : [$MR_BUILD_PREFIX]"
+echo "MR_DEFAULT_CFLAGS: [$MR_DEFAULT_CFLAGS]"
 
-# 
+#
 THIS_DIR=$(DIRNAME=$(dirname "${BASH_SOURCE[0]}"); cd "${DIRNAME}"; pwd)
 source "$THIS_DIR/export-apple-pkg-config-dir.sh"
 

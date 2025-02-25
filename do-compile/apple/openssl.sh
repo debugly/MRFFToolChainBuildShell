@@ -24,17 +24,6 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-echo "=== [$0] check env begin==="
-env_assert "MR_ARCH"
-env_assert "MR_BUILD_NAME"
-env_assert "MR_CC"
-env_assert "MR_BUILD_SOURCE"
-env_assert "MR_BUILD_PREFIX"
-env_assert "MR_SYS_ROOT"
-env_assert "MR_HOST_NPROC"
-echo "MR_DEBUG:$MR_DEBUG"
-echo "===check env end==="
-
 # prepare build config
 CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --openssldir=$MR_BUILD_PREFIX no-shared no-hw no-engine no-asm"
 
@@ -47,7 +36,7 @@ else
     exit 1
 fi
 
-CFLAGS="-arch $MR_ARCH $MR_OTHER_CFLAGS"
+CFLAGS="$MR_DEFAULT_CFLAGS"
 
 # for cross compile
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then

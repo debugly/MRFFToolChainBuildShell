@@ -22,7 +22,7 @@ cd "$THIS_DIR"
 
 # prepare build config
 CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --disable-dependency-tracking --disable-silent-rules --disable-apidoc --enable-static --disable-shared"
-CFLAGS="$MR_OTHER_CFLAGS"
+CFLAGS="$MR_DEFAULT_CFLAGS"
 
 if [[ "$MR_DEBUG" == "debug" ]];then
    CFG_FLAGS="${CFG_FLAGS} use_examples=yes"

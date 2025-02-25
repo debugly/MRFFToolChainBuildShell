@@ -21,7 +21,7 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
 CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --enable-static --disable-shared --silent"
-CFLAGS="$MR_OTHER_CFLAGS"
+CFLAGS="$MR_DEFAULT_CFLAGS"
 
 # for cross compile
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then

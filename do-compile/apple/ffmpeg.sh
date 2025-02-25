@@ -37,9 +37,8 @@ source $MR_SHELL_CONFIGS_DIR/ffconfig/auto-detect-third-libs.sh
 CFG_FLAGS=
 CFG_FLAGS="$CFG_FLAGS $COMMON_FF_CFG_FLAGS"
 CFG_FLAGS="$CFG_FLAGS $THIRD_CFG_FLAGS"
-CFG_FLAGS="$CFG_FLAGS --enable-demuxer=dash --enable-libxml2"
 
-C_FLAGS="$MR_OTHER_CFLAGS -arch $MR_FF_ARCH"
+C_FLAGS="$MR_DEFAULT_CFLAGS"
 # C_FLAGS="$C_FLAGS -I/Users/matt/GitWorkspace/MoltenVK/Package/Release/MoltenVK/include"
 # use system xml2 lib
 # C_FLAGS="$C_FLAGS $(xml2-config --prefix=${MR_SYS_ROOT}/usr --cflags)"

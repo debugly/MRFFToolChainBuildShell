@@ -246,9 +246,9 @@ fi
 cflags="-Wno-incompatible-function-pointer-types -Wno-int-conversion -Wno-declaration-after-statement -Wno-unused-function"
 
 if [[ "$MR_DEBUG" == "debug" ]];then
-    export MR_OTHER_CFLAGS="-g -O0 -D_DEBUG $cflags"
+    export MR_INIT_CFLAGS="-g -O0 -D_DEBUG $cflags"
 else
-    export MR_OTHER_CFLAGS="-O3 -DNDEBUG $cflags"
+    export MR_INIT_CFLAGS="-O3 -DNDEBUG $cflags"
 fi
 
 export MR_PLAT="$platform"
@@ -266,7 +266,6 @@ case $MR_PLAT in
         source $MR_SHELL_TOOLS_DIR/export-apple-host-env.sh
     ;;
     android)
-        export MR_OTHER_CFLAGS="$MR_OTHER_CFLAGS -D__ANDROID__"
         source $MR_SHELL_TOOLS_DIR/export-android-host-env.sh
     ;;
     *)
@@ -309,7 +308,7 @@ echo "MR_VENDOR_LIBS  : [$MR_VENDOR_LIBS]"
 echo "MR_ACTIVE_ARCHS : [$MR_ACTIVE_ARCHS]"
 echo "MR_HOST_NPROC   : [$MR_HOST_NPROC]"
 echo "MR_DEBUG        : [$MR_DEBUG]"
-echo "MR_OTHER_CFLAGS : [$MR_OTHER_CFLAGS]"
+echo "MR_INIT_CFLAGS  : [$MR_INIT_CFLAGS]"
 echo "SKIP_PULL_BASE  : [$SKIP_PULL_BASE]"
 echo "SKIP_FFMPEG_PATHCHES : [$SKIP_FFMPEG_PATHCHES]"
 echo "MR_SKIP_MAKE_XCFRAMEWORK" : [$MR_SKIP_MAKE_XCFRAMEWORK]

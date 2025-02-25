@@ -191,7 +191,6 @@ function main() {
                 source $MR_SHELL_TOOLS_DIR/export-apple-build-env.sh
                 do_clean $arch
             done
-            
             rm -rf $MR_UNI_PROD_DIR/$LIB_NAME
         ;;
         'lipo')
