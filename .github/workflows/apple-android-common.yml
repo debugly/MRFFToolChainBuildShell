@@ -48,6 +48,7 @@ on:
           - uavs3d
           - unibreak
           - yuv
+          - xml2
   pull_request:
     branches: [master]
 
