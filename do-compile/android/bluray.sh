@@ -91,7 +91,6 @@ export RANLIB="$MR_RANLIB"
 
 ./configure $CFG_FLAGS
 
-#----------------------
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
