@@ -54,7 +54,7 @@ if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
     CFLAGS="$CFLAGS -isysroot $MR_SYS_ROOT"
     # $MR_ARCH-apple-darwin
-    CFG_FLAGS="$CFG_FLAGS --host=$MR_ARCH-apple-$MR_PLAT --with-sysroot=$MR_SYS_ROOT"
+    CFG_FLAGS="$CFG_FLAGS --host=$MR_ARCH-apple-darwin --with-sysroot=$MR_SYS_ROOT"
 fi
 
 echo "----------------------"
@@ -62,8 +62,8 @@ echo "[*] configurate $LIB_NAME"
 echo "----------------------"
 
 # use system xml2 lib
-export LIBXML2_CFLAGS=$(xml2-config --prefix=${MR_SYS_ROOT}/usr --cflags)
-export LIBXML2_LIBS=$(xml2-config --prefix=${MR_SYS_ROOT}/usr --libs)
+# export LIBXML2_CFLAGS=$(xml2-config --prefix=${MR_SYS_ROOT}/usr --cflags)
+# export LIBXML2_LIBS=$(xml2-config --prefix=${MR_SYS_ROOT}/usr --libs)
 
 cd $MR_BUILD_SOURCE
 

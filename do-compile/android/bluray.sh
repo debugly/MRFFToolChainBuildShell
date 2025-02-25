@@ -53,8 +53,8 @@ if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
     echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
     CFLAGS="$CFLAGS -isysroot $MR_SYS_ROOT"
-    # $MR_ARCH-apple-darwin
-    CFG_FLAGS="$CFG_FLAGS --host=$MR_ARCH-apple-$MR_PLAT --with-sysroot=$MR_SYS_ROOT"
+    # aarch64-linux-android21
+    CFG_FLAGS="$CFG_FLAGS --host=$MR_FF_ARCH-linux-android$MR_ANDROID_API --with-sysroot=$MR_SYS_ROOT"
 fi
 
 echo "----------------------"

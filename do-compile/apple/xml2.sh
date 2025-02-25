@@ -35,7 +35,7 @@ if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
     CFLAGS="$CFLAGS -isysroot $MR_SYS_ROOT"
     # $MR_ARCH-apple-darwin
-    CFG_FLAGS="$CFG_FLAGS --host=$MR_ARCH-apple-$MR_PLAT --with-sysroot=$MR_SYS_ROOT"
+    CFG_FLAGS="$CFG_FLAGS --host=$MR_ARCH-apple-darwin --with-sysroot=$MR_SYS_ROOT"
 fi
 
 echo "----------------------"
