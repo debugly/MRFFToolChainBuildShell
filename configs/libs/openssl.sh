@@ -21,7 +21,7 @@ export GIT_LOCAL_REPO=extra/openssl
 export GIT_COMMIT=OpenSSL_1_1_1w
 export REPO_DIR=openssl
 export GIT_REPO_VERSION=1.1.1w
-export PRE_COMPILE_TAG=openssl-1.1.1w-250225171322
+export PRE_COMPILE_TAG=openssl-1.1.1w-250226075357
 
 # you can export GIT_OPUS_UPSTREAM=git@xx:yy/openssl.git use your mirror
 if [[ "$GIT_OPENSSL_UPSTREAM" != "" ]] ;then
