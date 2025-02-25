@@ -25,10 +25,11 @@ else
     export MR_OTHER_CFLAGS="${MR_OTHER_CFLAGS} -Os"
 fi
 
-CFLAGS="$MR_OTHER_CFLAGS"
+CFLAGS="-arch $MR_ARCH $MR_OTHER_CFLAGS"
 
 # prepare build config
 CFG_FLAGS="--prefix=$MR_BUILD_PREFIX"
+
 # for cross compile
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
     echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
