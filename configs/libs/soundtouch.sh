@@ -40,3 +40,4 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=soundtouch-2.3.3-250225223556
+export PRE_COMPILE_TAG_ANDROID=soundtouch-2.3.3-250226153307
