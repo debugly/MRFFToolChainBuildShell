@@ -33,7 +33,6 @@ do
     
     echo "LIB_NAME        : [$LIB_NAME]"
     echo "GIT_COMMIT      : [$GIT_COMMIT]"
-    echo "PRE_COMPILE_TAG : [$PRE_COMPILE_TAG]"
     echo "LIPO_LIBS       : [$LIPO_LIBS]"
     echo "GIT_UPSTREAM    : [$GIT_UPSTREAM]"
 

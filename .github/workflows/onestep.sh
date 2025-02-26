@@ -81,12 +81,57 @@ function make_xcfmwk_bundle()
     cd $ROOT_DIR
 }
 
+function replace_tag()
+{
+    local file=$1
+    local key=$2
+    # check PRE_COMPILE_TAG_IOS
+    if grep -q "$key" "$file_path"; then
+        # replace PRE_COMPILE_TAG_IOS=new_tag
+        sed -i "" "s/^export $key=.*/export $key=$TAG/" $file
+    else
+        # PRE_COMPILE_TAG_IOS not found, check PRE_COMPILE_TAG
+        if grep -q "PRE_COMPILE_TAG" "$file"; then
+            # insert PRE_COMPILE_TAG_IOS=new_tag after PRE_COMPILE_TAG
+            sed -i "" "/PRE_COMPILE_TAG/a\ 
+    export $key=$TAG" "$file"
+        else
+            echo "can't find PRE_COMPILE_TAG in $file"
+        fi
+    fi
+}
+
 function upgrade()
 {
-    file="configs/libs/${LIB_NAME}.sh"
-    sed -i "" "s/^export PRE_COMPILE_TAG=.*/export PRE_COMPILE_TAG=$TAG/" $file
+    local file="configs/libs/${LIB_NAME}.sh"
+    case $PLAT in
+        ios)
+            replace_tag $file $TAG PRE_COMPILE_TAG_IOS
+        ;;
+        macos)
+            replace_tag $file $TAG PRE_COMPILE_TAG_MACOS
+        ;;
+        tvos)
+            replace_tag $file $TAG PRE_COMPILE_TAG_TVOS
+        ;;
+        apple)
+            replace_tag $file $TAG PRE_COMPILE_TAG_IOS
+            replace_tag $file $TAG PRE_COMPILE_TAG_MACOS
+            replace_tag $file $TAG PRE_COMPILE_TAG_TVOS
+        ;;
+        android)
+            replace_tag $file $TAG PRE_COMPILE_TAG_ANDROID
+        ;;
+        all)
+            replace_tag $file $TAG PRE_COMPILE_TAG_IOS
+            replace_tag $file $TAG PRE_COMPILE_TAG_MACOS
+            replace_tag $file $TAG PRE_COMPILE_TAG_TVOS
+            replace_tag $file $TAG PRE_COMPILE_TAG_ANDROID
+        ;;
+    esac
+
     git add $file
-    git commit -m "upgrade $LIB_NAME to $TAG by cd"
+    git commit -m "upgrade $LIB_NAME to $TAG for $PLAT by cd"
     git pull --rebase
     git push origin
 }
@@ -149,7 +194,6 @@ function main()
             publish
         ;;
     esac
-    
 }
 
 if [[ $LIB_NAME == 'test' ]];then

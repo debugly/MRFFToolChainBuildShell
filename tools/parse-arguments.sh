@@ -131,7 +131,7 @@ function env_assert()
         echo "$name is nil,eg: export $name=xx" >&2
         exit 1
     else
-        echo "$name:${value}" >&2
+        echo "$name : [${value}]" >&2
     fi
 }
 

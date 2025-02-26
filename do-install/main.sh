@@ -22,6 +22,38 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
+function parse_lib_config() {
+
+    local t=$(echo "PRE_COMPILE_TAG_$MR_PLAT" | tr '[:lower:]' '[:upper:]')
+    local vt=$(eval echo "\$$t")
+
+    if test -z $vt ;then
+        TAG="$PRE_COMPILE_TAG"
+    else
+        TAG="$vt"
+    fi
+
+    if test -z $TAG ;then
+        echo "tag can't be nil"
+        usage
+        exit
+    fi
+
+    # opus-1.3.1-231124151836
+    # yuv-stable-eb6e7bb-250225223408
+    LIB_NAME=$(echo $TAG | awk -F - '{print $1}')
+    local prefix="${LIB_NAME}-"
+    local suffix=$(echo $TAG | awk -F - '{printf "-%s", $NF}')
+    # 去掉前缀
+    local temp=${TAG#$prefix}
+    # 去掉后缀
+    VER=${temp%$suffix}
+
+    export VER
+    export TAG
+    export LIB_NAME
+}
+
 # 循环编译所有的库
 for lib in $MR_VENDOR_LIBS
 do
@@ -29,6 +61,7 @@ do
     
     echo "===[install $lib]===================="
     source "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
+    parse_lib_config
     if [[ $FORCE_XCFRAMEWORK ]];then
         ./install-pre-xcf.sh
     else

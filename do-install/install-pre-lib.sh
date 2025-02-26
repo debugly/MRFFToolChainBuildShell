@@ -20,12 +20,6 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-echo "=== [$0] check env begin==="
-env_assert "MR_PLAT"
-env_assert "MR_WORKSPACE"
-env_assert "PRE_COMPILE_TAG"
-echo "===check env end==="
-
 function install_plat() {
     local join=""
     
@@ -33,28 +27,12 @@ function install_plat() {
         join="-$1"
     fi
     
-    export MR_DOWNLOAD_ONAME="$PRE_COMPILE_TAG-$MR_PLAT${join}.zip"
-    export MR_DOWNLOAD_URL="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$PRE_COMPILE_TAG/$LIB_NAME-$MR_PLAT-universal${join}-$VER.zip"
+    export MR_DOWNLOAD_ONAME="$TAG-$MR_PLAT${join}.zip"
+    export MR_DOWNLOAD_URL="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$TAG/$LIB_NAME-$MR_PLAT-universal${join}-$VER.zip"
     export MR_UNCOMPRESS_DIR="$MR_WORKSPACE/product/$MR_PLAT/universal${join}"
 
     ./download-uncompress.sh
 }
-
-if test -z $PRE_COMPILE_TAG ;then
-    echo "tag can't be nil"
-    usage
-    exit
-fi
-
-# opus-1.3.1-231124151836
-# yuv-stable-eb6e7bb-250225223408
-LIB_NAME=$(echo $PRE_COMPILE_TAG | awk -F - '{print $1}')
-prefix="${LIB_NAME}-"
-suffix=$(echo $PRE_COMPILE_TAG | awk -F - '{printf "-%s", $NF}')
-# 去掉前缀
-temp=${PRE_COMPILE_TAG#$prefix}
-# 去掉后缀
-VER=${temp%$suffix}
 
 if [[ "$MR_PLAT" == 'ios' || "$MR_PLAT" == 'tvos' ]];then
     install_plat

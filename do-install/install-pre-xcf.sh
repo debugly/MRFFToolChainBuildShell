@@ -20,7 +20,6 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR" 
 
-
 function install_plat() {
     
     export MR_DOWNLOAD_ONAME="$PRE_COMPILE_TAG-xcfmwk.zip"
@@ -29,21 +28,5 @@ function install_plat() {
 
     ./download-uncompress.sh
 }
-
-if test -z $PRE_COMPILE_TAG ;then
-    echo "tag can't be nil"
-    usage
-    exit
-fi
-
-# opus-1.3.1-231124151836
-# yuv-stable-eb6e7bb-250225223408
-LIB_NAME=$(echo $PRE_COMPILE_TAG | awk -F - '{print $1}')
-prefix="${LIB_NAME}-"
-suffix=$(echo $PRE_COMPILE_TAG | awk -F - '{printf "-%s", $NF}')
-# 去掉前缀
-temp=${PRE_COMPILE_TAG#$prefix}
-# 去掉后缀
-VER=${temp%$suffix}
 
 install_plat
