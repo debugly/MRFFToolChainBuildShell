@@ -125,6 +125,7 @@ function upgrade()
             replace_tag $file PRE_COMPILE_TAG_ANDROID
         ;;
         all)
+            replace_tag $file PRE_COMPILE_TAG
             replace_tag $file PRE_COMPILE_TAG_IOS
             replace_tag $file PRE_COMPILE_TAG_MACOS
             replace_tag $file PRE_COMPILE_TAG_TVOS
