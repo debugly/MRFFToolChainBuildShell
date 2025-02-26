@@ -74,7 +74,7 @@ else
     export AR="$MR_AR"
     export AS="$RM_AS"
     export RANLIB="$MR_RANLIB"
-
+    export STRIP="$MR_STRIP"
     ./Configure $CFG_FLAGS
 fi
 
