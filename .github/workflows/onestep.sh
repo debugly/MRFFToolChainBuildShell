@@ -94,7 +94,7 @@ function replace_tag()
         # PRE_COMPILE_TAG_IOS not found, check PRE_COMPILE_TAG
         if grep -q "PRE_COMPILE_TAG" "$file"; then
             # insert PRE_COMPILE_TAG_IOS=new_tag after PRE_COMPILE_TAG
-sed -i "" "/PRE_COMPILE_TAG/a\\
+sed -i "" "/PRE_COMPILE_TAG=/a\\
 export $key=$TAG
 " "$file"
         else
