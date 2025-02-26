@@ -94,7 +94,7 @@ function replace_tag()
         if grep -q "PRE_COMPILE_TAG" "$file"; then
             # insert PRE_COMPILE_TAG_IOS=new_tag after PRE_COMPILE_TAG
             sed -i "" "/PRE_COMPILE_TAG/a\ 
-    export $key=$TAG" "$file"
+export $key=$TAG" "$file"
         else
             echo "can't find PRE_COMPILE_TAG in $file"
         fi
@@ -106,27 +106,27 @@ function upgrade()
     local file="configs/libs/${LIB_NAME}.sh"
     case $PLAT in
         ios)
-            replace_tag $file $TAG PRE_COMPILE_TAG_IOS
+            replace_tag $file PRE_COMPILE_TAG_IOS
         ;;
         macos)
-            replace_tag $file $TAG PRE_COMPILE_TAG_MACOS
+            replace_tag $file PRE_COMPILE_TAG_MACOS
         ;;
         tvos)
-            replace_tag $file $TAG PRE_COMPILE_TAG_TVOS
+            replace_tag $file PRE_COMPILE_TAG_TVOS
         ;;
         apple)
-            replace_tag $file $TAG PRE_COMPILE_TAG_IOS
-            replace_tag $file $TAG PRE_COMPILE_TAG_MACOS
-            replace_tag $file $TAG PRE_COMPILE_TAG_TVOS
+            replace_tag $file PRE_COMPILE_TAG_IOS
+            replace_tag $file PRE_COMPILE_TAG_MACOS
+            replace_tag $file PRE_COMPILE_TAG_TVOS
         ;;
         android)
-            replace_tag $file $TAG PRE_COMPILE_TAG_ANDROID
+            replace_tag $file PRE_COMPILE_TAG_ANDROID
         ;;
         all)
-            replace_tag $file $TAG PRE_COMPILE_TAG_IOS
-            replace_tag $file $TAG PRE_COMPILE_TAG_MACOS
-            replace_tag $file $TAG PRE_COMPILE_TAG_TVOS
-            replace_tag $file $TAG PRE_COMPILE_TAG_ANDROID
+            replace_tag $file PRE_COMPILE_TAG_IOS
+            replace_tag $file PRE_COMPILE_TAG_MACOS
+            replace_tag $file PRE_COMPILE_TAG_TVOS
+            replace_tag $file PRE_COMPILE_TAG_ANDROID
         ;;
     esac
 
