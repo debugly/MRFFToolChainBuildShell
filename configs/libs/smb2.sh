@@ -40,3 +40,4 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=smb2-6.2-250226080535
+export PRE_COMPILE_TAG_ANDROID=smb2-6.2-250226171433
