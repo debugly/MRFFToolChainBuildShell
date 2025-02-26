@@ -76,7 +76,6 @@ CROSS_PREFIX_WITH_PATH=${MR_TOOLCHAIN_ROOT}/bin/llvm-
 # The MR_ prefix is used to eliminate passing those values implicitly to build systems
 export  MR_ADDR2LINE=${CROSS_PREFIX_WITH_PATH}addr2line
 export         MR_AR=${CROSS_PREFIX_WITH_PATH}ar
-export         MR_AS=${CROSS_PREFIX_WITH_PATH}as
 export         MR_NM=${CROSS_PREFIX_WITH_PATH}nm
 export    MR_OBJCOPY=${CROSS_PREFIX_WITH_PATH}objcopy
 export    MR_OBJDUMP=${CROSS_PREFIX_WITH_PATH}objdump
@@ -92,6 +91,9 @@ export MR_TRIPLE_CXX=${MR_TRIPLE_CC}++
 # find clang from NDK toolchain
 export         MR_CC=${MR_TOOLCHAIN_ROOT}/bin/clang
 export        MR_CXX=${MR_CC}++
+# llvm-as for LLVM IR
+# export         MR_AS=${CROSS_PREFIX_WITH_PATH}as
+export         MR_AS=${MR_TRIPLE_CC}
 export       MR_YASM=${MR_TOOLCHAIN_ROOT}/bin/yasm
 
 
