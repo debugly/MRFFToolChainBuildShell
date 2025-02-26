@@ -39,3 +39,4 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=dvdread-6.1.3-250226075913
+export PRE_COMPILE_TAG_ANDROID=dvdread-6.1.3-250226154151
