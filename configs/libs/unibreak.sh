@@ -30,7 +30,7 @@ export GIT_COMMIT=libunibreak_6_1
 export REPO_DIR=unibreak
 export GIT_REPO_VERSION=6.1
 export PRE_COMPILE_TAG=unibreak-6.1-250225223657
-    export unibreak-6.1-250226112736=unibreak-6.1-250226112736    export unibreak-6.1-250226112736=unibreak-6.1-250226112736    export unibreak-6.1-250226112736=unibreak-6.1-250226112736
+
 # you can export GIT_UNIBREAK_UPSTREAM=git@xx:yy/UNIBREAK.git use your mirror
 if [[ "$GIT_UNIBREAK_UPSTREAM" != "" ]] ;then
     export GIT_UPSTREAM="$GIT_UNIBREAK_UPSTREAM"

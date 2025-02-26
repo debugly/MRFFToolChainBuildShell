@@ -31,7 +31,7 @@ export REPO_DIR=soundtouch
 export GIT_COMMIT=2.3.3
 export GIT_REPO_VERSION=2.3.3
 export PRE_COMPILE_TAG=soundtouch-2.3.3-250225223556
-    export soundtouch-2.3.3-250226112538=soundtouch-2.3.3-250226112538    export soundtouch-2.3.3-250226112538=soundtouch-2.3.3-250226112538    export soundtouch-2.3.3-250226112538=soundtouch-2.3.3-250226112538
+
 # you can export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git use your mirror
 if [[ "$GIT_SOUNDTOUCH_UPSTREAM" != "" ]] ;then
     export GIT_UPSTREAM="$GIT_SOUNDTOUCH_UPSTREAM"

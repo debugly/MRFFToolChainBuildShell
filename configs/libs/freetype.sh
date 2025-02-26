@@ -28,7 +28,7 @@ export REPO_DIR=freetype
 export GIT_REPO_VERSION=2.13.3
 export GIT_WITH_SUBMODULE=1
 export PRE_COMPILE_TAG=freetype-2.13.3-250225223932
-    export freetype-2.13.3-250226113117=freetype-2.13.3-250226113117    export freetype-2.13.3-250226113117=freetype-2.13.3-250226113117    export freetype-2.13.3-250226113117=freetype-2.13.3-250226113117
+
 # you can export GIT_FREETYPE_UPSTREAM=git@xx:yy/FREETYPE.git use your mirror
 if [[ "$GIT_FREETYPE_UPSTREAM" != "" ]] ;then
     export GIT_UPSTREAM="$GIT_FREETYPE_UPSTREAM"

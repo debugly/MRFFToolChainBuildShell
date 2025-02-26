@@ -46,11 +46,6 @@ jobs:
       uses: actions/checkout@v4
     - name: One Step
       run: |
-        echo '------compile yuv------------------------------------'
-        .github/workflows/onestep.sh yuv ${{ inputs.platform }}
-        echo '------compile soundtouch------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh soundtouch ${{ inputs.platform }}
         echo '------compile unibreak------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/onestep.sh unibreak ${{ inputs.platform }}
@@ -74,6 +69,12 @@ jobs:
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/install-dependencies.sh ass ${{ inputs.platform }}
         .github/workflows/onestep.sh ass ${{ inputs.platform }}
+        echo '------compile yuv------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh yuv ${{ inputs.platform }}
+        echo '------compile soundtouch------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh soundtouch ${{ inputs.platform }}
         echo '------compile opus------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/onestep.sh opus ${{ inputs.platform }}
