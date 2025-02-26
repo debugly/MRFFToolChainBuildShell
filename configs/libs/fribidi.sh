@@ -39,3 +39,4 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=fribidi-1.0.16-250225223849
+export PRE_COMPILE_TAG_ANDROID=fribidi-1.0.16-250226152106
