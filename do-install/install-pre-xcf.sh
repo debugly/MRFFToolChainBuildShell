@@ -37,7 +37,13 @@ if test -z $PRE_COMPILE_TAG ;then
 fi
 
 # opus-1.3.1-231124151836
+# yuv-stable-eb6e7bb-250225223408
 LIB_NAME=$(echo $PRE_COMPILE_TAG | awk -F - '{print $1}')
-VER=$(echo $PRE_COMPILE_TAG | awk -F - '{print $2}')
+prefix="${LIB_NAME}-"
+suffix=$(echo $PRE_COMPILE_TAG | awk -F - '{printf "-%s", $NF}')
+# 去掉前缀
+temp=${PRE_COMPILE_TAG#$prefix}
+# 去掉后缀
+VER=${temp%$suffix}
 
 install_plat
