@@ -37,4 +37,5 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=freetype-2.13.3-250225223932
+export PRE_COMPILE_TAG_IOS=freetype-2.13.3-250226174825
 export PRE_COMPILE_TAG_ANDROID=freetype-2.13.3-250226152149
