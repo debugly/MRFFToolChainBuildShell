@@ -34,3 +34,4 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=dav1d-1.5.1-250226080235
+export PRE_COMPILE_TAG_ANDROID=dav1d-1.5.1-250226154528
