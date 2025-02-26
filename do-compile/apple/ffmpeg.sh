@@ -39,6 +39,8 @@ CFG_FLAGS="$CFG_FLAGS $COMMON_FF_CFG_FLAGS"
 CFG_FLAGS="$CFG_FLAGS $THIRD_CFG_FLAGS"
 
 C_FLAGS="$MR_DEFAULT_CFLAGS"
+EXTRA_LDFLAGS=
+LDFLAGS="$C_FLAGS $EXTRA_LDFLAGS"
 # C_FLAGS="$C_FLAGS -I/Users/matt/GitWorkspace/MoltenVK/Package/Release/MoltenVK/include"
 # use system xml2 lib
 # C_FLAGS="$C_FLAGS $(xml2-config --prefix=${MR_SYS_ROOT}/usr --cflags)"
