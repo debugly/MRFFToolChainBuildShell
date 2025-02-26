@@ -34,3 +34,4 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=fontconfig-2.16.0-250226074147
+export PRE_COMPILE_TAG_ANDROID=fontconfig-2.16.0-250226152309
