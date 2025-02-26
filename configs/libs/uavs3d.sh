@@ -28,7 +28,6 @@ export GIT_LOCAL_REPO=extra/uavs3d
 export GIT_COMMIT=1fd0491
 export REPO_DIR=uavs3d
 export GIT_REPO_VERSION=1.2.1
-export PRE_COMPILE_TAG=uavs3d-1.2.1-250226094103
 
 # you can export GIT_UAVS3D_UPSTREAM=git@xx:yy/UAVS3D.git use your mirror
 if [[ "$GIT_UAVS3D_UPSTREAM" != "" ]] ;then
@@ -36,3 +35,6 @@ if [[ "$GIT_UAVS3D_UPSTREAM" != "" ]] ;then
 else
     export GIT_UPSTREAM=https://github.com/uavs3/uavs3d.git
 fi
+
+# pre compiled
+export PRE_COMPILE_TAG=uavs3d-1.2.1-250226094103

@@ -25,7 +25,6 @@ export GIT_LOCAL_REPO=extra/yuv
 export GIT_COMMIT=eb6e7bb
 export REPO_DIR=yuv
 export GIT_REPO_VERSION=stable-eb6e7bb
-export PRE_COMPILE_TAG=yuv-stable-eb6e7bb-250225223408
 
 # you can export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git use your mirror
 if [[ "$GIT_YUV_UPSTREAM" != "" ]] ;then
@@ -33,3 +32,6 @@ if [[ "$GIT_YUV_UPSTREAM" != "" ]] ;then
 else
     export GIT_UPSTREAM=https://github.com/debugly/libyuv.git
 fi
+
+# pre compiled
+export PRE_COMPILE_TAG=yuv-stable-eb6e7bb-250225223408

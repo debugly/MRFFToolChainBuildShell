@@ -30,7 +30,6 @@ export GIT_LOCAL_REPO=extra/opus
 export GIT_COMMIT=v1.5.2
 export REPO_DIR=opus
 export GIT_REPO_VERSION=1.5.2
-export PRE_COMPILE_TAG=opus-1.5.2-250226075128
 
 # you can export GIT_OPUS_UPSTREAM=git@xx:yy/opusfile.git use your mirror
 if [[ "$GIT_OPUS_UPSTREAM" != "" ]] ;then
@@ -38,3 +37,6 @@ if [[ "$GIT_OPUS_UPSTREAM" != "" ]] ;then
 else
     export GIT_UPSTREAM=https://gitlab.xiph.org/xiph/opus.git
 fi
+
+# pre compiled
+export PRE_COMPILE_TAG=opus-1.5.2-250226075128

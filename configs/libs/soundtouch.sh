@@ -30,7 +30,6 @@ export GIT_LOCAL_REPO=extra/soundtouch
 export REPO_DIR=soundtouch
 export GIT_COMMIT=2.3.3
 export GIT_REPO_VERSION=2.3.3
-export PRE_COMPILE_TAG=soundtouch-2.3.3-250225223556
 
 # you can export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git use your mirror
 if [[ "$GIT_SOUNDTOUCH_UPSTREAM" != "" ]] ;then
@@ -38,3 +37,6 @@ if [[ "$GIT_SOUNDTOUCH_UPSTREAM" != "" ]] ;then
 else
     export GIT_UPSTREAM=https://codeberg.org/soundtouch/soundtouch.git
 fi
+
+# pre compiled
+export PRE_COMPILE_TAG=soundtouch-2.3.3-250225223556

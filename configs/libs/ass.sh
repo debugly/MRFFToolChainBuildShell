@@ -29,7 +29,6 @@ export GIT_LOCAL_REPO=extra/ass
 export GIT_COMMIT=0.17.3
 export REPO_DIR=ass
 export GIT_REPO_VERSION=0.17.3
-export PRE_COMPILE_TAG=ass-0.17.3-250226075040
 
 # you can export GIT_ASS_UPSTREAM=git@xx:yy/ASS.git use your mirror
 if [[ "$GIT_ASS_UPSTREAM" != "" ]] ;then
@@ -37,3 +36,6 @@ if [[ "$GIT_ASS_UPSTREAM" != "" ]] ;then
 else
     export GIT_UPSTREAM=https://github.com/libass/libass.git
 fi
+
+# pre compiled
+export PRE_COMPILE_TAG=ass-0.17.3-250226075040

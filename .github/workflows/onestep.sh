@@ -85,16 +85,18 @@ function replace_tag()
 {
     local file=$1
     local key=$2
+
     # check PRE_COMPILE_TAG_IOS
-    if grep -q "$key" "$file_path"; then
+    if grep -q "$key" "$file"; then
         # replace PRE_COMPILE_TAG_IOS=new_tag
         sed -i "" "s/^export $key=.*/export $key=$TAG/" $file
     else
         # PRE_COMPILE_TAG_IOS not found, check PRE_COMPILE_TAG
         if grep -q "PRE_COMPILE_TAG" "$file"; then
             # insert PRE_COMPILE_TAG_IOS=new_tag after PRE_COMPILE_TAG
-            sed -i "" "/PRE_COMPILE_TAG/a\ 
-export $key=$TAG" "$file"
+sed -i "" "/PRE_COMPILE_TAG/a\\
+export $key=$TAG
+" "$file"
         else
             echo "can't find PRE_COMPILE_TAG in $file"
         fi

@@ -29,7 +29,6 @@ export GIT_LOCAL_REPO=extra/unibreak
 export GIT_COMMIT=libunibreak_6_1
 export REPO_DIR=unibreak
 export GIT_REPO_VERSION=6.1
-export PRE_COMPILE_TAG=unibreak-6.1-250225223657
 
 # you can export GIT_UNIBREAK_UPSTREAM=git@xx:yy/UNIBREAK.git use your mirror
 if [[ "$GIT_UNIBREAK_UPSTREAM" != "" ]] ;then
@@ -37,3 +36,6 @@ if [[ "$GIT_UNIBREAK_UPSTREAM" != "" ]] ;then
 else
     export GIT_UPSTREAM=https://github.com/adah1972/libunibreak.git
 fi
+
+# pre compiled
+export PRE_COMPILE_TAG=unibreak-6.1-250225223657

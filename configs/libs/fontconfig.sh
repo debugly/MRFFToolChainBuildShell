@@ -24,7 +24,6 @@ export GIT_LOCAL_REPO=extra/fontconfig
 export GIT_COMMIT=2.16.0
 export REPO_DIR=fontconfig
 export GIT_REPO_VERSION=2.16.0
-export PRE_COMPILE_TAG=fontconfig-2.16.0-250226074147
 
 # you can export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git use your mirror
 if [[ "$GIT_FONTCONFIG_UPSTREAM" != "" ]] ;then
@@ -32,3 +31,6 @@ if [[ "$GIT_FONTCONFIG_UPSTREAM" != "" ]] ;then
 else
     export GIT_UPSTREAM=https://gitlab.freedesktop.org/fontconfig/fontconfig.git
 fi
+
+# pre compiled
+export PRE_COMPILE_TAG=fontconfig-2.16.0-250226074147

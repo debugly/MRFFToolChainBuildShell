@@ -21,7 +21,6 @@
 export LIB_NAME='ffmpeg'
 export LIPO_LIBS="libavcodec libavformat libavutil libswscale libswresample libavfilter libavdevice"
 export LIB_DEPENDS_BIN="nasm pkg-config"
-
 export GIT_LOCAL_REPO=extra/ffmpeg
 export REPO_DIR=ffmpeg
 
@@ -40,4 +39,6 @@ else
     export GIT_REPO_VERSION=6.1.2
 fi
 
-export PRE_COMPILE_TAG=ffmpeg-6.1.2-250221132140export PRE_COMPILE_TAG_ANDROID=ffmpeg-6.1.2-250226123903
+# pre compiled
+export PRE_COMPILE_TAG=ffmpeg-6.1.2-250226132055
+

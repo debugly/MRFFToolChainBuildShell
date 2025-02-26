@@ -29,7 +29,6 @@ export GIT_LOCAL_REPO=extra/harfbuzz
 export GIT_COMMIT=10.2.0
 export REPO_DIR=harfbuzz
 export GIT_REPO_VERSION=10.2.0
-export PRE_COMPILE_TAG=harfbuzz-10.2.0-250226074405
 
 # you can export GIT_HARFBUZZ_UPSTREAM=git@xx:yy/HARFBUZZ.git use your mirror
 if [[ "$GIT_HARFBUZZ_UPSTREAM" != "" ]] ;then
@@ -37,3 +36,6 @@ if [[ "$GIT_HARFBUZZ_UPSTREAM" != "" ]] ;then
 else
     export GIT_UPSTREAM=https://github.com/harfbuzz/harfbuzz.git
 fi
+
+# pre compiled
+export PRE_COMPILE_TAG=harfbuzz-10.2.0-250226074405
