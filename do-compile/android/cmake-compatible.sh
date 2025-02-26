@@ -46,7 +46,6 @@ cmake -S ${MR_BUILD_SOURCE}                         \
     -DANDROID_ABI=${MR_ANDROID_ABI}                 \
     -DCMAKE_RANLIB=${MR_RANLIB}                     \
     -DCMAKE_AR=${MR_AR}                             \
-    -DCMAKE_AS=${MR_AS}                             \
     -DCMAKE_STRIP=${MR_STRIP}                       \
     -DCMAKE_CXX_COMPILER_RANLIB=${MR_RANLIB}        \
     -DANDROID_PLATFORM=android-${MR_ANDROID_API}    \
