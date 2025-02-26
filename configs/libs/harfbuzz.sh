@@ -39,4 +39,5 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=harfbuzz-10.2.0-250226074405
+export PRE_COMPILE_TAG_IOS=harfbuzz-10.2.0-250226174909
 export PRE_COMPILE_TAG_ANDROID=harfbuzz-10.2.0-250226152456
