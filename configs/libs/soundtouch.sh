@@ -40,6 +40,7 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=soundtouch-2.3.3-250225223556
+export PRE_COMPILE_TAG_TVOS=soundtouch-2.3.3-250226212055
 export PRE_COMPILE_TAG_MACOS=soundtouch-2.3.3-250226210026
 export PRE_COMPILE_TAG_IOS=soundtouch-2.3.3-250226175330
 export PRE_COMPILE_TAG_ANDROID=soundtouch-2.3.3-250226153307
