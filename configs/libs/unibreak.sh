@@ -39,3 +39,4 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=unibreak-6.1-250225223657
+export PRE_COMPILE_TAG_ANDROID=unibreak-6.1-250226151914
