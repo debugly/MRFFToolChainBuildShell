@@ -31,4 +31,5 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=openssl-1.1.1w-250226075357
+export PRE_COMPILE_TAG_IOS=openssl-1.1.1w-250226175631
 export PRE_COMPILE_TAG_ANDROID=openssl-1.1.1w-250226153633
