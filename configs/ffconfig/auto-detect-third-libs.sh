@@ -187,8 +187,6 @@ THIRD_CFG_FLAGS="--prefix=$MR_BUILD_PREFIX $THIRD_CFG_FLAGS"
 
 # x86_64, arm64
 THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-pic"
-THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-neon"
-THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-asm --enable-inline-asm"
 
 if [[ "$MR_DEBUG" == "debug" ]]; then
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-optimizations"
@@ -216,6 +214,9 @@ fi
 
 case "$MR_PLAT" in
     ios|macos|tvos)
+    # enable asm
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-neon"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-asm --enable-inline-asm"
     # enable videotoolbox hwaccel
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-videotoolbox"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-hwaccel=*_videotoolbox"
@@ -231,5 +232,13 @@ case "$MR_PLAT" in
     # disable iconv
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-iconv"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-bzlib"
+        if [[ "$MR_ARCH" == "armv7a" || "$MR_ARCH" == "arm64" ]]; then
+            # enable asm
+            THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-neon"
+            THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-asm --enable-inline-asm"
+        else
+            THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-neon"
+            THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-asm --disable-inline-asm"
+        fi
     ;;
 esac
