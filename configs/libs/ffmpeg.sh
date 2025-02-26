@@ -41,4 +41,5 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=ffmpeg-6.1.2-250226132055
+export PRE_COMPILE_TAG_ANDROID=ffmpeg-6.1.2-250226171647
 
