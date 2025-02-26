@@ -40,3 +40,4 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=opus-1.5.2-250226075128
+export PRE_COMPILE_TAG_ANDROID=opus-1.5.2-250226153344
