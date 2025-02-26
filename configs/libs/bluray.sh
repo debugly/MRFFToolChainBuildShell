@@ -40,3 +40,4 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=bluray-1.3.4-250226080029
+export PRE_COMPILE_TAG_ANDROID=bluray-1.3.4-250226154312
