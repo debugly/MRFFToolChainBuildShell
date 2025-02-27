@@ -1,6 +1,6 @@
-From a9bacf0ca4d5eb1cb9591d6fc9930ff3077329f7 Mon Sep 17 00:00:00 2001
+From 229f417012635accc6506d0c179343654b984f38 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Mon, 24 Feb 2025 14:43:36 +0800
+Date: Thu, 27 Feb 2025 14:49:42 +0800
 Subject: [PATCH 20] add built-in smb2 protocol via libsmb2
 
 ---
@@ -62,7 +62,7 @@ index ae952eb..427c45a 100644
  OBJS-$(CONFIG_LIBZMQ_PROTOCOL)           += libzmq.o
 diff --git a/libavformat/libsmb2.c b/libavformat/libsmb2.c
 new file mode 100644
-index 0000000..0547373
+index 0000000..d4b84b9
 --- /dev/null
 +++ b/libavformat/libsmb2.c
 @@ -0,0 +1,412 @@
@@ -190,7 +190,7 @@ index 0000000..0547373
 +
 +        if (url->path) {
 +            char *path = ff_urldecode(url->path, 0);
-+            memset(url->share, 0, strlen(url->share));
++            memset(url->path, 0, strlen(url->path));
 +            memcpy(url->path, path, strlen(path));
 +        }
 +
@@ -464,19 +464,19 @@ index 0000000..0547373
 +
 +const URLProtocol ff_libsmb2_protocol = {
 +    .name = "smb2",
-+    .url_open  = libsmb2_open,
-+    .url_read  = libsmb2_read,
-+    .url_write = libsmb2_write,
-+    .url_seek  = libsmb2_seek,
-+    .url_close = libsmb2_close,
-+    .url_delete          = libsmb2_delete,
-+    .url_move            = libsmb2_move,
-+    .url_open_dir        = libsmb2_open_dir,
-+    .url_read_dir        = libsmb2_read_dir,
-+    .url_close_dir       = libsmb2_close_dir,
++    .flags           = URL_PROTOCOL_FLAG_NETWORK,
 +    .priv_data_size  = sizeof(LIBSMB2Context),
 +    .priv_data_class = &libsmb2lient_context_class,
-+    .flags = URL_PROTOCOL_FLAG_NETWORK,
++    .url_open        = libsmb2_open,
++    .url_read        = libsmb2_read,
++    .url_write       = libsmb2_write,
++    .url_seek        = libsmb2_seek,
++    .url_close       = libsmb2_close,
++    .url_delete      = libsmb2_delete,
++    .url_move        = libsmb2_move,
++    .url_open_dir    = libsmb2_open_dir,
++    .url_read_dir    = libsmb2_read_dir,
++    .url_close_dir   = libsmb2_close_dir,
 +};
 diff --git a/libavformat/protocols.c b/libavformat/protocols.c
 index 73df344..2bda874 100644
