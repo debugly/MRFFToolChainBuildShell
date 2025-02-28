@@ -17,7 +17,6 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 
 ## News
 
-- actively working to port all of apple to android
 - upgrade all libs to lastest,Improved optimizations
 - using macOS 14, remove bitcode support
 
@@ -25,7 +24,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 
 ## Denpendency
 
-- Fontconfig: xml2,freetype,png
+- Fontconfig: xml2,freetype
 - Bluray: xml2
 - Harfbuzz: freetype
 - Ass for Appple: harfbuzz,fribidi,unibreak
