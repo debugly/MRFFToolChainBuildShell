@@ -182,6 +182,7 @@ Tips:
 - 初始化仓库时，可跳过拉取远端到本地，只需要在 init 时加上 --skip-pull-base 参数
 - 初始化仓库时，可跳过应用 FFmpeg 的补丁，只需要在 init 时加上 --skip-patches 参数
 - 目前 FFmpeg 使用的是 module-full.sh 配置选项，所以包体积略大
+- 可以自己把 Github 预编译的库全部下载放到自己的服务器上，在 install 前使用 MR_DOWNLOAD_BASEURL 指定自己的服务器地址
 
 ## Donate
 

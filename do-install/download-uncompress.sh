@@ -33,7 +33,7 @@ function download() {
     echo "---[download]-----------------"
     echo "$MR_DOWNLOAD_URL"
     
-    mkdir -p "$MR_PRE_ROOT"
+    mkdir -p $(dirname "$dst")
     local tname="${dst}.tmp"
     curl -L "$MR_DOWNLOAD_URL" -o "$tname"
     

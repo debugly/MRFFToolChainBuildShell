@@ -27,10 +27,16 @@ function install_plat() {
         join="-$1"
     fi
     
-    export MR_DOWNLOAD_ONAME="$TAG-$MR_PLAT${join}.zip"
-    export MR_DOWNLOAD_URL="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/$TAG/$LIB_NAME-$MR_PLAT-universal${join}-$VER.zip"
+    # you can export MR_DOWNLOAD_WEBSERVER use your mirror
+    if [[ "$MR_DOWNLOAD_BASEURL" != "" ]] ;then
+        base_url="$MR_DOWNLOAD_BASEURL"
+    else
+        base_url=https://github.com/debugly/MRFFToolChainBuildShell/releases/download/
+    fi
+    export MR_DOWNLOAD_ONAME="$TAG/$LIB_NAME-$MR_PLAT-universal${join}-$VER.zip"
+    export MR_DOWNLOAD_URL="${base_url}${MR_DOWNLOAD_ONAME}"
     export MR_UNCOMPRESS_DIR="$MR_WORKSPACE/product/$MR_PLAT/universal${join}"
-
+    
     ./download-uncompress.sh
 }
 
