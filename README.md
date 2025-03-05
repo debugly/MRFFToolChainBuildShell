@@ -156,25 +156,25 @@ Tips:
 
 如果 github 上的仓库克隆较慢，或者需要使用内网私有仓库，可在执行编译脚本前声明对应的环境变量！
 
-| 名称          | 默认仓库                                                 | 默认版本   | 使用镜像                                                     |
-| ----------- | ---------------------------------------------------- | ------ | -------------------------------------------------------- |
-| libass      | https://github.com/libass/libass.git                 | 0.17.3 | export GIT_ASS_UPSTREAM = git@xx:yy/libass.git           |
-| libbluray   | https://code.videolan.org/videolan/libbluray.git     | 1.3.4  | export GIT_BLURAY_UPSTREAM = git@xx:yy/libbluray.git     |
-| dav1d       | https://code.videolan.org/videolan/dav1d.git         | 1.5.1  | export GIT_DAV1D_UPSTREAM = git@xx:yy/dav1d.git          |
-| libdvdread  | https://code.videolan.org/videolan/libdvdread.git    | 6.1.3  | export GIT_DVDREAD_UPSTREAM = git@xx:yy/libdvdread.git   |
-| FFmpeg      | https://github.com/FFmpeg/FFmpeg.git                 | 6.1.2  | export GIT_FFMPEG_UPSTREAM = git@xx:yy/FFmpeg.git        |
-| freetype    | https://gitlab.freedesktop.org/freetype/freetype.git | 2.13.3 | export GIT_FREETYPE_UPSTREAM = git@xx:yy/freetype.git    |
-| fribidi     | https://github.com/fribidi/fribidi.git               | 1.0.16 | export GIT_FRIBIDI_UPSTREAM = git@xx:yy/fribidi.git      |
-| harfbuzz    | https://github.com/harfbuzz/harfbuzz.git             | 10.2.0  | export GIT_HARFBUZZ_UPSTREAM = git@xx:yy/harfbuzz.git    |
-| openssl     | https://github.com/openssl/openssl.git               | 1.1.1w | export GIT_OPENSSL_UPSTREAM = git@xx:yy/openssl.git      |
-| opus        | https://gitlab.xiph.org/xiph/opus.git                | 1.5.2    | export GIT_OPUS_UPSTREAM = git@xx:yy/opus.git            |
-| libunibreak | https://github.com/adah1972/libunibreak.git          | 6.1    | export GIT_UNIBREAK_UPSTREAM = git@xx:yy/libunibreak.git |
-| libuavs3d | https://github.com/uavs3/uavs3d.git | 1.2.1 |export GIT_UAVS3D_UPSTREAM=git@xx:yy/UAVS3D.git  |
-| libsmb2   | https://github.com/sahlberg/libsmb2.git | 6.2 | export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git    |
-| libyuv   | https://github.com/debugly/libyuv.git | stable-eb6e7bb | export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git |
-| soundtouch | https://codeberg.org/soundtouch/soundtouch.git | 2.3.3 | export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git |
-| fontconfig | https://gitlab.freedesktop.org/fontconfig/fontconfig.git | 2.16.0 | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git |
-| xml2 | https://github.com/GNOME/libxml2.git | 2.13.6 | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git |
+| 名称         | 当前版本|                仓库地址                                  | 使用镜像                                                     |
+| ----------- | -------| ------------------------------------------------------- | -------------------------------------------------------- |
+| FFmpeg      | 6.1.2  | https://github.com/FFmpeg/FFmpeg.git                    | export GIT_FFMPEG_UPSTREAM = git@xx:yy/FFmpeg.git        |
+| ass         | 0.17.3 | https://github.com/libass/libass.git                    | export GIT_ASS_UPSTREAM = git@xx:yy/libass.git           |
+| bluray      | 1.3.4  | https://code.videolan.org/videolan/libbluray.git        | export GIT_BLURAY_UPSTREAM = git@xx:yy/libbluray.git     |
+| dav1d       | 1.5.1  | https://code.videolan.org/videolan/dav1d.git            | export GIT_DAV1D_UPSTREAM = git@xx:yy/dav1d.git          |
+| dvdread     | 6.1.3  | https://code.videolan.org/videolan/libdvdread.git       | export GIT_DVDREAD_UPSTREAM = git@xx:yy/libdvdread.git   |
+| fontconfig  | 2.16.0 | https://gitlab.freedesktop.org/fontconfig/fontconfig.git| export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
+| freetype    | 2.13.3 | https://gitlab.freedesktop.org/freetype/freetype.git    | export GIT_FREETYPE_UPSTREAM = git@xx:yy/freetype.git    |
+| fribidi     | 1.0.16 | https://github.com/fribidi/fribidi.git                  | export GIT_FRIBIDI_UPSTREAM = git@xx:yy/fribidi.git      |
+| harfbuzz    | 10.2.0 | https://github.com/harfbuzz/harfbuzz.git                | export GIT_HARFBUZZ_UPSTREAM = git@xx:yy/harfbuzz.git    |
+| openssl     | 1.1.1w | https://github.com/openssl/openssl.git                  | export GIT_OPENSSL_UPSTREAM = git@xx:yy/openssl.git      |
+| opus        | 1.5.2  | https://gitlab.xiph.org/xiph/opus.git                   | export GIT_OPUS_UPSTREAM = git@xx:yy/opus.git            |
+| smb2        | 6.2    | https://github.com/sahlberg/libsmb2.git                 | export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git           |
+| soundtouch  | 2.3.3  | https://codeberg.org/soundtouch/soundtouch.git          | export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git  |
+| unibreak    | 6.1    | https://github.com/adah1972/libunibreak.git             | export GIT_UNIBREAK_UPSTREAM = git@xx:yy/libunibreak.git |
+| uavs3d      | 1.2.1  | https://github.com/uavs3/uavs3d.git                     | export GIT_UAVS3D_UPSTREAM=git@xx:yy/UAVS3D.git          |
+| xml2        | 2.13.6 | https://github.com/GNOME/libxml2.git                    | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
+| yuv         | stable-eb6e7bb | https://github.com/debugly/libyuv.git           | export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git                |
 
 ## Tips
 
