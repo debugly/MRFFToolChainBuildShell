@@ -62,7 +62,7 @@ export STRIP="$MR_STRIP"
 export CC="$MR_TRIPLE_CC"
 export CXX="$MR_TRIPLE_CXX"
 export AR="$MR_AR"
-export AS="$RM_AS"
+export AS="$MR_AS"
 export RANLIB="$MR_RANLIB"
 
 ./configure $CFG_FLAGS

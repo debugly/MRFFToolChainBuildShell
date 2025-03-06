@@ -72,7 +72,7 @@ else
     export CXXFLAG="$C_FLAGS"
     export CC="$MR_TRIPLE_CC"
     export AR="$MR_AR"
-    export AS="$RM_AS"
+    export AS="$MR_AS"
     export RANLIB="$MR_RANLIB"
     export STRIP="$MR_STRIP"
     ./Configure $CFG_FLAGS

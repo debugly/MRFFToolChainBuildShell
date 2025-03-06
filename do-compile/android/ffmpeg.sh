@@ -64,7 +64,7 @@ if [[ -f "./config.h" ]]; then
     echo 'reuse configure'
 else
     echo
-    echo "CC: $MR_CC"
+    echo "CC: $MR_TRIPLE_CC"
     echo "CFLAGS: $C_FLAGS"
     echo "LDFLAG:$LDFLAGS"
     echo "FF_CFG_FLAGS: $CFG_FLAGS"
