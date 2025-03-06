@@ -20,6 +20,12 @@
 # https://github.com/openssl/openssl/blob/master/NOTES-ANDROID.md
 # https://github.com/xbmc/xbmc/pull/25092/commits/494a452cd65abe1447771874cc79ed967015d944
 
+# no-deprecated, fix ffmepg compile error:
+# libavformat/tls_openssl.c:56:16: error: use of undeclared identifier 'CRYPTO_LOCK'; did you mean 'CRYPTO_free'?
+#     if (mode & CRYPTO_LOCK)
+#                ^~~~~~~~~~~
+#                CRYPTO_free
+
 set -e
 
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
@@ -27,16 +33,16 @@ cd "$THIS_DIR"
 
 case $_MR_ARCH in
     armv7a)
-    target=android-arm
+    os=android-arm
     ;;
     x86)
-    target=android-x86
+    os=android-x86
     ;;
     x86_64)
-    target=android-x86_64
+    os=android-x86_64
     ;;
     arm64)
-    target=android-arm64
+    os=android-arm64
     ;;
     *)
     echo "unknown architecture $_MR_ARCH";
@@ -44,14 +50,16 @@ case $_MR_ARCH in
     ;;
 esac
 
-# prepare build config
-CFG_FLAGS="no-threads enable-tls1_3 no-comp no-zlib no-zlib-dynamic no-deprecated \
-        no-shared no-filenames no-engine no-dynamic-engine no-static-engine \
-        no-dso no-err no-ui-console no-stdio no-tests \
+CFG_FLAGS="no-shared no-engine no-dynamic-engine no-static-engine \
+        no-dso no-ui-console no-tests \
         --prefix=$MR_BUILD_PREFIX \
         --openssldir=$MR_BUILD_PREFIX \
         -U__ANDROID_API__ -D__ANDROID_API__=$MR_ANDROID_API \
-        $target"
+        $os"
+
+if [[ "$MR_DEBUG" != "debug" ]]; then
+    CFG_FLAGS="$CFG_FLAGS --release"
+fi
 
 # -arch $MR_ARCH
 C_FLAGS="$MR_DEFAULT_CFLAGS"

@@ -24,19 +24,31 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-# prepare build config
-CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --openssldir=$MR_BUILD_PREFIX no-shared no-hw no-engine no-asm"
-
 if [ "$MR_ARCH" = "x86_64" ]; then
-    CFG_FLAGS="$CFG_FLAGS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
+    compiler="darwin64-x86_64-cc"
 elif [ "$MR_ARCH" = "arm64" ]; then
-    CFG_FLAGS="$CFG_FLAGS darwin64-arm64-cc enable-ec_nistp_64_gcc_128"
+    compiler="darwin64-arm64-cc"
 else
     echo "unknown architecture $FF_ARCH";
     exit 1
 fi
 
-CFLAGS="$MR_DEFAULT_CFLAGS"
+# no-hw no-asm
+
+CFG_FLAGS="no-shared no-engine no-dynamic-engine no-static-engine \
+        no-dso no-ui-console no-tests \
+        --prefix=$MR_BUILD_PREFIX \
+        --openssldir=$MR_BUILD_PREFIX \
+        enable-ec_nistp_64_gcc_128"
+
+if [[ "$MR_DEBUG" != "debug" ]]; then
+    CFG_FLAGS="$CFG_FLAGS --release"
+fi
+
+CFG_FLAGS="$CFG_FLAGS $compiler"
+
+# -arch $MR_ARCH
+C_FLAGS="$MR_DEFAULT_CFLAGS"
 
 # for cross compile
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
@@ -45,31 +57,28 @@ if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
     CFLAGS="$CFLAGS -isysroot $MR_SYS_ROOT"
 fi
 
-#----------------------
-echo "----------------------"
-echo "[*] configurate $LIB_NAME"
-echo "----------------------"
-
 cd $MR_BUILD_SOURCE
 if [ -f "./Makefile" ]; then
     echo 'reuse configure'
+    echo "----------------------"
+    echo "[*] reuse configurate"
 else
-    echo 
-    echo "CC: $MR_CC"
-    echo "CFLAGS: $CFLAGS"
+    echo "----------------------"
+    echo "[*] configurate"
+    echo "C_FLAGS: $C_FLAGS"
     echo "Openssl CFG: $CFG_FLAGS"
-    echo 
-    ./Configure $CFG_FLAGS \
-        CC="$MR_CC" \
-        CFLAGS="$CFLAGS" \
-        CXXFLAG="$CFLAGS"
+    echo "----------------------"
+
+    export C_FLAGS="$C_FLAGS"
+    export CXXFLAG="$C_FLAGS"
+    export CC="$MR_CC"
+    ./Configure $CFG_FLAGS
 fi
 
 #----------------------
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
-set +e
 
 make build_libs -j$MR_HOST_NPROC >/dev/null
 make install_dev >/dev/null
