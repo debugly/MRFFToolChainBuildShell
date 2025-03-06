@@ -37,6 +37,7 @@ on:
           - dav1d
           - dvdread
           - ffmpeg
+          - ijkffmpeg
           - harfbuzz
           - fontconfig
           - freetype
