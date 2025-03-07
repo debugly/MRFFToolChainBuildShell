@@ -41,4 +41,7 @@ fi
 
 # pre compiled
 export PRE_COMPILE_TAG=
+export PRE_COMPILE_TAG_TVOS=ijkffmpeg-4.0-250307085204
+export PRE_COMPILE_TAG_MACOS=ijkffmpeg-4.0-250307085204
+export PRE_COMPILE_TAG_IOS=ijkffmpeg-4.0-250307085204
 
