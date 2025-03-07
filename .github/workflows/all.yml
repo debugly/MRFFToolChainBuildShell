@@ -24,6 +24,14 @@ on:
           - ios
           - tvos
           - macos
+      dryrun:
+        description: 'just run workflow,but not deploy'
+        required: false
+        type: choice
+        default: 'false'
+        options:
+          - true
+          - false
   pull_request:
     branches: [master]
 
@@ -48,13 +56,13 @@ jobs:
       run: |
         echo '------compile unibreak------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh unibreak ${{ inputs.platform }}
+        .github/workflows/onestep.sh unibreak ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile fribidi------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh fribidi ${{ inputs.platform }}
+        .github/workflows/onestep.sh fribidi ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile freetype------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh freetype ${{ inputs.platform }}
+        .github/workflows/onestep.sh freetype ${{ inputs.platform }} ${{ inputs.dryrun }}
         if [[ ${{ inputs.platform }} == android ]]; then
           echo '------compile android fontconfig------------------------------------'
           rm -rf build || git reset --hard || git pull origin
@@ -64,42 +72,42 @@ jobs:
         echo '------compile harfbuzz------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/install-dependencies.sh harfbuzz ${{ inputs.platform }}
-        .github/workflows/onestep.sh harfbuzz ${{ inputs.platform }}
+        .github/workflows/onestep.sh harfbuzz ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile ass------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/install-dependencies.sh ass ${{ inputs.platform }}
-        .github/workflows/onestep.sh ass ${{ inputs.platform }}
+        .github/workflows/install-dependencies.sh ass ${{ inputs.platform }}  
+        .github/workflows/onestep.sh ass ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile yuv------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh yuv ${{ inputs.platform }}
+        .github/workflows/onestep.sh yuv ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile soundtouch------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh soundtouch ${{ inputs.platform }}
+        .github/workflows/onestep.sh soundtouch ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile opus------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh opus ${{ inputs.platform }}
+        .github/workflows/onestep.sh opus ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile openssl------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh openssl ${{ inputs.platform }}
+        .github/workflows/onestep.sh openssl ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile dvdread------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh dvdread ${{ inputs.platform }}
+        .github/workflows/onestep.sh dvdread ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile bluray------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/install-dependencies.sh bluray ${{ inputs.platform }}
-        .github/workflows/onestep.sh bluray ${{ inputs.platform }}
+        .github/workflows/onestep.sh bluray ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile dav1d------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh dav1d ${{ inputs.platform }}
+        .github/workflows/onestep.sh dav1d ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile uavs3d------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh uavs3d ${{ inputs.platform }}
+        .github/workflows/onestep.sh uavs3d ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile smb2------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh smb2 ${{ inputs.platform }}
+        .github/workflows/onestep.sh smb2 ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile ffmpeg------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/install-dependencies.sh ffmpeg ${{ inputs.platform }}
-        .github/workflows/onestep.sh ffmpeg ${{ inputs.platform }}
+        .github/workflows/onestep.sh ffmpeg ${{ inputs.platform }} ${{ inputs.dryrun }}
       env:
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}

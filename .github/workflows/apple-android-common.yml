@@ -26,6 +26,14 @@ on:
           - ios
           - tvos
           - macos
+      dryrun:
+        description: 'just run workflow,but not deploy'
+        required: false
+        type: choice
+        default: 'false'
+        options:
+          - true
+          - false
       lib:
         description: 'choose a lib for compile'
         required: true
@@ -73,6 +81,6 @@ jobs:
     - name: Install dependencies
       run: .github/workflows/install-dependencies.sh ${{ inputs.lib }} ${{ inputs.platform }}
     - name: One Step
-      run: .github/workflows/onestep.sh ${{ inputs.lib }} ${{ inputs.platform }}
+      run: .github/workflows/onestep.sh ${{ inputs.lib }} ${{ inputs.platform }} ${{ inputs.dryrun }}
       env:
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}

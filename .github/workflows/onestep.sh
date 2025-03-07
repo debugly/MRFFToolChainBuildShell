@@ -8,6 +8,13 @@ set -e
 
 export LIB_NAME=$1
 export PLAT=$2
+
+if [[ -z $3 && $3 == 'true' ]];then
+    export DRYRUN=1    
+else
+    export DRYRUN=
+fi
+
 export HOMEBREW_NO_AUTO_UPDATE=1
 export RELEASE_DATE=$(TZ=UTC-8 date +'%y%m%d%H%M%S')
 export RELEASE_VERSION=$(grep GIT_REPO_VERSION= ./configs/libs/${LIB_NAME}.sh | tail -n 1 | awk -F = '{printf "%s",$2}')
@@ -142,6 +149,10 @@ function upgrade()
 function publish()
 {
     echo "---Create Release--------------------------------------"
+    if [[ $DRYRUN ]];then
+        echo "DRYRUN: gh release create $TAG -t $TITLE $DIST_DIR/*.*"
+        return
+    fi
     upgrade
     gh release create $TAG -t $TITLE $DIST_DIR/*.*
 }
