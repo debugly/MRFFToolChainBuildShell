@@ -67,7 +67,7 @@ jobs:
           echo '------compile android fontconfig------------------------------------'
           rm -rf build || git reset --hard || git pull origin
           .github/workflows/install-dependencies.sh fontconfig android
-          .github/workflows/onestep.sh fontconfig android
+          .github/workflows/onestep.sh fontconfig android ${{ inputs.dryrun }}
         fi
         echo '------compile harfbuzz------------------------------------'
         rm -rf build || git reset --hard || git pull origin
