@@ -9,8 +9,8 @@ set -e
 export LIB_NAME=$1
 export PLAT=$2
 
-if [[ -z $3 && $3 == 'true' ]];then
-    export DRYRUN=1    
+if [[ -n $3 && "$3" == 'true' ]];then
+    export DRYRUN=1 
 else
     export DRYRUN=
 fi
