@@ -154,7 +154,7 @@ function publish()
         return
     fi
     upgrade
-    gh release create $TAG -t $TITLE $DIST_DIR/*.*
+    gh release create $TAG --target $(git branch --show-current) -t $TITLE $DIST_DIR/*.*
 }
 
 function main()
