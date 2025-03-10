@@ -30,11 +30,11 @@ trap 'error_handler' ERR
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
+FFMPEG_CFG_FLAGS=
+FFMPEG_EXTRA_CFLAGS=
 export COMMON_FF_CFG_FLAGS=
 # use ijk ffmpeg config options
 source $MR_SHELL_CONFIGS_DIR/ijk-ffmpeg-config/module.sh
-
-FFMPEG_CFG_FLAGS=
 FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS $COMMON_FF_CFG_FLAGS"
 
 # Advanced options (experts only):
@@ -50,36 +50,39 @@ FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --arch=$MR_FF_ARCH"
 FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --target-os=$MR_TAGET_OS"
 FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-static"
 FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-shared"
-FFMPEG_EXTRA_CFLAGS=
+FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --pkg-config-flags=--static"
 
-# i386, x86_64
-FFMPEG_CFG_FLAGS_SIMULATOR=
-FFMPEG_CFG_FLAGS_SIMULATOR="$FFMPEG_CFG_FLAGS_SIMULATOR --disable-asm"
-FFMPEG_CFG_FLAGS_SIMULATOR="$FFMPEG_CFG_FLAGS_SIMULATOR --disable-mmx"
-FFMPEG_CFG_FLAGS_SIMULATOR="$FFMPEG_CFG_FLAGS_SIMULATOR --assert-level=2"
+FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-pic"
 
-# armv7, armv7s, arm64
-FFMPEG_CFG_FLAGS_ARM=
-FFMPEG_CFG_FLAGS_ARM="$FFMPEG_CFG_FLAGS_ARM --enable-pic"
-FFMPEG_CFG_FLAGS_ARM="$FFMPEG_CFG_FLAGS_ARM --enable-neon"
 case "$MR_DEBUG" in
     debug)
-        FFMPEG_CFG_FLAGS_ARM="$FFMPEG_CFG_FLAGS_ARM --disable-optimizations"
-        FFMPEG_CFG_FLAGS_ARM="$FFMPEG_CFG_FLAGS_ARM --enable-debug"
-        FFMPEG_CFG_FLAGS_ARM="$FFMPEG_CFG_FLAGS_ARM --disable-small"
+        FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-optimizations"
+        FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-debug"
+        FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-small"
     ;;
     *)
-        FFMPEG_CFG_FLAGS_ARM="$FFMPEG_CFG_FLAGS_ARM --enable-optimizations"
-        FFMPEG_CFG_FLAGS_ARM="$FFMPEG_CFG_FLAGS_ARM --enable-debug"
-        FFMPEG_CFG_FLAGS_ARM="$FFMPEG_CFG_FLAGS_ARM --enable-small"
+        FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-optimizations"
+        FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-debug"
+        FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-small"
     ;;
 esac
+
+if [[ "$MR_ARCH" == "armv7a" || "$MR_ARCH" == "arm64" ]]; then
+    # enable asm
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-neon"
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-asm --enable-inline-asm"
+else
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-neon"
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-asm --disable-inline-asm"
+
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-mmx"
+    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --assert-level=2"
+fi
 
 FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --prefix=$MR_BUILD_PREFIX"
 
 FFMPEG_CFLAGS="$MR_DEFAULT_CFLAGS"
 FFMPEG_LDFLAGS="$FFMPEG_CFLAGS"
-FFMPEG_DEP_LIBS=
 
 pkg-config --libs openssl --silence-errors >/dev/null && enable_openssl=1
 
@@ -120,8 +123,7 @@ else
         --as="perl ${MR_GAS_PERL} -arch ${MR_ARCH} -- $MR_CC" \
         --extra-cflags="$FFMPEG_CFLAGS" \
         --extra-cxxflags="$FFMPEG_CFLAGS" \
-        --extra-ldflags="$FFMPEG_LDFLAGS $FFMPEG_DEP_LIBS"
-    make clean
+        --extra-ldflags="$FFMPEG_LDFLAGS"
 fi
 
 #--------------------

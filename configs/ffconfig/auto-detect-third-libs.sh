@@ -232,13 +232,13 @@ case "$MR_PLAT" in
     # disable iconv
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-iconv"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-bzlib"
-        if [[ "$MR_ARCH" == "armv7a" || "$MR_ARCH" == "arm64" ]]; then
-            # enable asm
-            THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-neon"
-            THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-asm --enable-inline-asm"
-        else
-            THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-neon"
-            THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-asm --disable-inline-asm"
-        fi
+    if [[ "$MR_ARCH" == "armv7a" || "$MR_ARCH" == "arm64" ]]; then
+        # enable asm
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-neon"
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-asm --enable-inline-asm"
+    else
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-neon"
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-asm --disable-inline-asm"
+    fi
     ;;
 esac
