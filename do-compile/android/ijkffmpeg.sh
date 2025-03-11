@@ -67,17 +67,17 @@ case "$MR_DEBUG" in
     ;;
 esac
 
-if [[ "$MR_ARCH" == "armv7a" || "$MR_ARCH" == "arm64" ]]; then
-    # enable asm
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-neon"
-    FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-asm --enable-inline-asm"
-else
+# if [[ "$MR_ARCH" == "armv7a" || "$MR_ARCH" == "arm64" ]]; then
+#     # enable asm
+#     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-neon"
+#     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --enable-asm --enable-inline-asm"
+# else
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-neon"
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-asm --disable-inline-asm"
 
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --disable-mmx"
     FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --assert-level=2"
-fi
+# fi
 
 FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS --prefix=$MR_BUILD_PREFIX"
 
