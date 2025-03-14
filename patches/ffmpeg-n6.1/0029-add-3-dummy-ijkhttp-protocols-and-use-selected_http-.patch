@@ -1,21 +1,21 @@
-From 56283c5e21f324ee65159781baf7f6d00628765b Mon Sep 17 00:00:00 2001
+From ab8fe6d0c2de932980f6f1e9d31e24f25750da37 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Fri, 14 Mar 2025 13:08:06 +0800
+Date: Fri, 14 Mar 2025 17:41:28 +0800
 Subject: [PATCH 29] add 3 dummy ijkhttp protocols and use selected_http option
  choose
 
 ---
- libavformat/avio.c      | 46 +++++++++++++++++++++++++++++++++++++++--
- libavformat/ijkutils.c  |  3 +++
- libavformat/protocols.c |  4 +++-
- libavformat/url.h       | 16 ++++++++++++++
- 4 files changed, 66 insertions(+), 3 deletions(-)
+ libavformat/avio.c      | 63 +++++++++++++++++++++++++++++++++++++++--
+ libavformat/ijkutils.c  |  3 ++
+ libavformat/protocols.c |  4 ++-
+ libavformat/url.h       | 16 +++++++++++
+ 4 files changed, 83 insertions(+), 3 deletions(-)
 
 diff --git a/libavformat/avio.c b/libavformat/avio.c
-index b793a75..b02dbd2 100644
+index b793a75..dadfefc 100644
 --- a/libavformat/avio.c
 +++ b/libavformat/avio.c
-@@ -297,6 +297,48 @@ int ffurl_alloc(URLContext **puc, const char *filename, int flags,
+@@ -297,6 +297,65 @@ int ffurl_alloc(URLContext **puc, const char *filename, int flags,
      return AVERROR_PROTOCOL_NOT_FOUND;
  }
  
@@ -41,19 +41,36 @@ index b793a75..b02dbd2 100644
 +{
 +    if (options && *options) {
 +        AVDictionaryEntry *e = av_dict_get(*options, "selected_http", NULL, 0);
-+        const char *proto_str;
-+        if (e && (proto_str = e->value)) {
-+            if (!strcmp(proto_str, "ijkhttp1") || !strcmp(proto_str, "ijkhttp2") || !strcmp(proto_str, "ijkhttp3")) {
-+                const URLProtocol *p = url_find_the_protocol(proto_str);
-+                if (p)
-+                    return url_alloc_for_protocol(puc, p, filename, flags, int_cb);
-+                *puc = NULL;
-+                av_log(NULL, AV_LOG_ERROR, "some thing is fault,check %s protocol\n", proto_str);
-+                return AVERROR_PROTOCOL_NOT_FOUND;
++        const char *selected_http;
++        if (e && (selected_http = e->value)) {
++            
++            char proto_str[128] = {0};
++            size_t proto_len = strspn(filename, URL_SCHEME_CHARS);
++            if (filename[proto_len] != ':' &&
++                (strncmp(filename, "subfile,", 8) || !strchr(filename + proto_len + 1, ':')) ||
++                is_dos_path(filename))
++                strcpy(proto_str, "file");
++            else
++                av_strlcpy(proto_str, filename,
++                            FFMIN(proto_len + 1, sizeof(proto_str)));
++            //only apply http protocol
++            if (!strcmp(proto_str, "http") || !strcmp(proto_str, "https")) {
++                if (!strcmp(selected_http, "ijkhttp1") || !strcmp(selected_http, "ijkhttp2") || !strcmp(selected_http, "ijkhttp3")) {
++                    const URLProtocol *p = url_find_the_protocol(selected_http);
++                    if (p) {
++                        av_log(NULL, AV_LOG_DEBUG, "%s use %s send request\n",proto_str,selected_http);
++                        return url_alloc_for_protocol(puc, p, filename, flags, int_cb);
++                    }
++                    *puc = NULL;
++                    av_log(NULL, AV_LOG_ERROR, "some thing is fault,check %s protocol\n", selected_http);
++                    return AVERROR_PROTOCOL_NOT_FOUND;
++                } else {
++                    av_log(NULL, AV_LOG_ERROR, "invalid selected_http value: %s\n", selected_http);
++                    av_assert0(0);
++                    return AVERROR_PROTOCOL_NOT_FOUND;
++                }
 +            } else {
-+                av_log(NULL, AV_LOG_ERROR, "invalid selected_http value: %s\n", proto_str);
-+                av_assert0(0);
-+                return AVERROR_PROTOCOL_NOT_FOUND;
++                av_log(NULL, AV_LOG_DEBUG, "%s not use %s\n",proto_str,selected_http);
 +            }
 +        }
 +    }
@@ -64,7 +81,7 @@ index b793a75..b02dbd2 100644
  int ffurl_open_whitelist(URLContext **puc, const char *filename, int flags,
                           const AVIOInterruptCB *int_cb, AVDictionary **options,
                           const char *whitelist, const char* blacklist,
-@@ -304,7 +346,7 @@ int ffurl_open_whitelist(URLContext **puc, const char *filename, int flags,
+@@ -304,7 +363,7 @@ int ffurl_open_whitelist(URLContext **puc, const char *filename, int flags,
  {
      AVDictionary *tmp_opts = NULL;
      AVDictionaryEntry *e;
@@ -73,7 +90,7 @@ index b793a75..b02dbd2 100644
      if (ret < 0)
          return ret;
      if (parent) {
-@@ -548,7 +590,7 @@ int avio_open_dir(AVIODirContext **s, const char *url, AVDictionary **options)
+@@ -548,7 +607,7 @@ int avio_open_dir(AVIODirContext **s, const char *url, AVDictionary **options)
          goto fail;
      }
  
