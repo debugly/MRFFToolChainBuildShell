@@ -1,0 +1,143 @@
+From 56283c5e21f324ee65159781baf7f6d00628765b Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Fri, 14 Mar 2025 13:08:06 +0800
+Subject: [PATCH 29] add 3 dummy ijkhttp protocols and use selected_http option
+ choose
+
+---
+ libavformat/avio.c      | 46 +++++++++++++++++++++++++++++++++++++++--
+ libavformat/ijkutils.c  |  3 +++
+ libavformat/protocols.c |  4 +++-
+ libavformat/url.h       | 16 ++++++++++++++
+ 4 files changed, 66 insertions(+), 3 deletions(-)
+
+diff --git a/libavformat/avio.c b/libavformat/avio.c
+index b793a75..b02dbd2 100644
+--- a/libavformat/avio.c
++++ b/libavformat/avio.c
+@@ -297,6 +297,48 @@ int ffurl_alloc(URLContext **puc, const char *filename, int flags,
+     return AVERROR_PROTOCOL_NOT_FOUND;
+ }
+ 
++
++static const struct URLProtocol *url_find_the_protocol(const char *proto_str)
++{
++    const URLProtocol **protocols = ffurl_get_protocols(NULL, NULL);
++    if (!protocols)
++        return NULL;
++    for (int i = 0; protocols[i]; i++) {
++        const URLProtocol *up = protocols[i];
++        if (!strcmp(proto_str, up->name)) {
++            av_freep(&protocols);
++            return up;
++        }
++    }
++    av_freep(&protocols);
++    return NULL;
++}
++
++int ffurl_alloc2(URLContext **puc, const char *filename, int flags,
++    const AVIOInterruptCB *int_cb, AVDictionary **options)
++{
++    if (options && *options) {
++        AVDictionaryEntry *e = av_dict_get(*options, "selected_http", NULL, 0);
++        const char *proto_str;
++        if (e && (proto_str = e->value)) {
++            if (!strcmp(proto_str, "ijkhttp1") || !strcmp(proto_str, "ijkhttp2") || !strcmp(proto_str, "ijkhttp3")) {
++                const URLProtocol *p = url_find_the_protocol(proto_str);
++                if (p)
++                    return url_alloc_for_protocol(puc, p, filename, flags, int_cb);
++                *puc = NULL;
++                av_log(NULL, AV_LOG_ERROR, "some thing is fault,check %s protocol\n", proto_str);
++                return AVERROR_PROTOCOL_NOT_FOUND;
++            } else {
++                av_log(NULL, AV_LOG_ERROR, "invalid selected_http value: %s\n", proto_str);
++                av_assert0(0);
++                return AVERROR_PROTOCOL_NOT_FOUND;
++            }
++        }
++    }
++    
++    return ffurl_alloc(puc, filename, flags, int_cb);
++}
++
+ int ffurl_open_whitelist(URLContext **puc, const char *filename, int flags,
+                          const AVIOInterruptCB *int_cb, AVDictionary **options,
+                          const char *whitelist, const char* blacklist,
+@@ -304,7 +346,7 @@ int ffurl_open_whitelist(URLContext **puc, const char *filename, int flags,
+ {
+     AVDictionary *tmp_opts = NULL;
+     AVDictionaryEntry *e;
+-    int ret = ffurl_alloc(puc, filename, flags, int_cb);
++    int ret = ffurl_alloc2(puc, filename, flags, int_cb, options);
+     if (ret < 0)
+         return ret;
+     if (parent) {
+@@ -548,7 +590,7 @@ int avio_open_dir(AVIODirContext **s, const char *url, AVDictionary **options)
+         goto fail;
+     }
+ 
+-    if ((ret = ffurl_alloc(&h, url, AVIO_FLAG_READ, NULL)) < 0)
++    if ((ret = ffurl_alloc2(&h, url, AVIO_FLAG_READ, NULL, options)) < 0)
+         goto fail;
+ 
+     if (h->prot->url_open_dir && h->prot->url_read_dir && h->prot->url_close_dir) {
+diff --git a/libavformat/ijkutils.c b/libavformat/ijkutils.c
+index 5999101..18b81af 100644
+--- a/libavformat/ijkutils.c
++++ b/libavformat/ijkutils.c
+@@ -65,6 +65,9 @@ IJK_DUMMY_PROTOCOL(ijkhttphook);
+ IJK_DUMMY_PROTOCOL(ijksegment);
+ IJK_DUMMY_PROTOCOL(ijktcphook);
+ IJK_DUMMY_PROTOCOL(ijkio);
++IJK_DUMMY_PROTOCOL(ijkhttp1);
++IJK_DUMMY_PROTOCOL(ijkhttp2);
++IJK_DUMMY_PROTOCOL(ijkhttp3);
+ 
+ #define IJK_FF_DEMUXER(x)                                                                          \
+ extern AVInputFormat ff_##x##_demuxer;                                                               \
+diff --git a/libavformat/protocols.c b/libavformat/protocols.c
+index 2bda874..8c1cab6 100644
+--- a/libavformat/protocols.c
++++ b/libavformat/protocols.c
+@@ -84,7 +84,9 @@ extern const URLProtocol ff_ijkmediadatasource_protocol;
+ extern const URLProtocol ff_ijksegment_protocol;
+ extern const URLProtocol ff_ijktcphook_protocol;
+ extern const URLProtocol ff_ijkio_protocol;
+-
++extern const URLProtocol ff_ijkhttp1_protocol;
++extern const URLProtocol ff_ijkhttp2_protocol;
++extern const URLProtocol ff_ijkhttp3_protocol;
+ extern const URLProtocol ff_dvd_protocol;
+ 
+ #include "libavformat/protocol_list.c"
+diff --git a/libavformat/url.h b/libavformat/url.h
+index b9c9028..0781691 100644
+--- a/libavformat/url.h
++++ b/libavformat/url.h
+@@ -116,6 +116,22 @@ typedef struct URLProtocol {
+ int ffurl_alloc(URLContext **puc, const char *filename, int flags,
+                 const AVIOInterruptCB *int_cb);
+ 
++                /**
++ * Create a URLContext for accessing to the resource indicated by
++ * url, but do not initiate the connection yet.
++ *
++ * @param puc pointer to the location where, in case of success, the
++ * function puts the pointer to the created URLContext
++ * @param flags flags which control how the resource indicated by url
++ * is to be opened
++ * @param int_cb interrupt callback to use for the URLContext, may be
++ * NULL
++ * @param options  A dictionary filled with options for replace http protocol
++ * @return >= 0 in case of success, a negative value corresponding to an
++ * AVERROR code in case of failure
++ */
++int ffurl_alloc2(URLContext **puc, const char *filename, int flags,
++                const AVIOInterruptCB *int_cb, AVDictionary **options);
+ /**
+  * Connect an URLContext that has been allocated by ffurl_alloc
+  *
+-- 
+2.39.5 (Apple Git-154)
+
