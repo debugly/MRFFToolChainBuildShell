@@ -19,7 +19,7 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 export RELEASE_DATE=$(TZ=UTC-8 date +'%y%m%d%H%M%S')
 export RELEASE_VERSION=$(grep GIT_REPO_VERSION= ./configs/libs/${LIB_NAME}.sh | tail -n 1 | awk -F = '{printf "%s",$2}')
 export TAG=${LIB_NAME}-${RELEASE_VERSION}-${RELEASE_DATE}
-export TITLE="👏👏${LIB_NAME}-${RELEASE_VERSION}"
+export TITLE="👏👏${LIB_NAME}-${PLAT}-${RELEASE_VERSION}"
 
 ROOT_DIR=$PWD
 DIST_DIR=$ROOT_DIR/build/dist

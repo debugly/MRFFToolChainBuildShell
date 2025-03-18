@@ -24,15 +24,22 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-if [ "$MR_ARCH" = "x86_64" ]; then
-    compiler="darwin64-x86_64-cc"
-elif [ "$MR_ARCH" = "arm64" ]; then
-    compiler="darwin64-arm64-cc"
+
+export CROSS_TOP="$XCRUN_SDK_PLATFORM_PATH/Developer"
+export CROSS_SDK=$(basename "$MR_SYS_ROOT")
+
+if [[ "$MR_PLAT" == "ios" || "$MR_PLAT" == "tvos" ]]; then
+    compiler="iphoneos-cross"
 else
-    echo "unknown architecture $FF_ARCH";
-    exit 1
+    if [[ "$MR_ARCH" == "x86_64" ]]; then 
+        compiler="darwin64-x86_64-cc"
+    else
+        compiler="darwin64-arm64-cc"
+    fi
 fi
 
+echo "CROSS_TOP:$CROSS_TOP"
+echo "CROSS_SDK:$CROSS_SDK"
 # no-hw no-asm
 
 CFG_FLAGS="no-shared no-engine no-dynamic-engine no-static-engine \
@@ -51,11 +58,11 @@ CFG_FLAGS="$CFG_FLAGS $compiler"
 C_FLAGS="$MR_DEFAULT_CFLAGS"
 
 # for cross compile
-if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
-    echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
-    # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
-    CFLAGS="$CFLAGS -isysroot $MR_SYS_ROOT"
-fi
+# if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
+#     echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
+#     # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
+#     CFLAGS="$CFLAGS -isysroot $MR_SYS_ROOT"
+# fi
 
 cd $MR_BUILD_SOURCE
 if [ -f "./Makefile" ]; then
@@ -69,9 +76,11 @@ else
     echo "Openssl CFG: $CFG_FLAGS"
     echo "----------------------"
 
-    export C_FLAGS="$C_FLAGS"
-    export CXXFLAG="$C_FLAGS"
+    export CFLAGS="$C_FLAGS"
+    export CXXFLAGS="$C_FLAGS"
+    export LDFLAGS="$C_FLAGS"
     export CC="$MR_CC"
+    
     ./Configure $CFG_FLAGS
 fi
 

@@ -83,7 +83,7 @@ export MR_CC="xcrun -sdk $XCRUN_SDK clang"
 export MR_CXX="xcrun -sdk $XCRUN_SDK clang++"
 # xcrun -sdk macosx --show-sdk-platform-path
 # /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform
-# export XCRUN_SDK_PLATFORM_PATH=`xcrun -sdk $XCRUN_SDK --show-sdk-platform-path`
+export XCRUN_SDK_PLATFORM_PATH=`xcrun -sdk $XCRUN_SDK --show-sdk-platform-path`
 # xcrun -sdk macosx --show-sdk-path
 # /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.3.sdk
 export MR_SYS_ROOT=`xcrun -sdk $XCRUN_SDK --show-sdk-path`
