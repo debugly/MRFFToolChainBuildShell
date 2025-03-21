@@ -1,7 +1,7 @@
 From 9e37c2db7c233b4696437a8921125920d4e7594c Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 11 Oct 2024 11:48:11 +0800
-Subject: [PATCH] add bd_open_fs function
+Subject: [PATCH 2] add bd_open_fs function
 
 ---
  Makefile.am               |   1 +
