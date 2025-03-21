@@ -1,7 +1,7 @@
 From 6d78475920216bbc66a63d6aa7484b7ad57f7ff8 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Thu, 28 Nov 2024 11:28:43 +0800
-Subject: [PATCH 28] add 4 dummy ijkplaceholder demuxers
+Subject: [PATCH 25] add 4 dummy ijkplaceholder demuxers
 
 ---
  libavformat/allformats.c | 5 +++++

@@ -1,7 +1,7 @@
 From 229f417012635accc6506d0c179343654b984f38 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Thu, 27 Feb 2025 14:49:42 +0800
-Subject: [PATCH 20] add built-in smb2 protocol via libsmb2
+Subject: [PATCH 19] add built-in smb2 protocol via libsmb2
 
 ---
  configure               |   5 +

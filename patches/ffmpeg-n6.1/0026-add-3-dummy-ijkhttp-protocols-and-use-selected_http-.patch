@@ -1,7 +1,7 @@
 From ab8fe6d0c2de932980f6f1e9d31e24f25750da37 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 14 Mar 2025 17:41:28 +0800
-Subject: [PATCH 29] add 3 dummy ijkhttp protocols and use selected_http option
+Subject: [PATCH 26] add 3 dummy ijkhttp protocols and use selected_http option
  choose
 
 ---

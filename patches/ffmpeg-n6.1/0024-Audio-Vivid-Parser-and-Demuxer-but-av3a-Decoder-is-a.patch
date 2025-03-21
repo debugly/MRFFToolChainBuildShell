@@ -1,7 +1,7 @@
 From f73942871770f5e268178c886b7d6100e1c5faba Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Mon, 18 Nov 2024 17:12:20 +0800
-Subject: [PATCH 27] Audio Vivid Parser and Demuxer, but av3a Decoder is absent
+Subject: [PATCH 24] Audio Vivid Parser and Demuxer, but av3a Decoder is absent
 
 ---
  libavcodec/Makefile      |   1 +

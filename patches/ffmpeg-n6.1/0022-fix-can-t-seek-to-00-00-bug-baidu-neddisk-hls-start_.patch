@@ -1,7 +1,7 @@
 From 411a7fc1b4be73f655ca2881cc8e16a862bfe194 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 1 Nov 2024 16:56:53 +0800
-Subject: [PATCH 25] fix can't seek to 00:00 bug, baidu neddisk hls start_time is
+Subject: [PATCH 22] fix can't seek to 00:00 bug, baidu neddisk hls start_time is
  less than  first_timestamp
 
 ---

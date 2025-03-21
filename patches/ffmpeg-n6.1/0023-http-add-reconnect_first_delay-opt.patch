@@ -1,7 +1,7 @@
 From 18f90d0efc60ba8bee97bbe1c7c1a6f139b9ff24 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Tue, 12 Nov 2024 14:42:37 +0800
-Subject: [PATCH 26] http add reconnect_first_delay opt
+Subject: [PATCH 23] http add reconnect_first_delay opt
 
 ---
  libavformat/http.c | 4 +++-

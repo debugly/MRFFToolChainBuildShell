@@ -1,7 +1,7 @@
 From 338d6fb305a992bc2a24347e4d7793e02b54345d Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Thu, 31 Oct 2024 10:55:33 +0800
-Subject: [PATCH 24] Adapt to clang 16
+Subject: [PATCH 21] Adapt to clang 16
 
 ---
  configure | 8 +++++++-

@@ -1,7 +1,7 @@
 From 29b3f4f302406cc546d87e5e8d26a20417bfcb63 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Tue, 12 Nov 2024 16:00:23 +0800
-Subject: [PATCH 23] fix http open and http_seek (redirect) authentication bug
+Subject: [PATCH 20] fix http open and http_seek (redirect) authentication bug
 
 ---
  libavformat/http.c | 25 ++++++++++++++++++++++++-

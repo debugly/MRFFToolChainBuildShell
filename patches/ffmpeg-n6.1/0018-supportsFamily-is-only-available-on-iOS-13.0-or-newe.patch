@@ -1,7 +1,7 @@
 From 1ebd4c062a886049f3c3255c50fe56f6621b9844 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 26 Jul 2024 16:11:14 +0800
-Subject: [PATCH 19] 'supportsFamily:' is only available on iOS 13.0 or newer
+Subject: [PATCH 18] 'supportsFamily:' is only available on iOS 13.0 or newer
 
 ---
  libavfilter/metal/utils.m | 2 +-
