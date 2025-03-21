@@ -35,8 +35,8 @@ if [[ "$GIT_FFMPEG_COMMIT" != "" ]] ;then
     export GIT_COMMIT="$GIT_FFMPEG_COMMIT"
     export GIT_REPO_VERSION="$GIT_FFMPEG_COMMIT"
 else
-    export GIT_COMMIT=n6.1.2 #origin/release/5.1
-    export GIT_REPO_VERSION=6.1.2
+    export GIT_COMMIT=n6.1.1 #origin/release/5.1
+    export GIT_REPO_VERSION=6.1.1
 fi
 
 # pre compiled
