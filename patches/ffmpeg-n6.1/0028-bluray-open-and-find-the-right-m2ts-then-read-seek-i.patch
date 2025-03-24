@@ -1,0 +1,70 @@
+From 28cdd2169e400e113ef6f681d2e1eee8ebc83afa Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Fri, 21 Mar 2025 19:00:43 +0800
+Subject: [PATCH 28] bluray open and find the right m2ts, then read\seek it 
+ direactly instread of bluray logic.
+
+---
+ libavformat/bluray.c | 24 +++++++++++++++++++-----
+ 1 file changed, 19 insertions(+), 5 deletions(-)
+
+diff --git a/libavformat/bluray.c b/libavformat/bluray.c
+index c3cdc03..628693d 100644
+--- a/libavformat/bluray.c
++++ b/libavformat/bluray.c
+@@ -42,6 +42,7 @@ typedef struct {
+     int chapter;
+     /*int region;*/
+     int title_idx;
++    int stream_opened;
+ } BlurayContext;
+ 
+ #define OFFSET(x) offsetof(BlurayContext, x)
+@@ -222,7 +223,7 @@ static int bluray_open(URLContext *h, const char *path, int flags, AVDictionary
+     if (bd->chapter > 1) {
+         bd_seek_chapter(bd->bd, bd->chapter - 1);
+     }
+-
++    bd->stream_opened = 1;
+     return 0;
+ }
+ 
+@@ -234,7 +235,13 @@ static int bluray_read(URLContext *h, unsigned char *buf, int size)
+     if (!bd || !bd->bd) {
+         return AVERROR(EFAULT);
+     }
+-
++    if (bd->stream_opened) {
++        int read = (int)bd_file_read(bd->bd, buf, size);
++        if (read == 0) {
++            return AVERROR_EOF;
++        }
++        return read;
++    }
+     len = bd_read(bd->bd, buf, size);
+ 
+     return len == 0 ? AVERROR_EOF : len;
+@@ -252,10 +259,17 @@ static int64_t bluray_seek(URLContext *h, int64_t pos, int whence)
+     case SEEK_SET:
+     case SEEK_CUR:
+     case SEEK_END:
+-        return bd_seek(bd->bd, pos);
+-
++        if (bd->stream_opened) {
++            return bd_file_seek(bd->bd, pos, whence);
++        } else {
++            return bd_seek(bd->bd, pos);
++        }
+     case AVSEEK_SIZE:
+-        return bd_get_title_size(bd->bd);
++        if (bd->stream_opened) {
++            return bd_file_size(bd->bd);
++        } else {
++            return bd_get_title_size(bd->bd);
++        }
+     }
+ 
+     av_log(h, AV_LOG_ERROR, "Unsupported whence operation %d\n", whence);
+-- 
+2.39.5 (Apple Git-154)
+

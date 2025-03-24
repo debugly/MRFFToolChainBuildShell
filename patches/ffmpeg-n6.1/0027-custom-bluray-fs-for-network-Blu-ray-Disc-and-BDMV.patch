@@ -1,22 +1,22 @@
-From e6fdbabaf8902e834a745705c851db193b8d553f Mon Sep 17 00:00:00 2001
+From 22d3925e8fec79ca0dd23dbdb7eb6f9a9d53ee96 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Tue, 17 Dec 2024 18:59:49 +0800
-Subject: [PATCH 21] custom bluray fs for network Blu-ray Disc and BDMV
+Date: Mon, 24 Mar 2025 09:31:42 +0800
+Subject: [PATCH 27]  custom bluray fs for network Blu-ray Disc and BDMV
 
 ---
  libavformat/Makefile           |   2 +-
- libavformat/bluray.c           |  32 ++-
+ libavformat/bluray.c           | 118 +++++++++-
  libavformat/bluray_custom_fs.c | 413 +++++++++++++++++++++++++++++++++
  libavformat/bluray_custom_fs.h |  29 +++
- 4 files changed, 468 insertions(+), 8 deletions(-)
+ 4 files changed, 553 insertions(+), 9 deletions(-)
  create mode 100644 libavformat/bluray_custom_fs.c
  create mode 100644 libavformat/bluray_custom_fs.h
 
 diff --git a/libavformat/Makefile b/libavformat/Makefile
-index 427c45a..ffc32b9 100644
+index 19ba54e..9ad6d87 100644
 --- a/libavformat/Makefile
 +++ b/libavformat/Makefile
-@@ -666,7 +666,7 @@ OBJS-$(CONFIG_VAPOURSYNTH_DEMUXER)       += vapoursynth.o
+@@ -667,7 +667,7 @@ OBJS-$(CONFIG_VAPOURSYNTH_DEMUXER)       += vapoursynth.o
  # protocols I/O
  OBJS-$(CONFIG_ASYNC_PROTOCOL)            += async.o
  OBJS-$(CONFIG_APPLEHTTP_PROTOCOL)        += hlsproto.o
@@ -26,10 +26,10 @@ index 427c45a..ffc32b9 100644
  OBJS-$(CONFIG_CONCAT_PROTOCOL)           += concat.o
  OBJS-$(CONFIG_CONCATF_PROTOCOL)          += concat.o
 diff --git a/libavformat/bluray.c b/libavformat/bluray.c
-index bf5b88d..96a799a 100644
+index 1845551..cd50523 100644
 --- a/libavformat/bluray.c
 +++ b/libavformat/bluray.c
-@@ -21,21 +21,22 @@
+@@ -21,23 +21,27 @@
   */
  
  #include <libbluray/bluray.h>
@@ -38,9 +38,9 @@ index bf5b88d..96a799a 100644
  #include "libavutil/avstring.h"
  #include "libavformat/url.h"
  #include "libavutil/opt.h"
- #include "libavutil/dict.h"
- #include "libavformat/avformat.h"
 +#include "bluray_custom_fs.h"
++#include "libavutil/dict.h"
++#include "libavformat/avformat.h"
  
 -#define BLURAY_PROTO_PREFIX     "bluray:"
 +#define BLURAY_PROTO_PREFIX     "bluray://"
@@ -55,7 +55,12 @@ index bf5b88d..96a799a 100644
      int playlist;
      int angle;
      int chapter;
-@@ -110,7 +111,7 @@ static int bluray_close(URLContext *h)
+     /*int region;*/
++    int title_idx;
+ } BlurayContext;
+ 
+ #define OFFSET(x) offsetof(BlurayContext, x)
+@@ -106,23 +110,58 @@ static int bluray_close(URLContext *h)
      if (bd->bd) {
          bd_close(bd->bd);
      }
@@ -64,16 +69,30 @@ index bf5b88d..96a799a 100644
      return 0;
  }
  
-@@ -126,7 +127,7 @@ static void bluray_DebugHandler(const char *psz)
- }
- #endif
- 
 -static int bluray_open(URLContext *h, const char *path, int flags)
-+static int bluray_open(URLContext *h, const char *path, int flags, AVDictionary **options)
++#ifdef DEBUG_BLURAY
++#include <libbluray/log_control.h>
++#define BLURAY_DEBUG_MASK 0xFFFFF //(0xFFFFF & ~DBG_STREAM)
++
++static void bluray_DebugHandler(const char *psz)
  {
- #ifdef DEBUG_BLURAY
-     bd_set_debug_mask(BLURAY_DEBUG_MASK);
-@@ -138,11 +139,28 @@ static int bluray_open(URLContext *h, const char *path, int flags)
++    size_t len = strlen(psz);
++    if(len < 1) return;
++    av_log(NULL, AV_LOG_INFO, "[bluray] %s\n",psz);
++}
++#endif
++
++
++static int bluray_open(URLContext *h, const char *path, int flags, AVDictionary **options)
++{
++#ifdef DEBUG_BLURAY
++    bd_set_debug_mask(BLURAY_DEBUG_MASK);
++    bd_set_debug_handler(bluray_DebugHandler);
++#endif
++
+     BlurayContext *bd = h->priv_data;
+     int num_title_idx;
+     const char *diskname = path;
  
      av_strstart(path, BLURAY_PROTO_PREFIX, &diskname);
  
@@ -81,7 +100,7 @@ index bf5b88d..96a799a 100644
 +    fs_access *access = NULL;
 +
 +    diskname = ff_urldecode(diskname, 0);
-+    
++
 +    if (av_strstart(diskname, "file://", NULL) || av_strstart(diskname, "/", NULL)) {
 +        access = NULL;
 +    } else {
@@ -103,7 +122,87 @@ index bf5b88d..96a799a 100644
  
      /* check if disc can be played */
      if (check_disc_info(h) < 0) {
-@@ -321,7 +339,7 @@ fail:
+@@ -159,12 +198,13 @@ static int bluray_open(URLContext *h, const char *path, int flags)
+ 
+             if (info->duration > duration) {
+                 bd->playlist = info->playlist;
++                bd->title_idx = i;
+                 duration = info->duration;
+             }
+ 
+             bd_free_title_info(info);
+         }
+-        av_log(h, AV_LOG_INFO, "selected %05d.mpls\n", bd->playlist);
++        av_log(h, AV_LOG_INFO, "select longest playlist: %05d.mpls\n", bd->playlist);
+     }
+ 
+     /* select playlist */
+@@ -222,13 +262,75 @@ static int64_t bluray_seek(URLContext *h, int64_t pos, int whence)
+     return AVERROR(EINVAL);
+ }
+ 
++static int bluray_parse_priv(AVFormatContext *ic, URLContext *h)
++{
++    BlurayContext *bd = h->priv_data;
++    BLURAY_TITLE_INFO *title_info = NULL;
++    BLURAY_CLIP_INFO clip_info;
++
++    int v_idx = 0;
++    int a_idx = 0;
++    int s_idx = 0;
++    int ret = 0;
++
++    if (!bd || !bd->bd) {
++        return AVERROR(EFAULT);
++    }
++
++    title_info = bd_get_title_info(bd->bd, bd->title_idx, 0);
++    if (!title_info) {
++        return AVERROR(EFAULT);
++    }
++
++    if (title_info->clip_count <= 0) {
++        ret = EFAULT;
++        goto fail;
++    }
++    clip_info = title_info->clips[0];
++
++    for (int i = 0; i < ic->nb_streams; i++) {
++        if (ic->streams[i] && ic->streams[i]->codecpar) {
++            switch (ic->streams[i]->codecpar->codec_type) {
++            case AVMEDIA_TYPE_VIDEO:
++                if (v_idx < clip_info.video_stream_count) {
++                    av_log(h, AV_LOG_INFO, "video stream %d lang = %s\n", v_idx, clip_info.video_streams[v_idx].lang);
++                    av_dict_set(&ic->streams[i]->metadata, "language", clip_info.video_streams[v_idx].lang, AV_DICT_DONT_OVERWRITE);
++                    v_idx++;
++                }
++                break;
++            case AVMEDIA_TYPE_AUDIO:
++                if (a_idx < clip_info.audio_stream_count) {
++                    av_log(h, AV_LOG_INFO, "audio stream %d lang = %s\n", a_idx, clip_info.audio_streams[a_idx].lang);
++                    av_dict_set(&ic->streams[i]->metadata, "language", clip_info.audio_streams[a_idx].lang, AV_DICT_DONT_OVERWRITE);
++                    a_idx++;
++                }
++                break;
++            case AVMEDIA_TYPE_SUBTITLE:
++                if (s_idx < clip_info.pg_stream_count) {
++                    av_log(h, AV_LOG_INFO, "subtitle stream %d lang = %s\n", s_idx, clip_info.pg_streams[s_idx].lang);
++                    av_dict_set(&ic->streams[i]->metadata, "language", clip_info.pg_streams[s_idx].lang, AV_DICT_DONT_OVERWRITE);
++                    s_idx++;
++                }
++                break;
++            default:
++                break;
++            }
++        }
++    }
++
++fail:
++    bd_free_title_info(title_info);
++
++    return ret != 0 ? AVERROR(ret) : 0;
++}
+ 
  const URLProtocol ff_bluray_protocol = {
      .name            = "bluray",
      .url_close       = bluray_close,
@@ -111,10 +210,13 @@ index bf5b88d..96a799a 100644
 +    .url_open2       = bluray_open,
      .url_read        = bluray_read,
      .url_seek        = bluray_seek,
-     .url_parse_priv  = bluray_parse_priv,
++    .url_parse_priv  = bluray_parse_priv,
+     .priv_data_size  = sizeof(BlurayContext),
+     .priv_data_class = &bluray_context_class,
+ };
 diff --git a/libavformat/bluray_custom_fs.c b/libavformat/bluray_custom_fs.c
 new file mode 100644
-index 0000000..9062a2b
+index 0000000..bdf2451
 --- /dev/null
 +++ b/libavformat/bluray_custom_fs.c
 @@ -0,0 +1,413 @@
@@ -181,7 +283,7 @@ index 0000000..9062a2b
 +    if (!io) {
 +        return -1;
 +    }
-+    
++
 +    ff_builtin_io * app = av_mallocz(sizeof(ff_builtin_io));
 +    if (!app) {
 +        return -2;
@@ -215,7 +317,7 @@ index 0000000..9062a2b
 +    if (is_dir) {
 +        flags |= AVIO_FLAG_DIRECT;
 +    }
-+    
++
 +    int ret = ffurl_open_whitelist(&app->url_context,
 +                               url,
 +                               flags,
@@ -226,8 +328,8 @@ index 0000000..9062a2b
 +                               NULL);
 +
 +    av_application_did_http_open(app->app_ctx, (void*)app->url_context, url, ret < 0 ? AVERROR(errno) : 0, ret < 0 ? 500 : 200, 0);
-+    
-+    if (ret < 0) {    
++
++    if (ret < 0) {
 +        close_builtin_io(app);
 +        av_freep(&app);
 +    }
@@ -246,11 +348,11 @@ index 0000000..9062a2b
 +    }
 +
 +    av_application_will_http_seek(io->app_ctx, (void*)io->url_context, io->url_context->filename, offset);
-+        
++
 +    int64_t pos = io->url_context->prot->url_seek(io->url_context, offset, origin);
 +    if (pos < 0) {
 +        av_application_did_http_seek(io->app_ctx, (void*)io->url_context, io->url_context->filename, offset, AVERROR(errno), 500);
-+        return AVERROR(errno); 
++        return AVERROR(errno);
 +    }
 +    io->offset = pos;
 +
@@ -282,7 +384,7 @@ index 0000000..9062a2b
 +
 +    int bytes = buf_size - buf_size1;
 +    if (bytes == 0 && read == AVERROR_EOF) {
-+        return AVERROR_EOF; 
++        return AVERROR_EOF;
 +    } else {
 +        av_application_did_io_tcp_read(io->app_ctx, (void*)io->url_context, bytes);
 +        return bytes;
@@ -404,12 +506,12 @@ index 0000000..9062a2b
 +    }
 +    AVDictionary *opts = NULL;
 +    av_dict_copy(&opts, access->opts, 0);
-+    
++
 +    ff_builtin_io *io = NULL;
 +    int ret = create_builtin_io(&io, url, &opts, 0);
 +    av_dict_free(&opts);
 +    av_free(url);
-+    
++
 +    if (0 != ret) {
 +        av_log(NULL, AV_LOG_ERROR, "can't open url %s,error:%s", url, av_err2str(ret));
 +        return NULL;
@@ -455,11 +557,11 @@ index 0000000..9062a2b
 +    }
 +
 +    AVIODirEntry *next = NULL;
-+    
++
 +    if (io->url_context->prot->url_read_dir(io->url_context, &next) < 0 || !next) {
 +        return -2;
 +    }
-+    
++
 +    strncpy(entry->d_name, next->name, sizeof(entry->d_name));
 +    entry->d_name[sizeof(entry->d_name) - 1] = 0;
 +
@@ -477,12 +579,12 @@ index 0000000..9062a2b
 +    }
 +    AVDictionary *opts = NULL;
 +    av_dict_copy(&opts, access->opts, 0);
-+    
++
 +    ff_builtin_io *io = NULL;
 +    int ret = create_builtin_io(&io, url, &opts, 1);
 +    av_dict_free(&opts);
 +    av_free(url);
-+    
++
 +    if (0 != ret) {
 +        av_log(NULL, AV_LOG_ERROR, "can't open dir %s,error:%s", url, av_err2str(ret));
 +        return NULL;
@@ -498,7 +600,7 @@ index 0000000..9062a2b
 +    dir->internal = io;
 +    dir->close    = _dir_close;
 +    dir->read     = _dir_read;
-+    
++
 +    return dir;
 +}
 +
@@ -513,9 +615,9 @@ index 0000000..9062a2b
 +    if (opaque) {
 +        opaque->url = av_strdup(url);
 +        if (options) {
-+            av_dict_copy(&opaque->opts, *options, 0);    
++            av_dict_copy(&opaque->opts, *options, 0);
 +        }
-+        
++
 +        int ret = create_builtin_io(&opaque->io, url, options, 0);
 +        if (0 != ret) {
 +            av_log(NULL, AV_LOG_ERROR, "can't open file %s,error:%s", url, av_err2str(ret));
@@ -526,7 +628,7 @@ index 0000000..9062a2b
 +        access->read_blocks = read_blocks;
 +        access->open_file = open_file;
 +        access->open_dir = open_dir;
-+        
++
 +        return access;
 +    }
 +    return NULL;
