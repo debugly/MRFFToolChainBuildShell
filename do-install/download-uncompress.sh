@@ -35,10 +35,12 @@ function download() {
     
     mkdir -p $(dirname "$dst")
     local tname="${dst}.tmp"
-    curl -L "$MR_DOWNLOAD_URL" -o "$tname"
+    curl -fL --retry 3 --retry-delay 5 --retry-max-time 30 "$MR_DOWNLOAD_URL" -o "$tname"
     
     if [[ $? -eq 0 ]];then
         mv "$tname" "${dst}"
+    else
+        rm -f "$tname"
     fi
 }
 
