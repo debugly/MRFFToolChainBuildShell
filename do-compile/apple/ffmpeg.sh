@@ -100,3 +100,7 @@ mkdir -p $MR_BUILD_PREFIX/include/libavcodec/x86/
 cp -f $MR_BUILD_SOURCE/libavcodec/x86/mathops.h $MR_BUILD_PREFIX/include/libavcodec/x86/
 mkdir -p $MR_BUILD_PREFIX/include/libavutil/x86/
 cp -f $MR_BUILD_SOURCE/libavutil/x86/asm.h $MR_BUILD_PREFIX/include/libavutil/x86/
+#copy private header for hls.c
+cp -f $MR_BUILD_SOURCE/libavformat/demux.h $MR_BUILD_PREFIX/include/libavformat/
+cp -f $MR_BUILD_SOURCE/libavformat/http.h $MR_BUILD_PREFIX/include/libavformat/
+cp -f $MR_BUILD_SOURCE/libavformat/hls_sample_encryption.h $MR_BUILD_PREFIX/include/libavformat/
