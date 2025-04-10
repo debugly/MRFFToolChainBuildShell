@@ -444,6 +444,8 @@ export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-protocol=unix"
 #
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-devices"
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-filters"
+# transpose_vt available macos(13.0), ios(16.0), tvos(16.0), visionos(1.0)
+export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-filter=transpose_vt"
 
 # External library support:
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-audiotoolbox"
