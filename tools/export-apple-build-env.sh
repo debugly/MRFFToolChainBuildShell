@@ -92,17 +92,14 @@ export MR_SYS_ROOT=`xcrun -sdk $XCRUN_SDK --show-sdk-path`
 export MR_ARCH="${_MR_ARCH/_simulator/}"
 export MR_FF_ARCH="${MR_ARCH}"
 
-# ffmpeg-x86_64
-export MR_BUILD_NAME="${REPO_DIR}-${_MR_ARCH}"
 # ios/ffmpeg-x86_64
-export MR_BUILD_SOURCE="${MR_SRC_ROOT}/${MR_BUILD_NAME}"
-# ios/ffmpeg-x86_64
-export MR_BUILD_PREFIX="${MR_PRODUCT_ROOT}/${MR_BUILD_NAME}"
+export MR_BUILD_SOURCE="${MR_SRC_ROOT}/${REPO_DIR}-${_MR_ARCH}"
+# ios/fftutorial-x86_64
+export MR_BUILD_PREFIX="${MR_PRODUCT_ROOT}/${LIB_NAME}-${_MR_ARCH}"
 # -arch x86_64 -mios-simulator-version-min=11.0
 export MR_DEFAULT_CFLAGS="-arch $MR_ARCH $MR_INIT_CFLAGS $DEPLOYMENT_TARGET -D__APPLE__"
 
 echo "MR_ARCH          : [$MR_ARCH]"
-echo "MR_BUILD_NAME    : [$MR_BUILD_NAME]"
 echo "MR_BUILD_SOURCE  : [$MR_BUILD_SOURCE]"
 echo "MR_BUILD_PREFIX  : [$MR_BUILD_PREFIX]"
 echo "MR_DEFAULT_CFLAGS: [$MR_DEFAULT_CFLAGS]"

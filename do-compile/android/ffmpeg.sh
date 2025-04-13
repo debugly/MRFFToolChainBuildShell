@@ -52,7 +52,7 @@ echo "[*] configure"
 if [[ ! -d $MR_BUILD_SOURCE ]]; then
     echo ""
     echo "!! ERROR"
-    echo "!! Can not find $MR_BUILD_SOURCE directory for $MR_BUILD_NAME"
+    echo "!! Can not find lib source: $MR_BUILD_SOURCE"
     echo "!! Run 'init-*.sh' first"
     echo ""
     exit 1

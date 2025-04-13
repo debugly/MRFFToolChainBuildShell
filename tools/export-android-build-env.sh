@@ -50,11 +50,12 @@ esac
 # x86_64
 export MR_ARCH="$_MR_ARCH"
 # openssl-armv7a
-export MR_BUILD_NAME="${REPO_DIR}-${_MR_ARCH}"
+
 # android/ffmpeg-x86_64
-export MR_BUILD_SOURCE="${MR_SRC_ROOT}/${MR_BUILD_NAME}"
-# android/ffmpeg-x86_64
-export MR_BUILD_PREFIX="${MR_PRODUCT_ROOT}/${MR_BUILD_NAME}"
+export MR_BUILD_SOURCE="${MR_SRC_ROOT}/${REPO_DIR}-${_MR_ARCH}"
+# android/fftutorial-x86_64
+LIB_NAME
+export MR_BUILD_PREFIX="${MR_PRODUCT_ROOT}/${LIB_NAME}-${_MR_ARCH}"
 
 if [ -z "$ANDROID_NDK_HOME" ]; then
     echo "You must define ANDROID_NDK_HOME before starting."
@@ -104,7 +105,6 @@ echo "MR_ARCH         : [$MR_ARCH]"
 echo "MR_TRIPLE       : [$MR_TRIPLE]"
 echo "MR_ANDROID_API  : [$MR_ANDROID_API]"
 echo "MR_ANDROID_NDK  : [$MR_NDK_REL]"
-echo "MR_BUILD_NAME   : [$MR_BUILD_NAME]"
 echo "MR_BUILD_SOURCE : [$MR_BUILD_SOURCE]"
 echo "MR_BUILD_PREFIX : [$MR_BUILD_PREFIX]"
 echo "MR_DEFAULT_CFLAGS : [$MR_DEFAULT_CFLAGS]"
