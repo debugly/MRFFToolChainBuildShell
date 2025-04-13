@@ -46,6 +46,7 @@ on:
           - dvdread
           - ffmpeg
           - ijkffmpeg
+          - fftutorial
           - harfbuzz
           - fontconfig
           - freetype

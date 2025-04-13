@@ -67,6 +67,20 @@ case $LIB_NAME in
             ./main.sh install -l 'openssl' -p $PLAT
         fi
     ;;
+    fftutorial)
+        if [[ $PLAT == all ]];then
+            ./main.sh install -l 'openssl' -p ios
+            ./main.sh install -l 'openssl' -p tvos
+            ./main.sh install -l 'openssl' -p macos
+            ./main.sh install -l 'openssl' -p android
+        elif [[ $PLAT == apple ]];then
+            ./main.sh install -l 'openssl' -p ios
+            ./main.sh install -l 'openssl' -p tvos
+            ./main.sh install -l 'openssl' -p macos
+        else
+            ./main.sh install -l 'openssl' -p $PLAT
+        fi
+    ;;
     harfbuzz)
         if [[ $PLAT == all ]];then
             ./main.sh install -l 'freetype' -p ios
