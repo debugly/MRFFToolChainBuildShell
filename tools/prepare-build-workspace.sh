@@ -39,13 +39,11 @@ export MR_XCFRMK_DIR="${MR_WORKSPACE}/product/xcframework"
 export MR_IOS_PRODUCT_ROOT="${MR_WORKSPACE}/product/ios"
 export MR_MACOS_PRODUCT_ROOT="${MR_WORKSPACE}/product/macos"
 export MR_TVOS_PRODUCT_ROOT="${MR_WORKSPACE}/product/tvos"
-export MR_PRE_ROOT="${MR_WORKSPACE}/pre"
 export MR_UNI_PROD_DIR="${MR_PRODUCT_ROOT}/universal"
 export MR_UNI_SIM_PROD_DIR="${MR_PRODUCT_ROOT}/universal-simulator"
 
 
 echo "MR_SRC_ROOT    : [$MR_SRC_ROOT]"
-echo "MR_PRE_ROOT    : [$MR_PRE_ROOT]"
 echo "MR_PRODUCT_ROOT: [$MR_PRODUCT_ROOT]"
 echo "MR_UNI_PROD_DIR: [$MR_UNI_PROD_DIR]"
 echo "MR_UNI_SIM_PROD_DIR: [$MR_UNI_SIM_PROD_DIR]"

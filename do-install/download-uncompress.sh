@@ -22,7 +22,6 @@ cd "$THIS_DIR"
 
 echo "=== [$0] check env begin==="
 env_assert "MR_WORKSPACE"
-env_assert "MR_PRE_ROOT"
 env_assert "MR_DOWNLOAD_URL"
 env_assert "MR_DOWNLOAD_ONAME"
 env_assert "MR_UNCOMPRESS_DIR"
@@ -57,7 +56,7 @@ function extract(){
 }
 
 function install() {
-    local dst="${MR_PRE_ROOT}/${MR_DOWNLOAD_ONAME}"
+    local dst="${MR_WORKSPACE}/pre/${MR_DOWNLOAD_ONAME}"
     if [[ -f "$dst" ]];then
         echo "$dst already exist,skip download."
     else
