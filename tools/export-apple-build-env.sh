@@ -93,7 +93,7 @@ export MR_ARCH="${_MR_ARCH/_simulator/}"
 export MR_FF_ARCH="${MR_ARCH}"
 
 # ffmpeg-x86_64
-export MR_BUILD_NAME="${LIB_NAME}-${_MR_ARCH}"
+export MR_BUILD_NAME="${REPO_DIR}-${_MR_ARCH}"
 # ios/ffmpeg-x86_64
 export MR_BUILD_SOURCE="${MR_SRC_ROOT}/${MR_BUILD_NAME}"
 # ios/ffmpeg-x86_64
