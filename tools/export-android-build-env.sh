@@ -54,7 +54,6 @@ export MR_ARCH="$_MR_ARCH"
 # android/ffmpeg-x86_64
 export MR_BUILD_SOURCE="${MR_SRC_ROOT}/${REPO_DIR}-${_MR_ARCH}"
 # android/fftutorial-x86_64
-LIB_NAME
 export MR_BUILD_PREFIX="${MR_PRODUCT_ROOT}/${LIB_NAME}-${_MR_ARCH}"
 
 if [ -z "$ANDROID_NDK_HOME" ]; then
