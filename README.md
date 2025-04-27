@@ -1,6 +1,6 @@
 ## MRFFToolChain Build Shell
 
-![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total)
+![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg">
 
 **What's MRFFToolChain?**
 
