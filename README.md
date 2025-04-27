@@ -1,5 +1,7 @@
 ## MRFFToolChain Build Shell
 
+![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total)
+
 **What's MRFFToolChain?**
 
 MRFFToolChain products was built for [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
