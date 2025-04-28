@@ -1,0 +1,25 @@
+From 3238587c53c2910877c8954433f46e59f18e6d12 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Sat, 26 Apr 2025 15:03:15 +0800
+Subject: [PATCH] android force use SOUNDTOUCH_INTEGER_SAMPLES
+
+---
+ include/STTypes.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/STTypes.h b/include/STTypes.h
+index 03dea9e..78ac3e6 100644
+--- a/include/STTypes.h
++++ b/include/STTypes.h
+@@ -71,7 +71,7 @@ namespace soundtouch
+     /// runtime performance so recommendation is to keep this off.
+     // #define USE_MULTICH_ALWAYS
+ 
+-    #if (defined(__SOFTFP__) && defined(ANDROID))
++    #if (defined(ANDROID))
+         // For Android compilation: Force use of Integer samples in case that
+         // compilation uses soft-floating point emulation - soft-fp is way too slow
+         #undef  SOUNDTOUCH_FLOAT_SAMPLES
+-- 
+2.39.5 (Apple Git-154)
+
