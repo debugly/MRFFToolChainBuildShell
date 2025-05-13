@@ -37,6 +37,7 @@ check_lib 'freetype2'
 check_lib 'fribidi'
 check_lib 'harfbuzz'
 check_lib 'libunibreak'
+check_lib 'fontconfig'
 echo "----------------------"
 
 ./meson-compatible.sh "-Dtest=false -Dprofile=false -Dfontconfig=enabled -Dcoretext=disabled -Dasm=disabled -Dlibunibreak=enabled"

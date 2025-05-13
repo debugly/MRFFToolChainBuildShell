@@ -26,7 +26,7 @@ function main() {
     local dest_repo=$2
     
     cd $src_repo
-    local full_src_repo_path="file://"$(PWD)
+    local full_src_repo_path="file://$(PWD)"
     cd - >/dev/null
 
     if [[ -d $dest_repo ]]; then
