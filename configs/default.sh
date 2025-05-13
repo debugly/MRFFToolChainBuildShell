@@ -18,7 +18,9 @@
 # when '-l all' will use blew default config:
 apple_default_libs="openssl opus dav1d dvdread freetype fribidi harfbuzz unibreak ass ffmpeg smb2 bluray"
 
+android_default_libs="openssl opus dav1d dvdread xml2 freetype fribidi harfbuzz unibreak fontconfig ass ffmpeg smb2 bluray"
+
 export ios_default_libs="$apple_default_libs"
 export macos_default_libs="$apple_default_libs"
 export tvos_default_libs="$apple_default_libs"
-export android_default_libs="$apple_default_libs"
+export android_default_libs="$android_default_libs"
