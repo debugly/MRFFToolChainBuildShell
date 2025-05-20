@@ -10,12 +10,12 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 
 ## Supported Plat
 
-| platform  | architectures          |   minimum deployment target |
-| ----- | -------------------------------------- |----- |
-| iOS   | arm64、arm64_simulator、x86_64_simulator |  11.0   |
-| tvOS  | arm64、arm64_simulator、x86_64_simulator |  12.0   |
-| macOS | arm64、x86_64                            |  10.11   |
-| Android | arm64、armv7a、x86_64、x86              |  21   |
+| platform  |            architectures          |   minimum deployment target |
+| ----- | --------------------------------------|---------------------------- |
+| iOS   | arm64、arm64_simulator、x86_64_simulator |  11.0       |
+| tvOS  | arm64、arm64_simulator、x86_64_simulator |  12.0       |
+| macOS | arm64、x86_64                            |  10.11      |
+| Android | arm64、armv7a、x86_64、x86              |  21         |
 
 ## News
 
@@ -37,128 +37,83 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、ffmpeg、fr
 Tips: 
 
 ```
-1、FFmpeg is not denpendent on Ass.
-2、ijkplayer is denpendent on FFmpeg and Ass.
-3、when install pre-compiled lib, will containes it's denpendencies.
+1、ffmpeg is not denpendent on ass.
+2、fsplayer is denpendent on ffmpeg and ass.
+3、ijkplayer is denpendent on ijkffmpeg.
+4、FFmpegTutorial is denpendent on fftutorial.
+4、when install pre-compiled lib, will containes it's denpendencies.
 ```
 
-## Folder structure
+## Download/Install Pre-compiled Libs
 
-```
-├── README.md
-├── build       #编译目录
-│   ├── extra   #源码仓库
-│   ├── pre     #下载的预编译库
-│   ├── product #编译产物
-│   └── src     #构建时源码仓库
-├── configs     #三方库配置信息
-│   ├── default.sh
-│   ├── ffconfig #FFmpeg功能裁剪选项
-│   ├── libs     #三方库具体配置，包括库名，git仓库地址等信息
-│   └── meson-crossfiles
-├── do-compile   #三方库编译过程
-│   ├── android  #安卓平台
-│   └── apple    #苹果平台
-├── do-init      #初始化三方库仓库
-│   ├── copy-local-repo.sh
-│   ├── init-repo.sh
-│   └── main.sh
-├── do-install    #下载安装预编译的三方库
-│   ├── download-uncompress.sh
-│   ├── install-pre-lib.sh
-│   ├── install-pre-xcf.sh
-│   └── main.sh
-├── main.sh      #脚本入口
-├── patches      #给三方库打的补丁
-│   ├── bluray
-│   ├── ffmpeg -> ffmpeg-n6.1
-│   ├── ffmpeg-n4.0
-│   ├── ffmpeg-n5.1
-│   ├── ffmpeg-n6.1
-│   ├── ffmpeg-release-5.1
-│   ├── smb2
-│   ├── smb2-4.0.0
-│   ├── uavs3d
-│   └── yuv
-└── tools         #通用工具方法
-    ├── export-android-build-env.sh
-    ├── export-android-host-env.sh
-    ├── export-android-pkg-config-dir.sh
-    ├── export-apple-build-env.sh
-    ├── export-apple-host-env.sh
-    ├── export-apple-pkg-config-dir.sh
-    ├── gas-preprocessor.pl
-    ├── ios.toolchain.cmake
-    ├── parse-arguments.sh
-    └── prepare-build-workspace.sh
-```
+Save yourself a great deal of time by directly downloading the pre-compiled libraries from GitHub.
 
-## Download/Install Pre-compiled libs
-
-直接从 github 下载我预编译好的库，这种方式可节省大量时间。
-
-预编译库已经将 patches 目录下的补丁全部打上了。
-
-安装方法：
+These pre-compiled libraries already applied patches which in the patches directory.
 
 ```bash
-#查看帮助是个好习惯
+#Check the help first
 ./main.sh install --help
-# 使用方式随便举例：
+# Examples of usage:
 ./main.sh install -p macos -l ffmpeg
 ./main.sh install -p ios -l 'ass ffmpeg'
 ./main.sh install -p tvos -l all
 ./main.sh install -p android -l all
 ```
 
-## Compile by yourself
+## Compile by Yourself
 
-### Init lib repos
+### Initialize Library Repositories
 
-不要浪费自己的时间去编译这些库，除非你修改了源码！
-直接下载我白嫖 github 预先编译好的库不好么！
+Don't waste your time compiling these libraries unless you've modified the source code!
+Why not just download the pre-compiled libraries I've prepared using GitHub actions?
 
-脚本参数比较灵活，可根据需要搭配使用，常用方式举例：
+The script parameters are flexible and can be combined as needed. Here are some common examples:
 
 ```
-#查看帮助是个好习惯
+# Check the help first
 ./main.sh init --help
-#准备 iOS 平台源码所有库的源码
+# Prepare source code for all libraries for the iOS platform
 ./main.sh init -p ios -l all
-#准备 iOS 平台x86架构下所有库的源码
+# Prepare source code for all libraries for the x86 architecture on iOS
 ./main.sh init -p ios -l all -a x86_64_simulator
-#准备 macOS 平台源码所有库的源码
+# Prepare source code for all libraries for the macOS platform
 ./main.sh init -p macos -l all
-#准备 iOS 平台的某些库的源码
+# Prepare source code for specific libraries for the iOS platform
 ./main.sh init -p ios -l "openssl ffmpeg"
-#准备 Android 平台的某些库的源码
-./main.sh init -p anroid -l "openssl ffmpeg"
+# Prepare source code for specific libraries for the Android platform
+./main.sh init -p android -l "openssl ffmpeg"
 ```
 
 ### Compile
 
-查看帮助是个好习惯
+Once the source code repository initialization is complete, you can start the compilation process.
 
 ```
+# Check the help first
 ./main.sh compile --help
-# 根据帮助可知 -p 参数指定平台；-c 参数指定行为，比如：build是编译，rebuild是重编等; -l 指定要编译的库；-a 指定 cpu 架构。
+# As shown in the help:
+# -p specifies the platform
+# -c specifies the action (e.g., build for compilation, rebuild for recompilation)
+# -l specifies the libraries to compile
+# -a specifies the CPU architecture
 ```
-使用方式随便举例：
+
+Examples of usage:
 
 ```
-#比如编译 ios 平台所有依赖库
+ Compile all dependencies for the iOS platform
 ./main.sh compile -c build -p ios -l all
-#比如编译 ios 平台 arm64 架构下的 libass 库
+# Compile the libass library for the arm64 architecture on iOS
 ./main.sh compile -c build -p ios -a arm64 -l ass
 ```
 
-脚本对于这些参数的顺序没有要求，可以随意摆放。
+The order of these parameters does not matter; they can be arranged in any sequence.
 
 ### Support Mirror
 
-如果 github 上的仓库克隆较慢，或者需要使用内网私有仓库，可在执行编译脚本前声明对应的环境变量！
+If cloning repositories from GitHub is slow, or if you need to use an internal private repository, you can declare the corresponding environment variables before running the compilation script!
 
-| 名称         | 当前版本|                仓库地址                                  | 使用镜像                                                     |
+| Lib Name         | Current Version	|                Repository URL                                | Mirror Repository URL                                                     |
 | ----------- | -------| ------------------------------------------------------- | -------------------------------------------------------- |
 | FFmpeg      | 6.1.2  | https://github.com/FFmpeg/FFmpeg.git                    | export GIT_FFMPEG_UPSTREAM = git@xx:yy/FFmpeg.git        |
 | ass         | 0.17.3 | https://github.com/libass/libass.git                    | export GIT_ASS_UPSTREAM = git@xx:yy/libass.git           |
@@ -180,6 +135,12 @@ Tips:
 
 ## Tips
 
+- To download pre-compiled xcframework libraries, add the --fmwk parameter when using the install command.
+- To skip pulling remote repositories during initialization, add the --skip-pull-base parameter when using the init command.
+- To skip applying FFmpeg patches during initialization, add the --skip-patches parameter when using the init command.
+- Currently, FFmpeg uses the module-full.sh configuration, resulting in slightly larger package sizes.
+- You can download all pre-compiled GitHub libraries to your own server and specify your server address using MR_DOWNLOAD_BASEURL before running the install command.
+
 - 可下载预编译的 xcframework 库，只需要在 install 时加上 --fmwk 参数
 - 初始化仓库时，可跳过拉取远端到本地，只需要在 init 时加上 --skip-pull-base 参数
 - 初始化仓库时，可跳过应用 FFmpeg 的补丁，只需要在 init 时加上 --skip-patches 参数
@@ -188,14 +149,8 @@ Tips:
 
 ## Donate
 
-编译三方库很费时间，本人想为开源社区贡献一份微薄的力量，因此将 debugly/ijkplayer 依赖的三方库，全部预编成静态库和 xcframework 供大家使用。
+Compiling third-party libraries is time-consuming. I aim to contribute to the open-source community by pre-compiling all third-party libraries required by debugly/ijkplayer into static libraries and xcframeworks for public use.
 
-如果您想要为开源社区贡献一份力量，请买杯咖啡给我提提神儿。
+If you'd like to contribute to the open-source community, consider buying me a coffee to keep me energized.
 
 ![donate.jpg](https://i.postimg.cc/xdVqnBLp/IMG-7481.jpg)
-
-感谢以下朋友对 debugly/MRFFToolChainBuildShell 的支持：
-
-- 海阔天也空
-- 小猪猪
-- 1996GJ
