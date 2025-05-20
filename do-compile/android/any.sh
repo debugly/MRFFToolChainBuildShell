@@ -31,10 +31,7 @@ do_lipo_lib() {
         local lib_dir="$MR_PRODUCT_ROOT/$LIB_NAME-$arch"
         
         if [ -d "$lib_dir" ]; then
-            # Fix .pc files
-            sed -i.bak 's|-lpthread|-pthread|' "$lib_dir"/lib/pkgconfig/*.pc
-            find "$lib_dir"/lib/pkgconfig -name "*.bak" -delete
-
+            my_sed_i "s|-lpthread|-pthread|" "$lib_dir"/lib/pkgconfig/*.pc
             # Copy the directory
             mkdir -p "$MR_UNI_PROD_DIR/$LIB_NAME"
             cp -Rf "$lib_dir" "$MR_UNI_PROD_DIR/$LIB_NAME"

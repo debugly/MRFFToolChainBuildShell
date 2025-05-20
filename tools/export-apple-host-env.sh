@@ -43,4 +43,16 @@ function install_depends() {
     echo "[✅] ${name}: $(eval $name --version)"
 }
 
+# 定义跨平台sed函数
+my_sed_i() {
+    if [[ "$(uname)" == "Darwin" ]]; then
+        # macOS系统
+        sed -i '' "$@"
+    else
+        # Linux系统及其他系统
+        sed -i "$@"
+    fi
+}
+
 export -f install_depends
+export -f my_sed_i

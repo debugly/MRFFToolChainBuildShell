@@ -92,7 +92,7 @@ function correct_pc_file(){
     
     echo "fix pc files in folder: $fix_path"
     cd "$fix_path"
-    
+
     for pc in `find . -type f -name "*.pc"` ;
     do
         local pkgconfig=$(cd $(dirname "$pc"); pwd)
@@ -100,13 +100,13 @@ function correct_pc_file(){
         local base_dir=$(cd $(dirname "$lib_dir"); pwd)
         local include_dir="${base_dir}/include"
         local bin_dir="${base_dir}/bin"
-        
-        sed -i "" "s|^prefix=.*|prefix=$base_dir|" "$pc"
-        sed -i "" "s|^exec_prefix=[^$].*|exec_prefix=$bin_dir|" $pc
-        sed -i "" "s|^libdir=[^$].*|libdir=$lib_dir|" "$pc"
-        sed -i "" "s|^includedir=[^$].*include|includedir=$include_dir|" "$pc"
-        sed -i "" "s|-L/[^ ]*lib|-L$lib_dir|" "$pc"
-        sed -i "" "s|-I/[^ ]*include|-I$include_dir|" "$pc"
+
+        my_sed_i "s|^prefix=.*|prefix=$base_dir|" "$pc"
+        my_sed_i "s|^exec_prefix=[^$].*|exec_prefix=$bin_dir|" $pc
+        my_sed_i "s|^libdir=[^$].*|libdir=$lib_dir|" "$pc"
+        my_sed_i "s|^includedir=[^$].*include|includedir=$include_dir|" "$pc"
+        my_sed_i "s|-L/[^ ]*lib|-L$lib_dir|" "$pc"
+        my_sed_i "s|-I/[^ ]*include|-I$include_dir|" "$pc"
     done
     
     cd "$dir"
