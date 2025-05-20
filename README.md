@@ -141,12 +141,6 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 - Currently, FFmpeg uses the module-full.sh configuration, resulting in slightly larger package sizes.
 - You can download all pre-compiled GitHub libraries to your own server and specify your server address using MR_DOWNLOAD_BASEURL before running the install command.
 
-- 可下载预编译的 xcframework 库，只需要在 install 时加上 --fmwk 参数
-- 初始化仓库时，可跳过拉取远端到本地，只需要在 init 时加上 --skip-pull-base 参数
-- 初始化仓库时，可跳过应用 FFmpeg 的补丁，只需要在 init 时加上 --skip-patches 参数
-- 目前 FFmpeg 使用的是 module-full.sh 配置选项，所以包体积略大
-- 可以自己把 Github 预编译的库全部下载放到自己的服务器上，在 install 前使用 MR_DOWNLOAD_BASEURL 指定自己的服务器地址
-
 ## Donate
 
 Compiling third-party libraries is time-consuming. I aim to contribute to the open-source community by pre-compiling all third-party libraries required by debugly/ijkplayer into static libraries and xcframeworks for public use.
