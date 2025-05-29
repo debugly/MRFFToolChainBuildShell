@@ -92,6 +92,9 @@ jobs:
         echo '------compile dvdread------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/onestep.sh dvdread ${{ inputs.platform }} ${{ inputs.dryrun }}
+        echo '------compile dvdnav------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh dvdnav ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile bluray------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/install-dependencies.sh bluray ${{ inputs.platform }}

@@ -40,13 +40,14 @@ on:
         type: choice
         default: 'ffmpeg'
         options:
+          - ffmpeg
+          - ijkffmpeg
+          - fftutorial
           - ass
           - bluray
           - dav1d
           - dvdread
-          - ffmpeg
-          - ijkffmpeg
-          - fftutorial
+          - dvdnav
           - harfbuzz
           - fontconfig
           - freetype
