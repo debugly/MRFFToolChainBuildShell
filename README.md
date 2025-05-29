@@ -29,11 +29,12 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、dvdnav、ff
 - Fontconfig: xml2,freetype
 - Bluray: xml2
 - Harfbuzz: freetype
+- dvdnav: dvdread
 - Ass for Appple:  harfbuzz,fribidi,unibreak
 - Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
 - FFmpeg for Appple:  openssl,opus,dav1d,dvdread,uavs3d,smb2
 - FFmpeg for Android: openssl,opus,dav1d,dvdread,uavs3d,smb2
-- FFmpeg7 for Appple: openssl,opus,dav1d,dvdread,dvdnav,uavs3d,smb2
+- FFmpeg7 for Appple: openssl,opus,dav1d,dvdnav,uavs3d,smb2
 
 Tips: 
 
