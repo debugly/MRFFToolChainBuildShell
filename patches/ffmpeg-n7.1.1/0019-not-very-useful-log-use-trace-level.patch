@@ -1,0 +1,76 @@
+From 2ebc057a63774ca24a98c3cfbda7fc183da1082f Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Thu, 29 May 2025 09:02:16 +0800
+Subject: [PATCH] not very useful log use trace level
+
+---
+ libavcodec/h2645_parse.c | 6 +++---
+ libavcodec/h2645_vui.c   | 2 +-
+ libavformat/demux.c      | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/libavcodec/h2645_parse.c b/libavcodec/h2645_parse.c
+index 8281699..0aded68 100644
+--- a/libavcodec/h2645_parse.c
++++ b/libavcodec/h2645_parse.c
+@@ -355,7 +355,7 @@ static int vvc_parse_nal_header(H2645NAL *nal, void *logctx)
+     if ((nal->type >= VVC_IDR_W_RADL && nal->type <= VVC_RSV_IRAP_11) && nal->temporal_id)
+         return AVERROR_INVALIDDATA;
+ 
+-    av_log(logctx, AV_LOG_DEBUG,
++    av_log(logctx, AV_LOG_TRACE,
+            "nal_unit_type: %d(%s), nuh_layer_id: %d, temporal_id: %d\n",
+            nal->type, vvc_nal_unit_name(nal->type), nal->nuh_layer_id, nal->temporal_id);
+ 
+@@ -376,7 +376,7 @@ static int hevc_parse_nal_header(H2645NAL *nal, void *logctx)
+     if (nal->temporal_id < 0)
+         return AVERROR_INVALIDDATA;
+ 
+-    av_log(logctx, AV_LOG_DEBUG,
++    av_log(logctx, AV_LOG_TRACE,
+            "nal_unit_type: %d(%s), nuh_layer_id: %d, temporal_id: %d\n",
+            nal->type, hevc_nal_unit_name(nal->type), nal->nuh_layer_id, nal->temporal_id);
+ 
+@@ -393,7 +393,7 @@ static int h264_parse_nal_header(H2645NAL *nal, void *logctx)
+     nal->ref_idc = get_bits(gb, 2);
+     nal->type    = get_bits(gb, 5);
+ 
+-    av_log(logctx, AV_LOG_DEBUG,
++    av_log(logctx, AV_LOG_TRACE,
+            "nal_unit_type: %d(%s), nal_ref_idc: %d\n",
+            nal->type, h264_nal_unit_name(nal->type), nal->ref_idc);
+ 
+diff --git a/libavcodec/h2645_vui.c b/libavcodec/h2645_vui.c
+index e5c7bf4..8301492 100644
+--- a/libavcodec/h2645_vui.c
++++ b/libavcodec/h2645_vui.c
+@@ -36,7 +36,7 @@
+ 
+ void ff_h2645_decode_common_vui_params(GetBitContext *gb, H2645VUI *vui, void *logctx)
+ {
+-    av_log(logctx, AV_LOG_DEBUG, "Decoding VUI\n");
++    av_log(logctx, AV_LOG_TRACE, "Decoding VUI\n");
+ 
+     vui->aspect_ratio_info_present_flag = get_bits1(gb);
+     if (vui->aspect_ratio_info_present_flag) {
+diff --git a/libavformat/demux.c b/libavformat/demux.c
+index ff62292..c0d744d 100644
+--- a/libavformat/demux.c
++++ b/libavformat/demux.c
+@@ -2024,11 +2024,11 @@ static void estimate_timings(AVFormatContext *ic, int64_t old_offset)
+     for (unsigned i = 0; i < ic->nb_streams; i++) {
+         AVStream *const st = ic->streams[i];
+         if (st->time_base.den)
+-            av_log(ic, AV_LOG_TRACE, "stream %u: start_time: %s duration: %s\n", i,
++            av_log(ic, AV_LOG_DEBUG, "stream %u: start_time: %s duration: %s\n", i,
+                    av_ts2timestr(st->start_time, &st->time_base),
+                    av_ts2timestr(st->duration, &st->time_base));
+     }
+-    av_log(ic, AV_LOG_TRACE,
++    av_log(ic, AV_LOG_DEBUG,
+            "format: start_time: %s duration: %s (estimate from %s) bitrate=%"PRId64" kb/s\n",
+            av_ts2timestr(ic->start_time, &AV_TIME_BASE_Q),
+            av_ts2timestr(ic->duration, &AV_TIME_BASE_Q),
+-- 
+2.39.5 (Apple Git-154)
+

@@ -57,6 +57,55 @@ THIRD_CFG_FLAGS=
 #     echo "[❌] --disable-libmp3lame"
 # fi
 
+
+# Function to compare two version numbers
+# Returns:
+#   1 if v1 == v2 or if v1 > v2
+#   0 if v1 < v2
+gt_or_equal() {
+    local v1=$1
+    local v2=$2
+    local IFS=.
+    # 将版本字符串按 "." 分割成数组
+    # 例如 "7..1" 会变成 (7 "" 1)
+    local v1_parts=($v1) v2_parts=($v2)
+    local i
+
+    # 确定两个版本号数组中的最大长度
+    local len_v1=${#v1_parts[@]}
+    local len_v2=${#v2_parts[@]}
+    local max_len=$((len_v1 > len_v2 ? len_v1 : len_v2))
+
+    for ((i=0; i<$max_len; i++)); do
+        # 获取版本号的对应部分，如果部分缺失或为空字符串，则默认为 "0"
+        local p1_val=${v1_parts[i]:-0}
+        local p2_val=${v2_parts[i]:-0}
+
+        # 进一步确保 p1_val 和 p2_val 是纯数字；如果不是，则视为 0
+        # 这能处理像 "7.a.1" 这样包含非数字部分的情况
+        if ! [[ "$p1_val" =~ ^[0-9]+$ ]]; then
+            p1_val=0
+        fi
+        if ! [[ "$p2_val" =~ ^[0-9]+$ ]]; then
+            p2_val=0
+        fi
+
+        # 进行数字比较
+        # 使用 10# 前缀确保按十进制处理 (例如 "08" 被视为 8 而不是八进制)
+        if ((10#$p1_val > 10#$p2_val)); then
+            echo 1 # v1 > v2
+            return 0
+        fi
+        if ((10#$p1_val < 10#$p2_val)); then
+            echo # v1 < v2
+            return 0
+        fi
+    done
+
+    echo 1 # v1 == v2 (所有部分都相等)
+    return 0
+}
+
 echo "----------------------"
 # use pkg-config fix ff4.0--ijk0.8.8--20210426--001 use openssl 1_1_1m occur can't find openssl error.
 
@@ -81,10 +130,19 @@ else
 fi
 
 echo "----------------------"
+
 # FFmpeg 4.2 支持AV1、AVS2等格式
 # dav1d由VideoLAN，VLC和FFmpeg联合开发，项目由AOM联盟赞助，和libaom相比，dav1d性能普遍提升100%，最高提升400%
-#just wait videotoolbox support decode av1
-# THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-decoder=av1"
+#从FFmpeg7.1.1开始支持硬解av1，苹果需要M3芯片
+result=$(gt_or_equal "$GIT_REPO_VERSION" "7.1.1")
+if [[ $result ]]; then
+    echo "[✅] --enable hw av1 decoder"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-decoder=av1"
+else
+    echo "[❌] --disable hw av1 decoder"
+fi
+
+echo "----------------------"
 
 pkg-config --libs dav1d --silence-errors >/dev/null && enable_dav1d=1
 
@@ -118,13 +176,26 @@ else
 fi
 echo "----------------------"
 
-pkg-config --libs dvdread --silence-errors >/dev/null && enable_dvdread=1
-
-if [[ $enable_dvdread ]];then
-    echo "[✅] --enable-libdvdread : $(pkg-config --modversion dvdread)"
-    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libdvdread --enable-protocol=dvd"
+#不确定7代之前的版本是否支持dvdvideo
+result=$(gt_or_equal "$GIT_REPO_VERSION" "7.1.1")
+if [[ $result ]]; then
+    pkg-config --libs dvdread --silence-errors >/dev/null && enable_dvdread=1
+    pkg-config --libs dvdnav --silence-errors >/dev/null && enable_dvdnav=1
+    if [[ $enable_dvdread && $enable_dvdnav ]];then
+        echo "[✅] --enable-demuxer=dvdvideo --enable-gpl --enable-libdvdread : $(pkg-config --modversion dvdread)"
+        #libdvdread is gpl and --enable-gpl is not specified.
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libdvdread --enable-libdvdnav --enable-demuxer=dvdvideo --enable-gpl"
+    else
+        echo "[❌] --disable-dvdvideo"
+    fi
 else
-    echo "[❌] --disable-libdvdread --disable-protocol=dvd"
+    pkg-config --libs dvdread --silence-errors >/dev/null && enable_dvdread=1
+    if [[ $enable_dvdread ]];then
+        echo "[✅] --enable-libdvdread : $(pkg-config --modversion dvdread)"
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libdvdread --enable-protocol=dvd"
+    else
+        echo "[❌] --disable-dvd protocol"
+    fi
 fi
 
 echo "----------------------"

@@ -1,0 +1,54 @@
+From f57d809f553431b46a023a69035c30b0485d207d Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Thu, 29 May 2025 11:15:16 +0800
+Subject: [PATCH] bluray protocol add dvd fallback
+
+---
+ libavformat/demux.c | 23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
+
+diff --git a/libavformat/demux.c b/libavformat/demux.c
+index 9ce4525..d8aa824 100644
+--- a/libavformat/demux.c
++++ b/libavformat/demux.c
+@@ -159,7 +159,8 @@ static int init_input(AVFormatContext *s, const char *filename,
+     int ret;
+     AVProbeData pd = { filename, NULL, 0 };
+     int score = AVPROBE_SCORE_RETRY;
+-
++    AVDictionary *tmp_opts = NULL;
++    
+     if (s->pb) {
+         s->flags |= AVFMT_FLAG_CUSTOM_IO;
+         if (!s->iformat)
+@@ -174,10 +175,24 @@ static int init_input(AVFormatContext *s, const char *filename,
+     if ((s->iformat && s->iformat->flags & AVFMT_NOFILE) ||
+         (!s->iformat && (s->iformat = av_probe_input_format2(&pd, 0, &score))))
+         return score;
++    
++    if (options && av_stristart(filename, "bluray://", NULL)) {
++        av_dict_copy(&tmp_opts, *options, 0);
++    }
+ 
+-    if ((ret = s->io_open(s, &s->pb, filename, AVIO_FLAG_READ | s->avio_flags, options)) < 0)
+-        return ret;
+-
++    if ((ret = s->io_open(s, &s->pb, filename, AVIO_FLAG_READ | s->avio_flags,
++                          options)) < 0) {
++        if (av_stristart(filename, "bluray://", NULL)) {
++            const char *a_name = av_strireplace(filename, "bluray://", "");
++            ret = init_input(s, a_name, &tmp_opts);
++            av_dict_free(&tmp_opts);
++            return ret;
++        } else {
++            av_dict_free(&tmp_opts);
++            return ret;
++        }
++    }
++    av_dict_free(&tmp_opts);
+     if (s->iformat)
+         return 0;
+     return av_probe_input_buffer2(s->pb, &s->iformat, filename,
+-- 
+2.39.5 (Apple Git-154)
+

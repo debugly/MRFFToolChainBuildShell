@@ -1,0 +1,32 @@
+From 005c1138ee841a98639b6a8cdcf361c09db18a5a Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Thu, 29 May 2025 08:56:02 +0800
+Subject: [PATCH] fix http chunked transfer get wrong size cause av_read_frame
+ can not return eof bug
+
+---
+ libavformat/img2dec.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/libavformat/img2dec.c b/libavformat/img2dec.c
+index 3c24955..b443602 100644
+--- a/libavformat/img2dec.c
++++ b/libavformat/img2dec.c
+@@ -491,7 +491,13 @@ int ff_img_read_packet(AVFormatContext *s1, AVPacket *pkt)
+         if (s->frame_size > 0) {
+             size[0] = s->frame_size;
+         } else if (!ffstream(s1->streams[0])->parser) {
+-            size[0] = avio_size(s1->pb);
++            //http Transfer-Encoding: chunked the size is -78;
++            int64_t s = avio_size(s1->pb);
++            if (s < 0) {
++                size[0] = 4096;
++            } else {
++                size[0] = s;
++            }
+         } else {
+             size[0] = 4096;
+         }
+-- 
+2.39.5 (Apple Git-154)
+

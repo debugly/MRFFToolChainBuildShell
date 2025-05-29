@@ -1,0 +1,128 @@
+From 32393a823175ffadba9d635b86f8836c503b837e Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Wed, 28 May 2025 18:25:51 +0800
+Subject: [PATCH] control which http impl was used by set selected_http option
+
+---
+ libavformat/avio.c | 63 ++++++++++++++++++++++++++++++++++++++++++++--
+ libavformat/url.h  | 16 ++++++++++++
+ 2 files changed, 77 insertions(+), 2 deletions(-)
+
+diff --git a/libavformat/avio.c b/libavformat/avio.c
+index d109f3a..8c6b769 100644
+--- a/libavformat/avio.c
++++ b/libavformat/avio.c
+@@ -359,6 +359,65 @@ int ffurl_alloc(URLContext **puc, const char *filename, int flags,
+     return AVERROR_PROTOCOL_NOT_FOUND;
+ }
+ 
++
++static const struct URLProtocol *url_find_the_protocol(const char *proto_str)
++{
++    const URLProtocol **protocols = ffurl_get_protocols(NULL, NULL);
++    if (!protocols)
++        return NULL;
++    for (int i = 0; protocols[i]; i++) {
++        const URLProtocol *up = protocols[i];
++        if (!strcmp(proto_str, up->name)) {
++            av_freep(&protocols);
++            return up;
++        }
++    }
++    av_freep(&protocols);
++    return NULL;
++}
++
++int ffurl_alloc2(URLContext **puc, const char *filename, int flags,
++    const AVIOInterruptCB *int_cb, AVDictionary **options)
++{
++    if (options && *options) {
++        AVDictionaryEntry *e = av_dict_get(*options, "selected_http", NULL, 0);
++        const char *selected_http;
++        if (e && (selected_http = e->value)) {
++            
++            char proto_str[128] = {0};
++            size_t proto_len = strspn(filename, URL_SCHEME_CHARS);
++            if (filename[proto_len] != ':' &&
++                (strncmp(filename, "subfile,", 8) || !strchr(filename + proto_len + 1, ':')) ||
++                is_dos_path(filename))
++                strcpy(proto_str, "file");
++            else
++                av_strlcpy(proto_str, filename,
++                            FFMIN(proto_len + 1, sizeof(proto_str)));
++            //only apply http protocol
++            if (!strcmp(proto_str, "http") || !strcmp(proto_str, "https")) {
++                if (!strcmp(selected_http, "ijkhttp1") || !strcmp(selected_http, "ijkhttp2") || !strcmp(selected_http, "ijkhttp3")) {
++                    const URLProtocol *p = url_find_the_protocol(selected_http);
++                    if (p) {
++                        av_log(NULL, AV_LOG_DEBUG, "%s use %s send request\n",proto_str,selected_http);
++                        return url_alloc_for_protocol(puc, p, filename, flags, int_cb);
++                    }
++                    *puc = NULL;
++                    av_log(NULL, AV_LOG_ERROR, "some thing is fault,check %s protocol\n", selected_http);
++                    return AVERROR_PROTOCOL_NOT_FOUND;
++                } else {
++                    av_log(NULL, AV_LOG_ERROR, "invalid selected_http value: %s\n", selected_http);
++                    av_assert0(0);
++                    return AVERROR_PROTOCOL_NOT_FOUND;
++                }
++            } else {
++                av_log(NULL, AV_LOG_DEBUG, "%s not use %s\n",proto_str,selected_http);
++            }
++        }
++    }
++    
++    return ffurl_alloc(puc, filename, flags, int_cb);
++}
++
+ int ffurl_open_whitelist(URLContext **puc, const char *filename, int flags,
+                          const AVIOInterruptCB *int_cb, AVDictionary **options,
+                          const char *whitelist, const char* blacklist,
+@@ -366,7 +425,7 @@ int ffurl_open_whitelist(URLContext **puc, const char *filename, int flags,
+ {
+     AVDictionary *tmp_opts = NULL;
+     AVDictionaryEntry *e;
+-    int ret = ffurl_alloc(puc, filename, flags, int_cb);
++    int ret = ffurl_alloc2(puc, filename, flags, int_cb, options);
+     if (ret < 0)
+         return ret;
+     if (parent) {
+@@ -735,7 +794,7 @@ int avio_open_dir(AVIODirContext **s, const char *url, AVDictionary **options)
+         goto fail;
+     }
+ 
+-    if ((ret = ffurl_alloc(&h, url, AVIO_FLAG_READ, NULL)) < 0)
++    if ((ret = ffurl_alloc2(&h, url, AVIO_FLAG_READ, NULL, options)) < 0)
+         goto fail;
+ 
+     if (h->prot->url_open_dir && h->prot->url_read_dir && h->prot->url_close_dir) {
+diff --git a/libavformat/url.h b/libavformat/url.h
+index 0784d77..53c6f13 100644
+--- a/libavformat/url.h
++++ b/libavformat/url.h
+@@ -112,6 +112,22 @@ typedef struct URLProtocol {
+ int ffurl_alloc(URLContext **puc, const char *filename, int flags,
+                 const AVIOInterruptCB *int_cb);
+ 
++                /**
++ * Create a URLContext for accessing to the resource indicated by
++ * url, but do not initiate the connection yet.
++ *
++ * @param puc pointer to the location where, in case of success, the
++ * function puts the pointer to the created URLContext
++ * @param flags flags which control how the resource indicated by url
++ * is to be opened
++ * @param int_cb interrupt callback to use for the URLContext, may be
++ * NULL
++ * @param options  A dictionary filled with options for replace http protocol
++ * @return >= 0 in case of success, a negative value corresponding to an
++ * AVERROR code in case of failure
++ */
++int ffurl_alloc2(URLContext **puc, const char *filename, int flags,
++                const AVIOInterruptCB *int_cb, AVDictionary **options);
+ /**
+  * Connect an URLContext that has been allocated by ffurl_alloc
+  *
+-- 
+2.39.5 (Apple Git-154)
+

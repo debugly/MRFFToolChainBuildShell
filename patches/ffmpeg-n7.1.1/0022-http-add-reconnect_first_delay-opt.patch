@@ -1,0 +1,41 @@
+From 8984a891f4bf976a3ab311591c7c6de499b434df Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Thu, 29 May 2025 09:57:28 +0800
+Subject: [PATCH] http add reconnect_first_delay opt
+
+---
+ libavformat/http.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/libavformat/http.c b/libavformat/http.c
+index 1228735..6e96aaa 100644
+--- a/libavformat/http.c
++++ b/libavformat/http.c
+@@ -128,6 +128,7 @@ typedef struct HTTPContext {
+     int reconnect_on_network_error;
+     int reconnect_streamed;
+     int reconnect_delay_max;
++    int reconnect_first_delay;
+     char *reconnect_on_http_error;
+     int listen;
+     char *resource;
+@@ -188,6 +189,7 @@ static const AVOption options[] = {
+     { "reconnect_max_retries", "the max number of times to retry a connection", OFFSET(reconnect_max_retries), AV_OPT_TYPE_INT, { .i64 = -1 }, -1, INT_MAX, D },
+     { "reconnect_delay_total_max", "max total reconnect delay in seconds after which to give up", OFFSET(reconnect_delay_total_max), AV_OPT_TYPE_INT, { .i64 = 256 }, 0, UINT_MAX/1000/1000, D },
+     { "respect_retry_after", "respect the Retry-After header when retrying connections", OFFSET(respect_retry_after), AV_OPT_TYPE_BOOL, { .i64 = 1 }, 0, 1, D },
++    { "reconnect_first_delay", "first reconnect delay in seconds", OFFSET(reconnect_first_delay), AV_OPT_TYPE_INT, { .i64 = 0 }, 0, UINT_MAX/1000/1000, D },
+     { "listen", "listen on HTTP", OFFSET(listen), AV_OPT_TYPE_INT, { .i64 = 0 }, 0, 2, D | E },
+     { "resource", "The resource requested by a client", OFFSET(resource), AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, E },
+     { "reply_code", "The http status code to return to a client", OFFSET(reply_code), AV_OPT_TYPE_INT, { .i64 = 200}, INT_MIN, 599, E},
+@@ -379,7 +381,7 @@ static int http_open_cnx(URLContext *h, AVDictionary **options)
+     HTTPAuthType cur_auth_type, cur_proxy_auth_type;
+     HTTPContext *s = h->priv_data;
+     int ret, conn_attempts = 1, auth_attempts = 0, redirects = 0;
+-    int reconnect_delay = 0;
++    int reconnect_delay = s->reconnect_first_delay;
+     int reconnect_delay_total = 0;
+     uint64_t off;
+     char *cached;
+-- 
+2.39.5 (Apple Git-154)
+

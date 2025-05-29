@@ -1,0 +1,55 @@
+From e9eb133958e3c646b8e4232e0a05a96bfea4d56e Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Thu, 29 May 2025 11:14:13 +0800
+Subject: [PATCH] URLProtocol add url_parse_priv function pointer
+
+---
+ libavformat/demux.c | 11 +++++++++++
+ libavformat/url.h   |  2 ++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/libavformat/demux.c b/libavformat/demux.c
+index c0d744d..9ce4525 100644
+--- a/libavformat/demux.c
++++ b/libavformat/demux.c
+@@ -341,6 +341,17 @@ int avformat_open_input(AVFormatContext **ps, const char *filename,
+         ff_id3v2_free_extra_meta(&id3v2_extra_meta);
+     }
+ 
++    //fill stream info
++    if (s->pb) {
++        URLContext *url_context = ffio_geturlcontext(s->pb);
++        if (url_context && url_context->prot) {
++            URLProtocol *prot = url_context->prot;
++            if (prot->url_parse_priv) {
++                prot->url_parse_priv(s, url_context);
++            }
++        }
++    }
++    
+     if ((ret = avformat_queue_attached_pictures(s)) < 0)
+         goto close;
+ 
+diff --git a/libavformat/url.h b/libavformat/url.h
+index 53c6f13..f7e5bb2 100644
+--- a/libavformat/url.h
++++ b/libavformat/url.h
+@@ -48,6 +48,7 @@ typedef struct URLContext {
+     int min_packet_size;        /**< if non zero, the stream is packetized with this min packet size */
+ } URLContext;
+ 
++typedef struct AVFormatContext AVFormatContext;
+ typedef struct URLProtocol {
+     const char *name;
+     int     (*url_open)( URLContext *h, const char *url, int flags);
+@@ -93,6 +94,7 @@ typedef struct URLProtocol {
+     int (*url_close_dir)(URLContext *h);
+     int (*url_delete)(URLContext *h);
+     int (*url_move)(URLContext *h_src, URLContext *h_dst);
++    int (*url_parse_priv)(AVFormatContext *ic, URLContext *h);
+     const char *default_whitelist;
+ } URLProtocol;
+ 
+-- 
+2.39.5 (Apple Git-154)
+

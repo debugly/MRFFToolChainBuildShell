@@ -1,0 +1,60 @@
+From 5cf9674b9c26494264cb4c41f7b813985d9c5cfe Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Wed, 28 May 2025 18:52:01 +0800
+Subject: [PATCH] Correct the wrong codecpar->codec_id which read from MIME of
+ ID3tags, but the real data was encoded in PNG/JPEG/TIFF
+
+---
+ libavformat/id3v2.c   | 7 ++++++-
+ libavformat/img2dec.c | 2 +-
+ libavformat/mov.c     | 2 +-
+ 3 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/libavformat/id3v2.c b/libavformat/id3v2.c
+index 3507885..cfbedd8 100644
+--- a/libavformat/id3v2.c
++++ b/libavformat/id3v2.c
+@@ -1178,8 +1178,13 @@ int ff_id3v2_parse_apic(AVFormatContext *s, ID3v2ExtraMeta *extra_meta)
+         st  = s->streams[s->nb_streams - 1];
+         st->codecpar->codec_id   = apic->id;
+ 
+-        if (AV_RB64(st->attached_pic.data) == PNGSIG)
++        if (AV_RB64(st->attached_pic.data) == PNGSIG || AV_RB64(st->attached_pic.data) == MNGSIG) {
+             st->codecpar->codec_id = AV_CODEC_ID_PNG;
++        } else if (AV_RB24(st->attached_pic.data) == 0xffd8ff) {
++            st->codecpar->codec_id = AV_CODEC_ID_MJPEG;
++        } else if (AV_RB32(st->attached_pic.data) == 0x49492a00 || AV_RB32(st->attached_pic.data) == 0x4D4D002a) {
++            st->codecpar->codec_id = AV_CODEC_ID_TIFF;
++        }
+ 
+         if (apic->description[0])
+             av_dict_set(&st->metadata, "title", apic->description, 0);
+diff --git a/libavformat/img2dec.c b/libavformat/img2dec.c
+index 3389fa8..3c24955 100644
+--- a/libavformat/img2dec.c
++++ b/libavformat/img2dec.c
+@@ -914,7 +914,7 @@ static int png_probe(const AVProbeData *p)
+ {
+     const uint8_t *b = p->buf;
+ 
+-    if (AV_RB64(b) == 0x89504e470d0a1a0a)
++    if (AV_RB64(b) == 0x89504e470d0a1a0a || AV_RB64(b)  == 0x8a4d4e470d0a1a0a)
+         return AVPROBE_SCORE_MAX - 1;
+     return 0;
+ }
+diff --git a/libavformat/mov.c b/libavformat/mov.c
+index 41ca280..7319202 100644
+--- a/libavformat/mov.c
++++ b/libavformat/mov.c
+@@ -259,7 +259,7 @@ static int mov_read_covr(MOVContext *c, AVIOContext *pb, int type, int len)
+     sc->refcount = 1;
+ 
+     if (st->attached_pic.size >= 8 && id != AV_CODEC_ID_BMP) {
+-        if (AV_RB64(st->attached_pic.data) == 0x89504e470d0a1a0a) {
++        if (AV_RB64(st->attached_pic.data) == 0x89504e470d0a1a0a || AV_RB64(st->attached_pic.data) == 0x8a4d4e470d0a1a0a) {
+             id = AV_CODEC_ID_PNG;
+         } else {
+             id = AV_CODEC_ID_MJPEG;
+-- 
+2.39.5 (Apple Git-154)
+

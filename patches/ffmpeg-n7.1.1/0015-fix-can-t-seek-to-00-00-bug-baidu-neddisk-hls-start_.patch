@@ -1,0 +1,29 @@
+From 6b759eeb996340b07fe1caa1846b48d722da34d6 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Wed, 28 May 2025 18:49:48 +0800
+Subject: [PATCH] fix can't seek to 00:00 bug, baidu neddisk hls start_time is
+ less than  first_timestamp
+
+---
+ libavformat/hls.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/libavformat/hls.c b/libavformat/hls.c
+index 069db99..098307b 100644
+--- a/libavformat/hls.c
++++ b/libavformat/hls.c
+@@ -1775,7 +1775,10 @@ static int find_timestamp_in_playlist(HLSContext *c, struct playlist *pls,
+ 
+     if (timestamp < pos) {
+         *seq_no = pls->start_seq_no;
+-        return 0;
++        if (seg_start_ts) {
++            *seg_start_ts = pos;
++        }
++        return 1;
+     }
+ 
+     for (i = 0; i < pls->n_segments; i++) {
+-- 
+2.39.5 (Apple Git-154)
+
