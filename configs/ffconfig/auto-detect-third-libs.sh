@@ -244,7 +244,6 @@ echo "----------------------"
 
 echo "[✅] --enable-parser=av3a"
 THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-parser=av3a --enable-demuxer=av3a"
-echo "----------------------"
 
 # --------------------------------------------------------------
 THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --pkg-config-flags=--static"

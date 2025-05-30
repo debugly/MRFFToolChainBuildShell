@@ -1,19 +1,19 @@
-From fc20f37d242895412029521935804a96d9d0bf0c Mon Sep 17 00:00:00 2001
+From a8dc36d3060372153fe0cc93b2a9af3a50271aba Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Thu, 29 May 2025 10:57:48 +0800
-Subject: [PATCH] restore ijk custom protocols except long url
+Date: Fri, 30 May 2025 09:15:11 +0800
+Subject: [PATCH] restore ijk custom protocols and demuxers except long url and
+ async
 
 ---
  libavcodec/Makefile      |   1 +
- libavformat/Makefile     |   9 ++++
+ libavformat/Makefile     |  10 ++++
  libavformat/allformats.c |   4 ++
- libavformat/async.c      |   2 +-
  libavformat/demux.c      |  13 +++++
  libavformat/demux.h      |   2 +
- libavformat/ijkutils.c   | 101 +++++++++++++++++++++++++++++++++++++++
+ libavformat/ijkutils.c   | 102 +++++++++++++++++++++++++++++++++++++++
  libavformat/protocols.c  |   6 +++
  libavutil/Makefile       |   1 +
- 9 files changed, 138 insertions(+), 1 deletion(-)
+ 8 files changed, 139 insertions(+)
  create mode 100644 libavformat/ijkutils.c
 
 diff --git a/libavcodec/Makefile b/libavcodec/Makefile
@@ -29,13 +29,14 @@ index a4fcce3..ed5c705 100644
  OBJS = ac3_parser.o                                                     \
         adts_parser.o                                                    \
 diff --git a/libavformat/Makefile b/libavformat/Makefile
-index e5934e9..359781b 100644
+index e5934e9..5e88060 100644
 --- a/libavformat/Makefile
 +++ b/libavformat/Makefile
-@@ -7,6 +7,14 @@ HEADERS = avformat.h                                                    \
+@@ -7,6 +7,15 @@ HEADERS = avformat.h                                                    \
            version_major.h                                               \
            application.h                                                 \
            dns_cache.h                                                   \
++          demux.h                                                       \
 +          avc.h                                                         \
 +          url.h                                                         \
 +          internal.h                                                    \
@@ -47,7 +48,7 @@ index e5934e9..359781b 100644
  
  OBJS = allformats.o         \
         avformat.o           \
-@@ -34,6 +42,7 @@ OBJS = allformats.o         \
+@@ -34,6 +43,7 @@ OBJS = allformats.o         \
         version.o            \
         application.o        \
         dns_cache.o          \
@@ -70,19 +71,6 @@ index 305fa46..063be70 100644
  #include "libavformat/muxer_list.c"
  #include "libavformat/demuxer_list.c"
  
-diff --git a/libavformat/async.c b/libavformat/async.c
-index e0329e2..e5ee519 100644
---- a/libavformat/async.c
-+++ b/libavformat/async.c
-@@ -489,7 +489,7 @@ static const AVClass async_context_class = {
-     .version    = LIBAVUTIL_VERSION_INT,
- };
- 
--const URLProtocol ff_async_protocol = {
-+URLProtocol ff_async_protocol = {
-     .name                = "async",
-     .url_open2           = async_open,
-     .url_read            = async_read,
 diff --git a/libavformat/demux.c b/libavformat/demux.c
 index 4fd22c4..ff62292 100644
 --- a/libavformat/demux.c
@@ -143,10 +131,10 @@ index 9c76095..8b0af4c 100644
       * set. 'avformat_new_stream' can be called only if the flag
 diff --git a/libavformat/ijkutils.c b/libavformat/ijkutils.c
 new file mode 100644
-index 0000000..107b238
+index 0000000..42cc77c
 --- /dev/null
 +++ b/libavformat/ijkutils.c
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,102 @@
 +/*
 + * utils.c
 + *
@@ -172,7 +160,7 @@ index 0000000..107b238
 +
 +#include <stdlib.h>
 +#include "url.h"
-+#include "avformat.h"
++#include "demux.h"
 +
 +
 +#define IJK_FF_PROTOCOL(x)                                                                          \
@@ -208,7 +196,6 @@ index 0000000..107b238
 +    return -1;
 +}
 +
-+IJK_FF_PROTOCOL(async);
 +IJK_DUMMY_PROTOCOL(ijkmediadatasource);
 +IJK_DUMMY_PROTOCOL(ijkhttphook);
 +IJK_DUMMY_PROTOCOL(ijksegment);
@@ -216,11 +203,11 @@ index 0000000..107b238
 +IJK_DUMMY_PROTOCOL(ijkio);
 +
 +#define IJK_FF_DEMUXER(x)                                                                          \
-+extern AVInputFormat ff_##x##_demuxer;                                                               \
-+int ijkav_register_##x##_demuxer(AVInputFormat *demuxer, int demuxer_size);                        \
-+int ijkav_register_##x##_demuxer(AVInputFormat *demuxer, int demuxer_size)                         \
++extern FFInputFormat ff_##x##_demuxer;                                                               \
++int ijkav_register_##x##_demuxer(FFInputFormat *demuxer, int demuxer_size);                        \
++int ijkav_register_##x##_demuxer(FFInputFormat *demuxer, int demuxer_size)                         \
 +{                                                                                                   \
-+    if (demuxer_size != sizeof(AVInputFormat)) {                                                     \
++    if (demuxer_size != sizeof(FFInputFormat)) {                                                     \
 +        av_log(NULL, AV_LOG_ERROR, "ijkav_register_##x##_demuxer: ABI mismatch.\n");               \
 +        return -1;                                                                                  \
 +    }                                                                                               \
@@ -236,9 +223,11 @@ index 0000000..107b238
 +    .version    = LIBAVUTIL_VERSION_INT,                            \
 +    };                                                              \
 +                                                                    \
-+AVInputFormat ff_##x##_demuxer = {                                  \
-+    .name                = #x,                                      \
-+    .priv_class          = &ijk_##x##_demuxer_class,                \
++FFInputFormat ff_##x##_demuxer = {                                  \
++    .p.name         = #x,                                           \
++    .p.priv_class   = &ijk_##x##_demuxer_class,                     \
++    .priv_data_size = 1,                                            \ 
++    .flags_internal = FF_INFMT_FLAG_INIT_CLEANUP,                   \
 +};
 +
 +/*
