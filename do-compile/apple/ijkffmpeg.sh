@@ -34,7 +34,7 @@ FFMPEG_CFG_FLAGS=
 FFMPEG_EXTRA_CFLAGS=
 export COMMON_FF_CFG_FLAGS=
 # use ijk ffmpeg config options
-source $MR_SHELL_CONFIGS_DIR/ijk-ffmpeg-config/module.sh
+source $MR_SHELL_CONFIGS_DIR/ijk-ffmpeg-config/module-lite.sh
 FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS $COMMON_FF_CFG_FLAGS"
 
 # Advanced options (experts only):
