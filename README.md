@@ -33,9 +33,9 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、dvdnav、ff
 - dvdnav: dvdread
 - Ass for Appple:  harfbuzz,fribidi,unibreak
 - Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
-- FFmpeg for Appple:  openssl,opus,dav1d,dvdread,uavs3d,smb2
+- FFmpeg for Appple:  openssl3,opus,dav1d,dvdread,uavs3d,smb2
 - FFmpeg for Android: openssl,opus,dav1d,dvdread,uavs3d,smb2
-- FFmpeg7 for Appple: openssl,opus,dav1d,dvdnav,uavs3d,smb2
+- FFmpeg7 for Appple: openssl3,opus,dav1d,dvdnav,uavs3d,smb2
 
 Tips: 
 
@@ -50,7 +50,6 @@ Tips:
 ## Download/Install Pre-compiled Libs
 
 Save yourself a great deal of time by directly downloading the pre-compiled libraries from GitHub.
-
 These pre-compiled libraries already applied patches which in the patches directory.
 
 ```bash
@@ -129,6 +128,7 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 | fribidi    | 1.0.16          | https://github.com/fribidi/fribidi.git                   | export GIT_FRIBIDI_UPSTREAM = git@xx:yy/fribidi.git      |
 | harfbuzz   | 10.2.0          | https://github.com/harfbuzz/harfbuzz.git                 | export GIT_HARFBUZZ_UPSTREAM = git@xx:yy/harfbuzz.git    |
 | openssl    | 1.1.1w          | https://github.com/openssl/openssl.git                   | export GIT_OPENSSL_UPSTREAM = git@xx:yy/openssl.git      |
+| openssl3    | 3.5.0          | https://github.com/openssl/openssl.git                   | export GIT_OPENSSL_UPSTREAM = git@xx:yy/openssl.git      |
 | opus       | 1.5.2           | https://gitlab.xiph.org/xiph/opus.git                    | export GIT_OPUS_UPSTREAM = git@xx:yy/opus.git            |
 | smb2       | 6.2             | https://github.com/sahlberg/libsmb2.git                  | export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git           |
 | soundtouch | 2.3.3           | https://codeberg.org/soundtouch/soundtouch.git           | export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git  |
