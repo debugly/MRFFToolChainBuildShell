@@ -52,6 +52,7 @@ on:
           - fontconfig
           - freetype
           - fribidi
+          - openssl3
           - openssl
           - opus
           - smb2

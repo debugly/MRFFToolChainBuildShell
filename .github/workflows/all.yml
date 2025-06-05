@@ -86,9 +86,9 @@ jobs:
         echo '------compile opus------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/onestep.sh opus ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile openssl------------------------------------'
+        echo '------compile openssl3------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh openssl ${{ inputs.platform }} ${{ inputs.dryrun }}
+        .github/workflows/onestep.sh openssl3 ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile dvdread------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/onestep.sh dvdread ${{ inputs.platform }} ${{ inputs.dryrun }}

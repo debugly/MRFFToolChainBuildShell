@@ -37,16 +37,16 @@ case $LIB_NAME in
     ;;
     ffmpeg)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'openssl opus dav1d dvdnav uavs3d smb2 bluray' -p ios
-            ./main.sh install -l 'openssl opus dav1d dvdnav uavs3d smb2 bluray' -p tvos
-            ./main.sh install -l 'openssl opus dav1d dvdnav uavs3d smb2 bluray' -p macos
-            ./main.sh install -l 'openssl opus dav1d dvdnav uavs3d smb2 bluray' -p android
+            ./main.sh install -l 'openssl3 opus dav1d dvdnav uavs3d smb2 bluray' -p ios
+            ./main.sh install -l 'openssl3 opus dav1d dvdnav uavs3d smb2 bluray' -p tvos
+            ./main.sh install -l 'openssl3 opus dav1d dvdnav uavs3d smb2 bluray' -p macos
+            ./main.sh install -l 'openssl3 opus dav1d dvdnav uavs3d smb2 bluray' -p android
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'openssl opus dav1d dvdnav uavs3d smb2 bluray' -p ios
-            ./main.sh install -l 'openssl opus dav1d dvdnav uavs3d smb2 bluray' -p tvos
-            ./main.sh install -l 'openssl opus dav1d dvdnav uavs3d smb2 bluray' -p macos
+            ./main.sh install -l 'openssl3 opus dav1d dvdnav uavs3d smb2 bluray' -p ios
+            ./main.sh install -l 'openssl3 opus dav1d dvdnav uavs3d smb2 bluray' -p tvos
+            ./main.sh install -l 'openssl3 opus dav1d dvdnav uavs3d smb2 bluray' -p macos
         else
-            ./main.sh install -l 'openssl opus dav1d dvdnav uavs3d smb2 bluray' -p $PLAT
+            ./main.sh install -l 'openssl3 opus dav1d dvdnav uavs3d smb2 bluray' -p $PLAT
         fi
     ;;
     ijkffmpeg)
