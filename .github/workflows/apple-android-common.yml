@@ -38,9 +38,12 @@ on:
         description: 'choose a lib for compile'
         required: true
         type: choice
-        default: 'ffmpeg'
+        default: 'ffmpeg7'
         options:
-          - ffmpeg
+          - ffmpeg7
+          - ffmpeg6
+          - ffmpeg5
+          - ffmpeg4
           - ijkffmpeg
           - fftutorial
           - ass

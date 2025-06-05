@@ -35,7 +35,7 @@ case $LIB_NAME in
             ./main.sh install -l 'xml2' -p $PLAT
         fi
     ;;
-    ffmpeg)
+    ffmpeg7)
         if [[ $PLAT == all ]];then
             ./main.sh install -l 'openssl3 opus dav1d dvdnav uavs3d smb2 bluray' -p ios
             ./main.sh install -l 'openssl3 opus dav1d dvdnav uavs3d smb2 bluray' -p tvos
@@ -47,6 +47,48 @@ case $LIB_NAME in
             ./main.sh install -l 'openssl3 opus dav1d dvdnav uavs3d smb2 bluray' -p macos
         else
             ./main.sh install -l 'openssl3 opus dav1d dvdnav uavs3d smb2 bluray' -p $PLAT
+        fi
+    ;;
+    ffmpeg6)
+        if [[ $PLAT == all ]];then
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d smb2 bluray' -p ios
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d smb2 bluray' -p tvos
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d smb2 bluray' -p macos
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d smb2 bluray' -p android
+        elif [[ $PLAT == apple ]];then
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d smb2 bluray' -p ios
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d smb2 bluray' -p tvos
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d smb2 bluray' -p macos
+        else
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d smb2 bluray' -p $PLAT
+        fi
+    ;;
+    ffmpeg5)
+        if [[ $PLAT == all ]];then
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d bluray' -p ios
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d bluray' -p tvos
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d bluray' -p macos
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d bluray' -p android
+        elif [[ $PLAT == apple ]];then
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d bluray' -p ios
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d bluray' -p tvos
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d bluray' -p macos
+        else
+            ./main.sh install -l 'openssl3 opus dav1d dvdread uavs3d bluray' -p $PLAT
+        fi
+    ;;
+    ffmpeg4)
+        if [[ $PLAT == all ]];then
+            ./main.sh install -l 'openssl3 opus bluray' -p ios
+            ./main.sh install -l 'openssl3 opus bluray' -p tvos
+            ./main.sh install -l 'openssl3 opus bluray' -p macos
+            ./main.sh install -l 'openssl3 opus bluray' -p android
+        elif [[ $PLAT == apple ]];then
+            ./main.sh install -l 'openssl3 opus bluray' -p ios
+            ./main.sh install -l 'openssl3 opus bluray' -p tvos
+            ./main.sh install -l 'openssl3 opus bluray' -p macos
+        else
+            ./main.sh install -l 'openssl3 opus bluray' -p $PLAT
         fi
     ;;
     ijkffmpeg)

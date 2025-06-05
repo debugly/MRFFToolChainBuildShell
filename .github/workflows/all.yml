@@ -108,9 +108,9 @@ jobs:
         echo '------compile smb2------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/onestep.sh smb2 ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile ffmpeg------------------------------------'
+        echo '------compile ffmpeg7------------------------------------'
         rm -rf build || git reset --hard || git pull origin
-        .github/workflows/install-dependencies.sh ffmpeg ${{ inputs.platform }}
-        .github/workflows/onestep.sh ffmpeg ${{ inputs.platform }} ${{ inputs.dryrun }}
+        .github/workflows/install-dependencies.sh ffmpeg7 ${{ inputs.platform }}
+        .github/workflows/onestep.sh ffmpeg7 ${{ inputs.platform }} ${{ inputs.dryrun }}
       env:
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
