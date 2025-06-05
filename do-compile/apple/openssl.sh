@@ -42,7 +42,7 @@ echo "CROSS_TOP:$CROSS_TOP"
 echo "CROSS_SDK:$CROSS_SDK"
 # no-hw no-asm
 
-CFG_FLAGS="no-shared no-engine no-dynamic-engine no-static-engine \
+CFG_FLAGS="no-shared no-engine no-apps no-dynamic-engine no-static-engine \
         no-dso no-ui-console no-tests \
         --prefix=$MR_BUILD_PREFIX \
         --openssldir=$MR_BUILD_PREFIX \
