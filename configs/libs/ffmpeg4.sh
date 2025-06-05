@@ -22,7 +22,8 @@ export LIB_NAME='ffmpeg'
 export LIPO_LIBS="libavcodec libavformat libavutil libswscale libswresample libavfilter libavdevice"
 export LIB_DEPENDS_BIN="nasm pkg-config"
 export GIT_LOCAL_REPO=extra/ffmpeg
-export REPO_DIR=ffmpeg
+export REPO_DIR=ffmpeg4
+export PATCH_DIR=ffmpeg-n4.0
 
 # you can export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git use your mirror
 if [[ "$GIT_FFMPEG_UPSTREAM" != "" ]] ;then
@@ -35,14 +36,12 @@ if [[ "$GIT_FFMPEG_COMMIT" != "" ]] ;then
     export GIT_COMMIT="$GIT_FFMPEG_COMMIT"
     export GIT_REPO_VERSION="$GIT_FFMPEG_COMMIT"
 else
-    export GIT_COMMIT=n7.1.1 #origin/release/5.1
-    export GIT_REPO_VERSION=7.1.1
+    export GIT_COMMIT=n4.0.5
+    export GIT_REPO_VERSION=4.0.5
 fi
 
 # pre compiled
-export PRE_COMPILE_TAG=ffmpeg-6.1.2-250227145407
-export PRE_COMPILE_TAG_TVOS=ffmpeg-7.1.1-250605164908
-export PRE_COMPILE_TAG_MACOS=ffmpeg-7.1.1-250605164908
-export PRE_COMPILE_TAG_IOS=ffmpeg-7.1.1-250605164908
-export PRE_COMPILE_TAG_ANDROID=ffmpeg-6.1.2-250310113110
-
+export PRE_COMPILE_TAG_TVOS=
+export PRE_COMPILE_TAG_MACOS=
+export PRE_COMPILE_TAG_IOS=
+export PRE_COMPILE_TAG_ANDROID=

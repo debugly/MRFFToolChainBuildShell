@@ -22,6 +22,7 @@
 # pkg-config --libs dav1d
 # pkg-config --cflags --libs libbluray
 
+
 THIRD_CFG_FLAGS=
 
 # echo "----------------------"
@@ -133,6 +134,21 @@ echo "----------------------"
 
 # FFmpeg 4.2 支持AV1、AVS2等格式
 # dav1d由VideoLAN，VLC和FFmpeg联合开发，项目由AOM联盟赞助，和libaom相比，dav1d性能普遍提升100%，最高提升400%
+
+result=$(gt_or_equal "$GIT_REPO_VERSION" "4.2")
+if [[ $result ]]; then
+    
+    pkg-config --libs dav1d --silence-errors >/dev/null && enable_dav1d=1
+
+    if [[ $enable_dav1d ]];then
+        echo "[✅] --enable-libdav1d : $(pkg-config --modversion dav1d)"
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libdav1d --enable-decoder=libdav1d"
+    else
+        echo "[❌] --disable-libdav1d --disable-decoder=libdav1d"
+    fi
+    echo "----------------------"
+fi
+
 #从FFmpeg7.1.1开始支持硬解av1，苹果需要M3芯片
 result=$(gt_or_equal "$GIT_REPO_VERSION" "7.1.1")
 if [[ $result ]]; then
@@ -144,27 +160,24 @@ fi
 
 echo "----------------------"
 
-pkg-config --libs dav1d --silence-errors >/dev/null && enable_dav1d=1
+# 从6开始支持的 smb2 协议
+result=$(gt_or_equal "$GIT_REPO_VERSION" "6")
+if [[ $result ]]; then
+    pkg-config --libs libsmb2 --silence-errors >/dev/null && enable_smb2=1
 
-if [[ $enable_dav1d ]];then
-    echo "[✅] --enable-libdav1d : $(pkg-config --modversion dav1d)"
-    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libdav1d --enable-decoder=libdav1d"
-else
-    echo "[❌] --disable-libdav1d --disable-decoder=libdav1d"
+    if [[ $enable_smb2 ]];then
+        echo "[✅] --enable-libsmb2 : $(pkg-config --modversion libsmb2)"
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libsmb2 --enable-protocol=libsmb2"
+    else
+        echo "[❌] --disable-libsmb2 --disable-protocol=libsmb2"
+    fi
+
+    echo "----------------------"
+
+    echo "[✅] --enable-parser=av3a"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-parser=av3a --enable-demuxer=av3a"
+    echo "----------------------"
 fi
-
-echo "----------------------"
-
-pkg-config --libs libsmb2 --silence-errors >/dev/null && enable_smb2=1
-
-if [[ $enable_smb2 ]];then
-    echo "[✅] --enable-libsmb2 : $(pkg-config --modversion libsmb2)"
-    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libsmb2 --enable-protocol=libsmb2"
-else
-    echo "[❌] --disable-libsmb2 --disable-protocol=libsmb2"
-fi
-
-echo "----------------------"
 
 pkg-config --libs libbluray --silence-errors >/dev/null && enable_bluray=1
 
@@ -174,6 +187,7 @@ if [[ $enable_bluray ]];then
 else
     echo "[❌] --disable-libbluray --disable-protocol=bluray"
 fi
+
 echo "----------------------"
 
 #不确定7代之前的版本是否支持dvdvideo
@@ -188,28 +202,34 @@ if [[ $result ]]; then
     else
         echo "[❌] --disable-dvdvideo"
     fi
+    echo "----------------------"
 else
-    pkg-config --libs dvdread --silence-errors >/dev/null && enable_dvdread=1
-    if [[ $enable_dvdread ]];then
-        echo "[✅] --enable-libdvdread : $(pkg-config --modversion dvdread)"
-        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libdvdread --enable-protocol=dvd"
-    else
-        echo "[❌] --disable-dvd protocol"
+    result=$(gt_or_equal "$GIT_REPO_VERSION" "5")
+    if [[ $result ]]; then
+        pkg-config --libs dvdread --silence-errors >/dev/null && enable_dvdread=1
+        if [[ $enable_dvdread ]];then
+            echo "[✅] --enable-libdvdread : $(pkg-config --modversion dvdread)"
+            THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libdvdread --enable-protocol=dvd"
+        else
+            echo "[❌] --disable-dvd protocol"
+        fi
+        echo "----------------------"
     fi
 fi
 
-echo "----------------------"
+result=$(gt_or_equal "$GIT_REPO_VERSION" "5")
+if [[ $result ]]; then
+    pkg-config --libs uavs3d --silence-errors >/dev/null && enable_uavs3d=1
 
-pkg-config --libs uavs3d --silence-errors >/dev/null && enable_uavs3d=1
+    if [[ $enable_uavs3d ]];then
+        echo "[✅] --enable-libuavs3d : $(pkg-config --modversion uavs3d)"
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libuavs3d --enable-decoder=libuavs3d"
+    else
+        echo "[❌] --disable-libuavs3d --disable-decoder=libuavs3d"
+    fi
 
-if [[ $enable_uavs3d ]];then
-    echo "[✅] --enable-libuavs3d : $(pkg-config --modversion uavs3d)"
-    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libuavs3d --enable-decoder=libuavs3d"
-else
-    echo "[❌] --disable-libuavs3d --disable-decoder=libuavs3d"
+    echo "----------------------"
 fi
-
-echo "----------------------"
 
 pkg-config --libs libxml-2.0 --silence-errors >/dev/null && enable_xml2=1
 
@@ -242,8 +262,6 @@ echo "----------------------"
 #     echo "[❌] --disable-decoder=av3a"
 # fi
 
-echo "[✅] --enable-parser=av3a"
-THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-parser=av3a --enable-demuxer=av3a"
 
 # --------------------------------------------------------------
 THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --pkg-config-flags=--static"
