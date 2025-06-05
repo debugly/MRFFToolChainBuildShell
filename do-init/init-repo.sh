@@ -66,17 +66,18 @@ function pull_common() {
 }
 
 function apply_patches() {
-    if [[ "$SKIP_FFMPEG_PATHCHES" && $REPO_DIR == 'ffmpeg' ]]; then
+    if [[ "$SKIP_FFMPEG_PATHCHES" && $LIB_NAME == ffmpeg* ]]; then
         echo "⚠️ skip apply $REPO_DIR patches,because you set SKIP_FFMPEG_PATHCHES env."
         return
     fi
     
     local plat="$MR_PLAT"
-    local patch_dir="${THIS_DIR}/../patches/$REPO_DIR"
+    local patch_dir="${THIS_DIR}/../patches/$PATCH_DIR"
     
     if [[ -d "${patch_dir}_${plat}" ]]; then
         patch_dir="${patch_dir}_${plat}"
     fi
+    
     if [[ -d "$patch_dir" ]]; then
         echo
         echo "== Applying patches: $(basename $patch_dir) → $(basename $PWD) =="
