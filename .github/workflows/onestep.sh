@@ -33,14 +33,15 @@ function init_platform
     
     echo "---generate src log--------------------------------------"
     cd build/src/$plat
-    ls | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > $DIST_DIR/$plat-src-log-$RELEASE_VERSION.md
+    ls | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > $DIST_DIR/$plat-compile-log-$RELEASE_VERSION.md
     cd $ROOT_DIR
 }
 
 function compile_ios_platform
 {
     echo "---do compile ios libs--------------------------------------"
-    ./main.sh compile -p ios -c build -l ${LIB_NAME}
+    ./main.sh compile -p ios -c build -l ${LIB_NAME} --skip-fmwk >> $DIST_DIR/ios-compile-log-$RELEASE_VERSION.md
+     
     cd build/product/ios/universal
     zip -ryq $DIST_DIR/${LIB_NAME}-ios-universal-${RELEASE_VERSION}.zip ./*
     
@@ -52,7 +53,8 @@ function compile_ios_platform
 function compile_macos_platform
 {
     echo "---do compile macos libs--------------------------------------"
-    ./main.sh compile -p macos -c build -l ${LIB_NAME}
+    ./main.sh compile -p macos -c build -l ${LIB_NAME} --skip-fmwk >> $DIST_DIR/macos-compile-log-$RELEASE_VERSION.md
+    
     cd build/product/macos/universal
     zip -ryq $DIST_DIR/${LIB_NAME}-macos-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
@@ -61,7 +63,8 @@ function compile_macos_platform
 function compile_tvos_platform
 {
     echo "---do compile tvos libs--------------------------------------"
-    ./main.sh compile -p tvos -c build -l ${LIB_NAME}
+    ./main.sh compile -p tvos -c build -l ${LIB_NAME} --skip-fmwk >> $DIST_DIR/android-compile-log-$RELEASE_VERSION.md
+
     cd build/product/tvos/universal
     zip -ryq $DIST_DIR/${LIB_NAME}-tvos-universal-${RELEASE_VERSION}.zip ./*
     
@@ -74,7 +77,7 @@ function compile_tvos_platform
 function compile_android_platform
 {
     echo "---do compile android libs--------------------------------------"
-    ./main.sh compile -p android -c build -l ${LIB_NAME}
+    ./main.sh compile -p android -c build -l ${LIB_NAME} >> $DIST_DIR/android-compile-log-$RELEASE_VERSION.md
     cd build/product/android/universal
     zip -ryq $DIST_DIR/${LIB_NAME}-android-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
