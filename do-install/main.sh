@@ -27,12 +27,12 @@ function parse_lib_config() {
     local t=$(echo "PRE_COMPILE_TAG_$MR_PLAT" | tr '[:lower:]' '[:upper:]')
     local vt=$(eval echo "\$$t")
 
-    if test -z $TAG ;then
-        echo "tag can't be nil"
-        usage
+    if test -z $vt ;then
+        echo "$t can't be nil"
         exit
     fi
-
+    
+    export TAG=$vt
     # opus-1.3.1-231124151836
     # yuv-stable-eb6e7bb-250225223408
     LIB_NAME=$(echo $TAG | awk -F - '{print $1}')
@@ -44,7 +44,6 @@ function parse_lib_config() {
     VER=${temp%$suffix}
 
     export VER
-    export TAG
     export LIB_NAME
 }
 
