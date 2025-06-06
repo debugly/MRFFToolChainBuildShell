@@ -65,6 +65,7 @@ fi
 C_FLAGS="$MR_DEFAULT_CFLAGS"
 
 cd $MR_BUILD_SOURCE
+
 if [ -f "./Makefile" ]; then
     echo 'reuse configure'
     echo "----------------------"
@@ -74,7 +75,6 @@ else
     echo "[*] configurate"
     echo "C_FLAGS: $C_FLAGS"
     echo "Openssl CFG: $CFG_FLAGS"
-    echo "PATH: $PATH"
     echo "----------------------"
 
     export C_FLAGS="$C_FLAGS"
@@ -85,7 +85,6 @@ else
     export RANLIB="$MR_RANLIB"
     export STRIP="$MR_STRIP"
     export ANDROID_NDK_ROOT="$MR_ANDROID_NDK_HOME"
-
 
     ./Configure $CFG_FLAGS
 fi

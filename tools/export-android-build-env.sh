@@ -49,30 +49,6 @@ esac
 
 # x86_64
 export MR_ARCH="$_MR_ARCH"
-# openssl-armv7a
-
-# android/ffmpeg-x86_64
-export MR_BUILD_SOURCE="${MR_SRC_ROOT}/${REPO_DIR}-${_MR_ARCH}"
-# android/fftutorial-x86_64
-export MR_BUILD_PREFIX="${MR_PRODUCT_ROOT}/${LIB_NAME}-${_MR_ARCH}"
-
-if [[ -n "$ANDROID_NDK_HOME" ]];then
-    export MR_ANDROID_NDK_HOME="$ANDROID_NDK_HOME"
-elif [[ -n "$ANDROID_NDK_ROOT" ]]; then
-    export MR_ANDROID_NDK_HOME="$ANDROID_NDK_ROOT"
-elif [[ -n "$ANDROID_NDK" ]]; then
-    export MR_ANDROID_NDK_HOME="$ANDROID_NDK"
-else
-    echo "You must define ANDROID_NDK_HOME before starting."
-    echo "They must point to your NDK directories.\n"
-    exit 1
-fi
-
-export MR_NDK_REL=$(grep -m 1 -o '^## r[0-9]*.*' $MR_ANDROID_NDK_HOME/CHANGELOG.md | awk '{print $2}')
-
-export MR_TOOLCHAIN_ROOT="$MR_ANDROID_NDK_HOME/toolchains/llvm/prebuilt/${MR_HOST_TAG}"
-export PATH="${MR_TOOLCHAIN_ROOT}/bin:$PATH"
-export MR_SYS_ROOT="${MR_TOOLCHAIN_ROOT}/sysroot"
 
 # Common prefix for ld, as, etc.
 CROSS_PREFIX_WITH_PATH=${MR_TOOLCHAIN_ROOT}/bin/llvm-
@@ -104,6 +80,11 @@ export       MR_YASM=${MR_TOOLCHAIN_ROOT}/bin/yasm
 
 export MR_DEFAULT_CFLAGS="$MR_INIT_CFLAGS -D__ANDROID__"
 
+# openssl-armv7a
+# android/ffmpeg-x86_64
+export MR_BUILD_SOURCE="${MR_SRC_ROOT}/${REPO_DIR}-${_MR_ARCH}"
+# android/fftutorial-x86_64
+export MR_BUILD_PREFIX="${MR_PRODUCT_ROOT}/${LIB_NAME}-${_MR_ARCH}"
 
 echo "MR_ARCH         : [$MR_ARCH]"
 echo "MR_TRIPLE       : [$MR_TRIPLE]"
