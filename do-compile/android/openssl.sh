@@ -50,7 +50,7 @@ case $_MR_ARCH in
     ;;
 esac
 
-CFG_FLAGS="no-shared no-engine no-dynamic-engine no-static-engine \
+CFG_FLAGS="no-shared no-engine no-apps no-dynamic-engine no-static-engine \
         no-dso no-ui-console no-tests \
         --prefix=$MR_BUILD_PREFIX \
         --openssldir=$MR_BUILD_PREFIX \
@@ -74,6 +74,7 @@ else
     echo "[*] configurate"
     echo "C_FLAGS: $C_FLAGS"
     echo "Openssl CFG: $CFG_FLAGS"
+    echo "PATH: $PATH"
     echo "----------------------"
 
     export C_FLAGS="$C_FLAGS"
@@ -83,6 +84,9 @@ else
     export AS="$MR_AS"
     export RANLIB="$MR_RANLIB"
     export STRIP="$MR_STRIP"
+    export ANDROID_NDK_ROOT="$MR_ANDROID_NDK_HOME"
+
+
     ./Configure $CFG_FLAGS
 fi
 
