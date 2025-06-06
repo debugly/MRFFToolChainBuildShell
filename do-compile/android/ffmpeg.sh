@@ -37,7 +37,6 @@ source $MR_SHELL_CONFIGS_DIR/ffconfig/auto-detect-third-libs.sh
 CFG_FLAGS=
 CFG_FLAGS="$CFG_FLAGS $COMMON_FF_CFG_FLAGS"
 CFG_FLAGS="$CFG_FLAGS $THIRD_CFG_FLAGS"
-CFG_FLAGS="$CFG_FLAGS --enable-demuxer=dash --enable-libxml2"
 
 # Android 15 with 16 kb page size support
 # https://developer.android.com/guide/practices/page-sizes#compile-r27
