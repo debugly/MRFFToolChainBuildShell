@@ -20,10 +20,10 @@ on:
         options:
           - apple
           - android
-          - all
           - ios
           - tvos
           - macos
+          - all
       dryrun:
         description: 'just run workflow,but not deploy'
         required: false

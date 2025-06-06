@@ -42,7 +42,7 @@ Clone vendor library git repository,Checkout specify commit,Apply patches
 OPTIONS:
     -p                   Specify platform (ios,macos,tvos,android), can't be nil
     -a                   Specify archs (x86_64,arm64,x86_64_simulator,arm64_simulator,all) all="x86_64,arm64,x86_64_simulator,arm64_simulator"
-    -l                   Specify which libs need init (all|libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
+    -l                   Specify which libs need init (libyuv|openssl|openssl3|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ijkffmpeg|fftutorial|ffmpeg4|ffmpeg5|ffmpeg6|ffmpeg7), can't be nil
     -s                   Specify workspace dir
     --help               Show help banner of init command
     --skip-pull-base     Skip pull base repo
@@ -291,14 +291,6 @@ else
             exit 1
         fi
     done
-fi
-
-if [[ "$MR_VENDOR_LIBS" == "all" ]]; then
-    cfg_dir=$(DIRNAME=$(dirname "${BASH_SOURCE[0]}"); cd "${DIRNAME}/../configs"; pwd)
-    source "${cfg_dir}/default.sh"
-
-    eval libs='$'"${MR_PLAT}_default_libs"
-    export MR_VENDOR_LIBS="$libs"
 fi
 
 echo "MR_ACTION       : [$MR_ACTION]"
