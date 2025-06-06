@@ -33,9 +33,14 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、dvdnav、ff
 - dvdnav: dvdread
 - Ass for Appple:  harfbuzz,fribidi,unibreak
 - Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
-- FFmpeg for Appple:  openssl3,opus,dav1d,dvdread,uavs3d,smb2
-- FFmpeg for Android: openssl,opus,dav1d,dvdread,uavs3d,smb2
-- FFmpeg7 for Appple: openssl3,opus,dav1d,dvdnav,uavs3d,smb2
+- FFmpeg4 for Appple: openssl3,opus,bluray
+- FFmpeg5 for Appple: openssl3,opus,bluray,dav1d,dvdread,uavs3d
+- FFmpeg6 for Appple: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2
+- FFmpeg7 for Appple: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2
+- FFmpeg4 for Android: openssl3,opus,bluray,soundtouch
+- FFmpeg5 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,soundtouch
+- FFmpeg6 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2,soundtouch
+- FFmpeg7 for Android: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,soundtouch
 
 Tips: 
 
@@ -58,8 +63,7 @@ These pre-compiled libraries already applied patches which in the patches direct
 # Examples of usage:
 ./main.sh install -p macos -l ffmpeg
 ./main.sh install -p ios -l 'ass ffmpeg'
-./main.sh install -p tvos -l all
-./main.sh install -p android -l all
+./main.sh install -p android -l openssl3
 ```
 
 ## Compile by Yourself
@@ -74,14 +78,10 @@ The script parameters are flexible and can be combined as needed. Here are some 
 ```
 # Check the help first
 ./main.sh init --help
-# Prepare source code for all libraries for the iOS platform
-./main.sh init -p ios -l all
-# Prepare source code for all libraries for the x86 architecture on iOS
-./main.sh init -p ios -l all -a x86_64_simulator
-# Prepare source code for all libraries for the macOS platform
-./main.sh init -p macos -l all
-# Prepare source code for specific libraries for the iOS platform
-./main.sh init -p ios -l "openssl ffmpeg"
+# Prepare libass source code for the iOS platform
+./main.sh init -p ios -l ass
+# Prepare ffmpeg7 source code for the x86 architecture on iOS
+./main.sh init -p ios -l ffmpeg7 -a x86_64_simulator
 # Prepare source code for specific libraries for the Android platform
 ./main.sh init -p android -l "openssl ffmpeg"
 ```
@@ -100,13 +100,16 @@ Once the source code repository initialization is complete, you can start the co
 # -a specifies the CPU architecture
 ```
 
-Examples of usage:
+The following code demonstrates how to compile FFmpeg 7 for the iOS platform：
 
 ```
- Compile all dependencies for the iOS platform
-./main.sh compile -c build -p ios -l all
-# Compile the libass library for the arm64 architecture on iOS
-./main.sh compile -c build -p ios -a arm64 -l ass
+# install FFmpeg7's dependencies has two choices
+# recommend choice (because ffmpeg7 was pre-compiled,it contained all dependencies)
+./main.sh install -p ios -l ffmpeg7
+# other choice (you must know ffmpeg7's dependent lib name)
+./main.sh install -p ios -l "openssl3 opus bluray dav1d dvdnav uavs3d,smb2"
+# Compile FFmpeg7 for the arm64 architecture on iOS
+./main.sh compile -p ios -a arm64 -l ffmepg7 --skip-fmwk
 ```
 
 The order of these parameters does not matter; they can be arranged in any sequence.
