@@ -38,7 +38,6 @@ else
 fi
 
 # pre compiled
-export PRE_COMPILE_TAG=fribidi-1.0.16-250225223849
 export PRE_COMPILE_TAG_TVOS=fribidi-1.0.16-250226211508
 export PRE_COMPILE_TAG_MACOS=fribidi-1.0.16-250226205618
 export PRE_COMPILE_TAG_IOS=fribidi-1.0.16-250226174802

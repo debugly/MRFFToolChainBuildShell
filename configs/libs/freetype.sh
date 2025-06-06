@@ -36,7 +36,6 @@ else
 fi
 
 # pre compiled
-export PRE_COMPILE_TAG=freetype-2.13.3-250225223932
 export PRE_COMPILE_TAG_TVOS=freetype-2.13.3-250226211539
 export PRE_COMPILE_TAG_MACOS=freetype-2.13.3-250226205646
 export PRE_COMPILE_TAG_IOS=freetype-2.13.3-250226174825

@@ -40,7 +40,6 @@ else
 fi
 
 # pre compiled
-export PRE_COMPILE_TAG=
 export PRE_COMPILE_TAG_TVOS=fftutorial-6.1.1-250413171857
 export PRE_COMPILE_TAG_MACOS=fftutorial-6.1.1-250413171857
 export PRE_COMPILE_TAG_IOS=fftutorial-6.1.1-250413171857

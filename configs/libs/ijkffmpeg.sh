@@ -40,7 +40,6 @@ else
 fi
 
 # pre compiled
-export PRE_COMPILE_TAG=ijkffmpeg-4.0-250311090211
 export PRE_COMPILE_TAG_ANDROID=ijkffmpeg-4.0-250606110858
 export PRE_COMPILE_TAG_TVOS=ijkffmpeg-4.0-250311090211
 export PRE_COMPILE_TAG_MACOS=ijkffmpeg-4.0-250311090211

@@ -38,7 +38,6 @@ else
 fi
 
 # pre compiled
-export PRE_COMPILE_TAG=harfbuzz-10.2.0-250226074405
 export PRE_COMPILE_TAG_TVOS=harfbuzz-10.2.0-250226211621
 export PRE_COMPILE_TAG_MACOS=harfbuzz-10.2.0-250226205723
 export PRE_COMPILE_TAG_IOS=harfbuzz-10.2.0-250226174909

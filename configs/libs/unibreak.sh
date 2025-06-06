@@ -38,7 +38,6 @@ else
 fi
 
 # pre compiled
-export PRE_COMPILE_TAG=unibreak-6.1-250225223657
 export PRE_COMPILE_TAG_TVOS=unibreak-6.1-250226211354
 export PRE_COMPILE_TAG_MACOS=unibreak-6.1-250226205523
 export PRE_COMPILE_TAG_IOS=unibreak-6.1-250226174658

@@ -98,15 +98,8 @@ function replace_tag()
         # replace PRE_COMPILE_TAG_IOS=new_tag
         sed -i "" "s/^export $key=.*/export $key=$TAG/" $file
     else
-        # PRE_COMPILE_TAG_IOS not found, check PRE_COMPILE_TAG
-        if grep -q "PRE_COMPILE_TAG" "$file"; then
-            # insert PRE_COMPILE_TAG_IOS=new_tag after PRE_COMPILE_TAG
-sed -i "" "/PRE_COMPILE_TAG=/a\\
-export $key=$TAG
-" "$file"
-        else
-            echo "can't find PRE_COMPILE_TAG in $file"
-        fi
+        # PRE_COMPILE_TAG_IOS not found, append PRE_COMPILE_TAG_IOS
+        echo "export $key=$TAG" >> $file
     fi
 }
 
@@ -132,7 +125,6 @@ function upgrade()
             replace_tag $file PRE_COMPILE_TAG_ANDROID
         ;;
         all)
-            replace_tag $file PRE_COMPILE_TAG
             replace_tag $file PRE_COMPILE_TAG_IOS
             replace_tag $file PRE_COMPILE_TAG_MACOS
             replace_tag $file PRE_COMPILE_TAG_TVOS

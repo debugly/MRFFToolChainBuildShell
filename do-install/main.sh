@@ -27,12 +27,6 @@ function parse_lib_config() {
     local t=$(echo "PRE_COMPILE_TAG_$MR_PLAT" | tr '[:lower:]' '[:upper:]')
     local vt=$(eval echo "\$$t")
 
-    if test -z $vt ;then
-        TAG="$PRE_COMPILE_TAG"
-    else
-        TAG="$vt"
-    fi
-
     if test -z $TAG ;then
         echo "tag can't be nil"
         usage

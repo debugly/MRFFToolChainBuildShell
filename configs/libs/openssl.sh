@@ -30,7 +30,6 @@ else
 fi
 
 # pre compiled
-export PRE_COMPILE_TAG=openssl-1.1.1w-250306132030
 export PRE_COMPILE_TAG_TVOS=openssl-1.1.1w-250318092610
 export PRE_COMPILE_TAG_MACOS=openssl-1.1.1w-250318092610
 export PRE_COMPILE_TAG_IOS=openssl-1.1.1w-250318092610
