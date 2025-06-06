@@ -71,6 +71,11 @@ function apply_patches() {
         return
     fi
     
+    if [[ -z "$PATCH_DIR" ]]; then
+        echo "$REPO_DIR hasn't any patch"
+        return
+    fi
+
     local plat="$MR_PLAT"
     local patch_dir="${THIS_DIR}/../patches/$PATCH_DIR"
     
