@@ -1,7 +1,7 @@
 From b91fad7c8957a9eb97b9d383142b272f35f7778e Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 29 Jul 2022 12:59:58 +0800
-Subject: [PATCH 07/16] hls read_header2
+Subject: [PATCH 07] hls read_header2
 
 ---
  libavformat/avformat.h |   5 ++

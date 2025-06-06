@@ -1,7 +1,7 @@
 From d8265ca339e8549f481d470e7a3943820a5ac44a Mon Sep 17 00:00:00 2001
 From: YoushiQian <youshiqian206918@sohu-inc.com>
 Date: Wed, 8 Jun 2022 14:07:32 +0800
-Subject: [PATCH 15/16] support to parse all tracks' language meta when open
+Subject: [PATCH 15] support to parse all tracks' language meta when open
  the bluray input
 
 ---

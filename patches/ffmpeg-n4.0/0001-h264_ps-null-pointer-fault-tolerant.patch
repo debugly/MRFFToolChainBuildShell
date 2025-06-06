@@ -1,7 +1,7 @@
 From 396e4f1c0021145ee42866a302930dbb1e812838 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 29 Jul 2022 12:48:33 +0800
-Subject: [PATCH 01/16] h264_ps null pointer fault tolerant
+Subject: [PATCH 01] h264_ps null pointer fault tolerant
 
 ---
  libavcodec/h264_ps.c | 8 ++++----

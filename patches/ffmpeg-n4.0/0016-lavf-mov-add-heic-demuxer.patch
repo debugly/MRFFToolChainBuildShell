@@ -1,7 +1,7 @@
 From 509423fcdd289709d5ff30b17ef69499ae7492c1 Mon Sep 17 00:00:00 2001
 From: youshiqian <youshiqian206918>
 Date: Wed, 31 Aug 2022 11:44:24 +0800
-Subject: [PATCH] lavf/mov: add heic demuxer
+Subject: [PATCH 16] lavf/mov: add heic demuxer
  (https://github.com/bluez-sh/FFmpeg/commit/9a885cddb3550ab863a60d02c5fb78e4ae206cf1).
  refer to below links for details: https://trac.ffmpeg.org/ticket/6521
  https://trac.ffmpeg.org/ticket/7621#comment:10

@@ -1,7 +1,7 @@
 From 717083123cc79ab41c69629af584f89547797072 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 29 Jul 2022 12:57:50 +0800
-Subject: [PATCH 08/16] add AV_PKT_FLAG_NEW_SEG
+Subject: [PATCH 08] add AV_PKT_FLAG_NEW_SEG
 
 ---
  libavcodec/avcodec.h    |   1 +

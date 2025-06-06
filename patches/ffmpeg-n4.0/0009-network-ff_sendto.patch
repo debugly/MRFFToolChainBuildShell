@@ -1,7 +1,7 @@
 From 134e70adfd4add1ffb8ebfcc4cfb4f13ba2944ed Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 29 Jul 2022 13:00:17 +0800
-Subject: [PATCH 09/16] network ff_sendto
+Subject: [PATCH 09] network ff_sendto
 
 ---
  libavformat/network.c | 46 +++++++++++++++++++++++++++++++++++++++++++

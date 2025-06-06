@@ -1,7 +1,7 @@
 From 3fe418f1962704b301d68d9898b6102ec04dcde0 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 29 Jul 2022 12:54:09 +0800
-Subject: [PATCH 04/16] file use file_seek
+Subject: [PATCH 04] file use file_seek
 
 ---
  libavformat/file.c | 3 ++-

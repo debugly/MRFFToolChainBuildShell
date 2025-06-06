@@ -1,7 +1,7 @@
 From 871fff7c5c8e7e702dccc2129e1ae64d7fe3f33b Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 29 Jul 2022 12:59:12 +0800
-Subject: [PATCH 06/16] mov add allow_multi_extradata opt
+Subject: [PATCH 06] mov add allow_multi_extradata opt
 
 ---
  libavformat/isom.h |  2 ++

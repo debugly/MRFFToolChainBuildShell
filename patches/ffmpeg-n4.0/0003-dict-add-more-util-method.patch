@@ -1,7 +1,7 @@
 From 77387f8a47c69225f336a7aeaf6a3e6298ebe2c3 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 29 Jul 2022 12:50:10 +0800
-Subject: [PATCH 03/16] dict add more util method
+Subject: [PATCH 03] dict add more util method
 
 ---
  libavutil/dict.c | 39 ++++++++++++++++++++++++++++++++++++++-

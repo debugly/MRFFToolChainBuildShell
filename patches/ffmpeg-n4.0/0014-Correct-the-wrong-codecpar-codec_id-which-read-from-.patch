@@ -1,7 +1,7 @@
 From 3f27485e4d79e17ff598c0aabecd24d0d9381e43 Mon Sep 17 00:00:00 2001
 From: YoushiQian <youshiqian206918@sohu-inc.com>
 Date: Mon, 9 May 2022 09:53:18 +0800
-Subject: [PATCH 14/16] Correct the wrong codecpar->codec_id which read from
+Subject: [PATCH 14] Correct the wrong codecpar->codec_id which read from
  MIME of ID3tags, but the real data was encoded in PNG/JPEG/TIFF
 
 ---
