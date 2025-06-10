@@ -85,10 +85,11 @@ function compile_android_platform
 
 function make_xcfmwk_bundle()
 {
-    echo "---Zip apple xcframework--------------------------------------"
-    cd build/product/xcframework
-    zip -ryq $DIST_DIR/${LIB_NAME}-apple-xcframework-${RELEASE_VERSION}.zip ./*
-    cd $ROOT_DIR
+    echo "---skip apple xcframework--------------------------------------"
+    # echo "---Zip apple xcframework--------------------------------------"
+    # cd build/product/xcframework
+    # zip -ryq $DIST_DIR/${LIB_NAME}-apple-xcframework-${RELEASE_VERSION}.zip ./*
+    # cd $ROOT_DIR
 }
 
 function replace_tag()
