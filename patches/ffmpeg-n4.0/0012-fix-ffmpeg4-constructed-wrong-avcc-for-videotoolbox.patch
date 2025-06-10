@@ -1,0 +1,122 @@
+From e662624b224ae76d275e2628664e6c91ded296c1 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Tue, 10 Jun 2025 18:24:40 +0800
+Subject: [PATCH 12] fix ffmpeg4 constructed wrong avcc for videotoolbox
+
+---
+ libavcodec/h264_ps.c      |  4 +++
+ libavcodec/videotoolbox.c | 61 ++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 57 insertions(+), 8 deletions(-)
+
+diff --git a/libavcodec/h264_ps.c b/libavcodec/h264_ps.c
+index 15fb8b6..8cdb93c 100644
+--- a/libavcodec/h264_ps.c
++++ b/libavcodec/h264_ps.c
+@@ -752,6 +752,10 @@ int ff_h264_decode_picture_parameter_set(GetBitContext *gb, AVCodecContext *avct
+     }
+     memcpy(pps->data, gb->buffer, pps->data_size);
+ 
++    // Re-add the removed stop bit (may be used by hwaccels).
++    if (!(bit_length & 7) && pps->data_size < sizeof(pps->data))
++        pps->data[pps->data_size++] = 0x80;
++    
+     pps->sps_id = get_ue_golomb_31(gb);
+     if ((unsigned)pps->sps_id >= MAX_SPS_COUNT ||
+         !ps->sps_list[pps->sps_id]) {
+diff --git a/libavcodec/videotoolbox.c b/libavcodec/videotoolbox.c
+index 57b6698..064efe0 100644
+--- a/libavcodec/videotoolbox.c
++++ b/libavcodec/videotoolbox.c
+@@ -118,14 +118,49 @@ int ff_videotoolbox_alloc_frame(AVCodecContext *avctx, AVFrame *frame)
+ 
+ #define AV_W8(p, v) *(p) = (v)
+ 
++static int escape_ps(uint8_t* dst, const uint8_t* src, int src_size)
++{
++    int i;
++    int size = src_size;
++    uint8_t* p = dst;
++
++    for (i = 0; i < src_size; i++) {
++        if (i + 2 < src_size &&
++            src[i]     == 0x00 &&
++            src[i + 1] == 0x00 &&
++            src[i + 2] <= 0x03) {
++            if (dst) {
++                *p++ = src[i++];
++                *p++ = src[i];
++                *p++ = 0x03;
++            } else {
++                i++;
++            }
++            size++;
++        } else if (dst)
++            *p++ = src[i];
++    }
++
++    if (dst)
++        av_assert0((p - dst) == size);
++
++    return size;
++}
++
+ CFDataRef ff_videotoolbox_avcc_extradata_create(AVCodecContext *avctx)
+ {
+     VTContext *vtctx = avctx->internal->hwaccel_priv_data;
+     H264Context *h = avctx->priv_data;
+     CFDataRef data = NULL;
+     uint8_t *p;
+-    int vt_extradata_size = 6 + 2 + h->ps.sps->data_size + 3 + h->ps.pps->data_size;
+-    uint8_t *vt_extradata = av_malloc(vt_extradata_size);
++    int sps_size = escape_ps(NULL, h->ps.sps->data, h->ps.sps->data_size);
++    int pps_size = escape_ps(NULL, h->ps.pps->data, h->ps.pps->data_size);
++    int vt_extradata_size;
++    uint8_t *vt_extradata;
++
++    vt_extradata_size = 6 + 2 + sps_size + 3 + pps_size;
++    vt_extradata = av_malloc(vt_extradata_size);
++
+     if (!vt_extradata)
+         return NULL;
+ 
+@@ -137,14 +172,14 @@ CFDataRef ff_videotoolbox_avcc_extradata_create(AVCodecContext *avctx)
+     AV_W8(p + 3, h->ps.sps->data[3]); /* level */
+     AV_W8(p + 4, 0xff); /* 6 bits reserved (111111) + 2 bits nal size length - 3 (11) */
+     AV_W8(p + 5, 0xe1); /* 3 bits reserved (111) + 5 bits number of sps (00001) */
+-    AV_WB16(p + 6, h->ps.sps->data_size);
+-    memcpy(p + 8, h->ps.sps->data, h->ps.sps->data_size);
+-    p += 8 + h->ps.sps->data_size;
++    AV_WB16(p + 6, sps_size);
++    p += 8;
++    p += escape_ps(p, h->ps.sps->data, h->ps.sps->data_size);
+     AV_W8(p + 0, 1); /* number of pps */
+-    AV_WB16(p + 1, h->ps.pps->data_size);
+-    memcpy(p + 3, h->ps.pps->data, h->ps.pps->data_size);
++    AV_WB16(p + 1, pps_size);
++    p += 3;
++    p += escape_ps(p, h->ps.pps->data, h->ps.pps->data_size);
+ 
+-    p += 3 + h->ps.pps->data_size;
+     av_assert0(p - vt_extradata == vt_extradata_size);
+ 
+     // save sps header (profile/level) used to create decoder session,
+@@ -152,6 +187,16 @@ CFDataRef ff_videotoolbox_avcc_extradata_create(AVCodecContext *avctx)
+     if (vtctx)
+         memcpy(vtctx->sps, h->ps.sps->data + 1, 3);
+ 
++//    {
++//        char buffer[128];
++//        sprintf(buffer, "%s", "\nnew avcc:");
++//        int len = (int)strlen(buffer);
++//        for (int i = 0; i < vt_extradata_size; i++) {
++//            len += sprintf(buffer + len, "%02x", avctx->extradata[i]);
++//        }
++//        av_log(avctx, AV_LOG_INFO, "%s\n", buffer);
++//    }
++
+     data = CFDataCreate(kCFAllocatorDefault, vt_extradata, vt_extradata_size);
+     av_free(vt_extradata);
+     return data;
+-- 
+2.39.5 (Apple Git-154)
+
