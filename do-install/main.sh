@@ -23,10 +23,10 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
 function parse_lib_config() {
-
+    
     local t=$(echo "PRE_COMPILE_TAG_$MR_PLAT" | tr '[:lower:]' '[:upper:]')
     local vt=$(eval echo "\$$t")
-
+    
     if test -z $vt ;then
         echo "$t can't be nil"
         exit
@@ -42,28 +42,36 @@ function parse_lib_config() {
     local temp=${TAG#$prefix}
     # 去掉后缀
     VER=${temp%$suffix}
-
+    
     export VER
     export LIB_NAME
 }
 
-# 循环编译所有的库
-for lib in $MR_VENDOR_LIBS
-do
-    [[ ! -f "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh" ]] && (echo "❌$lib config not exist,install will stop.";exit 1;)
+function install_libs()
+{
+    # 循环安装所有的库
+    for lib in $MR_VENDOR_LIBS
+    do
+        [[ ! -f "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh" ]] && (echo "❌$lib config not exist,install will stop.";exit 1;)
+        
+        echo "===[install $lib]===================="
+        source "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
+        parse_lib_config
+        if [[ $FORCE_XCFRAMEWORK ]];then
+            ./install-pre-xcf.sh
+        else
+            ./install-pre-lib.sh
+        fi
+        echo "===================================="
+    done
     
-    echo "===[install $lib]===================="
-    source "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
-    parse_lib_config
-    if [[ $FORCE_XCFRAMEWORK ]];then
-        ./install-pre-xcf.sh
-    else
-        ./install-pre-lib.sh
+    if [[ ! "$FORCE_XCFRAMEWORK" ]];then
+        ./correct-pc.sh "$MR_WORKSPACE/product/$MR_PLAT"
     fi
-    echo "===================================="
-done
+}
 
-if [[ ! "$FORCE_XCFRAMEWORK" ]];then
-    correct_pc_file "$MR_WORKSPACE/product/$MR_PLAT"
+if [[ -n $MR_PC_FILE_DIR ]];then
+    ./correct-pc.sh "$MR_PC_FILE_DIR"
+else
+    install_libs    
 fi
-

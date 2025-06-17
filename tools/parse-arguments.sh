@@ -86,32 +86,6 @@ OPTIONS:
 EOF
 }
 
-function correct_pc_file(){
-    local fix_path="$1"
-    local dir=${PWD}
-    
-    echo "fix pc files in folder: $fix_path"
-    cd "$fix_path"
-
-    for pc in `find . -type f -name "*.pc"` ;
-    do
-        local pkgconfig=$(cd $(dirname "$pc"); pwd)
-        local lib_dir=$(cd $(dirname "$pkgconfig"); pwd)
-        local base_dir=$(cd $(dirname "$lib_dir"); pwd)
-        local include_dir="${base_dir}/include"
-        local bin_dir="${base_dir}/bin"
-
-        my_sed_i "s|^prefix=.*|prefix=$base_dir|" "$pc"
-        my_sed_i "s|^exec_prefix=[^$].*|exec_prefix=$bin_dir|" $pc
-        my_sed_i "s|^libdir=[^$].*|libdir=$lib_dir|" "$pc"
-        my_sed_i "s|^includedir=[^$].*include|includedir=$include_dir|" "$pc"
-        my_sed_i "s|-L/[^ ]*lib|-L$lib_dir|" "$pc"
-        my_sed_i "s|-I/[^ ]*include|-I$include_dir|" "$pc"
-    done
-    
-    cd "$dir"
-}
-
 function parse_path()
 {
     local p="$1"
@@ -149,6 +123,7 @@ arch=
 libs=
 workspace=
 debug=
+pc_file_dir=
 
 case $1 in
     init | install)
@@ -166,7 +141,6 @@ case $1 in
     ;;
 esac
 
-export -f correct_pc_file
 export MR_ACTION=$action
 
 while [[ $# -gt 0 ]]; do
@@ -213,8 +187,7 @@ while [[ $# -gt 0 ]]; do
         ;;
         -correct-pc)
             shift
-            correct_pc_file "$1"
-            exit 0
+            pc_file_dir="$1"
         ;;
         **)
             echo "unkonwn option:$1"
@@ -224,6 +197,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$platform" ]];then
+    echo "platform can't empty"
     help
     exit 1
 fi
@@ -233,7 +207,9 @@ if [[ "$platform" != 'ios' && "$platform" != 'macos' && "$platform" != 'tvos' &&
     exit 1
 fi
 
-if [[ -z "$libs" ]];then
+export MR_PC_FILE_DIR="$pc_file_dir"
+
+if [[ -z "$MR_PC_FILE_DIR" && -z "$libs" ]];then
     echo "libs can't be nil, use -l specify libs"
     exit 1
 fi
@@ -293,6 +269,7 @@ else
     done
 fi
 
+
 echo "MR_ACTION       : [$MR_ACTION]"
 echo "MR_PLAT         : [$MR_PLAT]"
 echo "MR_CMD          : [$MR_CMD]"
@@ -304,5 +281,6 @@ echo "MR_INIT_CFLAGS  : [$MR_INIT_CFLAGS]"
 echo "SKIP_PULL_BASE  : [$SKIP_PULL_BASE]"
 echo "SKIP_FFMPEG_PATHCHES : [$SKIP_FFMPEG_PATHCHES]"
 echo "MR_SKIP_MAKE_XCFRAMEWORK" : [$MR_SKIP_MAKE_XCFRAMEWORK]
+[[ -n $MR_PC_FILE_DIR ]] && echo "MR_PC_FILE_DIR : [$MR_PC_FILE_DIR]"
 
-unset platform cmd arch libs workspace debug action cflags
+unset platform cmd arch libs workspace debug action cflags pc_file_dir
