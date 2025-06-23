@@ -1,0 +1,43 @@
+From ca6bf697d914be79fcc4d4314c06101d279b6ef3 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Wed, 21 May 2025 18:05:52 +0800
+Subject: [PATCH] fix dash init fragment url is "invalid:truncated" bug
+
+---
+ libavformat/dashdec.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/libavformat/dashdec.c b/libavformat/dashdec.c
+index 0a6c46b..616187f 100644
+--- a/libavformat/dashdec.c
++++ b/libavformat/dashdec.c
+@@ -477,6 +477,10 @@ static char *get_content_url(xmlNodePtr *baseurl_nodes,
+     int i;
+     char *text;
+     char *url = NULL;
++    
++    if (strlen(val) >= max_url_size) {
++        max_url_size += 256;
++    }
+     char *tmp_str = av_mallocz(max_url_size);
+ 
+     if (!tmp_str)
+@@ -495,8 +499,14 @@ static char *get_content_url(xmlNodePtr *baseurl_nodes,
+         }
+     }
+ 
+-    if (val)
++    if (val) {
++        int tmp_max_url_size = strlen(tmp_str) + strlen(val) + 1; 
++        if (tmp_max_url_size > max_url_size) {
++            max_url_size = tmp_max_url_size;
++            tmp_str = av_realloc(tmp_str, max_url_size);
++        }
+         ff_make_absolute_url(tmp_str, max_url_size, tmp_str, val);
++    }
+ 
+     if (rep_id_val) {
+         url = av_strireplace(tmp_str, "$RepresentationID$", rep_id_val);
+-- 
+2.39.5 (Apple Git-154)
+

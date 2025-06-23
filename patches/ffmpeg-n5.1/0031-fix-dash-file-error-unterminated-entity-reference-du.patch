@@ -1,0 +1,29 @@
+From 147a176cf02538367918d931959dbb5071202777 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Thu, 29 May 2025 09:45:39 +0800
+Subject: [PATCH] fix dash file error "unterminated entity reference" due to
+ ampersand in <baseurl> tag
+
+---
+ libavformat/dashdec.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/libavformat/dashdec.c b/libavformat/dashdec.c
+index 71d7906..4540ee3 100644
+--- a/libavformat/dashdec.c
++++ b/libavformat/dashdec.c
+@@ -805,8 +805,10 @@ static int resolve_content_path(AVFormatContext *s, const char *url, int *max_ur
+                 memset(p + 1, 0, strlen(p));
+             }
+             av_strlcat(tmp_str, text + start, tmp_max_url_size);
+-            xmlNodeSetContent(baseurl_nodes[i], tmp_str);
++            xmlChar *escaped = xmlEncodeSpecialChars(NULL, tmp_str);
++            xmlNodeSetContent(baseurl_nodes[i], escaped);
+             updated = 1;
++            xmlFree(escaped);
+             xmlFree(text);
+         }
+     }
+-- 
+2.39.5 (Apple Git-154)
+
