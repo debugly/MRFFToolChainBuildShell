@@ -1,7 +1,7 @@
 From 57d11e82ad725d7c598378b70c6288bb96cc9e58 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 6 Jun 2025 14:07:11 +0800
-Subject: [PATCH 32] fix android ffmpeg6 test.c:1:10: fatal error:
+Subject: [PATCH 33] fix android ffmpeg6 test.c:1:10: fatal error:
  'libxml2/libxml/xmlversion.h'
 
 ---

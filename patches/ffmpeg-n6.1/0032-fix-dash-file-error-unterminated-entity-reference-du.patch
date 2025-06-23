@@ -1,7 +1,7 @@
 From aa792f13138a726d80df869f62ebf4769a851fef Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Tue, 6 May 2025 17:49:09 +0800
-Subject: [PATCH] fix dash file error "unterminated entity reference" due to
+Subject: [PATCH 32] fix dash file error "unterminated entity reference" due to
  ampersand in <baseurl> tag
 
 ---
