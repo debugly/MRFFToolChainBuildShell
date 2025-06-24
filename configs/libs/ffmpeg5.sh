@@ -32,13 +32,8 @@ else
     export GIT_UPSTREAM=https://github.com/FFmpeg/FFmpeg.git
 fi
 
-if [[ "$GIT_FFMPEG_COMMIT" != "" ]] ;then
-    export GIT_COMMIT="$GIT_FFMPEG_COMMIT"
-    export GIT_REPO_VERSION="$GIT_FFMPEG_COMMIT"
-else
-    export GIT_COMMIT=n5.1.6
-    export GIT_REPO_VERSION=5.1.6
-fi
+export GIT_COMMIT=n5.1.6
+export GIT_REPO_VERSION=5.1.6
 
 # pre compiled
 export PRE_COMPILE_TAG_TVOS=ffmpeg5-5.1.6-250623101211
