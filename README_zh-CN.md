@@ -1,125 +1,127 @@
-## MRFFToolChain Build Shell [[中文版](./README_zh-CN.md)]
+## MRFFToolChain 构建脚本
 
 ![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.1%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg">
 
-**What's MRFFToolChain?**
+**MRFFToolChain 是什么？**
 
-MRFFToolChain products was built for [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
+MRFFToolChain 的构建产物是为 [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial) 服务的.
 
-At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、openssl、opus、unibreak、uavs3d、smb2、yuv、soundtouch、xml2`.
+目前包含了这些库：`ass、bluray、dav1d、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、openssl、opus、unibreak、uavs3d、smb2、yuv、soundtouch、xml2`.
 
-## Supported Plat
+## 支持的平台
 
-| platform | architectures                          | minimum deployment target |
+| 平台      | 架构                            | 最低部署目标版本 |
 | -------- | -------------------------------------- | ------------------------- |
 | iOS      | arm64、arm64_simulator、x86_64_simulator | 11.0                      |
 | tvOS     | arm64、arm64_simulator、x86_64_simulator | 12.0                      |
 | macOS    | arm64、x86_64                           | 10.11                     |
 | Android  | arm64、armv7a、x86_64、x86                | 21                        |
 
-## News
+## 最新动态
 
-- FFmpeg 7.1.1 is already in use
-- upgrade all libs to lastest,Improved optimizations
-- using macOS 14，Xcode_15.4，remove bitcode support
+- FFmpeg **7.1.1** 已投入使用
+- 将所有库升级至最新版本，不少库提升了性能
+- 使用 macOS 14，Xcode_15.4构建，移除了 bitcode 支持
 
 [https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes#Deprecations](https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes#Deprecations)
 
-## Denpendency
+## 依赖关系
 
-- Fontconfig: xml2,freetype
-- Bluray: xml2
-- Harfbuzz: freetype
-- dvdnav: dvdread
-- Ass for Appple:  harfbuzz,fribidi,unibreak
-- Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
-- FFmpeg4 for Appple: openssl3,opus,bluray
-- FFmpeg5 for Appple: openssl3,opus,bluray,dav1d,dvdread,uavs3d
-- FFmpeg6 for Appple: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2
-- FFmpeg7 for Appple: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2
-- FFmpeg4 for Android: openssl3,opus,bluray,soundtouch
-- FFmpeg5 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,soundtouch
-- FFmpeg6 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2,soundtouch
-- FFmpeg7 for Android: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,soundtouch
+编译了适用于安卓和 iOS 平台的 FFmpeg4，FFmpeg5，FFmpeg6，FFmpeg7。
 
-Tips: 
+- Fontconfig：xml2、freetype
+- Bluray：xml2
+- Harfbuzz：freetype
+- dvdnav：dvdread
+- 适用于苹果的 Ass：harfbuzz、fribidi、unibreak
+- 适用于安卓的 Ass：harfbuzz、fribidi、unibreak、fontconfig
+- 适用于苹果的 FFmpeg4：openssl3、opus、bluray
+- 适用于苹果的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d
+- 适用于苹果的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2
+- 适用于苹果的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2
+- 适用于安卓的 FFmpeg4：openssl3、opus、bluray、soundtouch
+- 适用于安卓的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d、soundtouch
+- 适用于安卓的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2、soundtouch
+- 适用于安卓的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、soundtouch
+
+提示: 
 
 ```
-1、ffmpeg is not denpendent on ass.
-2、fsplayer is denpendent on ffmpeg and ass.
-3、ijkplayer is denpendent on ijkffmpeg.
-4、FFmpegTutorial is denpendent on fftutorial.
-5、when install pre-compiled lib, will containes it's denpendencies.
+1、ffmpeg 不依赖 ass
+2、fsplayer 依赖 ffmpeg 和 ass
+3、ijkplayer 依赖 ijkffmpeg
+4、FFmpegTutorial 依赖 fftutorial
+5、安装预编译库时，会包含其所有依赖项
 ```
 
-## Download/Install Pre-compiled Libs
+## 下载 / 安装预编译库
 
-Save yourself a great deal of time by directly downloading the pre-compiled libraries from GitHub.
-These pre-compiled libraries already applied patches which in the patches directory.
+直接从 GitHub 下载预编译库可以为您节省大量时间。
+
+这些预编译库已经应用了 patches 目录下的补丁。
 
 ```bash
-#Check the help first
+# 先查看帮助
 ./main.sh install --help
-# Examples of usage:
+# 使用示例
 ./main.sh install -p macos -l ffmpeg
 ./main.sh install -p ios -l 'ass ffmpeg'
 ./main.sh install -p android -l openssl3
 ```
 
-## Compile by Yourself
+## 自行编译
 
-### Initialize Library Repositories
+### 初始化目标库仓库
 
-Don't waste your time compiling these libraries unless you've modified the source code!
-Why not just download the pre-compiled libraries I've prepared using GitHub actions?
-
-The script parameters are flexible and can be combined as needed. Here are some common examples:
+除非您修改了源代码，否则不要浪费时间编译这些库！
+何不直接下载我通过 GitHub 动作准备好的预编译库呢？
+脚本参数灵活，可根据需要组合使用。以下是一些常见示例：
 
 ```
-# Check the help first
+# 先查看帮助
 ./main.sh init --help
-# Prepare libass source code for the iOS platform
+# 为 iOS 平台准备 libass 源代码
 ./main.sh init -p ios -l ass
-# Prepare ffmpeg7 source code for the x86 architecture on iOS
+# 为 iOS 的 x86 架构准备 ffmpeg7 源代码
 ./main.sh init -p ios -l ffmpeg7 -a x86_64_simulator
-# Prepare source code for specific libraries for the Android platform
+# 为 Android 平台准备特定库的源代码
 ./main.sh init -p android -l "openssl ffmpeg"
 ```
 
-### Compile
+### 编译
 
-Once the source code repository initialization is complete, you can start the compilation process.
+当源代码仓库初始化完成后，就可以开始编译了。
 
 ```
-# Check the help first
+# 先查看帮助
 ./main.sh compile --help
-# As shown in the help:
-# -p specifies the platform
-# -c specifies the action (e.g build for compilation, rebuild for recompilation)
-# -l specifies the libraries to compile
-# -a specifies the CPU architecture
+# 如帮助所示:
+# -p 指定平台
+# -c 指定操作（例如 build 用于编译，rebuild 用于重新编译）
+# -l 指定要编译的库
+# -a 指定 CPU 架构
 ```
 
-The following code demonstrates how to compile FFmpeg 7 for the iOS platform：
+以下代码演示如何为 iOS 平台编译 FFmpeg 7：
 
 ```
-# install FFmpeg7's dependencies has two choices
-# recommend choice (because ffmpeg7 was pre-compiled,it contained all dependencies)
+# 安装 FFmpeg7 的依赖有两种选择
+# 推荐选择安装预编译方式（因为预编译的 FFmpeg7 已经包含所有依赖项）
 ./main.sh install -p ios -l ffmpeg7
-# other choice (you must know ffmpeg7's dependent lib name)
+# 另外一个选择，自己选择性地安装 FFmpeg7 的依赖库
 ./main.sh install -p ios -l "openssl3 opus bluray dav1d dvdnav uavs3d smb2"
-# Compile FFmpeg7 for the arm64 architecture on iOS
+# 编译 iOS 平台 arm64 架构的 FFmpeg7，并且跳过生成 xcframework
 ./main.sh compile -p ios -a arm64 -l ffmepg7 --skip-fmwk
 ```
 
-The order of these parameters does not matter; they can be arranged in any sequence.
+这些参数的顺序无关紧要，可以按任意顺序排列。
 
-### Support Mirror
+### 支持镜像
 
-If cloning repositories from GitHub is slow, or if you need to use an internal private repository, you can declare the corresponding environment variables before running the compilation script!
+如果从 GitHub 克隆仓库速度较慢，或者需要使用内部私有仓库，可以在运行编译脚本之前声明相应的环境变量！
 
-| Lib Name   | Current Version | Repository URL                                           | Mirror Repository URL                                    |
-| ---------- | --------------- | -------------------------------------------------------- | -------------------------------------------------------- |
+| 库名称        | 当前版本      | 仓库 URL      | 镜像仓库 URL   |
+| --------------- |----------- | ----------- | ------------ |
 | ffmpeg7     | 7.1.1           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg6     | 6.1.1           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg5     | 5.1.6           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
@@ -143,18 +145,18 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 | xml2       | 2.13.6          | https://github.com/GNOME/libxml2.git                     | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
 | yuv        | stable-eb6e7bb  | https://github.com/debugly/libyuv.git                    | export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git                |
 
-## Tips
+## 提示
 
-- To download pre-compiled xcframework libraries, add the --fmwk parameter when using the install command.
-- To skip pulling remote repositories during initialization, add the --skip-pull-base parameter when using the init command.
-- To skip applying FFmpeg patches during initialization, add the --skip-patches parameter when using the init command.
-- Currently, FFmpeg uses the module-full.sh configuration, resulting in slightly larger package sizes.
-- You can download all pre-compiled GitHub libraries to your own server and specify your server address using MR_DOWNLOAD_BASEURL before running the install command.
+- 要下载预编译的 xcframework 库，使用 install 命令时添加 --fmwk 参数
+- 初始化时要跳过拉取远程仓库，使用 init 命令时添加 --skip-pull-base 参数
+- 初始化时要跳过应用 FFmpeg 补丁，使用 init 命令时添加 --skip-patches 参数
+- 目前 FFmpeg 使用 module-full.sh 配置，功能全但同时导致包体积略大
+- 您可以将所有预编译的 GitHub 库下载到自己的服务器，并在运行 install 命令前通过 MR\_DOWNLOAD\_BASEURL 指定您的服务器地址
 
-## Donate
+## 捐赠
 
-Compiling third-party libraries is time-consuming. I aim to contribute to the open-source community by pre-compiling all third-party libraries required by debugly/ijkplayer into static libraries and xcframeworks for public use.
+编译第三方库非常耗时，我将 debugly/fsplayer 所需的所有第三方库预编译为静态库供公众使用，希望为开源社区贡献微薄之力。
 
-If you'd like to contribute to the open-source community, consider buying me a coffee to keep me energized.
+如果屏幕前的你也想为开源社区贡献一份力量，不妨请我喝杯咖啡提提神儿。
 
 ![donate.jpg](https://i.postimg.cc/xdVqnBLp/IMG-7481.jpg)
