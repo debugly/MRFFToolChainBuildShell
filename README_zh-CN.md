@@ -33,6 +33,7 @@ MRFFToolChain 的构建产物是为 [fsplayer](https://github.com/debugly/fsplay
 - Bluray：xml2
 - Harfbuzz：freetype
 - dvdnav：dvdread
+- 适用于 ijkplayer 的 FFmpeg: openssl
 - 适用于苹果的 Ass：harfbuzz、fribidi、unibreak
 - 适用于安卓的 Ass：harfbuzz、fribidi、unibreak、fontconfig
 - 适用于苹果的 FFmpeg4：openssl3、opus、bluray
@@ -126,6 +127,7 @@ MRFFToolChain 的构建产物是为 [fsplayer](https://github.com/debugly/fsplay
 | ffmpeg6     | 6.1.1           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg5     | 5.1.6           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg4     | 4.0.5           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
+| ijkffmpeg   | ff4.0--ijk0.8.8--20210426--001 | https://github.com/bilibili/FFmpeg.git    | export GIT_IJKFFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git     |
 | ass        | 0.17.3          | https://github.com/libass/libass.git                     | export GIT_ASS_UPSTREAM=git@xx:yy/libass.git           |
 | bluray     | 1.3.4           | https://code.videolan.org/videolan/libbluray.git         | export GIT_BLURAY_UPSTREAM=git@xx:yy/libbluray.git     |
 | dav1d      | 1.5.1           | https://code.videolan.org/videolan/dav1d.git             | export GIT_DAV1D_UPSTREAM=git@xx:yy/dav1d.git          |

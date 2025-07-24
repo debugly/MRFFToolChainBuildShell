@@ -33,6 +33,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、dvdnav、ff
 - dvdnav: dvdread
 - Ass for Appple:  harfbuzz,fribidi,unibreak
 - Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
+- IJKFFmpeg: openssl
 - FFmpeg4 for Appple: openssl3,opus,bluray
 - FFmpeg5 for Appple: openssl3,opus,bluray,dav1d,dvdread,uavs3d
 - FFmpeg6 for Appple: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2
@@ -124,6 +125,7 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 | ffmpeg6     | 6.1.1           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg5     | 5.1.6           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg4     | 4.0.5           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
+| ijkffmpeg   | ff4.0--ijk0.8.8--20210426--001 | https://github.com/bilibili/FFmpeg.git    | export GIT_IJKFFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git     |
 | ass        | 0.17.3          | https://github.com/libass/libass.git                     | export GIT_ASS_UPSTREAM=git@xx:yy/libass.git           |
 | bluray     | 1.3.4           | https://code.videolan.org/videolan/libbluray.git         | export GIT_BLURAY_UPSTREAM=git@xx:yy/libbluray.git     |
 | dav1d      | 1.5.1           | https://code.videolan.org/videolan/dav1d.git             | export GIT_DAV1D_UPSTREAM=git@xx:yy/dav1d.git          |
