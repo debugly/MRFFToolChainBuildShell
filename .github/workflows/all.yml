@@ -108,6 +108,9 @@ jobs:
         echo '------compile smb2------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/onestep.sh smb2 ${{ inputs.platform }} ${{ inputs.dryrun }}
+        echo '------compile webp------------------------------------'
+        rm -rf build || git reset --hard || git pull origin
+        .github/workflows/onestep.sh webp ${{ inputs.platform }} ${{ inputs.dryrun }}
         echo '------compile ffmpeg7------------------------------------'
         rm -rf build || git reset --hard || git pull origin
         .github/workflows/install-dependencies.sh ffmpeg7 ${{ inputs.platform }}

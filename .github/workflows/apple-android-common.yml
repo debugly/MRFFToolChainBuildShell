@@ -64,6 +64,7 @@ on:
           - unibreak
           - yuv
           - xml2
+          - webp
   pull_request:
     branches: [master]
 
