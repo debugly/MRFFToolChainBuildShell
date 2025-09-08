@@ -1,6 +1,6 @@
-From 21d88e28b8834fae08fcd3a337faf1ac209a4a4f Mon Sep 17 00:00:00 2001
+From c00008ca039260f7dca9d8c06f599197a96a75cf Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Mon, 8 Sep 2025 13:59:17 +0800
+Date: Mon, 8 Sep 2025 15:24:55 +0800
 Subject: [PATCH] add webp demuxer and libwebp decoder
 
 ---
@@ -9,11 +9,11 @@ Subject: [PATCH] add webp demuxer and libwebp decoder
  libavcodec/allcodecs.c   |   2 +-
  libavcodec/codec_desc.c  |  11 +-
  libavcodec/codec_id.h    |   2 +-
- libavcodec/libwebpdec.c  | 350 +++++++++++++++++++++++++++++++++++++++
+ libavcodec/libwebpdec.c  | 376 +++++++++++++++++++++++++++++++++++++++
  libavformat/Makefile     |   1 +
  libavformat/allformats.c |   3 +
- libavformat/webpdec.c    | 290 ++++++++++++++++++++++++++++++++
- 9 files changed, 663 insertions(+), 4 deletions(-)
+ libavformat/webpdec.c    | 296 ++++++++++++++++++++++++++++++
+ 9 files changed, 695 insertions(+), 4 deletions(-)
  create mode 100644 libavcodec/libwebpdec.c
  create mode 100644 libavformat/webpdec.c
 
@@ -111,15 +111,30 @@ index 8c724a0..041015e 100644
      AV_CODEC_ID_MPEG2TS = 0x20000, /**< _FAKE_ codec to indicate a raw MPEG-2 TS
 diff --git a/libavcodec/libwebpdec.c b/libavcodec/libwebpdec.c
 new file mode 100644
-index 0000000..c2884c0
+index 0000000..17b69d0
 --- /dev/null
 +++ b/libavcodec/libwebpdec.c
-@@ -0,0 +1,350 @@
+@@ -0,0 +1,376 @@
 +/*
-+ * WebP decoder using libwebp for FFmpeg 7.x
-+ * Copyright (c) 2024
++ * libwebpdec.c
 + *
-+ * This file is part of FFmpeg.
++ * Copyright (c) 2025 debugly <qianlongxu@gmail.com>
++ *
++ * This file is part of FSPlayer.
++ *
++ * FSPlayer is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 3 of the License, or (at your option) any later version.
++ *
++ * FSPlayer is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FSPlayer; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 + */
 +
 +#include "codec_internal.h"
@@ -431,6 +446,16 @@ index 0000000..c2884c0
 +    return ret;
 +}
 +
++static int libwebp_decode_flush(AVCodecContext *avctx)
++{
++    LibWebPDecoderContext *s = avctx->priv_data;
++    if (s->canvas && s->canvas->data) {
++        memset(s->canvas->data, 0, s->canvas->width * s->canvas->height * 4);
++    }
++    return 0;
++}
++
++//when seek or seek to zero for loop,clear then canvas
 +static av_cold int libwebp_decode_close(AVCodecContext *avctx)
 +{
 +    LibWebPDecoderContext *s = avctx->priv_data;
@@ -459,6 +484,7 @@ index 0000000..c2884c0
 +    .priv_data_size = sizeof(LibWebPDecoderContext),
 +    .init = libwebp_decode_init,
 +    .cb.decode = libwebp_decode_frame,
++    .flush = libwebp_decode_flush,
 +    .close = libwebp_decode_close,
 +    .p.capabilities = AV_CODEC_CAP_DR1,
 +    .p.priv_class = &libwebp_decoder_class,
@@ -500,29 +526,38 @@ index dbae42e..d736732 100644
  
 diff --git a/libavformat/webpdec.c b/libavformat/webpdec.c
 new file mode 100644
-index 0000000..4fbe410
+index 0000000..df4a3af
 --- /dev/null
 +++ b/libavformat/webpdec.c
-@@ -0,0 +1,290 @@
+@@ -0,0 +1,296 @@
 +/*
-+ * WebP demuxer for FFmpeg 7.x and libwebp 1.5.0+
-+ * Copyright (c) 2024
++ * webpdec.c
 + *
-+ * This file is part of FFmpeg.
++ * Copyright (c) 2025 debugly <qianlongxu@gmail.com>
 + *
-+ * FFmpeg is free software; you can redistribute it and/or
++ * This file is part of FSPlayer.
++ *
++ * FSPlayer is free software; you can redistribute it and/or
 + * modify it under the terms of the GNU Lesser General Public
 + * License as published by the Free Software Foundation; either
-+ * version 2.1 of the License, or (at your option) any later version.
++ * version 3 of the License, or (at your option) any later version.
++ *
++ * FSPlayer is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FSPlayer; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 + */
 +
 +#include "internal.h"
 +#include "demux.h"
 +#include "libavutil/intreadwrite.h"
-+#include "libavutil/mem.h"       // 内存管理函数
-+#include "libavutil/common.h"    // 其他工具函数
++#include "libavutil/mem.h"
++#include "libavutil/common.h"
 +#include <webp/demux.h>
-+#include <webp/mux_types.h>
 +
 +typedef struct WebPDemuxContext {
 +    const AVClass *class;
@@ -530,11 +565,6 @@ index 0000000..4fbe410
 +    WebPIterator iter;          // 帧迭代器
 +    int current_frame;          // 当前帧索引
 +    int frame_count;           // 总帧数
-+    int loop_count;            //
-+    int has_animation;
-+    int has_alpha;
-+    uint32_t canvas_width;      // 画布宽度
-+    uint32_t canvas_height;     // 画布高度
 +    int64_t duration;           // 总时长(ms)
 +    uint8_t *data;              // 文件数据缓冲区
 +    size_t data_size;           // 数据大小
@@ -602,15 +632,16 @@ index 0000000..4fbe410
 +        goto fail;
 +    }
 +
-+    // 获取画布尺寸
-+    wp->canvas_width = WebPDemuxGetI(wp->demuxer, WEBP_FF_CANVAS_WIDTH);
-+    wp->canvas_height = WebPDemuxGetI(wp->demuxer, WEBP_FF_CANVAS_HEIGHT);
 +    wp->frame_count = WebPDemuxGetI(wp->demuxer, WEBP_FF_FRAME_COUNT);
-+    wp->loop_count = WebPDemuxGetI(wp->demuxer, WEBP_FF_LOOP_COUNT);
-+    uint32_t flags = WebPDemuxGetI(wp->demuxer, WEBP_FF_FORMAT_FLAGS);
++    // 获取画布尺寸
++    int canvas_width = WebPDemuxGetI(wp->demuxer, WEBP_FF_CANVAS_WIDTH);
++    int canvas_height = WebPDemuxGetI(wp->demuxer, WEBP_FF_CANVAS_HEIGHT);
++    
++    // int loop_count = WebPDemuxGetI(wp->demuxer, WEBP_FF_LOOP_COUNT);
++    // uint32_t flags = WebPDemuxGetI(wp->demuxer, WEBP_FF_FORMAT_FLAGS);
 +
-+    wp->has_animation = flags & ANIMATION_FLAG;
-+    wp->has_alpha = flags & ALPHA_FLAG;
++    // int has_animation = flags & ANIMATION_FLAG;
++    // int has_alpha = flags & ALPHA_FLAG;
 +
 +    // 分配帧时间戳和时长数组
 +    wp->frame_timestamps = av_malloc_array(wp->frame_count, sizeof(int64_t));
@@ -660,9 +691,10 @@ index 0000000..4fbe410
 +
 +    // 设置流参数
 +    st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
++    // 使用自定义解码器
 +    st->codecpar->codec_id = AV_CODEC_ID_LIBWEBP;
-+    st->codecpar->width = wp->canvas_width;
-+    st->codecpar->height = wp->canvas_height;
++    st->codecpar->width = canvas_width;
++    st->codecpar->height = canvas_height;
 +    st->duration = wp->duration;
 +    avpriv_set_pts_info(st, 64, 1, 1000);  // 时基：1ms
 +
@@ -786,7 +818,7 @@ index 0000000..4fbe410
 +    .p.long_name      = NULL_IF_CONFIG_SMALL("WebP image format (libwebp 1.5.0+)"),
 +    .p.flags          = AVFMT_GENERIC_INDEX,
 +    .p.extensions     = "webp",
-+    .read_probe       = webp_read_probe,    // 新增的探测函数
++    .read_probe       = webp_read_probe,
 +    .read_header      = webp_read_header,
 +    .read_packet      = webp_read_packet,
 +    .read_seek        = webp_read_seek,
