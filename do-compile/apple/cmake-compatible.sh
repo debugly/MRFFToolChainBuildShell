@@ -30,7 +30,7 @@ echo "[*] cmake options: $CMAKE_OTHER_OPTS"
 echo "[*] cmake component: $CMAKE_COMPONENT"
 echo "----------------------"
 
-build="${MR_BUILD_SOURCE}/camke_wksp"
+build="${MR_BUILD_SOURCE}/cmake_wksp"
 
 rm -rf "$build"
 mkdir -p "$build"
