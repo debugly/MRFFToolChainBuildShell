@@ -18,7 +18,7 @@
 # 
 
 export LIB_NAME='webp'
-export LIPO_LIBS="libwebp"
+export LIPO_LIBS="libwebp libsharpyuv libwebpdecoder libwebpdemux"
 export LIB_DEPENDS_BIN="cmake"
 export CMAKE_TARGETS_NAME=webpdecoder,webpdemux
 export GIT_LOCAL_REPO=extra/webp
