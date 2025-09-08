@@ -51,6 +51,8 @@ case $LIB_NAME in
 
         if [[ $PLAT == android ]];then
             ./main.sh install -l 'soundtouch' -p android
+        else
+            ./main.sh install -l 'webp' -p $PLAT
         fi
     ;;
     ffmpeg6)

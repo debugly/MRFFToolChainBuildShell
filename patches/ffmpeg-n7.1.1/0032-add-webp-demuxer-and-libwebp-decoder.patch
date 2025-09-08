@@ -1,0 +1,799 @@
+From 21d88e28b8834fae08fcd3a337faf1ac209a4a4f Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Mon, 8 Sep 2025 13:59:17 +0800
+Subject: [PATCH] add webp demuxer and libwebp decoder
+
+---
+ configure                |   7 +-
+ libavcodec/Makefile      |   1 +
+ libavcodec/allcodecs.c   |   2 +-
+ libavcodec/codec_desc.c  |  11 +-
+ libavcodec/codec_id.h    |   2 +-
+ libavcodec/libwebpdec.c  | 350 +++++++++++++++++++++++++++++++++++++++
+ libavformat/Makefile     |   1 +
+ libavformat/allformats.c |   3 +
+ libavformat/webpdec.c    | 290 ++++++++++++++++++++++++++++++++
+ 9 files changed, 663 insertions(+), 4 deletions(-)
+ create mode 100644 libavcodec/libwebpdec.c
+ create mode 100644 libavformat/webpdec.c
+
+diff --git a/configure b/configure
+index 7daa9ff..fc5e423 100755
+--- a/configure
++++ b/configure
+@@ -7044,7 +7044,12 @@ enabled libvpx            && {
+ enabled libvvenc          && require_pkg_config libvvenc "libvvenc >= 1.6.1" "vvenc/vvenc.h" vvenc_get_version
+ enabled libwebp           && {
+     enabled libwebp_encoder      && require_pkg_config libwebp "libwebp >= 0.2.0" webp/encode.h WebPGetEncoderVersion
+-    enabled libwebp_anim_encoder && check_pkg_config libwebp_anim_encoder "libwebpmux >= 0.4.0" webp/mux.h WebPAnimEncoderOptionsInit; }
++    enabled libwebp_anim_encoder && check_pkg_config libwebp_anim_encoder "libwebpmux >= 0.4.0" webp/mux.h WebPAnimEncoderOptionsInit
++    check_pkg_config libwebpdemux "libwebpdemux >= 1.0.0" webp/demux.h WebPDemux
++    if enabled libwebpdemux; then
++        enable webp_demuxer
++        enable libwebp_decoder
++    fi }
+ enabled libx264           && require_pkg_config libx264 x264 "stdint.h x264.h" x264_encoder_encode &&
+                              require_cpp_condition libx264 x264.h "X264_BUILD >= 155" && {
+                              [ "$toolchain" != "msvc" ] ||
+diff --git a/libavcodec/Makefile b/libavcodec/Makefile
+index 03e80a2..441d4ee 100644
+--- a/libavcodec/Makefile
++++ b/libavcodec/Makefile
+@@ -812,6 +812,7 @@ OBJS-$(CONFIG_WBMP_DECODER)            += wbmpdec.o
+ OBJS-$(CONFIG_WBMP_ENCODER)            += wbmpenc.o
+ OBJS-$(CONFIG_WCMV_DECODER)            += wcmv.o
+ OBJS-$(CONFIG_WEBP_DECODER)            += webp.o
++OBJS-$(CONFIG_LIBWEBP_DECODER)         += libwebpdec.o
+ OBJS-$(CONFIG_WEBVTT_DECODER)          += webvttdec.o ass.o
+ OBJS-$(CONFIG_WEBVTT_ENCODER)          += webvttenc.o ass_split.o
+ OBJS-$(CONFIG_WMALOSSLESS_DECODER)     += wmalosslessdec.o wma_common.o
+diff --git a/libavcodec/allcodecs.c b/libavcodec/allcodecs.c
+index aa0fc47..7098f1d 100644
+--- a/libavcodec/allcodecs.c
++++ b/libavcodec/allcodecs.c
+@@ -900,7 +900,7 @@ extern const FFCodec ff_vnull_decoder;
+ extern const FFCodec ff_vnull_encoder;
+ extern const FFCodec ff_anull_decoder;
+ extern const FFCodec ff_anull_encoder;
+-
++extern const FFCodec ff_libwebp_decoder;
+ // The iterate API is not usable with ossfuzz due to the excessive size of binaries created
+ #if CONFIG_OSSFUZZ
+ const FFCodec * codec_list[] = {
+diff --git a/libavcodec/codec_desc.c b/libavcodec/codec_desc.c
+index 38cab26..30af1ac 100644
+--- a/libavcodec/codec_desc.c
++++ b/libavcodec/codec_desc.c
+@@ -1959,6 +1959,15 @@ static const AVCodecDescriptor codec_descriptors[] = {
+         .long_name = NULL_IF_CONFIG_SMALL("LEAD MCMP"),
+         .props     = AV_CODEC_PROP_INTRA_ONLY | AV_CODEC_PROP_LOSSY,
+     },
++    {
++        .id        = AV_CODEC_ID_LIBWEBP,
++        .type      = AVMEDIA_TYPE_VIDEO,
++        .name      = "libwebp",
++        .long_name = NULL_IF_CONFIG_SMALL("libWebP"),
++        .props     = AV_CODEC_PROP_INTRA_ONLY | AV_CODEC_PROP_LOSSY |
++                     AV_CODEC_PROP_LOSSLESS,
++        .mime_types= MT("image/webp"),
++    },
+ 
+     /* various PCM "codecs" */
+     {
+@@ -3734,7 +3743,7 @@ static const AVCodecDescriptor codec_descriptors[] = {
+         .name      = "av3a",
+         .long_name = NULL_IF_CONFIG_SMALL("Audio Vivid"),
+         .props     = AV_CODEC_PROP_LOSSY,
+-    },
++    }
+ };
+ 
+ static int descriptor_compare(const void *key, const void *member)
+diff --git a/libavcodec/codec_id.h b/libavcodec/codec_id.h
+index 8c724a0..041015e 100644
+--- a/libavcodec/codec_id.h
++++ b/libavcodec/codec_id.h
+@@ -323,6 +323,7 @@ enum AVCodecID {
+     AV_CODEC_ID_VMIX,
+     AV_CODEC_ID_LEAD,
+ 
++    AV_CODEC_ID_LIBWEBP,
+     /* various PCM "codecs" */
+     AV_CODEC_ID_FIRST_AUDIO = 0x10000,     ///< A dummy id pointing at the start of audio codecs
+     AV_CODEC_ID_PCM_S16LE = 0x10000,
+@@ -592,7 +593,6 @@ enum AVCodecID {
+     AV_CODEC_ID_LCEVC,
+     AV_CODEC_ID_AVS3DA,
+ 
+-
+     AV_CODEC_ID_PROBE = 0x19000, ///< codec_id is not known (like AV_CODEC_ID_NONE) but lavf should attempt to identify it
+ 
+     AV_CODEC_ID_MPEG2TS = 0x20000, /**< _FAKE_ codec to indicate a raw MPEG-2 TS
+diff --git a/libavcodec/libwebpdec.c b/libavcodec/libwebpdec.c
+new file mode 100644
+index 0000000..c2884c0
+--- /dev/null
++++ b/libavcodec/libwebpdec.c
+@@ -0,0 +1,350 @@
++/*
++ * WebP decoder using libwebp for FFmpeg 7.x
++ * Copyright (c) 2024
++ *
++ * This file is part of FFmpeg.
++ */
++
++#include "codec_internal.h"
++#include "decode.h"
++#include "internal.h"
++#include "libavutil/common.h"
++#include "libavutil/imgutils.h"
++#include "libavutil/mem.h"
++#include "libavutil/opt.h"
++#include "libavutil/pixdesc.h"
++#include <webp/decode.h>
++#include <webp/mux_types.h>
++
++typedef struct MyImageRef {
++    int width;
++    int height;
++    uint8_t *data;
++} MyImageRef;
++
++typedef struct MyRect {
++    int x;
++    int y;
++    int w;
++    int h;
++} MyRect;
++
++typedef struct LibWebPDecoderContext {
++    AVClass *class;
++    MyImageRef *canvas; // The main compositing canvas
++} LibWebPDecoderContext;
++
++static void release_image(MyImageRef *img)
++{
++    if (img) {
++        if (img->data)
++            av_free(img->data);
++        free(img);
++    }
++}
++
++static int alloc_image(MyImageRef **img, int width, int height)
++{
++    if (!img || width <= 0 || height <= 0)
++        return AVERROR(EINVAL);
++
++    *img = malloc(sizeof(MyImageRef));
++    if (!*img)
++        return AVERROR(ENOMEM);
++
++    (*img)->width = width;
++    (*img)->height = height;
++    (*img)->data = av_malloc(width * height * 4); // RGBA
++    if (!(*img)->data) {
++        free(*img);
++        *img = NULL;
++        return AVERROR(ENOMEM);
++    }
++
++    memset((*img)->data, 0, width * height * 4); // 初始化为透明
++    return 0;
++}
++
++static void clear_rect(MyImageRef *img, MyRect rect)
++{
++    if (!img || !img->data)
++        return;
++
++    int img_width = img->width;
++    int img_height = img->height;
++    uint8_t *data = img->data;
++
++    // 确保矩形在图像范围内
++    int start_x = FFMAX(0, rect.x);
++    int start_y = FFMAX(0, rect.y);
++    int end_x = FFMIN(img_width, rect.x + rect.w);
++    int end_y = FFMIN(img_height, rect.y + rect.h);
++
++    for (int y = start_y; y < end_y; y++) {
++        uint8_t *row = data + y * img_width * 4;
++        memset(row + start_x * 4, 0, (end_x - start_x) * 4);
++    }
++}
++
++static void blend_pixel(uint8_t *dst, const uint8_t *src)
++{
++    uint8_t sa = src[3];
++    if (sa == 0) {
++        return; // 源像素完全透明，直接返回
++    } else if (sa == 255) {
++        // 源像素完全不透明，直接覆盖
++        memcpy(dst, src, 4);
++        return;
++    }
++
++    uint8_t da = dst[3];
++    uint8_t out_a = sa + ((da * (255 - sa)) / 255);
++
++    if (out_a == 0) {
++        memset(dst, 0, 4);
++        return;
++    }
++
++    dst[0] = (src[0] * sa + dst[0] * da * (255 - sa) / 255) / out_a;
++    dst[1] = (src[1] * sa + dst[1] * da * (255 - sa) / 255) / out_a;
++    dst[2] = (src[2] * sa + dst[2] * da * (255 - sa) / 255) / out_a;
++    dst[3] = out_a;
++}
++
++static void draw_image(MyImageRef *canvas, MyImageRef *image, MyRect rect)
++{
++    if (!canvas || !canvas->data || !image || !image->data)
++        return;
++
++    int canvas_width = canvas->width;
++    int canvas_height = canvas->height;
++    uint8_t *canvas_data = canvas->data;
++
++    int image_width = image->width;
++    int image_height = image->height;
++    uint8_t *image_data = image->data;
++
++    // 计算绘制区域
++    int start_x = FFMAX(0, rect.x);
++    int start_y = FFMAX(0, rect.y);
++    int end_x = FFMIN(canvas_width, rect.x + rect.w);
++    int end_y = FFMIN(canvas_height, rect.y + rect.h);
++
++    for (int y = start_y; y < end_y; y++) {
++        uint8_t *canvas_row = canvas_data + y * canvas_width * 4;
++        uint8_t *image_row = image_data + (y - rect.y) * image_width * 4;
++        for (int x = start_x; x < end_x; x++) {
++            uint8_t *canvas_pixel = canvas_row + x * 4;
++            uint8_t *image_pixel = image_row + (x - rect.x) * 4;
++
++            blend_pixel(canvas_pixel, image_pixel);
++        }
++    }
++}
++
++static av_cold int libwebp_decode_init(AVCodecContext *avctx)
++{
++    LibWebPDecoderContext *s = avctx->priv_data;
++    int canvas_size;
++
++    if (avctx->width <= 0 || avctx->height <= 0) {
++        av_log(avctx, AV_LOG_ERROR,
++               "Invalid canvas dimensions from avctx: %dx%d\n", avctx->width,
++               avctx->height);
++        return AVERROR_INVALIDDATA;
++    }
++
++    if (alloc_image(&s->canvas, avctx->width, avctx->height)) {
++        av_log(avctx, AV_LOG_ERROR, "Failed to allocate canvas buffer\n");
++        return AVERROR(ENOMEM);
++    }
++
++    avctx->pix_fmt = AV_PIX_FMT_RGBA;
++
++    return 0;
++}
++
++static int get_origin_from_pkt_side_data(AVPacket *pkt, int *offsetx,
++                                         int *offsety, int *blend, int *dispose)
++{
++    if (!pkt || !offsetx || !offsety) {
++        return AVERROR(EINVAL);
++    }
++
++    // 初始化输出参数
++    *offsetx = 0;
++    *offsety = 0;
++    *blend = 0;
++    *dispose = 0;
++
++    // 获取元数据
++    size_t metadata_len = 0;
++    uint8_t *metadata_data = av_packet_get_side_data(
++        pkt, AV_PKT_DATA_STRINGS_METADATA, &metadata_len);
++
++    if (!metadata_data || metadata_len == 0) {
++        return -1; //
++    }
++
++    // 解包元数据到AVDictionary
++    AVDictionary *dict = NULL;
++    int ret = av_packet_unpack_dictionary(metadata_data, metadata_len, &dict);
++    if (ret < 0) {
++        av_log(NULL, AV_LOG_ERROR, "Failed to unpack metadata: %d\n", ret);
++        return ret;
++    }
++
++    // 解析offsetx和offsety和blend
++    AVDictionaryEntry *entry = NULL;
++    entry = av_dict_get(dict, "offsetx", NULL, 0);
++    if (entry && entry->value) {
++        *offsetx = atoi(entry->value); // 转换字符串为整数
++    }
++
++    entry = av_dict_get(dict, "offsety", NULL, 0);
++    if (entry && entry->value) {
++        *offsety = atoi(entry->value);
++    }
++
++    entry = av_dict_get(dict, "blend", NULL, 0);
++    if (entry && entry->value) {
++        *blend = atoi(entry->value);
++    }
++
++    entry = av_dict_get(dict, "dispose", NULL, 0);
++    if (entry && entry->value) {
++        *dispose = atoi(entry->value);
++    }
++
++    // 释放字典
++    av_dict_free(&dict);
++    return 0;
++}
++
++static int libwebp_do_decode_frame(AVPacket *pkt, MyImageRef **imgp)
++{
++    WebPDecoderConfig config;
++    // 1. 解码当前帧并获取其属性
++    if (!WebPInitDecoderConfig(&config))
++        return AVERROR_UNKNOWN;
++
++    if (WebPGetFeatures(pkt->data, pkt->size, &config.input) != VP8_STATUS_OK)
++        return AVERROR_INVALIDDATA;
++
++    int hasAlpha = config.input.has_alpha;
++    int input_width = config.input.width;
++    int input_height = config.input.height;
++    if (input_width <= 0 || input_height <= 0)
++        return AVERROR_INVALIDDATA;
++
++    config.output.colorspace = MODE_RGBA;
++    config.output.is_external_memory = 1;
++
++    MyImageRef *img;
++
++    if (alloc_image(&img, input_width, input_height)) {
++        return AVERROR(ENOMEM);
++    }
++
++    int rgba_stride = img->width * 4;
++    uint8_t *rgba = img->data;
++    config.output.u.RGBA.rgba = rgba;
++    config.output.u.RGBA.stride = rgba_stride;
++    config.output.u.RGBA.size = input_height * rgba_stride;
++
++    if (WebPDecode(pkt->data, pkt->size, &config) != VP8_STATUS_OK) {
++        release_image(img);
++        return AVERROR_INVALIDDATA;
++    }
++    *imgp = img;
++    return 0;
++}
++
++static int libwebp_decode_frame(AVCodecContext *avctx, AVFrame *frame,
++                                int *got_frame, const AVPacket *pkt)
++{
++    LibWebPDecoderContext *s = avctx->priv_data;
++
++    int offsetx, offsety, blend, dispose;
++    if (get_origin_from_pkt_side_data(pkt, &offsetx, &offsety, &blend,
++                                      &dispose) < 0) {
++        return AVERROR_INVALIDDATA;
++    }
++
++    // 使用 libwebp 解码当前帧
++    MyImageRef *img = NULL;
++    int ret = libwebp_do_decode_frame((AVPacket *)pkt, &img);
++    if (ret < 0) {
++        av_log(avctx, AV_LOG_ERROR, "Failed to decode WebP frame: %d\n", ret);
++        return ret;
++    }
++
++    // 将当前帧渲染到已准备好的画布上
++    MyRect rect = {offsetx, offsety, img->width, img->height};
++    draw_image(s->canvas, img, rect);
++    release_image(img);
++
++    frame->width = avctx->width;
++    frame->height = avctx->height;
++    frame->format = avctx->pix_fmt;
++
++    // 为 frame 申请内存
++    if ((ret = ff_get_buffer(avctx, frame, 0)) < 0) {
++        return ret;
++    }
++
++    // 将合成好的画布复制到输出帧
++    int canvas_linesize = s->canvas->width * 4;
++    av_image_copy_plane(frame->data[0], frame->linesize[0], s->canvas->data,
++                        s->canvas->width * 4, s->canvas->width * 4,
++                        s->canvas->height);
++
++    //    av_image_copy(frame->data, frame->linesize,
++    //                  (const uint8_t **)&s->canvas->data, &canvas_linesize,
++    //                  avctx->pix_fmt, output_width, output_height);
++
++    // 执行 dispose 操作
++    if (dispose == WEBP_MUX_DISPOSE_BACKGROUND) {
++        clear_rect(s->canvas, rect);
++    }
++
++    *got_frame = 1;
++    ret = pkt->size;
++
++    return ret;
++}
++
++static av_cold int libwebp_decode_close(AVCodecContext *avctx)
++{
++    LibWebPDecoderContext *s = avctx->priv_data;
++    release_image(s->canvas);
++    s->canvas = NULL;
++    return 0;
++}
++
++#define OFFSET(x) offsetof(LibWebPDecoderContext, x)
++#define VE AV_OPT_FLAG_VIDEO_PARAM | AV_OPT_FLAG_DECODING_PARAM
++
++static const AVOption options[] = {{NULL}};
++
++static const AVClass libwebp_decoder_class = {
++    .class_name = "libwebp decoder",
++    .item_name = av_default_item_name,
++    .option = options,
++    .version = LIBAVUTIL_VERSION_INT,
++};
++
++const FFCodec ff_libwebp_decoder = {
++    .p.name = "libwebp",
++    .p.long_name = NULL_IF_CONFIG_SMALL("libwebp WebP image decoder"),
++    .p.type = AVMEDIA_TYPE_VIDEO,
++    .p.id = AV_CODEC_ID_LIBWEBP,
++    .priv_data_size = sizeof(LibWebPDecoderContext),
++    .init = libwebp_decode_init,
++    .cb.decode = libwebp_decode_frame,
++    .close = libwebp_decode_close,
++    .p.capabilities = AV_CODEC_CAP_DR1,
++    .p.priv_class = &libwebp_decoder_class,
++    .p.wrapper_name = "libwebp",
++    .caps_internal = FF_CODEC_CAP_NOT_INIT_THREADSAFE,
++};
+diff --git a/libavformat/Makefile b/libavformat/Makefile
+index 1f32e4c..90aef47 100644
+--- a/libavformat/Makefile
++++ b/libavformat/Makefile
+@@ -644,6 +644,7 @@ OBJS-$(CONFIG_WEBM_MUXER)                += matroskaenc.o matroska.o \
+ OBJS-$(CONFIG_WEBM_DASH_MANIFEST_MUXER)  += webmdashenc.o
+ OBJS-$(CONFIG_WEBM_CHUNK_MUXER)          += webm_chunk.o
+ OBJS-$(CONFIG_WEBP_MUXER)                += webpenc.o
++OBJS-$(CONFIG_WEBP_DEMUXER)              += webpdec.o
+ OBJS-$(CONFIG_WEBVTT_DEMUXER)            += webvttdec.o subtitles.o
+ OBJS-$(CONFIG_WEBVTT_MUXER)              += webvttenc.o
+ OBJS-$(CONFIG_WSAUD_DEMUXER)             += westwood_aud.o
+diff --git a/libavformat/allformats.c b/libavformat/allformats.c
+index dbae42e..d736732 100644
+--- a/libavformat/allformats.c
++++ b/libavformat/allformats.c
+@@ -564,6 +564,7 @@ extern const FFInputFormat  ff_image_svg_pipe_demuxer;
+ extern const FFInputFormat  ff_image_sunrast_pipe_demuxer;
+ extern const FFInputFormat  ff_image_tiff_pipe_demuxer;
+ extern const FFInputFormat  ff_image_vbn_pipe_demuxer;
++extern const FFInputFormat  ff_webp_demuxer;
+ extern const FFInputFormat  ff_image_webp_pipe_demuxer;
+ extern const FFInputFormat  ff_image_xbm_pipe_demuxer;
+ extern const FFInputFormat  ff_image_xpm_pipe_demuxer;
+@@ -585,6 +586,8 @@ extern AVInputFormat  ff_ijkplaceholder2_demuxer;
+ extern AVInputFormat  ff_ijkplaceholder3_demuxer;
+ extern AVInputFormat  ff_ijkplaceholder4_demuxer;
+ 
++
++
+ #include "libavformat/muxer_list.c"
+ #include "libavformat/demuxer_list.c"
+ 
+diff --git a/libavformat/webpdec.c b/libavformat/webpdec.c
+new file mode 100644
+index 0000000..4fbe410
+--- /dev/null
++++ b/libavformat/webpdec.c
+@@ -0,0 +1,290 @@
++/*
++ * WebP demuxer for FFmpeg 7.x and libwebp 1.5.0+
++ * Copyright (c) 2024
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ */
++
++#include "internal.h"
++#include "demux.h"
++#include "libavutil/intreadwrite.h"
++#include "libavutil/mem.h"       // 内存管理函数
++#include "libavutil/common.h"    // 其他工具函数
++#include <webp/demux.h>
++#include <webp/mux_types.h>
++
++typedef struct WebPDemuxContext {
++    const AVClass *class;
++    WebPDemuxer *demuxer;
++    WebPIterator iter;          // 帧迭代器
++    int current_frame;          // 当前帧索引
++    int frame_count;           // 总帧数
++    int loop_count;            //
++    int has_animation;
++    int has_alpha;
++    uint32_t canvas_width;      // 画布宽度
++    uint32_t canvas_height;     // 画布高度
++    int64_t duration;           // 总时长(ms)
++    uint8_t *data;              // 文件数据缓冲区
++    size_t data_size;           // 数据大小
++    int64_t *frame_timestamps;  // 帧时间戳数组(ms)
++    int *frame_durations;       // 帧时长数组(ms)
++} WebPDemuxContext;
++
++// 释放迭代器资源
++static void webp_release_iterator(WebPIterator *iter) {
++    if (iter->fragment.bytes) {
++        WebPDemuxReleaseIterator(iter);
++        memset(iter, 0, sizeof(*iter));
++    }
++}
++
++// 探测WebP格式
++static int webp_read_probe(const AVProbeData *p) {
++    // WebP文件格式以"RIFF"开头，后面跟着4字节大小和"WEBP"标识
++    if (p->buf_size < 12)
++        return 0;
++
++    // 检查RIFF标识和WEBP格式标识
++    if (AV_RL32(p->buf) == MKTAG('R', 'I', 'F', 'F') &&
++        AV_RL32(p->buf + 8) == MKTAG('W', 'E', 'B', 'P')) {
++        // 确定是WebP文件，返回较高的探测分数
++        return AVPROBE_SCORE_MAX;
++    }
++
++    return 0;
++}
++
++static int webp_read_header(AVFormatContext *s) {
++    WebPDemuxContext *wp = s->priv_data;
++    AVIOContext *pb = s->pb;
++    AVStream *st;
++    int ret, i;
++
++    // 读取文件到内存
++    wp->data_size = avio_size(pb);
++    if (wp->data_size <= 0) {
++        av_log(s, AV_LOG_ERROR, "Invalid file size\n");
++        return AVERROR_INVALIDDATA;
++    }
++
++    wp->data = av_malloc(wp->data_size);
++    if (!wp->data)
++        return AVERROR(ENOMEM);
++
++    if (avio_read(pb, wp->data, wp->data_size) != wp->data_size) {
++        av_log(s, AV_LOG_ERROR, "Failed to read file\n");
++        ret = AVERROR(EIO);
++        goto fail;
++    }
++
++    // 初始化WebP解复用器
++    WebPData webp_data;
++    WebPDataInit(&webp_data);
++    webp_data.bytes = wp->data;
++    webp_data.size = wp->data_size;
++
++    wp->demuxer = WebPDemux(&webp_data);
++    if (!wp->demuxer) {
++        av_log(s, AV_LOG_ERROR, "Failed to create WebP demuxer\n");
++        ret = AVERROR_INVALIDDATA;
++        goto fail;
++    }
++
++    // 获取画布尺寸
++    wp->canvas_width = WebPDemuxGetI(wp->demuxer, WEBP_FF_CANVAS_WIDTH);
++    wp->canvas_height = WebPDemuxGetI(wp->demuxer, WEBP_FF_CANVAS_HEIGHT);
++    wp->frame_count = WebPDemuxGetI(wp->demuxer, WEBP_FF_FRAME_COUNT);
++    wp->loop_count = WebPDemuxGetI(wp->demuxer, WEBP_FF_LOOP_COUNT);
++    uint32_t flags = WebPDemuxGetI(wp->demuxer, WEBP_FF_FORMAT_FLAGS);
++
++    wp->has_animation = flags & ANIMATION_FLAG;
++    wp->has_alpha = flags & ALPHA_FLAG;
++
++    // 分配帧时间戳和时长数组
++    wp->frame_timestamps = av_malloc_array(wp->frame_count, sizeof(int64_t));
++    wp->frame_durations = av_malloc_array(wp->frame_count, sizeof(int));
++    if (!wp->frame_timestamps || !wp->frame_durations) {
++        ret = AVERROR(ENOMEM);
++        goto fail;
++    }
++
++    memset(&wp->iter, 0, sizeof(wp->iter));
++    // libwebp's index start with 1
++    if (!WebPDemuxGetFrame(wp->demuxer, 1, &wp->iter)) {
++        av_log(s, AV_LOG_ERROR, "Failed to get first frame\n");
++        ret = AVERROR_INVALIDDATA;
++        goto fail;
++    }
++
++    wp->duration = 0;
++    for (i = 0; i < wp->frame_count; i++) {
++        int duration = wp->iter.duration;
++        if (duration <= 10) {
++            // WebP standard says 0 duration is used for canvas updating but not showing image, but actually Chrome and other implementations set it to 100ms if duration is lower or equal than 10ms
++            // Some animated WebP images also created without duration, we should keep compatibility
++            duration = 100;
++        }
++        wp->frame_durations[i] = duration;
++        wp->frame_timestamps[i] = wp->duration;
++        wp->duration += wp->frame_durations[i];
++        if (i < wp->frame_count - 1)
++            WebPDemuxNextFrame(&wp->iter);
++    }
++
++    // 重置迭代器到第一帧
++    webp_release_iterator(&wp->iter);
++    if (!WebPDemuxGetFrame(wp->demuxer, 1, &wp->iter)) {
++        av_log(s, AV_LOG_ERROR, "Failed to reset to first frame\n");
++        ret = AVERROR_INVALIDDATA;
++        goto fail;
++    }
++
++    // 创建视频流
++    st = avformat_new_stream(s, NULL);
++    if (!st) {
++        ret = AVERROR(ENOMEM);
++        goto fail;
++    }
++
++    // 设置流参数
++    st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
++    st->codecpar->codec_id = AV_CODEC_ID_LIBWEBP;
++    st->codecpar->width = wp->canvas_width;
++    st->codecpar->height = wp->canvas_height;
++    st->duration = wp->duration;
++    avpriv_set_pts_info(st, 64, 1, 1000);  // 时基：1ms
++
++    wp->current_frame = 0;
++    return 0;
++
++fail:
++    webp_release_iterator(&wp->iter);
++    WebPDemuxDelete(wp->demuxer);
++    av_free(wp->data);
++    av_free(wp->frame_timestamps);
++    av_free(wp->frame_durations);
++    return ret;
++}
++
++/**
++ * Add this frame's source path and basename to packet's sidedata
++ * as a dictionary, so it can be used by filters like 'drawtext'.
++ */
++static int add_origin_as_pkt_side_data(int offsetx, int offsety, int blend, int dispose, AVPacket *pkt) {
++    AVDictionary *d = NULL;
++    char *packed_metadata = NULL;
++    size_t metadata_len;
++    int ret;
++
++    av_dict_set_int(&d, "offsetx", offsetx, 0);
++    av_dict_set_int(&d, "offsety", offsety, 0);
++    av_dict_set_int(&d, "blend", blend, 0);
++    av_dict_set_int(&d, "dispose", dispose, 0);
++
++    packed_metadata = av_packet_pack_dictionary(d, &metadata_len);
++    av_dict_free(&d);
++    if (!packed_metadata)
++        return AVERROR(ENOMEM);
++    ret = av_packet_add_side_data(pkt, AV_PKT_DATA_STRINGS_METADATA,
++                                  packed_metadata, metadata_len);
++    if (ret < 0) {
++        av_freep(&packed_metadata);
++        return ret;
++    }
++    return 0;
++}
++
++static int webp_read_packet(AVFormatContext *s, AVPacket *pkt) {
++    WebPDemuxContext *wp = s->priv_data;
++    int ret;
++
++    if (wp->current_frame >= wp->frame_count)
++        return AVERROR_EOF;
++
++    // 分配并填充数据包
++    if ((ret = av_new_packet(pkt, wp->iter.fragment.size)) < 0)
++        return ret;
++    memcpy(pkt->data, wp->iter.fragment.bytes, wp->iter.fragment.size);
++
++    add_origin_as_pkt_side_data(wp->iter.x_offset, wp->iter.y_offset, wp->iter.blend_method == WEBP_MUX_BLEND, wp->iter.dispose_method == WEBP_MUX_DISPOSE_BACKGROUND, pkt);
++    // 设置数据包参数
++    pkt->stream_index = 0;
++    pkt->pts = wp->frame_timestamps[wp->current_frame];
++    pkt->duration = wp->frame_durations[wp->current_frame];
++    pkt->flags |= AV_PKT_FLAG_KEY;
++
++    // 准备下一帧
++    wp->current_frame++;
++    if (wp->current_frame < wp->frame_count && !WebPDemuxNextFrame(&wp->iter))
++        av_log(s, AV_LOG_WARNING, "Unexpected end of frames\n");
++
++    return 0;
++}
++
++static int webp_read_seek(AVFormatContext *s, int stream_index,
++                         int64_t timestamp, int flags) {
++    WebPDemuxContext *wp = s->priv_data;
++    int target_frame;
++
++    if (stream_index != 0)
++        return -1;
++
++    // 计算目标帧索引
++    target_frame = av_rescale_rnd(timestamp, wp->frame_count,
++                                 wp->duration, flags & AVSEEK_FLAG_BACKWARD ? AV_ROUND_DOWN : AV_ROUND_UP);
++
++    // 手动实现范围限制（替代av_clamp）
++    if (target_frame < 0) {
++        target_frame = 0;
++    } else if (target_frame >= wp->frame_count) {
++        target_frame = wp->frame_count - 1;
++    }
++
++    // 定位到目标帧
++    webp_release_iterator(&wp->iter);
++    if (!WebPDemuxGetFrame(wp->demuxer, target_frame + 1, &wp->iter)) {
++        av_log(s, AV_LOG_ERROR, "Failed to seek to frame %d\n", target_frame);
++        return AVERROR_INVALIDDATA;
++    }
++
++    wp->current_frame = target_frame;
++    return 0;
++}
++
++static int webp_read_close(AVFormatContext *s) {
++    WebPDemuxContext *wp = s->priv_data;
++
++    webp_release_iterator(&wp->iter);
++    WebPDemuxDelete(wp->demuxer);
++    av_free(wp->data);
++    av_free(wp->frame_timestamps);
++    av_free(wp->frame_durations);
++    return 0;
++}
++
++static const AVClass webp_demuxer_class = {
++    .class_name = "WebP demuxer",
++    .item_name  = av_default_item_name,
++    .version    = LIBAVUTIL_VERSION_INT,
++};
++
++// FFmpeg 7.x输入解复用器标准声明
++const FFInputFormat ff_webp_demuxer = {
++    .p.name           = "webp",
++    .p.long_name      = NULL_IF_CONFIG_SMALL("WebP image format (libwebp 1.5.0+)"),
++    .p.flags          = AVFMT_GENERIC_INDEX,
++    .p.extensions     = "webp",
++    .read_probe       = webp_read_probe,    // 新增的探测函数
++    .read_header      = webp_read_header,
++    .read_packet      = webp_read_packet,
++    .read_seek        = webp_read_seek,
++    .read_close       = webp_read_close,
++    .priv_data_size   = sizeof(WebPDemuxContext),
++    .p.priv_class     = &webp_demuxer_class,
++};
+-- 
+2.39.5 (Apple Git-154)
+

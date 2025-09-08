@@ -242,6 +242,16 @@ fi
 
 echo "----------------------"
 
+pkg-config --libs libwebp --silence-errors >/dev/null && enable_webp=1
+if [[ $enable_webp ]];then
+    echo "[✅] --enable-libwebp --enable-decoder=webp : $(pkg-config --modversion libwebp)"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libwebp --enable-demuxer=webp --enable-decoder=libwebp"
+else
+    echo "[❌] --disable-libwebp --disable-decoder=libwebp"
+fi
+
+echo "----------------------"
+
 # export PKG_CONFIG_LIBDIR=$PKG_CONFIG_LIBDIR:/opt/homebrew/Cellar/shaderc/2024.0/lib/pkgconfig:/opt/homebrew/Cellar/little-cms2/2.16/lib/pkgconfig
 # pkg-config --libs libplacebo --silence-errors >/dev/null && enable_placebo=1
 
