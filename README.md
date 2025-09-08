@@ -144,6 +144,7 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 | uavs3d     | 1.2.1           | https://github.com/uavs3/uavs3d.git                      | export GIT_UAVS3D_UPSTREAM=git@xx:yy/UAVS3D.git          |
 | xml2       | 2.13.6          | https://github.com/GNOME/libxml2.git                     | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
 | yuv        | stable-eb6e7bb  | https://github.com/debugly/libyuv.git                    | export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git                |
+| webp       | v1.6.0 | https://github.com/debugly/libwebp.git | export GIT_WEBP_UPSTREAM=git@xx:yy/webp.git |
 
 ## Tips
 
@@ -152,11 +153,3 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 - To skip applying FFmpeg patches during initialization, add the --skip-patches parameter when using the init command.
 - Currently, FFmpeg uses the module-full.sh configuration, resulting in slightly larger package sizes.
 - You can download all pre-compiled GitHub libraries to your own server and specify your server address using MR_DOWNLOAD_BASEURL before running the install command.
-
-## Donate
-
-Compiling third-party libraries is time-consuming. I aim to contribute to the open-source community by pre-compiling all third-party libraries required by debugly/ijkplayer into static libraries and xcframeworks for public use.
-
-If you'd like to contribute to the open-source community, consider buying me a coffee to keep me energized.
-
-![donate.jpg](https://i.postimg.cc/xdVqnBLp/IMG-7481.jpg)

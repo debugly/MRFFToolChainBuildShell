@@ -146,6 +146,7 @@ MRFFToolChain 的构建产物是为 [fsplayer](https://github.com/debugly/fsplay
 | uavs3d     | 1.2.1           | https://github.com/uavs3/uavs3d.git                      | export GIT_UAVS3D_UPSTREAM=git@xx:yy/UAVS3D.git          |
 | xml2       | 2.13.6          | https://github.com/GNOME/libxml2.git                     | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
 | yuv        | stable-eb6e7bb  | https://github.com/debugly/libyuv.git                    | export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git                |
+| webp       | v1.6.0 | https://github.com/debugly/libwebp.git | export GIT_WEBP_UPSTREAM=git@xx:yy/webp.git |
 
 ## 提示
 
@@ -153,12 +154,4 @@ MRFFToolChain 的构建产物是为 [fsplayer](https://github.com/debugly/fsplay
 - 初始化时要跳过拉取远程仓库，使用 init 命令时添加 --skip-pull-base 参数
 - 初始化时要跳过应用 FFmpeg 补丁，使用 init 命令时添加 --skip-patches 参数
 - 目前 FFmpeg 使用 module-full.sh 配置，功能全但同时导致包体积略大
-- 您可以将所有预编译的 GitHub 库下载到自己的服务器，并在运行 install 命令前通过 MR\_DOWNLOAD\_BASEURL 指定您的服务器地址
-
-## 捐赠
-
-编译第三方库非常耗时，我将 debugly/fsplayer 所需的所有第三方库预编译为静态库供公众使用，希望为开源社区贡献微薄之力。
-
-如果屏幕前的你也想为开源社区贡献一份力量，不妨请我喝杯咖啡提提神儿。
-
-![donate.jpg](https://i.postimg.cc/xdVqnBLp/IMG-7481.jpg)
+- 可以将所有预编译的 GitHub 库下载到自己的服务器，并在运行 install 命令前通过 MR\_DOWNLOAD\_BASEURL 指定你的服务器地址
