@@ -20,7 +20,7 @@
 export LIB_NAME='yuv'
 export LIPO_LIBS="libyuv"
 export LIB_DEPENDS_BIN="cmake"
-export CMAKE_TARGET_NAME=yuv
+export CMAKE_TARGETS_NAME=yuv
 export GIT_LOCAL_REPO=extra/yuv
 export GIT_COMMIT=eb6e7bb
 export REPO_DIR=yuv

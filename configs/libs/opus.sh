@@ -25,7 +25,7 @@
 export LIB_NAME='opus'
 export LIPO_LIBS="libopus"
 export LIB_DEPENDS_BIN="cmake"
-export CMAKE_TARGET_NAME=opus
+export CMAKE_TARGETS_NAME=opus
 export GIT_LOCAL_REPO=extra/opus
 export GIT_COMMIT=v1.5.2
 export REPO_DIR=opus

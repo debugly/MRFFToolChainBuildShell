@@ -72,11 +72,26 @@ echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
+
+# 初始化构建命令
+camke_cmd="cmake --build ."
+
+# 以逗号分割目标名称，并为每个目标添加 --target 参数
+IFS=',' read -ra targets <<< "$CMAKE_TARGETS_NAME"
+for target in "${targets[@]}"; do
+    camke_cmd="$camke_cmd --target $target"
+done
+
+
 if [[ "$MR_DEBUG" == "debug" ]];then
-    cmake --build . --target $CMAKE_TARGET_NAME --config Debug -- CODE_SIGNING_ALLOWED=NO
+    camke_cmd="$camke_cmd --config Debug -- CODE_SIGNING_ALLOWED=NO"
 else
-    cmake --build . --target $CMAKE_TARGET_NAME --config Release -- CODE_SIGNING_ALLOWED=NO
+    camke_cmd="$camke_cmd --config Release -- CODE_SIGNING_ALLOWED=NO"
 fi
+
+
+# 执行构建命令
+eval "$camke_cmd"
 
 if [[ -n $CMAKE_COMPONENT ]];then
     cmake --install . --component "$CMAKE_COMPONENT"
