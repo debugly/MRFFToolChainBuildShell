@@ -1,18 +1,53 @@
-From 8fe7e70aa2feb98f199e1d3c91afb435f6db25aa Mon Sep 17 00:00:00 2001
+From 7393491965cf7d321c16cd8409de1e51956e6ff7 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Fri, 30 May 2025 09:24:42 +0800
+Date: Thu, 11 Sep 2025 15:27:28 +0800
 Subject: [PATCH] add 3 dummy ijkhttp protocols
 
 ---
- libavformat/ijkutils.c  | 3 +++
- libavformat/protocols.c | 3 +++
- 2 files changed, 6 insertions(+)
+ libavformat/allformats.c | 14 +++++++-------
+ libavformat/ijkutils.c   | 11 +++++++++++
+ libavformat/protocols.c  |  3 +++
+ 3 files changed, 21 insertions(+), 7 deletions(-)
 
+diff --git a/libavformat/allformats.c b/libavformat/allformats.c
+index dbae42e..31a9509 100644
+--- a/libavformat/allformats.c
++++ b/libavformat/allformats.c
+@@ -576,14 +576,14 @@ extern const FFInputFormat  ff_libmodplug_demuxer;
+ extern const FFInputFormat  ff_libopenmpt_demuxer;
+ extern const FFInputFormat  ff_vapoursynth_demuxer;
+ 
+-// ijk
+-extern AVInputFormat  ff_ijklivehook_demuxer;
+-extern AVInputFormat  ff_ijklas_demuxer;
++// ijk custom demuxers
++extern FFInputFormat  ff_ijklivehook_demuxer;
++extern FFInputFormat  ff_ijklas_demuxer;
+ 
+-extern AVInputFormat  ff_ijkplaceholder1_demuxer;
+-extern AVInputFormat  ff_ijkplaceholder2_demuxer;
+-extern AVInputFormat  ff_ijkplaceholder3_demuxer;
+-extern AVInputFormat  ff_ijkplaceholder4_demuxer;
++extern FFInputFormat  ff_ijkplaceholder1_demuxer;
++extern FFInputFormat  ff_ijkplaceholder2_demuxer;
++extern FFInputFormat  ff_ijkplaceholder3_demuxer;
++extern FFInputFormat  ff_ijkplaceholder4_demuxer;
+ 
+ #include "libavformat/muxer_list.c"
+ #include "libavformat/demuxer_list.c"
 diff --git a/libavformat/ijkutils.c b/libavformat/ijkutils.c
-index 604e725..2f36c69 100644
+index 604e725..ddecc30 100644
 --- a/libavformat/ijkutils.c
 +++ b/libavformat/ijkutils.c
-@@ -64,6 +64,9 @@ IJK_DUMMY_PROTOCOL(ijkhttphook);
+@@ -56,6 +56,7 @@ URLProtocol ff_##x##_protocol = {                                   \
+ 
+ static int ijkdummy_open(URLContext *h, const char *arg, int flags, AVDictionary **options)
+ {
++    av_log(NULL, AV_LOG_ERROR, "you called a dummp protocol:%s\n", h->prot->name);
+     return -1;
+ }
+ 
+@@ -64,6 +65,9 @@ IJK_DUMMY_PROTOCOL(ijkhttphook);
  IJK_DUMMY_PROTOCOL(ijksegment);
  IJK_DUMMY_PROTOCOL(ijktcphook);
  IJK_DUMMY_PROTOCOL(ijkio);
@@ -22,6 +57,27 @@ index 604e725..2f36c69 100644
  
  #define IJK_FF_DEMUXER(x)                                                                          \
  extern FFInputFormat ff_##x##_demuxer;                                                               \
+@@ -78,6 +82,12 @@ int ijkav_register_##x##_demuxer(FFInputFormat *demuxer, int demuxer_size)
+     return 0;                                                                                       \
+ }
+ 
++static int ijkdummy_probe(const AVProbeData *p)
++{
++    av_log(NULL, AV_LOG_ERROR, "you called a dummp demuxer\n");
++    return AVERROR_INVALIDDATA;
++}
++
+ #define IJK_DUMMY_DEMUXER(x)                                        \
+ IJK_FF_DEMUXER(x);                                                  \
+ static const AVClass ijk_##x##_demuxer_class = {                    \
+@@ -91,6 +101,7 @@ FFInputFormat ff_##x##_demuxer = {                                  \
+     .p.priv_class   = &ijk_##x##_demuxer_class,                     \
+     .priv_data_size = 1,                                            \
+     .flags_internal = FF_INFMT_FLAG_INIT_CLEANUP,                   \
++    .read_probe    = ijkdummy_probe,                                 \
+ };
+ 
+ /*
 diff --git a/libavformat/protocols.c b/libavformat/protocols.c
 index 719caf8..b291b9f 100644
 --- a/libavformat/protocols.c
