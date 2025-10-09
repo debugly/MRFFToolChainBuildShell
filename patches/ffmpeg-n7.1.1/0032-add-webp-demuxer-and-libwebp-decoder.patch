@@ -1,20 +1,22 @@
-From c00008ca039260f7dca9d8c06f599197a96a75cf Mon Sep 17 00:00:00 2001
+From 83a84dc1fc30d9e48f486489299feb9be4cde432 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Mon, 8 Sep 2025 15:24:55 +0800
+Date: Thu, 9 Oct 2025 14:28:49 +0800
 Subject: [PATCH] add webp demuxer and libwebp decoder
 
 ---
- configure                |   7 +-
- libavcodec/Makefile      |   1 +
- libavcodec/allcodecs.c   |   2 +-
- libavcodec/codec_desc.c  |  11 +-
- libavcodec/codec_id.h    |   2 +-
- libavcodec/libwebpdec.c  | 376 +++++++++++++++++++++++++++++++++++++++
- libavformat/Makefile     |   1 +
- libavformat/allformats.c |   3 +
- libavformat/webpdec.c    | 296 ++++++++++++++++++++++++++++++
- 9 files changed, 695 insertions(+), 4 deletions(-)
+ configure                    |   7 +-
+ libavcodec/Makefile          |   1 +
+ libavcodec/allcodecs.c       |   1 +
+ libavcodec/codec_desc.c      |   9 +
+ libavcodec/codec_id.h        |   1 +
+ libavcodec/libwebpdec.c      | 376 +++++++++++++++++++++++++++++++++++
+ libavformat/Makefile         |   1 +
+ libavformat/allformats.c     |   1 +
+ libavformat/allformats.c.rej |   9 -
+ libavformat/webpdec.c        | 296 +++++++++++++++++++++++++++
+ 10 files changed, 692 insertions(+), 10 deletions(-)
  create mode 100644 libavcodec/libwebpdec.c
+ delete mode 100644 libavformat/allformats.c.rej
  create mode 100644 libavformat/webpdec.c
 
 diff --git a/configure b/configure
@@ -48,20 +50,19 @@ index 03e80a2..441d4ee 100644
  OBJS-$(CONFIG_WEBVTT_ENCODER)          += webvttenc.o ass_split.o
  OBJS-$(CONFIG_WMALOSSLESS_DECODER)     += wmalosslessdec.o wma_common.o
 diff --git a/libavcodec/allcodecs.c b/libavcodec/allcodecs.c
-index aa0fc47..7098f1d 100644
+index aa0fc47..fa448b8 100644
 --- a/libavcodec/allcodecs.c
 +++ b/libavcodec/allcodecs.c
-@@ -900,7 +900,7 @@ extern const FFCodec ff_vnull_decoder;
- extern const FFCodec ff_vnull_encoder;
- extern const FFCodec ff_anull_decoder;
- extern const FFCodec ff_anull_encoder;
--
+@@ -416,6 +416,7 @@ extern const FFCodec ff_zlib_encoder;
+ extern const FFCodec ff_zlib_decoder;
+ extern const FFCodec ff_zmbv_encoder;
+ extern const FFCodec ff_zmbv_decoder;
 +extern const FFCodec ff_libwebp_decoder;
- // The iterate API is not usable with ossfuzz due to the excessive size of binaries created
- #if CONFIG_OSSFUZZ
- const FFCodec * codec_list[] = {
+ 
+ /* audio codecs */
+ extern const FFCodec ff_aac_encoder;
 diff --git a/libavcodec/codec_desc.c b/libavcodec/codec_desc.c
-index 38cab26..30af1ac 100644
+index 38cab26..9a56d7c 100644
 --- a/libavcodec/codec_desc.c
 +++ b/libavcodec/codec_desc.c
 @@ -1959,6 +1959,15 @@ static const AVCodecDescriptor codec_descriptors[] = {
@@ -80,17 +81,8 @@ index 38cab26..30af1ac 100644
  
      /* various PCM "codecs" */
      {
-@@ -3734,7 +3743,7 @@ static const AVCodecDescriptor codec_descriptors[] = {
-         .name      = "av3a",
-         .long_name = NULL_IF_CONFIG_SMALL("Audio Vivid"),
-         .props     = AV_CODEC_PROP_LOSSY,
--    },
-+    }
- };
- 
- static int descriptor_compare(const void *key, const void *member)
 diff --git a/libavcodec/codec_id.h b/libavcodec/codec_id.h
-index 8c724a0..041015e 100644
+index 8c724a0..b0a9274 100644
 --- a/libavcodec/codec_id.h
 +++ b/libavcodec/codec_id.h
 @@ -323,6 +323,7 @@ enum AVCodecID {
@@ -101,14 +93,6 @@ index 8c724a0..041015e 100644
      /* various PCM "codecs" */
      AV_CODEC_ID_FIRST_AUDIO = 0x10000,     ///< A dummy id pointing at the start of audio codecs
      AV_CODEC_ID_PCM_S16LE = 0x10000,
-@@ -592,7 +593,6 @@ enum AVCodecID {
-     AV_CODEC_ID_LCEVC,
-     AV_CODEC_ID_AVS3DA,
- 
--
-     AV_CODEC_ID_PROBE = 0x19000, ///< codec_id is not known (like AV_CODEC_ID_NONE) but lavf should attempt to identify it
- 
-     AV_CODEC_ID_MPEG2TS = 0x20000, /**< _FAKE_ codec to indicate a raw MPEG-2 TS
 diff --git a/libavcodec/libwebpdec.c b/libavcodec/libwebpdec.c
 new file mode 100644
 index 0000000..17b69d0
@@ -504,7 +488,7 @@ index 1f32e4c..90aef47 100644
  OBJS-$(CONFIG_WEBVTT_MUXER)              += webvttenc.o
  OBJS-$(CONFIG_WSAUD_DEMUXER)             += westwood_aud.o
 diff --git a/libavformat/allformats.c b/libavformat/allformats.c
-index dbae42e..d736732 100644
+index 31a9509..fbe7967 100644
 --- a/libavformat/allformats.c
 +++ b/libavformat/allformats.c
 @@ -564,6 +564,7 @@ extern const FFInputFormat  ff_image_svg_pipe_demuxer;
@@ -515,15 +499,21 @@ index dbae42e..d736732 100644
  extern const FFInputFormat  ff_image_webp_pipe_demuxer;
  extern const FFInputFormat  ff_image_xbm_pipe_demuxer;
  extern const FFInputFormat  ff_image_xpm_pipe_demuxer;
-@@ -585,6 +586,8 @@ extern AVInputFormat  ff_ijkplaceholder2_demuxer;
- extern AVInputFormat  ff_ijkplaceholder3_demuxer;
- extern AVInputFormat  ff_ijkplaceholder4_demuxer;
- 
-+
-+
- #include "libavformat/muxer_list.c"
- #include "libavformat/demuxer_list.c"
- 
+diff --git a/libavformat/allformats.c.rej b/libavformat/allformats.c.rej
+deleted file mode 100644
+index 623b4c4..0000000
+--- a/libavformat/allformats.c.rej
++++ /dev/null
+@@ -1,9 +0,0 @@
+-diff a/libavformat/allformats.c b/libavformat/allformats.c	(rejected hunks)
+-@@ -86,6 +86,7 @@ extern const FFOutputFormat ff_asf_stream_muxer;
+- extern const AVInputFormat  ff_au_demuxer;
+- extern const FFOutputFormat ff_au_muxer;
+- extern const AVInputFormat  ff_av1_demuxer;
+-+extern const AVInputFormat  ff_av3a_demuxer;
+- extern const AVInputFormat  ff_avi_demuxer;
+- extern const FFOutputFormat ff_avi_muxer;
+- extern const FFOutputFormat ff_avif_muxer;
 diff --git a/libavformat/webpdec.c b/libavformat/webpdec.c
 new file mode 100644
 index 0000000..df4a3af
