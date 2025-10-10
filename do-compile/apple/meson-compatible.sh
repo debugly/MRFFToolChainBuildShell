@@ -39,14 +39,27 @@ fi
 export CC="$MR_CC"
 export CXX="$MR_CXX"
 
+cd $MR_BUILD_SOURCE
+build=./meson_wksp
+rm -rf $build
+mkdir -p $build
+
+cross_file=
 if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]]; then
     if [[ $MR_IS_SIMULATOR == 1 ]]; then
-        echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH simulator."
-        CFG_FLAGS="$CFG_FLAGS --cross-file $MR_SHELL_CONFIGS_DIR/meson-crossfiles/$MR_ARCH-$MR_PLAT-simulator.meson"
+        raw_cross_file="$MR_SHELL_CONFIGS_DIR/meson-crossfiles/$MR_ARCH-$MR_PLAT-simulator.meson"
     else
-        echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
-        CFG_FLAGS="$CFG_FLAGS --cross-file $MR_SHELL_CONFIGS_DIR/meson-crossfiles/$MR_ARCH-$MR_PLAT.meson"
+        raw_cross_file="$MR_SHELL_CONFIGS_DIR/meson-crossfiles/$MR_ARCH-$MR_PLAT.meson"
     fi
+    
+    cross_file=$build/meson-crossfile.meson
+    touch "$cross_file"
+    cat "$raw_cross_file" > "$cross_file"
+
+    my_sed_i "s|__XCODE_DEVELOPER|$MR_XCODE_DEVELOPER|" "$cross_file"
+
+    echo "[*] using cross compile, cross file: $cross_file"
+    CFG_FLAGS="$CFG_FLAGS --cross-file $cross_file"
 fi
 
 CFG_FLAGS="$CFG_FLAGS $MESON_OTHER_FLAGS"
@@ -57,10 +70,6 @@ echo "CC: $MR_CC"
 echo "CFG_FLAGS: $CFG_FLAGS"
 echo "----------------------"
 echo
-
-cd $MR_BUILD_SOURCE
-build=./meson_wksp
-rm -rf $build
 
 meson setup $build $CFG_FLAGS
 

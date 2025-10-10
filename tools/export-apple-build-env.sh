@@ -16,9 +16,9 @@
 #
 #https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
 
-XCRUN_DEVELOPER=`xcode-select -print-path`
-if [ ! -d "$XCRUN_DEVELOPER" ]; then
-    echo "xcode path is not set correctly $XCRUN_DEVELOPER does not exist (most likely because of xcode > 4.3)"
+XCODE_DEVELOPER=`xcode-select -print-path`
+if [ ! -d "$XCODE_DEVELOPER" ]; then
+    echo "xcode path is not set correctly $XCODE_DEVELOPER does not exist (most likely because of xcode > 4.3)"
     echo "run"
     echo "sudo xcode-select -switch <xcode path>"
     echo "for default installation:"
@@ -26,12 +26,15 @@ if [ ! -d "$XCRUN_DEVELOPER" ]; then
     exit 1
 fi
 
-case $XCRUN_DEVELOPER in
+case $XCODE_DEVELOPER in
     *\ * )
         echo "Your Xcode path contains whitespaces, which is not supported."
         exit 1
     ;;
 esac
+
+# /Applications/Xcode.app/Contents/Developer
+export MR_XCODE_DEVELOPER="$XCODE_DEVELOPER"
 
 echo $(xcodebuild -version)
 
