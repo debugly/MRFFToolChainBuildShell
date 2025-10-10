@@ -4,9 +4,9 @@
 
 **MRFFToolChain 是什么？**
 
-MRFFToolChain 的构建产物是为 [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial) 服务的.
+MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、tvOS、Android 平台的三方库，其构建产物为 [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial) 所用.
 
-目前包含了这些库：`ass、bluray、dav1d、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、openssl、opus、unibreak、uavs3d、smb2、yuv、soundtouch、xml2`.
+目前包含了这些库：`ass、bluray、dav1d、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、openssl、opus、unibreak、uavs3d、smb2、yuv、soundtouch、xml2、webp`.
 
 ## 支持的平台
 
@@ -39,7 +39,7 @@ MRFFToolChain 的构建产物是为 [fsplayer](https://github.com/debugly/fsplay
 - 适用于苹果的 FFmpeg4：openssl3、opus、bluray
 - 适用于苹果的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d
 - 适用于苹果的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2
-- 适用于苹果的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2
+- 适用于苹果的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、webp
 - 适用于安卓的 FFmpeg4：openssl3、opus、bluray、soundtouch
 - 适用于安卓的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d、soundtouch
 - 适用于安卓的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2、soundtouch

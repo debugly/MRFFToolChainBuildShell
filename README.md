@@ -4,17 +4,17 @@
 
 **What's MRFFToolChain?**
 
-MRFFToolChain products was built for [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
+MRFFToolChain is a mature set of compilation tools specifically designed for compiling third-party libraries for iOS, macOS, tvOS, and Android platforms. It's products was built for [fsplayer](https://github.com/debugly/fsplayer) 、[ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
 
-At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、openssl、opus、unibreak、uavs3d、smb2、yuv、soundtouch、xml2`.
+At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、openssl、opus、unibreak、uavs3d、smb2、yuv、soundtouch、xml2、webp`.
 
 ## Supported Plat
 
-| platform | architectures                          | minimum deployment target |
-| -------- | -------------------------------------- | ------------------------- |
+| platform | architectures                           | minimum deployment target |
+| -------- | --------------------------------------- | ------------------------- |
 | iOS      | arm64、arm64_simulator、x86_64_simulator | 11.0                      |
 | tvOS     | arm64、arm64_simulator、x86_64_simulator | 12.0                      |
-| macOS    | arm64、x86_64                           | 10.11                     |
+| macOS    | arm64、x86_64                            | 10.11                     |
 | Android  | arm64、armv7a、x86_64、x86                | 21                        |
 
 ## News
@@ -37,7 +37,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、dvdnav、ff
 - FFmpeg4 for Appple: openssl3,opus,bluray
 - FFmpeg5 for Appple: openssl3,opus,bluray,dav1d,dvdread,uavs3d
 - FFmpeg6 for Appple: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2
-- FFmpeg7 for Appple: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2
+- FFmpeg7 for Appple: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,webp
 - FFmpeg4 for Android: openssl3,opus,bluray,soundtouch
 - FFmpeg5 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,soundtouch
 - FFmpeg6 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2,soundtouch
