@@ -22,9 +22,9 @@ export LIPO_LIBS="libyuv"
 export LIB_DEPENDS_BIN="cmake"
 export CMAKE_TARGETS_NAME=yuv
 export GIT_LOCAL_REPO=extra/yuv
-export GIT_COMMIT=eb6e7bb
+export GIT_COMMIT=4825d9b
 export REPO_DIR=yuv
-export GIT_REPO_VERSION=stable-eb6e7bb
+export GIT_REPO_VERSION=main-4825d9b
 export PATCH_DIR=yuv
 
 # you can export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git use your mirror
