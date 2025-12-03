@@ -1,0 +1,67 @@
+From b8d80e06d1a36cce5b807dac82b479d6cfe5f760 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Wed, 3 Dec 2025 12:50:07 +0800
+Subject: [PATCH] skip binary and shared lib and jpeg
+
+---
+ CMakeLists.txt | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 77e0527..ef5af28 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -5,6 +5,7 @@
+ cmake_minimum_required( VERSION 3.16 )
+ project ( YUV C CXX )	# "C" is required even for C++ projects
+ option( UNIT_TEST "Built unit tests" OFF )
++OPTION( BINARY "Built binary" OFF )
+ 
+ include(CheckCSourceCompiles)
+ 
+@@ -172,6 +173,7 @@ endif()
+ # this creates the static library (.a)
+ add_library( ${ly_lib_static} STATIC ${ly_lib_parts})
+ 
++if(BUILD_SHARED_LIBS)
+ # this creates the shared library (.so)
+ add_library( ${ly_lib_shared} SHARED ${ly_lib_parts})
+ set_target_properties( ${ly_lib_shared} PROPERTIES OUTPUT_NAME "${ly_lib_name}" )
+@@ -179,7 +181,9 @@ set_target_properties( ${ly_lib_shared} PROPERTIES PREFIX "lib" )
+ if(WIN32)
+   set_target_properties( ${ly_lib_shared} PROPERTIES IMPORT_PREFIX "lib" )
+ endif()
++endif()
+ 
++if(BINARY)
+ # this creates the cpuid tool
+ add_executable      ( cpuid ${ly_base_dir}/util/cpuid.c )
+ target_link_libraries  ( cpuid ${ly_lib_static} )
+@@ -198,6 +202,7 @@ if (JPEG_FOUND)
+   target_link_libraries( ${ly_lib_shared} ${JPEG_LIBRARY} )
+   add_definitions( -DHAVE_JPEG )
+ endif()
++endif()
+ 
+ if(UNIT_TEST)
+   find_library(GTEST_LIBRARY gtest)
+@@ -241,10 +246,16 @@ if(UNIT_TEST)
+ endif()
+ 
+ 
++if(BINARY)
++message("The BINARY option is enabled.")
+ # install the conversion tool, .so, .a, and all the header files
+ install ( TARGETS yuvconvert DESTINATION bin )
++endif()
+ install ( TARGETS ${ly_lib_static}						DESTINATION lib )
++if(BUILD_SHARED_LIBS)
++message("The BUILD_SHARED_LIBS option is enabled.")
+ install ( TARGETS ${ly_lib_shared} LIBRARY DESTINATION lib RUNTIME DESTINATION bin ARCHIVE DESTINATION lib )
++endif()
+ install ( DIRECTORY ${PROJECT_SOURCE_DIR}/include/		DESTINATION include )
+ 
+ # create the .deb and .rpm packages using cpack
+-- 
+2.50.1 (Apple Git-155)
+
