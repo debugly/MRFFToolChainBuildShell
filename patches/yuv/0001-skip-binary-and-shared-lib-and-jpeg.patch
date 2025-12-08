@@ -1,71 +1,66 @@
-From adaf7690b34ade92e3cfb0af812ec8c534381b12 Mon Sep 17 00:00:00 2001
+From ec40a559327d80f3333c17a1f9e9c516bb073753 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Tue, 14 Jan 2025 17:53:31 +0800
+Date: Thu, 4 Dec 2025 10:11:52 +0800
 Subject: [PATCH] skip binary and shared lib and jpeg
 
 ---
- CMakeLists.txt | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ CMakeLists.txt | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 636531e..47b9759 100644
+index 9abfa74..898a6be 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -5,6 +5,7 @@
  PROJECT ( YUV C CXX )	# "C" is required even for C++ projects
- CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
- OPTION( TEST "Built unit tests" OFF )
+ CMAKE_MINIMUM_REQUIRED( VERSION 2.8.12 )
+ OPTION( UNIT_TEST "Built unit tests" OFF )
 +OPTION( BINARY "Built binary" OFF )
  
  SET ( ly_base_dir	${PROJECT_SOURCE_DIR} )
  SET ( ly_src_dir	${ly_base_dir}/source )
-@@ -25,22 +26,26 @@ INCLUDE_DIRECTORIES( BEFORE ${ly_inc_dir} )
+@@ -29,6 +30,7 @@ endif()
  # this creates the static library (.a)
  ADD_LIBRARY				( ${ly_lib_static} STATIC ${ly_source_files} )
  
 +if(BUILD_SHARED_LIBS)
  # this creates the shared library (.so)
  ADD_LIBRARY				( ${ly_lib_shared} SHARED ${ly_source_files} )
-+
  SET_TARGET_PROPERTIES	( ${ly_lib_shared} PROPERTIES OUTPUT_NAME "${ly_lib_name}" )
- SET_TARGET_PROPERTIES	( ${ly_lib_shared} PROPERTIES PREFIX "lib" )
+@@ -36,7 +38,9 @@ SET_TARGET_PROPERTIES	( ${ly_lib_shared} PROPERTIES PREFIX "lib" )
+ if(WIN32)
+   SET_TARGET_PROPERTIES	( ${ly_lib_shared} PROPERTIES IMPORT_PREFIX "lib" )
+ endif()
 +endif()
  
- # this creates the conversion tool
 +if(BINARY)
- ADD_EXECUTABLE			( yuvconvert ${ly_base_dir}/util/yuvconvert.cc )
- TARGET_LINK_LIBRARIES	( yuvconvert ${ly_lib_static} )
- 
--
- INCLUDE ( FindJPEG )
- if (JPEG_FOUND)
-   include_directories( ${JPEG_INCLUDE_DIR} )
-   target_link_libraries( yuvconvert ${JPEG_LIBRARY} )
+ # this creates the cpuid tool
+ ADD_EXECUTABLE      ( cpuid ${ly_base_dir}/util/cpuid.c )
+ TARGET_LINK_LIBRARIES  ( cpuid ${ly_lib_static} )
+@@ -55,6 +59,7 @@ if (JPEG_FOUND)
+   target_link_libraries( ${ly_lib_shared} ${JPEG_LIBRARY} )
    add_definitions( -DHAVE_JPEG )
  endif()
 +endif()
  
- if(TEST)
+ if(UNIT_TEST)
    find_library(GTEST_LIBRARY gtest)
-@@ -75,9 +80,17 @@ endif()
+@@ -97,10 +102,14 @@ if(UNIT_TEST)
+ endif()
  
  
- # install the conversion tool, .so, .a, and all the header files
 +if(BINARY)
-+message("The BINARY option is enabled.")
- INSTALL ( PROGRAMS ${CMAKE_BINARY_DIR}/yuvconvert			DESTINATION bin )
--INSTALL ( TARGETS ${ly_lib_static}						DESTINATION lib )
+ # install the conversion tool, .so, .a, and all the header files
+-INSTALL ( PROGRAMS ${CMAKE_BINARY_DIR}/yuvconvert			DESTINATION bin )
++INSTALL ( PROGRAMS ${CMAKE_BINARY_DIR}/yuvconvert			DESTINATION bin )  
 +endif()
-+
+ INSTALL ( TARGETS ${ly_lib_static}						DESTINATION lib )
 +if(BUILD_SHARED_LIBS)
-+message("The BUILD_SHARED_LIBS option is enabled.")
  INSTALL ( TARGETS ${ly_lib_shared} LIBRARY				DESTINATION lib RUNTIME DESTINATION bin )
 +endif()
-+
-+INSTALL ( TARGETS ${ly_lib_static}						DESTINATION lib )
  INSTALL ( DIRECTORY ${PROJECT_SOURCE_DIR}/include/		DESTINATION include )
  
  # create the .deb and .rpm packages using cpack
 -- 
-2.39.5 (Apple Git-154)
+2.50.1 (Apple Git-155)
 

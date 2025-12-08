@@ -22,10 +22,20 @@ export LIPO_LIBS="libyuv"
 export LIB_DEPENDS_BIN="cmake"
 export CMAKE_TARGETS_NAME=yuv
 export GIT_LOCAL_REPO=extra/yuv
-export GIT_COMMIT=4825d9b
+
+# ✅----------------
+# 4e8a843b 2024年4月1日 使用单个.a
+# f94b8cf7 2024年4月8日 使用单个.a
+# ❌----------------
+# b5a18f9d 2024年12月30日 使用多个.a
+# efd164d6 2024年6月18日  使用多个.a
+# 3af6cafe 2024年4月11日  使用多个.a
+# e52007ef 2024年4月9日 中间编译报错
+
+export GIT_COMMIT=f94b8cf7
 export REPO_DIR=yuv
-export GIT_REPO_VERSION=main-4825d9b
-export PATCH_DIR=yuv-main
+export GIT_REPO_VERSION=main-f94b8cf7
+export PATCH_DIR=yuv
 
 # you can export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git use your mirror
 if [[ "$GIT_YUV_UPSTREAM" != "" ]] ;then
