@@ -1,0 +1,219 @@
+From c253f0b58f86597d7e020076454fbf8c63847f8d Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Fri, 5 Dec 2025 16:07:06 +0800
+Subject: [PATCH] fix convert odd height cvpixelbuffer to bgra crash
+
+---
+ include/libyuv/convert_argb.h |  44 +++++++++++
+ source/convert_argb.cc        | 140 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 184 insertions(+)
+
+diff --git a/include/libyuv/convert_argb.h b/include/libyuv/convert_argb.h
+index 5b50567..2bcfda8 100644
+--- a/include/libyuv/convert_argb.h
++++ b/include/libyuv/convert_argb.h
+@@ -1856,6 +1856,50 @@ int NV12ToARGBMatrix(const uint8_t* src_y,
+                      int width,
+                      int height);
+ 
++                     /*
++Convert NV12 to ARGB with matrix safely
++itu_matrix 1: BT.709
++           2: BT.601
++           3: BT.2020
++full_range 0: limited range
++           1: full range
++*/ 
++
++LIBYUV_API
++int NV12ToARGBMatrixRangeSafely(const uint8_t* src_y,
++                     int src_stride_y,
++                     const uint8_t* src_uv,
++                     int src_stride_uv,
++                     uint8_t* dst_argb,
++                     int dst_stride_argb,
++                     int width,
++                     int height,
++                     int uv_height,
++                     int itu_matrix,
++                     int full_range);
++
++
++                  /*
++convert nv12 to argb with matrix,uv height safely
++because cvpixelbuffer uv height is y_height/2
++libyuv need uv height is y_height/2 + 1
++for example:
++y height is 615 
++uv height is 307
++libyuv need uv height is 308
++*/
++LIBYUV_API
++int NV12ToARGBMatrixSafely(const uint8_t* src_y,
++                     int src_stride_y,
++                     const uint8_t* src_uv,
++                     int src_stride_uv,
++                     uint8_t* dst_argb,
++                     int dst_stride_argb,
++                     const struct YuvConstants* yuvconstants,
++                     int width,
++                     int height,
++                     int uv_height);
++
+ // Convert NV21 to ARGB with matrix.
+ LIBYUV_API
+ int NV21ToARGBMatrix(const uint8_t* src_y,
+diff --git a/source/convert_argb.cc b/source/convert_argb.cc
+index 3655e30..eaff1e9 100644
+--- a/source/convert_argb.cc
++++ b/source/convert_argb.cc
+@@ -4060,6 +4060,146 @@ int NV12ToARGBMatrix(const uint8_t* src_y,
+   return 0;
+ }
+ 
++/*
++convert nv12 to argb with matrix,uv height safe
++because cvpixelbuffer uv height is y_height/2
++libyuv need uv height is y_height/2 + 1
++for example:
++y height is 615 
++uv height is 307
++libyuv need uv height is 308
++*/
++LIBYUV_API
++int NV12ToARGBMatrixSafely(const uint8_t* src_y,
++                     int src_stride_y,
++                     const uint8_t* src_uv,
++                     int src_stride_uv,
++                     uint8_t* dst_argb,
++                     int dst_stride_argb,
++                     const struct YuvConstants* yuvconstants,
++                     int width,
++                     int height,
++                    int uv_height) {
++  int y;
++  void (*NV12ToARGBRow)(
++      const uint8_t* y_buf, const uint8_t* uv_buf, uint8_t* rgb_buf,
++      const struct YuvConstants* yuvconstants, int width) = NV12ToARGBRow_C;
++  assert(yuvconstants);
++  if (!src_y || !src_uv || !dst_argb || width <= 0 || height == 0) {
++    return -1;
++  }
++  // Negative height means invert the image.
++  if (height < 0) {
++    height = -height;
++    dst_argb = dst_argb + (height - 1) * dst_stride_argb;
++    dst_stride_argb = -dst_stride_argb;
++  }
++#if defined(HAS_NV12TOARGBROW_SSSE3)
++  if (TestCpuFlag(kCpuHasSSSE3)) {
++    NV12ToARGBRow = NV12ToARGBRow_Any_SSSE3;
++    if (IS_ALIGNED(width, 8)) {
++      NV12ToARGBRow = NV12ToARGBRow_SSSE3;
++    }
++  }
++#endif
++#if defined(HAS_NV12TOARGBROW_AVX2)
++  if (TestCpuFlag(kCpuHasAVX2)) {
++    NV12ToARGBRow = NV12ToARGBRow_Any_AVX2;
++    if (IS_ALIGNED(width, 16)) {
++      NV12ToARGBRow = NV12ToARGBRow_AVX2;
++    }
++  }
++#endif
++#if defined(HAS_NV12TOARGBROW_NEON)
++  if (TestCpuFlag(kCpuHasNEON)) {
++    NV12ToARGBRow = NV12ToARGBRow_Any_NEON;
++    if (IS_ALIGNED(width, 8)) {
++      NV12ToARGBRow = NV12ToARGBRow_NEON;
++    }
++  }
++#endif
++#if defined(HAS_NV12TOARGBROW_MSA)
++  if (TestCpuFlag(kCpuHasMSA)) {
++    NV12ToARGBRow = NV12ToARGBRow_Any_MSA;
++    if (IS_ALIGNED(width, 8)) {
++      NV12ToARGBRow = NV12ToARGBRow_MSA;
++    }
++  }
++#endif
++#if defined(HAS_NV12TOARGBROW_LSX)
++  if (TestCpuFlag(kCpuHasLSX)) {
++    NV12ToARGBRow = NV12ToARGBRow_Any_LSX;
++    if (IS_ALIGNED(width, 8)) {
++      NV12ToARGBRow = NV12ToARGBRow_LSX;
++    }
++  }
++#endif
++#if defined(HAS_NV12TOARGBROW_LASX)
++  if (TestCpuFlag(kCpuHasLASX)) {
++    NV12ToARGBRow = NV12ToARGBRow_Any_LASX;
++    if (IS_ALIGNED(width, 16)) {
++      NV12ToARGBRow = NV12ToARGBRow_LASX;
++    }
++  }
++#endif
++#if defined(HAS_NV12TOARGBROW_RVV)
++  if (TestCpuFlag(kCpuHasRVV)) {
++    NV12ToARGBRow = NV12ToARGBRow_RVV;
++  }
++#endif
++
++  //because src_uv will add src_stride_uv,so after added src_uv should not exceed uv_height
++  uv_height--;
++
++  for (y = 0; y < height; ++y) {
++    NV12ToARGBRow(src_y, src_uv, dst_argb, yuvconstants, width);
++    dst_argb += dst_stride_argb;
++    src_y += src_stride_y;
++    //cvpixelbuffer may have different uv height: height >> 1 - 1
++    if (y & 1 && (y >> 1) < uv_height) {
++      src_uv += src_stride_uv;
++    }
++  }
++  return 0;
++}
++
++/*
++Convert NV12 to ARGB with matrix.
++itu_matrix 1: BT.709
++           2: BT.601
++           3: BT.2020
++full_range 0: limited range
++           1: full range
++*/ 
++
++LIBYUV_API
++int NV12ToARGBMatrixRangeSafely(const uint8_t* src_y,
++                     int src_stride_y,
++                     const uint8_t* src_uv,
++                     int src_stride_uv,
++                     uint8_t* dst_argb,
++                     int dst_stride_argb,
++                     int width,
++                     int height,
++                    int uv_height,
++                  int itu_matrix,
++                  int full_range)
++                    {
++const struct YuvConstants* yuvconstants;
++    
++    if (itu_matrix == 2) {
++        yuvconstants = full_range ? &kYuvJPEGConstants : &kYuvI601Constants;
++    } else if (itu_matrix == 3) {
++        yuvconstants =  full_range ? &kYuvV2020Constants : &kYuv2020Constants;
++    } else {
++      yuvconstants =  full_range ? &kYuvF709Constants : &kYuvH709Constants;
++    }
++    return NV12ToARGBMatrixSafely(src_y, src_stride_y, src_uv, src_stride_uv,
++                          dst_argb, dst_stride_argb,
++                          yuvconstants,
++                          width, height,uv_height);
++}
++
+ // Convert NV21 to ARGB with matrix.
+ LIBYUV_API
+ int NV21ToARGBMatrix(const uint8_t* src_y,
+-- 
+2.50.1 (Apple Git-155)
+
