@@ -45,7 +45,7 @@ else
 fi
 
 # pre compiled
-export PRE_COMPILE_TAG_TVOS=yuv-stable-eb6e7bb-250226212002
-export PRE_COMPILE_TAG_MACOS=yuv-stable-eb6e7bb-250226205944
-export PRE_COMPILE_TAG_IOS=yuv-stable-eb6e7bb-250226175227
+export PRE_COMPILE_TAG_TVOS=yuv-main-f94b8cf7-251208125130
+export PRE_COMPILE_TAG_MACOS=yuv-main-f94b8cf7-251208125130
+export PRE_COMPILE_TAG_IOS=yuv-main-f94b8cf7-251208125130
 export PRE_COMPILE_TAG_ANDROID=yuv-stable-eb6e7bb-250310112252
