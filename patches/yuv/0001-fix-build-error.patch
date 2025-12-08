@@ -1,14 +1,14 @@
-From 9d49b6da04e66e8fcc27cc809474fe6460007c74 Mon Sep 17 00:00:00 2001
+From 55f90bbd61881edaef80f0751264b8ca4d0cec43 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Mon, 8 Dec 2025 11:12:10 +0800
-Subject: [PATCH] fix cmake build error
+Date: Mon, 8 Dec 2025 12:48:09 +0800
+Subject: [PATCH] fix build error
 
 ---
  CMakeLists.txt | 13 +++++++++++--
  1 file changed, 11 insertions(+), 2 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9abfa74..fcebbdb 100644
+index 9abfa74..b0feb35 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -3,8 +3,9 @@
@@ -16,7 +16,7 @@ index 9abfa74..fcebbdb 100644
  
  PROJECT ( YUV C CXX )	# "C" is required even for C++ projects
 -CMAKE_MINIMUM_REQUIRED( VERSION 2.8.12 )
-+CMAKE_MINIMUM_REQUIRED( VERSION 3...4 )
++CMAKE_MINIMUM_REQUIRED( VERSION 3.10)
  OPTION( UNIT_TEST "Built unit tests" OFF )
 +OPTION( BINARY "Built binary" OFF )
  
