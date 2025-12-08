@@ -1,19 +1,22 @@
-From ec40a559327d80f3333c17a1f9e9c516bb073753 Mon Sep 17 00:00:00 2001
+From 9d49b6da04e66e8fcc27cc809474fe6460007c74 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Thu, 4 Dec 2025 10:11:52 +0800
-Subject: [PATCH] skip binary and shared lib and jpeg
+Date: Mon, 8 Dec 2025 11:12:10 +0800
+Subject: [PATCH] fix cmake build error
 
 ---
- CMakeLists.txt | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ CMakeLists.txt | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9abfa74..898a6be 100644
+index 9abfa74..fcebbdb 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -5,6 +5,7 @@
+@@ -3,8 +3,9 @@
+ # Run with -DTEST=ON to build unit tests
+ 
  PROJECT ( YUV C CXX )	# "C" is required even for C++ projects
- CMAKE_MINIMUM_REQUIRED( VERSION 2.8.12 )
+-CMAKE_MINIMUM_REQUIRED( VERSION 2.8.12 )
++CMAKE_MINIMUM_REQUIRED( VERSION 3...4 )
  OPTION( UNIT_TEST "Built unit tests" OFF )
 +OPTION( BINARY "Built binary" OFF )
  
@@ -45,14 +48,13 @@ index 9abfa74..898a6be 100644
  
  if(UNIT_TEST)
    find_library(GTEST_LIBRARY gtest)
-@@ -97,10 +102,14 @@ if(UNIT_TEST)
+@@ -97,12 +102,16 @@ if(UNIT_TEST)
  endif()
  
  
 +if(BINARY)
  # install the conversion tool, .so, .a, and all the header files
--INSTALL ( PROGRAMS ${CMAKE_BINARY_DIR}/yuvconvert			DESTINATION bin )
-+INSTALL ( PROGRAMS ${CMAKE_BINARY_DIR}/yuvconvert			DESTINATION bin )  
+ INSTALL ( PROGRAMS ${CMAKE_BINARY_DIR}/yuvconvert			DESTINATION bin )
 +endif()
  INSTALL ( TARGETS ${ly_lib_static}						DESTINATION lib )
 +if(BUILD_SHARED_LIBS)
@@ -61,6 +63,9 @@ index 9abfa74..898a6be 100644
  INSTALL ( DIRECTORY ${PROJECT_SOURCE_DIR}/include/		DESTINATION include )
  
  # create the .deb and .rpm packages using cpack
+-INCLUDE ( CM_linux_packages.cmake )
++# INCLUDE ( CM_linux_packages.cmake )
+ 
 -- 
 2.50.1 (Apple Git-155)
 
