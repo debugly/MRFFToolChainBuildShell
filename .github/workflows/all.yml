@@ -78,12 +78,14 @@ jobs:
       uses: actions/checkout@v4
     - name: One Step
       run: |
+
+        local platform=${{ inputs.platform }}
+        local dryrun=${{ inputs.dryrun }}
+
         compile_lib() {
           local lib_name=$1
-          local platform=${{ inputs.platform }}
-          local dryrun=${{ inputs.dryrun }}
-          
-          echo "------compile $lib_name------------------------------------"
+        
+          echo "------compile $platform $lib_name------------------------------------"
           rm -rf build || git reset --hard || git pull origin
           .github/workflows/install-dependencies.sh $lib_name $platform  # 补全依赖安装步骤
           .github/workflows/onestep.sh $lib_name $platform $dryrun
