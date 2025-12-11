@@ -88,7 +88,7 @@ jobs:
           echo "------compile $Platform $lib_name------------------------------------"
           rm -rf build || git reset --hard || git pull origin
           .github/workflows/install-dependencies.sh $lib_name $Platform  # 补全依赖安装步骤
-          .github/workflows/onestep.sh $lib_name $platform $DryRun
+          .github/workflows/onestep.sh $lib_name $Platform $DryRun
         }
         
         libs=(
