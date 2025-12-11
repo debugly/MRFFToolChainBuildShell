@@ -28,8 +28,8 @@ export LIB_DEPENDS_BIN="cmake"
 export CMAKE_TARGETS_NAME=SoundTouch
 export GIT_LOCAL_REPO=extra/soundtouch
 export REPO_DIR=soundtouch
-export GIT_COMMIT=2.3.3
-export GIT_REPO_VERSION=2.3.3
+export GIT_COMMIT=2.4.0
+export GIT_REPO_VERSION=2.4.0
 export PATCH_DIR=soundtouch
 
 # you can export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git use your mirror
