@@ -24,6 +24,30 @@ on:
           - tvos
           - macos
           - all
+      first_library:
+        description: 'choose the first library for compile'
+        required: true
+        type: choice
+        default: 'unibreak'
+        options:
+          - unibreak
+          - fribidi
+          - freetype
+          - fontconfig
+          - harfbuzz
+          - ass
+          - yuv
+          - soundtouch
+          - opus
+          - openssl3
+          - dvdread
+          - dvdnav
+          - bluray
+          - dav1d
+          - uavs3d
+          - smb2
+          - webp
+          - ffmpeg7
       dryrun:
         description: 'just run workflow,but not deploy'
         required: false
@@ -54,66 +78,58 @@ jobs:
       uses: actions/checkout@v4
     - name: One Step
       run: |
-        echo '------compile unibreak------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh unibreak ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile fribidi------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh fribidi ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile freetype------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh freetype ${{ inputs.platform }} ${{ inputs.dryrun }}
-        if [[ ${{ inputs.platform }} == android ]]; then
-          echo '------compile android fontconfig------------------------------------'
+        compile_lib() {
+          local lib_name=$1
+          local platform=${{ inputs.platform }}
+          local dryrun=${{ inputs.dryrun }}
+          
+          echo "------compile $lib_name------------------------------------"
           rm -rf build || git reset --hard || git pull origin
-          .github/workflows/install-dependencies.sh fontconfig android
-          .github/workflows/onestep.sh fontconfig android ${{ inputs.dryrun }}
+          .github/workflows/install-dependencies.sh $lib_name $platform  # 补全依赖安装步骤
+          .github/workflows/onestep.sh $lib_name $platform $dryrun
+        }
+        
+        libs=(
+          "unibreak"
+          "fribidi"
+          "freetype"
+          "fontconfig"
+          "harfbuzz"
+          "ass"
+          "yuv"
+          "soundtouch"
+          "opus"
+          "openssl3"
+          "dvdread"
+          "dvdnav"
+          "bluray"
+          "dav1d"
+          "uavs3d"
+          "smb2"
+          "webp"
+          "ffmpeg7"
+        )
+
+        first=${{ inputs.first_library }}
+        echo "------compile from $first------------------------------------"
+        # 找到first_library在数组中的索引
+        start_index=-1
+        for i in "${!libs[@]}"; do
+          if [[ "${libs[$i]}" == "$first" ]]; then
+            start_index=$i
+            break
+          fi
+        done
+        # 如果找到了first_library，则调整数组顺序
+        if [[ $start_index -ne -1 ]]; then
+          libs=("${libs[@]:$start_index}" "${libs[@]:0:$start_index}")
+        else
+          echo "Warning: first_library $first not found in the library list."
         fi
-        echo '------compile harfbuzz------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/install-dependencies.sh harfbuzz ${{ inputs.platform }}
-        .github/workflows/onestep.sh harfbuzz ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile ass------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/install-dependencies.sh ass ${{ inputs.platform }}  
-        .github/workflows/onestep.sh ass ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile yuv------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh yuv ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile soundtouch------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh soundtouch ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile opus------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh opus ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile openssl3------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh openssl3 ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile dvdread------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh dvdread ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile dvdnav------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh dvdnav ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile bluray------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/install-dependencies.sh bluray ${{ inputs.platform }}
-        .github/workflows/onestep.sh bluray ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile dav1d------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh dav1d ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile uavs3d------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh uavs3d ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile smb2------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh smb2 ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile webp------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/onestep.sh webp ${{ inputs.platform }} ${{ inputs.dryrun }}
-        echo '------compile ffmpeg7------------------------------------'
-        rm -rf build || git reset --hard || git pull origin
-        .github/workflows/install-dependencies.sh ffmpeg7 ${{ inputs.platform }}
-        .github/workflows/onestep.sh ffmpeg7 ${{ inputs.platform }} ${{ inputs.dryrun }}
+
+        # 循环遍历所有库执行编译
+        for lib in "${libs[@]}"; do
+          compile_lib "$lib"
+        done
       env:
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
