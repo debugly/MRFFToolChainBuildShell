@@ -141,7 +141,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 | openssl3    | 3.5.0          | https://github.com/openssl/openssl.git                   | export GIT_OPENSSL_UPSTREAM=git@xx:yy/openssl.git      |
 | opus       | 1.5.2           | https://gitlab.xiph.org/xiph/opus.git                    | export GIT_OPUS_UPSTREAM=git@xx:yy/opus.git            |
 | smb2       | 6.2             | https://github.com/sahlberg/libsmb2.git                  | export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git           |
-| soundtouch | 2.3.3           | https://codeberg.org/soundtouch/soundtouch.git           | export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git  |
+| soundtouch | 2.4.0           | https://codeberg.org/soundtouch/soundtouch.git           | export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git  |
 | unibreak   | 6.1             | https://github.com/adah1972/libunibreak.git              | export GIT_UNIBREAK_UPSTREAM=git@xx:yy/libunibreak.git |
 | uavs3d     | 1.2.1           | https://github.com/uavs3/uavs3d.git                      | export GIT_UAVS3D_UPSTREAM=git@xx:yy/UAVS3D.git          |
 | xml2       | 2.13.6          | https://github.com/GNOME/libxml2.git                     | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
