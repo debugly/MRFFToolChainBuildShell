@@ -28,7 +28,7 @@ on:
         description: 'choose the first library for compile'
         required: true
         type: choice
-        default: 'unibreak'
+        default: 'xml2'
         options:
           - xml2
           - unibreak
@@ -98,23 +98,29 @@ jobs:
         }
         
         libs=(
-          "unibreak"
-          "fribidi"
-          "freetype"
-          "fontconfig"
-          "harfbuzz"
-          "ass"
-          "yuv"
-          "soundtouch"
-          "opus"
-          "openssl3"
-          "dvdread"
-          "dvdnav"
-          "bluray"
-          "dav1d"
-          "uavs3d"
-          "smb2"
-          "webp"
+          "xml2",
+          "unibreak",
+          "fribidi",
+          "freetype",
+          "fontconfig",
+          "harfbuzz",
+          "ass",
+          "yuv",
+          "soundtouch",
+          "opus",
+          "openssl3",
+          "dvdread",
+          "dvdnav",
+          "bluray",
+          "dav1d",
+          "uavs3d",
+          "smb2",
+          "webp",
+          "ijkffmpeg",
+          "fftutorial",
+          "ffmpeg4",
+          "ffmpeg5",
+          "ffmpeg6",
           "ffmpeg7"
         )
 
