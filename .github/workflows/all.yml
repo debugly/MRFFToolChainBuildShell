@@ -98,29 +98,29 @@ jobs:
         }
         
         libs=(
-          "xml2",
-          "unibreak",
-          "fribidi",
-          "freetype",
-          "fontconfig",
-          "harfbuzz",
-          "ass",
-          "yuv",
-          "soundtouch",
-          "opus",
-          "openssl3",
-          "dvdread",
-          "dvdnav",
-          "bluray",
-          "dav1d",
-          "uavs3d",
-          "smb2",
-          "webp",
-          "ijkffmpeg",
-          "fftutorial",
-          "ffmpeg4",
-          "ffmpeg5",
-          "ffmpeg6",
+          "xml2"
+          "unibreak"
+          "fribidi"
+          "freetype"
+          "fontconfig"
+          "harfbuzz"
+          "ass"
+          "yuv"
+          "soundtouch"
+          "opus"
+          "openssl3"
+          "dvdread"
+          "dvdnav"
+          "bluray"
+          "dav1d"
+          "uavs3d"
+          "smb2"
+          "webp"
+          "ijkffmpeg"
+          "fftutorial"
+          "ffmpeg4"
+          "ffmpeg5"
+          "ffmpeg6"
           "ffmpeg7"
         )
 
