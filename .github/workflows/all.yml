@@ -7,7 +7,7 @@ on:
         description: 'macos version'
         required: false
         type: choice
-        default: 'macos-14'
+        default: 'macos-15'
         options:
           - macos-13
           - macos-14
@@ -30,6 +30,7 @@ on:
         type: choice
         default: 'unibreak'
         options:
+          - xml2
           - unibreak
           - fribidi
           - freetype
@@ -47,6 +48,11 @@ on:
           - uavs3d
           - smb2
           - webp
+          - ijkffmpeg
+          - fftutorial
+          - ffmpeg4
+          - ffmpeg5
+          - ffmpeg6
           - ffmpeg7
       dryrun:
         description: 'just run workflow,but not deploy'
