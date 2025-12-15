@@ -172,7 +172,18 @@ case $LIB_NAME in
         fi
     ;;
     dvdnav)
-        ./main.sh install -l 'dvdread' -p $PLAT
+        if [[ $PLAT == all ]];then
+            ./main.sh install -l 'dvdread' -p ios
+            ./main.sh install -l 'dvdread' -p tvos
+            ./main.sh install -l 'dvdread' -p macos
+            ./main.sh install -l 'dvdread' -p android
+        elif [[ $PLAT == apple ]];then
+            ./main.sh install -l 'dvdread' -p ios
+            ./main.sh install -l 'dvdread' -p tvos
+            ./main.sh install -l 'dvdread' -p macos
+        else
+            ./main.sh install -l 'dvdread' -p $PLAT
+        fi
     ;;
     *)
     ;;
