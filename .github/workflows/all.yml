@@ -91,7 +91,27 @@ jobs:
 
         compile_lib() {
           local lib_name=$1
-        
+
+          if [[ "$lib_name" == "fontconfig" ]]; then
+            if [[ "$Platform" == "all" ]]; then
+              echo "force Platform to android for fontconfig"
+              Platform='android'
+            elif [[ "$Platform" != "android" ]]; then
+              echo "Skip fontconfig for $Platform"
+              return
+            fi
+          fi
+
+          if [[ "$lib_name" == "webp" ]]; then
+            if [[ "$Platform" == "android" ]]; then
+              echo "Skip webp for android"
+              return
+            elif [[ "$Platform" == "all" ]]; then
+              echo "Skip webp for android"
+              Platform='apple'
+            fi
+          fi
+
           echo "------compile $Platform $lib_name------------------------------------"
           rm -rf build || git reset --hard || git pull origin
           .github/workflows/install-dependencies.sh $lib_name $Platform  # 补全依赖安装步骤
