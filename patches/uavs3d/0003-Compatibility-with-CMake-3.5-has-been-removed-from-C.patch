@@ -1,0 +1,22 @@
+From 0ac257f96d3f48f1decd2c8e211bc9fef7fc760c Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Tue, 16 Dec 2025 09:28:45 +0800
+Subject: [PATCH] Compatibility with CMake < 3.5 has been removed from CMake
+
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 46458c7..da6c82e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 3.1)
++cmake_minimum_required(VERSION 3.10)
+ 
+ project(uavs3d)
+ 
+-- 
+2.50.1 (Apple Git-155)
+
