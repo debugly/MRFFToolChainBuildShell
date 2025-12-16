@@ -12,6 +12,7 @@ on:
           - macos-13
           - macos-14
           - macos-15
+          - macos-26
       platform:
         description: 'choose a platform for compile'
         required: false

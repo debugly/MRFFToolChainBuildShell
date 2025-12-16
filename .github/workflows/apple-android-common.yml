@@ -9,11 +9,12 @@ on:
         description: 'macos version'
         required: false
         type: choice
-        default: 'macos-14'
+        default: 'macos-15'
         options:
           - macos-13
           - macos-14
           - macos-15
+          - macos-26
       platform:
         description: 'choose a platform for compile'
         required: false
