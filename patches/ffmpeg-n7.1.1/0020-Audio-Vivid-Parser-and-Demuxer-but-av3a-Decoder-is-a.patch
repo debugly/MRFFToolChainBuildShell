@@ -1,6 +1,6 @@
-From 6ce40ee3d8219cb12d2a0e2f8bb1dd1a495dfab7 Mon Sep 17 00:00:00 2001
+From 1dddf06f8c49c6a1e362b492945cdd6bb5941c3b Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Tue, 20 Jan 2026 11:45:47 +0800
+Date: Tue, 20 Jan 2026 14:06:57 +0800
 Subject: [PATCH] Audio Vivid Parser and Demuxer, but av3a Decoder is absent
 
 ---
@@ -662,7 +662,7 @@ index 31a9509..a3553bb 100644
  extern FFInputFormat  ff_ijklas_demuxer;
 diff --git a/libavformat/av3adec.c b/libavformat/av3adec.c
 new file mode 100644
-index 0000000..03f2181
+index 0000000..9bb8729
 --- /dev/null
 +++ b/libavformat/av3adec.c
 @@ -0,0 +1,473 @@
@@ -1034,7 +1034,7 @@ index 0000000..03f2181
 +    stream->start_time             = 0;
 +    ffstream(stream)->need_parsing = AVSTREAM_PARSE_FULL_RAW;
 +    stream->codecpar->codec_type   = AVMEDIA_TYPE_AUDIO;
-+    stream->codecpar->codec_id     = s->iformat->raw_codec_id;
++    stream->codecpar->codec_id     = ((const FFInputFormat*)(s->iformat))->raw_codec_id;
 +    stream->codecpar->codec_tag    = MKTAG('a', 'v', '3', 'a');
 +
 +    if ((ret = avio_read(s->pb, header, AV3A_MAX_NBYTES_HEADER)) != AV3A_MAX_NBYTES_HEADER) {
