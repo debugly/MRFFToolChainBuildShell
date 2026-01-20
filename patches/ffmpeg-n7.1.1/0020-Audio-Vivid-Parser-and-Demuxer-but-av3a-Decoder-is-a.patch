@@ -1,29 +1,27 @@
-From 5b534548ec28b006ca8ebf07c0cad8fe07b80833 Mon Sep 17 00:00:00 2001
+From 6ce40ee3d8219cb12d2a0e2f8bb1dd1a495dfab7 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Thu, 29 May 2025 10:53:30 +0800
+Date: Tue, 20 Jan 2026 11:45:47 +0800
 Subject: [PATCH] Audio Vivid Parser and Demuxer, but av3a Decoder is absent
 
 ---
- libavcodec/Makefile          |   1 +
- libavcodec/av3a.h            | 314 +++++++++++++++++++++++
- libavcodec/av3a_parser.c     | 218 ++++++++++++++++
- libavcodec/codec_desc.c      |   7 +
- libavcodec/codec_id.h        |   1 +
- libavcodec/parsers.c         |   1 +
- libavcodec/utils.c           |   1 +
- libavformat/Makefile         |   1 +
- libavformat/allformats.c.rej |   9 +
- libavformat/av3adec.c        | 472 +++++++++++++++++++++++++++++++++++
- libavformat/isom_tags.c      |   1 +
- libavformat/mov.c.rej        | 158 ++++++++++++
- libavformat/mpegts.c         |   6 +
- libavformat/mpegts.h         |   2 +-
- 14 files changed, 1191 insertions(+), 1 deletion(-)
+ libavcodec/Makefile      |   1 +
+ libavcodec/av3a.h        | 314 ++++++++++++++++++++++++++
+ libavcodec/av3a_parser.c | 218 ++++++++++++++++++
+ libavcodec/codec_desc.c  |   7 +
+ libavcodec/codec_id.h    |   1 +
+ libavcodec/parsers.c     |   1 +
+ libavcodec/utils.c       |   1 +
+ libavformat/Makefile     |   1 +
+ libavformat/allformats.c |   3 +
+ libavformat/av3adec.c    | 473 +++++++++++++++++++++++++++++++++++++++
+ libavformat/isom_tags.c  |   1 +
+ libavformat/mov.c        | 135 +++++++++++
+ libavformat/mpegts.c     |   6 +
+ libavformat/mpegts.h     |   2 +-
+ 14 files changed, 1163 insertions(+), 1 deletion(-)
  create mode 100644 libavcodec/av3a.h
  create mode 100644 libavcodec/av3a_parser.c
- create mode 100644 libavformat/allformats.c.rej
  create mode 100644 libavformat/av3adec.c
- create mode 100644 libavformat/mov.c.rej
 
 diff --git a/libavcodec/Makefile b/libavcodec/Makefile
 index ed5c705..03e80a2 100644
@@ -637,10 +635,10 @@ index 6909a5b..51074ba 100644
      }
  
 diff --git a/libavformat/Makefile b/libavformat/Makefile
-index 359781b..17222ee 100644
+index 5e88060..ada27f6 100644
 --- a/libavformat/Makefile
 +++ b/libavformat/Makefile
-@@ -158,6 +158,7 @@ OBJS-$(CONFIG_AVS2_DEMUXER)              += avs2dec.o rawdec.o
+@@ -159,6 +159,7 @@ OBJS-$(CONFIG_AVS2_DEMUXER)              += avs2dec.o rawdec.o
  OBJS-$(CONFIG_AVS2_MUXER)                += rawenc.o
  OBJS-$(CONFIG_AVS3_DEMUXER)              += avs3dec.o rawdec.o
  OBJS-$(CONFIG_AVS3_MUXER)                += rawenc.o
@@ -648,27 +646,26 @@ index 359781b..17222ee 100644
  OBJS-$(CONFIG_BETHSOFTVID_DEMUXER)       += bethsoftvid.o
  OBJS-$(CONFIG_BFI_DEMUXER)               += bfi.o
  OBJS-$(CONFIG_BINK_DEMUXER)              += bink.o
-diff --git a/libavformat/allformats.c.rej b/libavformat/allformats.c.rej
-new file mode 100644
-index 0000000..623b4c4
---- /dev/null
-+++ b/libavformat/allformats.c.rej
-@@ -0,0 +1,9 @@
-+diff a/libavformat/allformats.c b/libavformat/allformats.c	(rejected hunks)
-+@@ -86,6 +86,7 @@ extern const FFOutputFormat ff_asf_stream_muxer;
-+ extern const AVInputFormat  ff_au_demuxer;
-+ extern const FFOutputFormat ff_au_muxer;
-+ extern const AVInputFormat  ff_av1_demuxer;
-++extern const AVInputFormat  ff_av3a_demuxer;
-+ extern const AVInputFormat  ff_avi_demuxer;
-+ extern const FFOutputFormat ff_avi_muxer;
-+ extern const FFOutputFormat ff_avif_muxer;
+diff --git a/libavformat/allformats.c b/libavformat/allformats.c
+index 31a9509..a3553bb 100644
+--- a/libavformat/allformats.c
++++ b/libavformat/allformats.c
+@@ -576,6 +576,9 @@ extern const FFInputFormat  ff_libmodplug_demuxer;
+ extern const FFInputFormat  ff_libopenmpt_demuxer;
+ extern const FFInputFormat  ff_vapoursynth_demuxer;
+ 
++// custom AV3A demuxer
++extern const FFInputFormat  ff_av3a_demuxer;
++
+ // ijk custom demuxers
+ extern FFInputFormat  ff_ijklivehook_demuxer;
+ extern FFInputFormat  ff_ijklas_demuxer;
 diff --git a/libavformat/av3adec.c b/libavformat/av3adec.c
 new file mode 100644
-index 0000000..51f7ec9
+index 0000000..03f2181
 --- /dev/null
 +++ b/libavformat/av3adec.c
-@@ -0,0 +1,472 @@
+@@ -0,0 +1,473 @@
 +/*
 + * AV3A Demuxer
 + *
@@ -936,7 +933,7 @@ index 0000000..51f7ec9
 +                (channel_number_index < 0)) {
 +                return AVERROR_INVALIDDATA;
 +            }
-+            
++
 +            bitrate_index = get_bits(&gb, 4);
 +            if ((bitrate_index >= AV3A_BITRATE_TABLE_SIZE) || (bitrate_index < 0)) {
 +                return AVERROR_INVALIDDATA;
@@ -1104,7 +1101,7 @@ index 0000000..51f7ec9
 +    if (packet_size < 0) {
 +        return packet_size;
 +    }
-+ 
++
 +    if ((ret = av_new_packet(pkt, packet_size)) < 0) {
 +        return ret;
 +    }
@@ -1129,18 +1126,20 @@ index 0000000..51f7ec9
 +    return 0;
 +}
 +
-+const AVInputFormat ff_av3a_demuxer = {
-+    .name           = "av3a",
-+    .long_name      = NULL_IF_CONFIG_SMALL("Audio Vivid"),
-+    .raw_codec_id   = AV_CODEC_ID_AVS3DA,
-+    .priv_data_size = sizeof(FFRawDemuxerContext),
-+    .read_probe     = av3a_probe,
-+    .read_header    = av3a_read_header,
-+    .read_packet    = av3a_read_packet,
-+    .flags          = AVFMT_GENERIC_INDEX,
-+    .extensions     = "av3a",
-+    .mime_type      = "audio/av3a",
++const FFInputFormat ff_av3a_demuxer = {
++    .p.name           = "av3a",
++    .p.long_name      = NULL_IF_CONFIG_SMALL("Audio Vivid"),
++    .raw_codec_id     = AV_CODEC_ID_AVS3DA,
++    .p.priv_class     = &ff_raw_demuxer_class,
++    .priv_data_size   = sizeof(FFRawDemuxerContext),
++    .read_probe       = av3a_probe,
++    .read_header      = av3a_read_header,
++    .read_packet      = av3a_read_packet,
++    .p.flags          = AVFMT_GENERIC_INDEX,
++    .p.extensions     = "av3a",
++    .p.mime_type      = "audio/av3a",
 +};
+\ No newline at end of file
 diff --git a/libavformat/isom_tags.c b/libavformat/isom_tags.c
 index 5dd72d5..1c52d7c 100644
 --- a/libavformat/isom_tags.c
@@ -1153,170 +1152,166 @@ index 5dd72d5..1c52d7c 100644
      { AV_CODEC_ID_NONE, 0 },
  };
  
-diff --git a/libavformat/mov.c.rej b/libavformat/mov.c.rej
-new file mode 100644
-index 0000000..db8f10c
---- /dev/null
-+++ b/libavformat/mov.c.rej
-@@ -0,0 +1,158 @@
-+diff a/libavformat/mov.c b/libavformat/mov.c	(rejected hunks)
-+@@ -69,7 +69,9 @@
-+ #include "libavutil/imgutils.h"
-+ #include "libavutil/display.h"
-+ #include "libavcodec/avcodec.h"
-+-
-++#if CONFIG_AV3A_DEMUXER
-++#include "libavcodec/av3a.h"
-++#endif
-+ #if CONFIG_ZLIB
-+ #include <zlib.h>
-+ #endif
-+@@ -8105,6 +8107,135 @@ static int mov_read_iloc(MOVContext *c, AVIOContext *pb, MOVAtom atom)
-+     return atom.size;
-+ }
-+ 
-++#if CONFIG_AV3A_DEMUXER
-++static int mov_read_dca3(MOVContext *c, AVIOContext *pb, MOVAtom atom)
-++{
-++    int ret = 0;
-++    int i = 0;
-++    int nb_channels = 0;
-++    int nb_objects = 0;
-++    AVStream *st = NULL;
-++    GetBitContext gb;
-++    uint8_t buffer[7];
-++    int audio_codec_id, sampling_frequency_index;
-++    int nn_type, content_type, channel_number_index, number_objects;
-++    int hoa_order, resolution_index, reserved;
-++    int bitrate_kbps;
-++
-++    if (atom.size < AV3A_DCA3_BOX_MIN_SIZE) {
-++        return AVERROR_INVALIDDATA;
-++    }
-++
-++    init_get_bits8(&gb, buffer, sizeof(buffer));
-++
-++    if (c->fc->nb_streams < 1) {
-++        return 0;
-++    }
-++    st = c->fc->streams[c->fc->nb_streams - 1];
-++
-++    if ((ret = avio_read(pb, buffer, sizeof(buffer))) < 0) {
-++        return ret;
-++    }
-++
-++    audio_codec_id = get_bits(&gb, 4);
-++    if (audio_codec_id != AV3A_LOSSY_CODEC_ID) {
-++        return AVERROR_INVALIDDATA;
-++    }
-++
-++    st->codecpar->frame_size = AV3A_AUDIO_FRAME_SIZE;
-++    sampling_frequency_index = get_bits(&gb, 4);
-++    if ((sampling_frequency_index >= AV3A_FS_TABLE_SIZE) || (sampling_frequency_index < 0)) {
-++        return AVERROR_INVALIDDATA;
-++    }
-++    st->codecpar->sample_rate = ff_av3a_sampling_rate_table[sampling_frequency_index];
-++
-++    nn_type = get_bits(&gb, 3);
-++    if ((nn_type > AV3A_LC_NN_TYPE) || (nn_type < AV3A_BASELINE_NN_TYPE)) {
-++        return AVERROR_INVALIDDATA;
-++    }
-++
-++    reserved     = get_bits(&gb, 1);
-++    content_type = get_bits(&gb, 4);
-++    if (content_type == AV3A_CHANNEL_BASED_TYPE) {
-++        channel_number_index = get_bits(&gb, 7);
-++        reserved             = get_bits(&gb, 1);
-++        if ((channel_number_index >= CHANNEL_CONFIG_UNKNOWN) ||
-++            (channel_number_index == CHANNEL_CONFIG_MC_10_2) ||
-++            (channel_number_index == CHANNEL_CONFIG_MC_22_2) ||
-++            (channel_number_index < 0)) {
-++                return AVERROR_INVALIDDATA;
-++        }
-++        nb_channels = ff_av3a_channels_map_table[channel_number_index].channels;
-++    } else if (content_type == AV3A_OBJECT_BASED_TYPE) {
-++        number_objects = get_bits(&gb, 7);
-++        reserved       = get_bits(&gb, 1);
-++        nb_objects     = number_objects;
-++        if (nb_objects < 1) {
-++            return AVERROR_INVALIDDATA;
-++        }
-++    } else if (content_type == AV3A_CHANNEL_OBJECT_TYPE) {
-++        channel_number_index = get_bits(&gb, 7);
-++        reserved             = get_bits(&gb, 1);
-++        if ((channel_number_index >= CHANNEL_CONFIG_UNKNOWN) ||
-++            (channel_number_index == CHANNEL_CONFIG_MC_10_2) ||
-++            (channel_number_index == CHANNEL_CONFIG_MC_22_2) ||
-++            (channel_number_index < 0)) {
-++                return AVERROR_INVALIDDATA;
-++        }
-++        number_objects = get_bits(&gb, 7);
-++        reserved       = get_bits(&gb, 1);
-++        nb_channels = ff_av3a_channels_map_table[channel_number_index].channels;
-++        nb_objects  = number_objects;
-++        if (nb_objects < 1) {
-++            return AVERROR_INVALIDDATA;
-++        }
-++    } else if (content_type == AV3A_AMBISONIC_TYPE) {
-++        hoa_order = get_bits(&gb, 4);
-++        if ((hoa_order < AV3A_AMBISONIC_FIRST_ORDER) || (hoa_order > AV3A_AMBISONIC_THIRD_ORDER)) {
-++            return AVERROR_INVALIDDATA;
-++        }
-++        nb_channels = (hoa_order + 1) * (hoa_order + 1);
-++    } else {
-++        return AVERROR_INVALIDDATA;
-++    }
-++
-++    bitrate_kbps = get_bits(&gb, 16);
-++    st->codecpar->bit_rate = bitrate_kbps * 1000;
-++
-++    resolution_index = get_bits(&gb, 2);
-++    if ((resolution_index >= AV3A_RESOLUTION_TABLE_SIZE) || (resolution_index < 0)) {
-++        return AVERROR_INVALIDDATA;
-++    }
-++    st->codecpar->format = ff_av3a_sample_format_map_table[resolution_index].sample_format;
-++    st->codecpar->bits_per_raw_sample = ff_av3a_sample_format_map_table[resolution_index].resolution;
-++
-++    av_channel_layout_uninit(&st->codecpar->ch_layout);
-++    if (content_type != AV3A_AMBISONIC_TYPE) {
-++        st->codecpar->ch_layout.order       = AV_CHANNEL_ORDER_CUSTOM;
-++        st->codecpar->ch_layout.nb_channels = (nb_channels + nb_objects);
-++        st->codecpar->ch_layout.u.map       = av_calloc(st->codecpar->ch_layout.nb_channels, sizeof(AVChannelCustom));
-++        if (!st->codecpar->ch_layout.u.map) {
-++            return AVERROR(ENOMEM);
-++        }
-++
-++        if (content_type != AV3A_OBJECT_BASED_TYPE) {
-++            for (i = 0; i < nb_channels; i ++) {
-++                st->codecpar->ch_layout.u.map[i].id = ff_av3a_channels_map_table[channel_number_index].channel_layout[i];
-++            }
-++        }
-++
-++        for (i = nb_channels; i < st->codecpar->ch_layout.nb_channels; i++) {
-++            st->codecpar->ch_layout.u.map[i].id = AV3A_CH_AUDIO_OBJECT;
-++        }
-++    } else {
-++        st->codecpar->ch_layout.order       = AV_CHANNEL_ORDER_AMBISONIC;
-++        st->codecpar->ch_layout.nb_channels = nb_channels;
-++    }
-++
-++    return 0;
-++}
-++#endif
-++
-+ static const MOVParseTableEntry mov_default_parse_table[] = {
-+ { MKTAG('A','C','L','R'), mov_read_aclr },
-+ { MKTAG('A','P','R','G'), mov_read_avid },
-+@@ -8212,6 +8343,9 @@ static const MOVParseTableEntry mov_default_parse_table[] = {
-+ { MKTAG('p','c','m','C'), mov_read_pcmc }, /* PCM configuration box */
-+ { MKTAG('p','i','t','m'), mov_read_pitm },
-+ { MKTAG('e','v','c','C'), mov_read_glbl },
-++#if CONFIG_AV3A_DEMUXER
-++{ MKTAG('d','c','a','3'), mov_read_dca3 },
-++#endif
-+ { 0, NULL }
-+ };
-+ 
+diff --git a/libavformat/mov.c b/libavformat/mov.c
+index d9d7b80..51deb1a 100644
+--- a/libavformat/mov.c
++++ b/libavformat/mov.c
+@@ -69,6 +69,10 @@
+ #include "mov_chan.h"
+ #include "replaygain.h"
+ 
++#if CONFIG_AV3A_DEMUXER
++#include "libavcodec/av3a.h"
++#endif
++
+ #if CONFIG_ZLIB
+ #include <zlib.h>
+ #endif
+@@ -88,6 +92,134 @@ static void mov_free_stream_context(AVFormatContext *s, AVStream *st);
+ static int64_t add_ctts_entry(MOVCtts** ctts_data, unsigned int* ctts_count, unsigned int* allocated_size,
+                               int count, int duration);
+ 
++#if CONFIG_AV3A_DEMUXER
++static int mov_read_dca3(MOVContext *c, AVIOContext *pb, MOVAtom atom)
++{
++    int ret = 0;
++    int i = 0;
++    int nb_channels = 0;
++    int nb_objects = 0;
++    AVStream *st = NULL;
++    GetBitContext gb;
++    uint8_t buffer[7];
++    int audio_codec_id, sampling_frequency_index;
++    int nn_type, content_type, channel_number_index, number_objects;
++    int hoa_order, resolution_index, reserved;
++    int bitrate_kbps;
++
++    if (atom.size < AV3A_DCA3_BOX_MIN_SIZE) {
++        return AVERROR_INVALIDDATA;
++    }
++
++    init_get_bits8(&gb, buffer, sizeof(buffer));
++
++    if (c->fc->nb_streams < 1) {
++        return 0;
++    }
++    st = c->fc->streams[c->fc->nb_streams - 1];
++
++    if ((ret = avio_read(pb, buffer, sizeof(buffer))) < 0) {
++        return ret;
++    }
++
++    audio_codec_id = get_bits(&gb, 4);
++    if (audio_codec_id != AV3A_LOSSY_CODEC_ID) {
++        return AVERROR_INVALIDDATA;
++    }
++
++    st->codecpar->frame_size = AV3A_AUDIO_FRAME_SIZE;
++    sampling_frequency_index = get_bits(&gb, 4);
++    if ((sampling_frequency_index >= AV3A_FS_TABLE_SIZE) || (sampling_frequency_index < 0)) {
++        return AVERROR_INVALIDDATA;
++    }
++    st->codecpar->sample_rate = ff_av3a_sampling_rate_table[sampling_frequency_index];
++
++    nn_type = get_bits(&gb, 3);
++    if ((nn_type > AV3A_LC_NN_TYPE) || (nn_type < AV3A_BASELINE_NN_TYPE)) {
++        return AVERROR_INVALIDDATA;
++    }
++
++    reserved     = get_bits(&gb, 1);
++    content_type = get_bits(&gb, 4);
++    if (content_type == AV3A_CHANNEL_BASED_TYPE) {
++        channel_number_index = get_bits(&gb, 7);
++        reserved             = get_bits(&gb, 1);
++        if ((channel_number_index >= CHANNEL_CONFIG_UNKNOWN) ||
++            (channel_number_index == CHANNEL_CONFIG_MC_10_2) ||
++            (channel_number_index == CHANNEL_CONFIG_MC_22_2) ||
++            (channel_number_index < 0)) {
++                return AVERROR_INVALIDDATA;
++        }
++        nb_channels = ff_av3a_channels_map_table[channel_number_index].channels;
++    } else if (content_type == AV3A_OBJECT_BASED_TYPE) {
++        number_objects = get_bits(&gb, 7);
++        reserved       = get_bits(&gb, 1);
++        nb_objects     = number_objects;
++        if (nb_objects < 1) {
++            return AVERROR_INVALIDDATA;
++        }
++    } else if (content_type == AV3A_CHANNEL_OBJECT_TYPE) {
++        channel_number_index = get_bits(&gb, 7);
++        reserved             = get_bits(&gb, 1);
++        if ((channel_number_index >= CHANNEL_CONFIG_UNKNOWN) ||
++            (channel_number_index == CHANNEL_CONFIG_MC_10_2) ||
++            (channel_number_index == CHANNEL_CONFIG_MC_22_2) ||
++            (channel_number_index < 0)) {
++                return AVERROR_INVALIDDATA;
++        }
++        number_objects = get_bits(&gb, 7);
++        reserved       = get_bits(&gb, 1);
++        nb_channels = ff_av3a_channels_map_table[channel_number_index].channels;
++        nb_objects  = number_objects;
++        if (nb_objects < 1) {
++            return AVERROR_INVALIDDATA;
++        }
++    } else if (content_type == AV3A_AMBISONIC_TYPE) {
++        hoa_order = get_bits(&gb, 4);
++        if ((hoa_order < AV3A_AMBISONIC_FIRST_ORDER) || (hoa_order > AV3A_AMBISONIC_THIRD_ORDER)) {
++            return AVERROR_INVALIDDATA;
++        }
++        nb_channels = (hoa_order + 1) * (hoa_order + 1);
++    } else {
++        return AVERROR_INVALIDDATA;
++    }
++
++    bitrate_kbps = get_bits(&gb, 16);
++    st->codecpar->bit_rate = bitrate_kbps * 1000;
++
++    resolution_index = get_bits(&gb, 2);
++    if ((resolution_index >= AV3A_RESOLUTION_TABLE_SIZE) || (resolution_index < 0)) {
++        return AVERROR_INVALIDDATA;
++    }
++    st->codecpar->format = ff_av3a_sample_format_map_table[resolution_index].sample_format;
++    st->codecpar->bits_per_raw_sample = ff_av3a_sample_format_map_table[resolution_index].resolution;
++
++    av_channel_layout_uninit(&st->codecpar->ch_layout);
++    if (content_type != AV3A_AMBISONIC_TYPE) {
++        st->codecpar->ch_layout.order       = AV_CHANNEL_ORDER_CUSTOM;
++        st->codecpar->ch_layout.nb_channels = (nb_channels + nb_objects);
++        st->codecpar->ch_layout.u.map       = av_calloc(st->codecpar->ch_layout.nb_channels, sizeof(AVChannelCustom));
++        if (!st->codecpar->ch_layout.u.map) {
++            return AVERROR(ENOMEM);
++        }
++
++        if (content_type != AV3A_OBJECT_BASED_TYPE) {
++            for (i = 0; i < nb_channels; i ++) {
++                st->codecpar->ch_layout.u.map[i].id = ff_av3a_channels_map_table[channel_number_index].channel_layout[i];
++            }
++        }
++
++        for (i = nb_channels; i < st->codecpar->ch_layout.nb_channels; i++) {
++            st->codecpar->ch_layout.u.map[i].id = AV3A_CH_AUDIO_OBJECT;
++        }
++    } else {
++        st->codecpar->ch_layout.order       = AV_CHANNEL_ORDER_AMBISONIC;
++        st->codecpar->ch_layout.nb_channels = nb_channels;
++    }
++    return 0;
++}
++#endif
++
+ static int mov_metadata_track_or_disc_number(MOVContext *c, AVIOContext *pb,
+                                              unsigned len, const char *key)
+ {
+@@ -9204,6 +9336,9 @@ static const MOVParseTableEntry mov_default_parse_table[] = {
+ #if CONFIG_IAMFDEC
+ { MKTAG('i','a','c','b'), mov_read_iacb },
+ #endif
++#if CONFIG_AV3A_DEMUXER
++{ MKTAG('d','c','a','3'), mov_read_dca3 },
++#endif
+ { 0, NULL }
+ };
+ 
 diff --git a/libavformat/mpegts.c b/libavformat/mpegts.c
 index 58b50cb..59039ed 100644
 --- a/libavformat/mpegts.c
@@ -1355,5 +1350,5 @@ index 14ae312..8a45eef 100644
  #define STREAM_TYPE_AUDIO_DTS       0x82
  #define STREAM_TYPE_AUDIO_TRUEHD    0x83
 -- 
-2.39.5 (Apple Git-154)
+2.50.1 (Apple Git-155)
 

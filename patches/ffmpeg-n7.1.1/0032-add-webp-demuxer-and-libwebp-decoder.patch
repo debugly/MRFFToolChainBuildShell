@@ -1,22 +1,20 @@
-From 83a84dc1fc30d9e48f486489299feb9be4cde432 Mon Sep 17 00:00:00 2001
+From ad3b9e537d7fba11e5d899c4987fd4e84ce9eb03 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Thu, 9 Oct 2025 14:28:49 +0800
+Date: Tue, 20 Jan 2026 11:48:50 +0800
 Subject: [PATCH] add webp demuxer and libwebp decoder
 
 ---
- configure                    |   7 +-
- libavcodec/Makefile          |   1 +
- libavcodec/allcodecs.c       |   1 +
- libavcodec/codec_desc.c      |   9 +
- libavcodec/codec_id.h        |   1 +
- libavcodec/libwebpdec.c      | 376 +++++++++++++++++++++++++++++++++++
- libavformat/Makefile         |   1 +
- libavformat/allformats.c     |   1 +
- libavformat/allformats.c.rej |   9 -
- libavformat/webpdec.c        | 296 +++++++++++++++++++++++++++
- 10 files changed, 692 insertions(+), 10 deletions(-)
+ configure                |   7 +-
+ libavcodec/Makefile      |   1 +
+ libavcodec/allcodecs.c   |   1 +
+ libavcodec/codec_desc.c  |   9 +
+ libavcodec/codec_id.h    |   1 +
+ libavcodec/libwebpdec.c  | 376 +++++++++++++++++++++++++++++++++++++++
+ libavformat/Makefile     |   1 +
+ libavformat/allformats.c |   1 +
+ libavformat/webpdec.c    | 296 ++++++++++++++++++++++++++++++
+ 9 files changed, 692 insertions(+), 1 deletion(-)
  create mode 100644 libavcodec/libwebpdec.c
- delete mode 100644 libavformat/allformats.c.rej
  create mode 100644 libavformat/webpdec.c
 
 diff --git a/configure b/configure
@@ -488,7 +486,7 @@ index 1f32e4c..90aef47 100644
  OBJS-$(CONFIG_WEBVTT_MUXER)              += webvttenc.o
  OBJS-$(CONFIG_WSAUD_DEMUXER)             += westwood_aud.o
 diff --git a/libavformat/allformats.c b/libavformat/allformats.c
-index 31a9509..fbe7967 100644
+index a3553bb..e10385f 100644
 --- a/libavformat/allformats.c
 +++ b/libavformat/allformats.c
 @@ -564,6 +564,7 @@ extern const FFInputFormat  ff_image_svg_pipe_demuxer;
@@ -499,21 +497,6 @@ index 31a9509..fbe7967 100644
  extern const FFInputFormat  ff_image_webp_pipe_demuxer;
  extern const FFInputFormat  ff_image_xbm_pipe_demuxer;
  extern const FFInputFormat  ff_image_xpm_pipe_demuxer;
-diff --git a/libavformat/allformats.c.rej b/libavformat/allformats.c.rej
-deleted file mode 100644
-index 623b4c4..0000000
---- a/libavformat/allformats.c.rej
-+++ /dev/null
-@@ -1,9 +0,0 @@
--diff a/libavformat/allformats.c b/libavformat/allformats.c	(rejected hunks)
--@@ -86,6 +86,7 @@ extern const FFOutputFormat ff_asf_stream_muxer;
-- extern const AVInputFormat  ff_au_demuxer;
-- extern const FFOutputFormat ff_au_muxer;
-- extern const AVInputFormat  ff_av1_demuxer;
--+extern const AVInputFormat  ff_av3a_demuxer;
-- extern const AVInputFormat  ff_avi_demuxer;
-- extern const FFOutputFormat ff_avi_muxer;
-- extern const FFOutputFormat ff_avif_muxer;
 diff --git a/libavformat/webpdec.c b/libavformat/webpdec.c
 new file mode 100644
 index 0000000..df4a3af
@@ -817,5 +800,5 @@ index 0000000..df4a3af
 +    .p.priv_class     = &webp_demuxer_class,
 +};
 -- 
-2.39.5 (Apple Git-154)
+2.50.1 (Apple Git-155)
 
