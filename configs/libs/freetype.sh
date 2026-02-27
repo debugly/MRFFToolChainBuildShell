@@ -23,9 +23,9 @@ export LIB_NAME='freetype'
 export LIPO_LIBS="libfreetype"
 export LIB_DEPENDS_BIN="meson pkg-config"
 export GIT_LOCAL_REPO=extra/freetype
-export GIT_COMMIT=VER-2-13-3
+export GIT_COMMIT=VER-2-14-1
 export REPO_DIR=freetype
-export GIT_REPO_VERSION=2.13.3
+export GIT_REPO_VERSION=2.14.1
 export GIT_WITH_SUBMODULE=1
 
 # you can export GIT_FREETYPE_UPSTREAM=git@xx:yy/FREETYPE.git use your mirror

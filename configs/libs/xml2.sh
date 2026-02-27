@@ -26,9 +26,9 @@ export LIB_NAME='xml2'
 export LIPO_LIBS="libxml2"
 export LIB_DEPENDS_BIN="autoconf automake libtool"
 export GIT_LOCAL_REPO=extra/xml2
-export GIT_COMMIT=v2.13.6
+export GIT_COMMIT=v2.15.1
 export REPO_DIR=xml2
-export GIT_REPO_VERSION=2.13.6
+export GIT_REPO_VERSION=2.15.1
 
 # you can export GIT_XML2_UPSTREAM=git@xx:yy/xml2.git use your mirror
 if [[ "$GIT_XML2_UPSTREAM" != "" ]] ;then

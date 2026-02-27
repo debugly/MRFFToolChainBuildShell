@@ -20,10 +20,10 @@ export LIB_NAME='dav1d'
 export LIPO_LIBS="libdav1d"
 export LIB_DEPENDS_BIN="meson ninja nasm"
 export GIT_LOCAL_REPO=extra/dav1d
-export GIT_COMMIT=1.5.1
+export GIT_COMMIT=1.5.3
 export GIT_WITH_SUBMODULE=0
 export REPO_DIR=dav1d
-export GIT_REPO_VERSION=1.5.1
+export GIT_REPO_VERSION=1.5.3
 
 # you can export GIT_DAV1D_UPSTREAM=git@xx:yy/dav1d.git use your mirror
 if [[ "$GIT_DAV1D_UPSTREAM" != "" ]] ;then
