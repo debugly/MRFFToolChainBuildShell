@@ -28,6 +28,7 @@ echo "----------------------"
 echo "[*] configurate $LIB_NAME"
 echo "[*] cmake options: $CMAKE_OTHER_OPTS"
 echo "[*] cmake component: $CMAKE_COMPONENT"
+echo "[*] deployment target:$MR_DEPLOYMENT_TARGET_VER"
 echo "----------------------"
 
 build="${MR_BUILD_SOURCE}/cmake_wksp"
@@ -65,6 +66,7 @@ cmake -S ${MR_BUILD_SOURCE} \
     -DCMAKE_INSTALL_PREFIX=${MR_BUILD_PREFIX} \
     -DCMAKE_TOOLCHAIN_FILE="${MR_SHELL_TOOLS_DIR}/ios.toolchain.cmake" \
     -DPLATFORM=$pf \
+    -DDEPLOYMENT_TARGET=$MR_DEPLOYMENT_TARGET_VER \
     ${CMAKE_OTHER_OPTS} \
     -GXcode
 

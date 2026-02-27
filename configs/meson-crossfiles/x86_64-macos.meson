@@ -10,12 +10,12 @@ strip = 'strip'
 pkgconfig = 'pkg-config'
 
 [built-in options]
-c_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11', '-Os']
-cpp_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11', '-Os']
-c_link_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11', '-Os']
-cpp_link_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11', '-Os']
-objc_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11', '-Os']
-objcpp_args = ['-arch', 'x86_64', '-mmacosx-version-min=10.11', '-Os']
+c_args = ['-arch', 'x86_64', '__DEPLOYMENT_TARGET', '-Os']
+cpp_args = ['-arch', 'x86_64', '__DEPLOYMENT_TARGET', '-Os']
+c_link_args = ['-arch', 'x86_64', '__DEPLOYMENT_TARGET', '-Os']
+cpp_link_args = ['-arch', 'x86_64', '__DEPLOYMENT_TARGET', '-Os']
+objc_args = ['-arch', 'x86_64', '__DEPLOYMENT_TARGET', '-Os']
+objcpp_args = ['-arch', 'x86_64', '__DEPLOYMENT_TARGET', '-Os']
 
 [properties]
 root = '__XCODE_DEVELOPER/Platforms/MacOSX.platform/Developer'

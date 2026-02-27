@@ -38,16 +38,18 @@ export MR_XCODE_DEVELOPER="$XCODE_DEVELOPER"
 
 echo $(xcodebuild -version)
 
+DEPLOYMENT_TARGET_KEY=
 if [[ "$MR_PLAT" == 'ios' ]]; then
+    export MR_DEPLOYMENT_TARGET_VER=12.0
     case $_MR_ARCH in
         *_simulator)
             export XCRUN_PLATFORM='iPhoneSimulator'
-            DEPLOYMENT_TARGET='-mios-simulator-version-min=11.0'
+            DEPLOYMENT_TARGET_KEY='-mios-simulator-version-min'
             export MR_IS_SIMULATOR=1
         ;;
         'arm64')
             export XCRUN_PLATFORM='iPhoneOS'
-            DEPLOYMENT_TARGET='-miphoneos-version-min=11.0'
+            DEPLOYMENT_TARGET_KEY='-miphoneos-version-min'
             export MR_IS_SIMULATOR=0
         ;;
         *)
@@ -55,21 +57,23 @@ if [[ "$MR_PLAT" == 'ios' ]]; then
             exit 1
         ;;
     esac
-    elif [[ "$MR_PLAT" == 'macos' ]]; then
-        export XCRUN_PLATFORM='MacOSX'
-        export MACOSX_DEPLOYMENT_TARGET=10.11
-        DEPLOYMENT_TARGET="-mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
-        export MR_IS_SIMULATOR=0
-    elif [[ "$MR_PLAT" == 'tvos' ]]; then
+elif [[ "$MR_PLAT" == 'macos' ]]; then
+    export XCRUN_PLATFORM='MacOSX'
+    export MACOSX_DEPLOYMENT_TARGET=10.14
+    export MR_DEPLOYMENT_TARGET_VER=10.14
+    DEPLOYMENT_TARGET_KEY="-mmacosx-version-min"
+    export MR_IS_SIMULATOR=0
+elif [[ "$MR_PLAT" == 'tvos' ]]; then
+    export MR_DEPLOYMENT_TARGET_VER=12.0
     case $_MR_ARCH in
         *_simulator)
             export XCRUN_PLATFORM='AppleTVSimulator'
-            DEPLOYMENT_TARGET="-mtvos-simulator-version-min=12.0"
+            DEPLOYMENT_TARGET_KEY="-mtvos-simulator-version-min"
             export MR_IS_SIMULATOR=1
         ;;
         'arm64')
             export XCRUN_PLATFORM='AppleTVOS'
-            DEPLOYMENT_TARGET="-mtvos-version-min=12.0"
+            DEPLOYMENT_TARGET_KEY="-mtvos-version-min"
             export MR_IS_SIMULATOR=0
         ;;
         *)
@@ -99,8 +103,9 @@ export MR_FF_ARCH="${MR_ARCH}"
 export MR_BUILD_SOURCE="${MR_SRC_ROOT}/${REPO_DIR}-${_MR_ARCH}"
 # ios/fftutorial-x86_64
 export MR_BUILD_PREFIX="${MR_PRODUCT_ROOT}/${LIB_NAME}-${_MR_ARCH}"
+export MR_DEPLOYMENT_TARGET="${DEPLOYMENT_TARGET_KEY}=${MR_DEPLOYMENT_TARGET_VER}"
 # -arch x86_64 -mios-simulator-version-min=11.0
-export MR_DEFAULT_CFLAGS="-arch $MR_ARCH $MR_INIT_CFLAGS $DEPLOYMENT_TARGET -D__APPLE__"
+export MR_DEFAULT_CFLAGS="-arch $MR_ARCH $MR_INIT_CFLAGS $MR_DEPLOYMENT_TARGET -D__APPLE__"
 
 echo "MR_ARCH          : [$MR_ARCH]"
 echo "MR_BUILD_SOURCE  : [$MR_BUILD_SOURCE]"

@@ -57,6 +57,7 @@ if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]]; then
     cat "$raw_cross_file" > "$cross_file"
 
     my_sed_i "s|__XCODE_DEVELOPER|$MR_XCODE_DEVELOPER|" "$cross_file"
+    my_sed_i "s|__DEPLOYMENT_TARGET|$MR_DEPLOYMENT_TARGET|" "$cross_file"
 
     echo "[*] using cross compile, cross file: $cross_file"
     CFG_FLAGS="$CFG_FLAGS --cross-file $cross_file"
