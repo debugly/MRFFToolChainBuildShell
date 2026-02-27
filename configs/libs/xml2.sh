@@ -24,7 +24,7 @@
 
 export LIB_NAME='xml2'
 export LIPO_LIBS="libxml2"
-export LIB_DEPENDS_BIN="autoconf automake libtool"
+export LIB_DEPENDS_BIN="meson pkg-config"
 export GIT_LOCAL_REPO=extra/xml2
 export GIT_COMMIT=v2.15.1
 export REPO_DIR=xml2
