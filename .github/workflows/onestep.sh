@@ -77,7 +77,7 @@ function compile_tvos_platform
 function compile_android_platform
 {
     echo "---do compile android libs--------------------------------------"
-    ./main.sh compile -p android -c build -l ${LIB_NAME} >> $DIST_DIR/android-compile-log-$RELEASE_VERSION.md
+    ./main.sh compile -p android -c build -l ${LIB_NAME} #>> $DIST_DIR/android-compile-log-$RELEASE_VERSION.md
     cd build/product/android/universal
     zip -ryq $DIST_DIR/${LIB_NAME}-android-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
