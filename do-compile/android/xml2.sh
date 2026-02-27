@@ -17,10 +17,10 @@
 # can't use cmake,because ios undeclared function 'getentropy'
 # https://gitlab.gnome.org/GNOME/libxml2/-/issues/774#note_2174500
 # ./cmake-compatible.sh "-DBUILD_SHARED_LIBS=0 -DLIBXML2_WITH_PROGRAMS=0 -DLIBXML2_WITH_ZLIB=1 -DLIBXML2_WITH_PYTHON=0 -DLIBXML2_WITH_ICONV=1"
-
+# android platform not provide iconv，apple platform provided.
 
 set -e
 
-CFG_FLAGS="-Ddocs=disabled -Ddebugging=disabled -Dpython=disabled -Dzlib=enabled"
+CFG_FLAGS="-Ddocs=disabled -Ddebugging=disabled -Dpython=disabled -Dzlib=enabled -Diconv=disabled"
 
 ./meson-compatible.sh "$CFG_FLAGS"
