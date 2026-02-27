@@ -19,54 +19,8 @@
 # ./cmake-compatible.sh "-DBUILD_SHARED_LIBS=0 -DLIBXML2_WITH_PROGRAMS=0 -DLIBXML2_WITH_ZLIB=1 -DLIBXML2_WITH_PYTHON=0 -DLIBXML2_WITH_ICONV=1"
 
 
-CFLAGS="$MR_DEFAULT_CFLAGS"
+set -e
 
-# prepare build config
-CFG_FLAGS="--prefix=$MR_BUILD_PREFIX"
-# for cross compile
-if [[ $(uname -m) != "$MR_ARCH" || "$MR_FORCE_CROSS" ]];then
-    echo "[*] cross compile, on $(uname -m) compile $MR_PLAT $MR_ARCH."
-    # https://www.gnu.org/software/automake/manual/html_node/Cross_002dCompilation.html
-    CFLAGS="$CFLAGS -isysroot $MR_SYS_ROOT"
-    # aarch64-linux-android21
-    CFG_FLAGS="$CFG_FLAGS --host=$MR_FF_ARCH-linux-android$MR_ANDROID_API --with-sysroot=$MR_SYS_ROOT"
-fi
+CFG_FLAGS="-Ddocs=disabled -Ddebugging=disabled -Dpython=disabled -Dzlib=enabled"
 
-echo "----------------------"
-echo "[*] configurate $LIB_NAME"
-echo "----------------------"
-
-cd $MR_BUILD_SOURCE
-
-echo 
-echo "CC: $MR_TRIPLE_CC"
-echo "CFG_FLAGS: $CFG_FLAGS"
-echo "CFLAGS: $CFLAGS"
-echo 
-
-export CFLAGS="$CFLAGS"
-export LDFLAGS="$CFLAGS"
-
-export CC="$MR_TRIPLE_CC"
-export CXX="$MR_TRIPLE_CXX"
-export AR="$MR_AR"
-export AS="$MR_AS"
-export RANLIB="$MR_RANLIB"
-export STRIP="$MR_STRIP"
-./autogen.sh \
-    $CFG_FLAGS \
-    --prefix=$MR_BUILD_PREFIX \
-    --enable-static --disable-shared \
-    --disable-fast-install \
-    --without-python \
-    --without-debug \
-    --with-zlib \
-    --with-pic \
-    --without-lzma
-
-echo "----------------------"
-echo "[*] compile $LIB_NAME"
-echo "----------------------"
-
-make clean >/dev/null
-make install -j${MR_HOST_NPROC}
+./meson-compatible.sh "$CFG_FLAGS"
