@@ -156,9 +156,10 @@ jobs:
             break
           fi
         done
-        # 如果找到了first_library，则调整数组顺序
+        # 如果找到了 first_library，则截取数组
         if [[ $start_index -ne -1 ]]; then
-          libs=("${libs[@]:$start_index}" "${libs[@]:0:$start_index}")
+          # 仅保留从 start_index 开始到最后的部分
+          libs=("${libs[@]:$start_index}")
         else
           echo "Warning: first_library $first not found in the library list."
         fi
