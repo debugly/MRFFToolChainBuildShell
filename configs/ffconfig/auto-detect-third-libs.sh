@@ -241,8 +241,13 @@ else
 fi
 
 echo "----------------------"
-
 pkg-config --libs libwebp --silence-errors >/dev/null && enable_webp=1
+
+if [[ $enable_webp && $MR_PLAT == 'android' ]];then
+    enable_webp=
+    echo "force disable libwebp on android platform"
+fi
+
 if [[ $enable_webp ]];then
     echo "[✅] --enable-libwebp --enable-decoder=webp : $(pkg-config --modversion libwebp)"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libwebp --enable-demuxer=webp --enable-decoder=libwebp"
