@@ -40,4 +40,4 @@ check_lib 'libunibreak'
 check_lib 'fontconfig'
 echo "----------------------"
 
-./meson-compatible.sh "-Dtest=disabled -Dprofile=false -Dfontconfig=enabled -Dcoretext=disabled -Dasm=disabled -Dlibunibreak=enabled"
+./meson-compatible.sh "-Dtest=disabled -Dprofile=disabled -Dfontconfig=enabled -Dcoretext=disabled -Dasm=disabled -Dlibunibreak=enabled"
