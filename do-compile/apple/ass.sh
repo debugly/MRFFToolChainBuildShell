@@ -39,4 +39,4 @@ check_lib 'harfbuzz'
 check_lib 'libunibreak'
 echo "----------------------"
 
-./meson-compatible.sh "-Dtest=false -Dprofile=false -Dfontconfig=disabled -Dcoretext=enabled -Dasm=disabled -Dlibunibreak=enabled"
+./meson-compatible.sh "-Dtest=disabled -Dprofile=false -Dfontconfig=disabled -Dcoretext=enabled -Dasm=disabled -Dlibunibreak=enabled"
