@@ -12,9 +12,9 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、dvdnav、ff
 
 | platform | architectures                           | minimum deployment target |
 | -------- | --------------------------------------- | ------------------------- |
-| iOS      | arm64、arm64_simulator、x86_64_simulator | 11.0                      |
+| iOS      | arm64、arm64_simulator、x86_64_simulator | 12.0                      |
 | tvOS     | arm64、arm64_simulator、x86_64_simulator | 12.0                      |
-| macOS    | arm64、x86_64                            | 10.11                     |
+| macOS    | arm64、x86_64                            | 10.14                     |
 | Android  | arm64、armv7a、x86_64、x86                | 21                        |
 
 ## News
@@ -124,23 +124,23 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 | ffmpeg5     | 5.1.6           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg4     | 4.0.5           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ijkffmpeg   | ff4.0--ijk0.8.8--20210426--001 | https://github.com/bilibili/FFmpeg.git    | export GIT_IJKFFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git     |
-| ass        | 0.17.3          | https://github.com/libass/libass.git                     | export GIT_ASS_UPSTREAM=git@xx:yy/libass.git           |
+| ass        | 0.17.4          | https://github.com/libass/libass.git                     | export GIT_ASS_UPSTREAM=git@xx:yy/libass.git           |
 | bluray     | 1.3.4           | https://code.videolan.org/videolan/libbluray.git         | export GIT_BLURAY_UPSTREAM=git@xx:yy/libbluray.git     |
-| dav1d      | 1.5.1           | https://code.videolan.org/videolan/dav1d.git             | export GIT_DAV1D_UPSTREAM=git@xx:yy/dav1d.git          |
+| dav1d      | 1.5.3           | https://code.videolan.org/videolan/dav1d.git             | export GIT_DAV1D_UPSTREAM=git@xx:yy/dav1d.git          |
 | dvdread    | 6.1.3           | https://code.videolan.org/videolan/libdvdread.git        | export GIT_DVDREAD_UPSTREAM=git@xx:yy/libdvdread.git   |
 | dvdnav     | master-9831fe01 | https://code.videolan.org/videolan/libdvdnav.git         | export GIT_DVDNAV_UPSTREAM=git@xx:yy/libdvdnav.git     |
-| fontconfig | 2.16.0          | https://gitlab.freedesktop.org/fontconfig/fontconfig.git | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
-| freetype   | 2.13.3          | https://gitlab.freedesktop.org/freetype/freetype.git     | export GIT_FREETYPE_UPSTREAM=git@xx:yy/freetype.git    |
+| fontconfig | 2.17.1          | https://gitlab.freedesktop.org/fontconfig/fontconfig.git | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
+| freetype   | 2.14.1          | https://gitlab.freedesktop.org/freetype/freetype.git     | export GIT_FREETYPE_UPSTREAM=git@xx:yy/freetype.git    |
 | fribidi    | 1.0.16          | https://github.com/fribidi/fribidi.git                   | export GIT_FRIBIDI_UPSTREAM=git@xx:yy/fribidi.git      |
-| harfbuzz   | 10.2.0          | https://github.com/harfbuzz/harfbuzz.git                 | export GIT_HARFBUZZ_UPSTREAM=git@xx:yy/harfbuzz.git    |
+| harfbuzz   | 12.3.2          | https://github.com/harfbuzz/harfbuzz.git                 | export GIT_HARFBUZZ_UPSTREAM=git@xx:yy/harfbuzz.git    |
 | openssl    | 1.1.1w          | https://github.com/openssl/openssl.git                   | export GIT_OPENSSL_UPSTREAM=git@xx:yy/openssl.git      |
-| openssl3    | 3.5.0          | https://github.com/openssl/openssl.git                   | export GIT_OPENSSL_UPSTREAM=git@xx:yy/openssl.git      |
+| openssl3    | 3.5.5          | https://github.com/openssl/openssl.git                   | export GIT_OPENSSL_UPSTREAM=git@xx:yy/openssl.git      |
 | opus       | 1.5.2           | https://gitlab.xiph.org/xiph/opus.git                    | export GIT_OPUS_UPSTREAM=git@xx:yy/opus.git            |
 | smb2       | 6.2             | https://github.com/sahlberg/libsmb2.git                  | export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git           |
 | soundtouch | 2.4.0           | https://codeberg.org/soundtouch/soundtouch.git           | export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git  |
 | unibreak   | 6.1             | https://github.com/adah1972/libunibreak.git              | export GIT_UNIBREAK_UPSTREAM=git@xx:yy/libunibreak.git |
 | uavs3d     | 1.2.1           | https://github.com/uavs3/uavs3d.git                      | export GIT_UAVS3D_UPSTREAM=git@xx:yy/UAVS3D.git          |
-| xml2       | 2.13.6          | https://github.com/GNOME/libxml2.git                     | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
+| xml2       | 2.15.1          | https://github.com/GNOME/libxml2.git                     | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
 | yuv        | main-f94b8cf7  | https://github.com/debugly/libyuv.git                    | export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git                |
 | webp       | v1.6.0 | https://github.com/debugly/libwebp.git | export GIT_WEBP_UPSTREAM=git@xx:yy/webp.git |
 
