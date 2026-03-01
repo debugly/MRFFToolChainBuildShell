@@ -23,6 +23,7 @@ export LIPO_LIBS="libavcodec libavformat libavutil libswscale libswresample"
 export LIB_DEPENDS_BIN="nasm pkg-config"
 export GIT_LOCAL_REPO=extra/ffmpeg
 export REPO_DIR=ffmpeg
+export PATCH_DIR=fftutorial
 
 # you can export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git use your mirror
 if [[ "$GIT_FFMPEG_UPSTREAM" != "" ]] ;then

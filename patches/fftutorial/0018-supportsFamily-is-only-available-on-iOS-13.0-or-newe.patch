@@ -1,0 +1,25 @@
+From 1ebd4c062a886049f3c3255c50fe56f6621b9844 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Fri, 26 Jul 2024 16:11:14 +0800
+Subject: [PATCH 18] 'supportsFamily:' is only available on iOS 13.0 or newer
+
+---
+ libavfilter/metal/utils.m | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libavfilter/metal/utils.m b/libavfilter/metal/utils.m
+index f365d3c..bb1825a 100644
+--- a/libavfilter/metal/utils.m
++++ b/libavfilter/metal/utils.m
+@@ -31,7 +31,7 @@ void ff_metal_compute_encoder_dispatch(id<MTLDevice> device,
+     BOOL fallback = YES;
+     // MAC_OS_X_VERSION_10_15 is only defined on SDKs new enough to include its functionality (including iOS, tvOS, etc)
+ #ifdef MAC_OS_X_VERSION_10_15
+-    if (@available(macOS 10.15, iOS 11, tvOS 14.5, *)) {
++    if (@available(macOS 10.15, iOS 13, tvOS 14.5, *)) {
+         if ([device supportsFamily:MTLGPUFamilyCommon3]) {
+             MTLSize threadsPerGrid = MTLSizeMake(width, height, 1);
+             [encoder dispatchThreads:threadsPerGrid threadsPerThreadgroup:threadsPerThreadgroup];
+-- 
+2.39.3 (Apple Git-146)
+
