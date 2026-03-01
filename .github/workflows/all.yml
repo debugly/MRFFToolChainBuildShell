@@ -63,6 +63,14 @@ on:
         options:
           - true
           - false
+      verbose:
+        description: 'print detail logs'
+        required: false
+        type: choice
+        default: 'false'
+        options:
+          - true
+          - false
   pull_request:
     branches: [master]
 
@@ -88,7 +96,7 @@ jobs:
 
         Platform=${{ inputs.platform }}
         DryRun=${{ inputs.dryrun }}
-
+        Verbose=${{ inputs.verbose }}
         compile_lib() {
           local lib_name=$1
           local platform=$Platform
@@ -116,7 +124,7 @@ jobs:
           echo "------compile $platform $lib_name------------------------------------"
           rm -rf build || git reset --hard || git pull origin
           .github/workflows/install-dependencies.sh $lib_name $platform  # 补全依赖安装步骤
-          .github/workflows/onestep.sh $lib_name $platform $DryRun
+          .github/workflows/onestep.sh $lib_name $platform $DryRun $Verbose
         }
         
         libs=(

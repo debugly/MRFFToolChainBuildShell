@@ -15,6 +15,12 @@ else
     export DRYRUN=
 fi
 
+if [[ -n $4 && "$4" == 'true' ]];then
+    export VERBOSE=1 
+else
+    export VERBOSE=
+fi
+
 export HOMEBREW_NO_AUTO_UPDATE=1
 export RELEASE_DATE=$(TZ=UTC-8 date +'%y%m%d%H%M%S')
 export RELEASE_VERSION=$(grep GIT_REPO_VERSION= ./configs/libs/${LIB_NAME}.sh | tail -n 1 | awk -F = '{printf "%s",$2}')
@@ -40,8 +46,15 @@ function init_platform
 function compile_ios_platform
 {
     echo "---do compile ios libs--------------------------------------"
-    ./main.sh compile -p ios -c build -l ${LIB_NAME} --skip-fmwk >> $DIST_DIR/ios-compile-log-$RELEASE_VERSION.md
-     
+
+    local log_file="$DIST_DIR/ios-compile-log-$RELEASE_VERSION.md"
+
+    if [[ $VERBOSE ]];then
+        ./main.sh compile -p ios -c build -l ${LIB_NAME} --skip-fmwk 2>&1 | tee -a "$log_file"
+    else
+        ./main.sh compile -p ios -c build -l ${LIB_NAME} --skip-fmwk >> "$log_file" 2>&1
+    fi
+         
     cd build/product/ios/universal
     zip -ryq $DIST_DIR/${LIB_NAME}-ios-universal-${RELEASE_VERSION}.zip ./*
     
@@ -53,8 +66,15 @@ function compile_ios_platform
 function compile_macos_platform
 {
     echo "---do compile macos libs--------------------------------------"
-    ./main.sh compile -p macos -c build -l ${LIB_NAME} --skip-fmwk >> $DIST_DIR/macos-compile-log-$RELEASE_VERSION.md
     
+    local log_file="$DIST_DIR/macos-compile-log-$RELEASE_VERSION.md"
+
+    if [[ $VERBOSE ]];then
+        ./main.sh compile -p macos -c build -l ${LIB_NAME} --skip-fmwk 2>&1 | tee -a "$log_file"
+    else
+        ./main.sh compile -p macos -c build -l ${LIB_NAME} --skip-fmwk >> "$log_file" 2>&1
+    fi
+
     cd build/product/macos/universal
     zip -ryq $DIST_DIR/${LIB_NAME}-macos-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
@@ -63,7 +83,14 @@ function compile_macos_platform
 function compile_tvos_platform
 {
     echo "---do compile tvos libs--------------------------------------"
-    ./main.sh compile -p tvos -c build -l ${LIB_NAME} --skip-fmwk >> $DIST_DIR/android-compile-log-$RELEASE_VERSION.md
+
+    local log_file="$DIST_DIR/android-compile-log-$RELEASE_VERSION.md"
+
+    if [[ $VERBOSE ]];then
+        ./main.sh compile -p tvos -c build -l ${LIB_NAME} --skip-fmwk 2>&1 | tee -a "$log_file"
+    else
+        ./main.sh compile -p tvos -c build -l ${LIB_NAME} --skip-fmwk >> "$log_file" 2>&1
+    fi     
 
     cd build/product/tvos/universal
     zip -ryq $DIST_DIR/${LIB_NAME}-tvos-universal-${RELEASE_VERSION}.zip ./*
@@ -77,7 +104,15 @@ function compile_tvos_platform
 function compile_android_platform
 {
     echo "---do compile android libs--------------------------------------"
-    ./main.sh compile -p android -c build -l ${LIB_NAME} #>> $DIST_DIR/android-compile-log-$RELEASE_VERSION.md
+    
+    local log_file="$DIST_DIR/android-compile-log-$RELEASE_VERSION.md"
+
+    if [[ $VERBOSE ]];then
+        ./main.sh compile -p android -c build -l ${LIB_NAME} 2>&1 | tee -a "$log_file"
+    else
+        ./main.sh compile -p android -c build -l ${LIB_NAME} >> "$log_file" 2>&1
+    fi
+
     cd build/product/android/universal
     zip -ryq $DIST_DIR/${LIB_NAME}-android-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
