@@ -77,7 +77,7 @@ on:
   pull_request:
     branches: [master]
 
-name: apple-android-common
+name: build a lib
 
 jobs:
   build:

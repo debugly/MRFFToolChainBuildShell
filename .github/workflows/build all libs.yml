@@ -74,7 +74,7 @@ on:
   pull_request:
     branches: [master]
 
-name: Create all library Release
+name: build all libs
 
 jobs:
   build:
