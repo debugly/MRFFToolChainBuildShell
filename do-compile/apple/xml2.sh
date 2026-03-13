@@ -74,3 +74,6 @@ set -e
 CFG_FLAGS="-Ddocs=disabled -Ddebugging=disabled -Dpython=disabled -Dzlib=enabled"
 
 ./meson-compatible.sh "$CFG_FLAGS"
+
+echo "fix zlib link path in pkgconfig"
+my_sed_i 's|/Applications/Xcode[^ ]*/usr/lib/libz.tbd|-lz|g' ${MR_BUILD_PREFIX}/lib/pkgconfig/libxml-2.0.pc
