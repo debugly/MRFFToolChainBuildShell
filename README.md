@@ -1,6 +1,6 @@
 ## MRFFToolChain Build Shell [[中文版](./README_zh-CN.md)]
 
-![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.1%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
+![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
 
 **What's MRFFToolChain?**
 
@@ -19,7 +19,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、dvdnav、ff
 
 ## News
 
-- FFmpeg **7.1.1** is already in use
+- FFmpeg **7.1.3** is already in use
 - upgrade all libs to lastest,Improved optimizations
 - using macOS 15，Xcode_16.4
 
@@ -119,7 +119,7 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 
 | Lib Name   | Current Version | Repository URL                                           | Mirror Repository URL                                    |
 | ---------- | --------------- | -------------------------------------------------------- | -------------------------------------------------------- |
-| ffmpeg7     | 7.1.1           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
+| ffmpeg7     | 7.1.3           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg6     | 6.1.1           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg5     | 5.1.6           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg4     | 4.0.5           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
