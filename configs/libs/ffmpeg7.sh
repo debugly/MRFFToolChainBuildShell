@@ -32,8 +32,8 @@ else
     export GIT_UPSTREAM=https://github.com/FFmpeg/FFmpeg.git
 fi
 
-export GIT_COMMIT=n7.1.1 #origin/release/5.1
-export GIT_REPO_VERSION=7.1.1
+export GIT_COMMIT=n7.1.3 #origin/release/5.1
+export GIT_REPO_VERSION=7.1.3
 
 # pre compiled
 

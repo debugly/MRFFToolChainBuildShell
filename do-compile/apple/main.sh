@@ -38,7 +38,7 @@ do
     ./any.sh
     if [[ $? -eq 0 ]];then
         echo "🎉  Congrats"
-        echo "🚀  ${LIB_NAME} successfully $MR_CMD."
+        echo "🚀  ${LIB_NAME} ${GIT_COMMIT} successfully $MR_CMD."
         echo
     fi
     echo "===================================="
