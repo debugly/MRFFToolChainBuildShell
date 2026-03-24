@@ -185,6 +185,9 @@ case $LIB_NAME in
             ./main.sh install -l 'dvdread' -p $PLAT
         fi
     ;;
+    moltenvk)
+        echo "MoltenVK has no external dependencies, it fetches its own dependencies"
+    ;;
     *)
     ;;
 esac

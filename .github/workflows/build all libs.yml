@@ -42,6 +42,7 @@ on:
           - soundtouch
           - opus
           - openssl3
+          - moltenvk
           - dvdread
           - dvdnav
           - bluray
@@ -121,6 +122,16 @@ jobs:
             fi
           fi
 
+          if [[ "$lib_name" == "moltenvk" ]]; then
+            if [[ "$platform" == "android" ]]; then
+              echo "Skip moltenvk for android"
+              return
+            elif [[ "$platform" == "all" ]]; then
+              echo "Skip moltenvk for android"
+              platform='apple'
+            fi
+          fi
+
           echo "------compile $platform $lib_name------------------------------------"
           rm -rf build || git reset --hard || git pull origin
           .github/workflows/install-dependencies.sh $lib_name $platform  # 补全依赖安装步骤
@@ -139,6 +150,7 @@ jobs:
           "soundtouch"
           "opus"
           "openssl3"
+          "moltenvk"
           "dvdread"
           "dvdnav"
           "bluray"
