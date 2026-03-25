@@ -68,6 +68,7 @@ on:
           - openssl3
           - openssl
           - opus
+          - shaderc
           - smb2
           - soundtouch
           - uavs3d

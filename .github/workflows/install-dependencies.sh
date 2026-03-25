@@ -188,6 +188,9 @@ case $LIB_NAME in
     moltenvk)
         echo "MoltenVK has no external dependencies, it fetches its own dependencies"
     ;;
+    shaderc)
+        echo "shaderc has no external dependencies, it fetches its own dependencies via git-sync-deps"
+    ;;
     *)
     ;;
 esac

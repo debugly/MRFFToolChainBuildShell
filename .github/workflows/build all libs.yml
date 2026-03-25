@@ -42,7 +42,6 @@ on:
           - soundtouch
           - opus
           - openssl3
-          - moltenvk
           - dvdread
           - dvdnav
           - bluray
@@ -50,6 +49,8 @@ on:
           - uavs3d
           - smb2
           - webp
+          - shaderc
+          - moltenvk
           - ijkffmpeg
           - fftutorial
           - ffmpeg4
@@ -132,6 +133,16 @@ jobs:
             fi
           fi
 
+          if [[ "$lib_name" == "shaderc" ]]; then
+            if [[ "$platform" == "android" ]]; then
+              echo "Skip shaderc for android"
+              return
+            elif [[ "$platform" == "all" ]]; then
+              echo "Skip shaderc for android"
+              platform='apple'
+            fi
+          fi
+
           echo "------compile $platform $lib_name------------------------------------"
           rm -rf build || git reset --hard || git pull origin
           .github/workflows/install-dependencies.sh $lib_name $platform  # 补全依赖安装步骤
@@ -150,7 +161,6 @@ jobs:
           "soundtouch"
           "opus"
           "openssl3"
-          "moltenvk"
           "dvdread"
           "dvdnav"
           "bluray"
@@ -158,6 +168,8 @@ jobs:
           "uavs3d"
           "smb2"
           "webp"
+          "shaderc"
+          "moltenvk"
           "ijkffmpeg"
           "fftutorial"
           "ffmpeg4"
