@@ -29,3 +29,4 @@ if [[ "$GIT_LCMS2_UPSTREAM" != "" ]] ;then
 else
     export GIT_UPSTREAM=https://github.com/mm2/Little-CMS.git
 fi
+export PRE_COMPILE_TAG_MACOS=lcms2-lcms2.17-260325152711
