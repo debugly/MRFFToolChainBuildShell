@@ -191,6 +191,31 @@ case $LIB_NAME in
     shaderc)
         echo "shaderc has no external dependencies, it fetches its own dependencies via git-sync-deps"
     ;;
+    libplacebo)
+        if [[ $PLAT == all ]];then
+            ./main.sh install -l 'lcms2' -p ios
+            ./main.sh install -l 'lcms2' -p tvos
+            ./main.sh install -l 'lcms2' -p macos
+            ./main.sh install -l 'shaderc' -p ios
+            ./main.sh install -l 'shaderc' -p tvos
+            ./main.sh install -l 'shaderc' -p macos
+            ./main.sh install -l 'moltenvk' -p ios
+            ./main.sh install -l 'moltenvk' -p tvos
+            ./main.sh install -l 'moltenvk' -p macos
+        elif [[ $PLAT == apple ]];then
+            ./main.sh install -l 'lcms2' -p ios
+            ./main.sh install -l 'lcms2' -p tvos
+            ./main.sh install -l 'lcms2' -p macos
+            ./main.sh install -l 'shaderc' -p ios
+            ./main.sh install -l 'shaderc' -p tvos
+            ./main.sh install -l 'shaderc' -p macos
+            ./main.sh install -l 'moltenvk' -p ios
+            ./main.sh install -l 'moltenvk' -p tvos
+            ./main.sh install -l 'moltenvk' -p macos
+        else
+            ./main.sh install -l 'lcms2 shaderc moltenvk' -p $PLAT
+        fi
+    ;;
     *)
     ;;
 esac

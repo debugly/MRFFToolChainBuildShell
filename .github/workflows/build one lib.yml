@@ -64,6 +64,8 @@ on:
           - fontconfig
           - freetype
           - fribidi
+          - lcms2
+          - libplacebo
           - moltenvk
           - openssl3
           - openssl

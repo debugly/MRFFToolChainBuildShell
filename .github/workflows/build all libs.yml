@@ -42,6 +42,10 @@ on:
           - soundtouch
           - opus
           - openssl3
+          - lcms2
+          - shaderc
+          - moltenvk
+          - libplacebo
           - dvdread
           - dvdnav
           - bluray
@@ -49,8 +53,6 @@ on:
           - uavs3d
           - smb2
           - webp
-          - shaderc
-          - moltenvk
           - ijkffmpeg
           - fftutorial
           - ffmpeg4
@@ -143,6 +145,16 @@ jobs:
             fi
           fi
 
+          if [[ "$lib_name" == "libplacebo" ]]; then
+            if [[ "$platform" == "android" ]]; then
+              echo "Skip libplacebo for android"
+              return
+            elif [[ "$platform" == "all" ]]; then
+              echo "Skip libplacebo for android"
+              platform='apple'
+            fi
+          fi
+
           echo "------compile $platform $lib_name------------------------------------"
           rm -rf build || git reset --hard || git pull origin
           .github/workflows/install-dependencies.sh $lib_name $platform  # 补全依赖安装步骤
@@ -168,8 +180,10 @@ jobs:
           "uavs3d"
           "smb2"
           "webp"
+          "lcms2"
           "shaderc"
           "moltenvk"
+          "libplacebo"
           "ijkffmpeg"
           "fftutorial"
           "ffmpeg4"
