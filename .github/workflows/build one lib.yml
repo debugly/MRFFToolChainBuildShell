@@ -65,7 +65,7 @@ on:
           - freetype
           - fribidi
           - lcms2
-          - libplacebo
+          - placebo
           - moltenvk
           - openssl3
           - openssl

@@ -45,7 +45,7 @@ on:
           - lcms2
           - shaderc
           - moltenvk
-          - libplacebo
+          - placebo
           - dvdread
           - dvdnav
           - bluray
@@ -145,12 +145,12 @@ jobs:
             fi
           fi
 
-          if [[ "$lib_name" == "libplacebo" ]]; then
+          if [[ "$lib_name" == "placebo" ]]; then
             if [[ "$platform" == "android" ]]; then
-              echo "Skip libplacebo for android"
+              echo "Skip placebo for android"
               return
             elif [[ "$platform" == "all" ]]; then
-              echo "Skip libplacebo for android"
+              echo "Skip placebo for android"
               platform='apple'
             fi
           fi
@@ -183,7 +183,7 @@ jobs:
           "lcms2"
           "shaderc"
           "moltenvk"
-          "libplacebo"
+          "placebo"
           "ijkffmpeg"
           "fftutorial"
           "ffmpeg4"

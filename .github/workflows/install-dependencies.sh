@@ -191,7 +191,7 @@ case $LIB_NAME in
     shaderc)
         echo "shaderc has no external dependencies, it fetches its own dependencies via git-sync-deps"
     ;;
-    libplacebo)
+    placebo)
         if [[ $PLAT == all ]];then
             ./main.sh install -l 'lcms2' -p ios
             ./main.sh install -l 'lcms2' -p tvos

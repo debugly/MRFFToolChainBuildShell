@@ -27,6 +27,10 @@ echo "----------------------"
 cd $MR_BUILD_SOURCE
 git submodule update --init --recursive
 
+# Fix Python 3.14 compatibility issue in utils_gen.py
+# ET.parse() returns ElementTree, need to call .getroot() to get Element
+sed -i '' 's/registry = VkXML(ET.parse(xmlfile))/registry = VkXML(ET.parse(xmlfile).getroot())/g' src/vulkan/utils_gen.py
+
 cd "$THIS_DIR"
 
 echo "----------------------"
