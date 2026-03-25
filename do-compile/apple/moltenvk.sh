@@ -20,6 +20,55 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
+dest=
+scheme_suffix=
+arch_param=
+fetch_deps_arg=
+
+if [[ "$MR_PLAT" == 'ios' ]];then
+    if [[ $_MR_ARCH == 'arm64_simulator' ]];then
+        dest='iOS Simulator'
+        arch_param='arm64'
+        fetch_deps_arg='--iossim'
+    elif [[ $_MR_ARCH == 'x86_64_simulator' ]];then
+        dest='iOS Simulator'
+        arch_param='x86_64'
+        fetch_deps_arg='--iossim'
+    else
+        dest='iOS'
+        arch_param='arm64'
+        fetch_deps_arg='--ios'
+    fi
+    scheme_suffix='iOS only'
+    export MR_DEPLOYMENT_TARGET_VER=14.0
+elif [[ "$MR_PLAT" == 'tvos' ]];then
+    if [[ $_MR_ARCH == 'arm64_simulator' ]];then
+        dest='tvOS Simulator'
+        arch_param='arm64'
+        fetch_deps_arg='--tvossim'
+    elif [[ $_MR_ARCH == 'x86_64_simulator' ]];then
+        dest='tvOS Simulator'
+        arch_param='x86_64'
+        fetch_deps_arg='--tvossim'
+    else
+        dest='tvOS'
+        arch_param='arm64'
+        fetch_deps_arg='--tvos'
+    fi
+    scheme_suffix='tvOS only'
+    export MR_DEPLOYMENT_TARGET_VER=14.0
+elif [[ "$MR_PLAT" == 'macos' ]];then
+    if [[ $_MR_ARCH == 'arm64' ]];then
+        arch_param='arm64'
+    elif [[ $_MR_ARCH == 'x86_64' ]];then
+        arch_param='x86_64'
+    fi
+    dest='macOS'
+    scheme_suffix='macOS only'
+    fetch_deps_arg='--macos'
+    export MR_DEPLOYMENT_TARGET_VER=11.0
+fi
+
 echo "----------------------"
 echo "[*] fetch dependencies for $LIB_NAME"
 echo "----------------------"
@@ -29,9 +78,9 @@ if [ -d "External" ]; then
     echo "dependencies already exist"
 else
     if [ -f "./fetchDependencies" ]; then
-        echo "fetching dependencies..."
+        echo "fetching dependencies for $fetch_deps_arg..."
         chmod +x ./fetchDependencies
-        ./fetchDependencies
+        ./fetchDependencies $fetch_deps_arg
     else
         echo "fetchDependencies script not found, trying with CMake..."
     fi
@@ -39,61 +88,8 @@ fi
 
 cd "$THIS_DIR"
 
-pf=
-dest=
-scheme_suffix=
-arch_param=
-if [[ "$MR_PLAT" == 'ios' ]];then
-    if [[ $_MR_ARCH == 'arm64_simulator' ]];then
-        pf='SIMULATORARM64'
-        dest='iOS Simulator'
-        arch_param='arm64'
-    elif [[ $_MR_ARCH == 'x86_64_simulator' ]];then
-        pf='SIMULATOR64'
-        dest='iOS Simulator'
-        arch_param='x86_64'
-    else
-        pf='OS64'
-        dest='iOS'
-        arch_param='arm64'
-    fi
-    scheme_suffix='iOS only'
-    export MR_DEPLOYMENT_TARGET_VER=14.0
-elif [[ "$MR_PLAT" == 'tvos' ]];then
-    if [[ $_MR_ARCH == 'arm64_simulator' ]];then
-        pf='SIMULATORARM64_TVOS'
-        dest='tvOS Simulator'
-        arch_param='arm64'
-    elif [[ $_MR_ARCH == 'x86_64_simulator' ]];then
-        pf='SIMULATOR_TVOS'
-        dest='tvOS Simulator'
-        arch_param='x86_64'
-    else
-        pf='TVOS'
-        dest='tvOS'
-        arch_param='arm64'
-    fi
-    scheme_suffix='tvOS only'
-    export MR_DEPLOYMENT_TARGET_VER=14.0
-elif [[ "$MR_PLAT" == 'macos' ]];then
-    if [[ $_MR_ARCH == 'arm64' ]];then
-        pf='MAC_ARM64'
-        arch_param='arm64'
-    elif [[ $_MR_ARCH == 'x86_64' ]];then
-        pf='MAC'
-        arch_param='x86_64'
-    fi
-    dest='macOS'
-    scheme_suffix='macOS only'
-    export MR_DEPLOYMENT_TARGET_VER=11.0
-fi
-
-xc_proj="MoltenVKPackaging.xcodeproj"
-scheme="MoltenVK Package ($scheme_suffix)"
-
 echo "----------------------"
 echo "[*] configurate $LIB_NAME"
-echo "[*] PLATFORM: $pf"
 echo "[*] destination: $dest"
 echo "[*] deployment target: $MR_DEPLOYMENT_TARGET_VER"
 echo "----------------------"
@@ -105,8 +101,8 @@ echo "----------------------"
 
 mkdir -p "$MR_BUILD_PREFIX/lib"
 
-xcodebuild -project "$MR_BUILD_SOURCE/$xc_proj" \
-    -scheme "$scheme" \
+xcodebuild -project "$MR_BUILD_SOURCE/MoltenVKPackaging.xcodeproj" \
+    -scheme "MoltenVK Package ($scheme_suffix)" \
     -destination "generic/platform=$dest" \
     -configuration Release \
     -parallelizeTargets \
@@ -115,14 +111,14 @@ xcodebuild -project "$MR_BUILD_SOURCE/$xc_proj" \
     CODE_SIGNING_ALLOWED=NO \
     build || true
 
-dd_dir=$(find ~/Library/Developer/Xcode/DerivedData -maxdepth 1 -type d -name "MoltenVKPackaging-*" 2>/dev/null | head -1)/Build/Products/Release
-
-if [[ -f "$dd_dir/libMoltenVK.a" ]]; then
-    cp "$dd_dir/libMoltenVK.a" "$MR_BUILD_PREFIX/lib/"
-    echo "Copied libMoltenVK.a to $MR_BUILD_PREFIX/lib/"
-else
-    echo "libMoltenVK.a not found in $dd_dir"
-    exit 1
+pkg_static_dir="$MR_BUILD_SOURCE/Package/Release/MoltenVK/static"
+if [[ -d "$pkg_static_dir/MoltenVK.xcframework" ]]; then
+    xcframework_dir="$pkg_static_dir/MoltenVK.xcframework"
+    archs_dir=$(ls "$xcframework_dir/" 2>/dev/null | grep -v Info.plist | head -1)
+    if [[ -n "$archs_dir" && -f "$xcframework_dir/$archs_dir/libMoltenVK.a" ]]; then
+        cp "$xcframework_dir/$archs_dir/libMoltenVK.a" "$MR_BUILD_PREFIX/lib/"
+        echo "Copied libMoltenVK.a from xcframework to $MR_BUILD_PREFIX/lib/"
+    fi
 fi
 
 alt_header_dir="$MR_BUILD_SOURCE/MoltenVK/include"
