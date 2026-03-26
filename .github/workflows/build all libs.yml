@@ -45,6 +45,7 @@ on:
           - lcms2
           - shaderc
           - moltenvk
+          - dovi
           - placebo
           - dvdread
           - dvdnav
@@ -145,6 +146,16 @@ jobs:
             fi
           fi
 
+          if [[ "$lib_name" == "dovi" ]]; then
+            if [[ "$platform" == "android" ]]; then
+              echo "Skip dovi for android"
+              return
+            elif [[ "$platform" == "all" ]]; then
+              echo "Skip dovi for android"
+              platform='apple'
+            fi
+          fi
+
           if [[ "$lib_name" == "placebo" ]]; then
             if [[ "$platform" == "android" ]]; then
               echo "Skip placebo for android"
@@ -183,6 +194,7 @@ jobs:
           "lcms2"
           "shaderc"
           "moltenvk"
+          "dovi"
           "placebo"
           "ijkffmpeg"
           "fftutorial"

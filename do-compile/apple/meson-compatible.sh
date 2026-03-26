@@ -28,7 +28,7 @@ echo "[*] other meson flags: $MESON_OTHER_FLAGS"
 echo "----------------------"
 
 # prepare build config
-CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --default-library static"
+CFG_FLAGS="--prefix=${MR_BUILD_PREFIX} --default-library static --pkg-config-path=${PKG_CONFIG_LIBDIR}"
 
 if [[ "$MR_DEBUG" == "debug" ]]; then
     CFG_FLAGS="$CFG_FLAGS --buildtype=debug"

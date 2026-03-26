@@ -15,19 +15,17 @@
 # limitations under the License.
 #
 
-export LIB_NAME='placebo'
-export LIPO_LIBS="libplacebo"
-export LIB_DEPENDS_BIN="meson ninja"
-# placebo depends on lcms2 and shaderc (for SPIRV), vulkan backend uses MoltenVK
-export LIB_DEPENDS='lcms2 shaderc moltenvk dovi'
-export GIT_LOCAL_REPO=extra/placebo
-export GIT_COMMIT=v7.349.0
-export REPO_DIR=placebo
-export GIT_REPO_VERSION=v7.349.0
+export LIB_NAME='dovi'
+export LIPO_LIBS="libdovi"
+export LIB_DEPENDS_BIN="rust cargo-c"
+export GIT_LOCAL_REPO=extra/dovi
+export GIT_COMMIT=libdovi-3.3.2
+export GIT_WITH_SUBMODULE=0
+export REPO_DIR=dovi
+export GIT_REPO_VERSION=3.3.2
 
-# you can export GIT_LIBPLACEB0_UPSTREAM=git@xx:yy/libplacebo.git use your mirror
-if [[ "$GIT_LIBPLACEB0_UPSTREAM" != "" ]] ;then
-    export GIT_UPSTREAM="$GIT_LIBPLACEB0_UPSTREAM"
+if [[ "$GIT_DOVI_UPSTREAM" != "" ]] ;then
+    export GIT_UPSTREAM="$GIT_DOVI_UPSTREAM"
 else
-    export GIT_UPSTREAM=https://github.com/haasn/libplacebo.git
+    export GIT_UPSTREAM=https://github.com/quietvoid/dovi_tool.git
 fi

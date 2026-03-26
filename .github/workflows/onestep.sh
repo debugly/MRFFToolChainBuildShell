@@ -5,6 +5,7 @@
 # git describe --tags --always | awk -F - '{printf "RELEASE_VERSION=V1.0-%s",$NF}' | xargs > constants.env
 
 set -e
+set -o pipefail
 
 export LIB_NAME=$1
 export PLAT=$2
