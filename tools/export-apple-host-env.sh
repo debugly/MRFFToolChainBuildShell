@@ -35,24 +35,20 @@ export DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
 
 function install_depends() {
     local name="$1"
-    if [[ "$name" == "rustup" || "$name" == "cargo" ]]; then
-        local r=$(brew list | grep "$name")
-        if [[ -z $r ]]; then
+    if command -v "$name" &> /dev/null; then
+        echo "[✅] ${name}: $(eval $name --version)"
+        return 0
+    else
+        if [[ "$name" == "rustup" || "$name" == "cargo" ]]; then
             echo "will install rustup-init."
             brew install rustup-init
             rustup-init -y
-            return 0
+            return 0    
         else
-            echo "[✅] ${name}: $(eval $name --version)"
-            return 0
+            echo "will use brew install ${name}."
+            brew install "$name"
         fi
     fi
-    local r=$(brew list | grep "$name")
-    if [[ -z $r ]]; then
-        echo "will use brew install ${name}."
-        brew install "$name"
-    fi
-    echo "[✅] ${name}: $(eval $name --version)"
 }
 
 # 定义跨平台sed函数
