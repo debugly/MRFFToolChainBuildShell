@@ -66,6 +66,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Install cargo-c
+      if: contains(inputs.libraries, 'dovi')
       run: cargo install cargo-c
     - name: One Step
       run: |
