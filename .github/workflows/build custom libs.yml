@@ -65,6 +65,8 @@ jobs:
         local-cache: false
     - name: Checkout code
       uses: actions/checkout@v4
+    - name: Install cargo-c
+      run: cargo install cargo-c
     - name: One Step
       run: |
 

@@ -99,6 +99,8 @@ jobs:
         local-cache: false
     - name: Checkout code
       uses: actions/checkout@v4
+    - name: Install cargo-c
+      run: cargo install cargo-c
     - name: Install dependencies
       run: .github/workflows/install-dependencies.sh ${{ inputs.lib }} ${{ inputs.platform }}
     - name: One Step

@@ -16,5 +16,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    - name: Install cargo-c
+      run: cargo install cargo-c
     - name: One Step
       run: .github/workflows/onestep.sh test all
