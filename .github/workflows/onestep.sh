@@ -139,7 +139,8 @@ function replace_tag()
         sed -i "" "s/^export $key=.*/export $key=$TAG/" $file
     else
         # PRE_COMPILE_TAG_IOS not found, append PRE_COMPILE_TAG_IOS
-        echo "export $key=$TAG" >> $file
+        [ -n "$(tail -c1 "$file")" ] && echo "" >> "$file"
+        echo "export $key=$TAG" >> "$file"
     fi
 }
 
