@@ -78,6 +78,7 @@ on:
           - yuv
           - xml2
           - webp
+          - dovi
   pull_request:
     branches: [master]
 
