@@ -17,7 +17,7 @@
 
 export LIB_NAME='dovi'
 export LIPO_LIBS="libdovi"
-export LIB_DEPENDS_BIN="rust cargo-c"
+export LIB_DEPENDS_BIN="rustup cargo"
 export GIT_LOCAL_REPO=extra/dovi
 export GIT_COMMIT=libdovi-3.3.2
 export GIT_WITH_SUBMODULE=0

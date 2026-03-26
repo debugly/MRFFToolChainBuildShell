@@ -35,6 +35,18 @@ export DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
 
 function install_depends() {
     local name="$1"
+    if [[ "$name" == "rustup" || "$name" == "cargo" ]]; then
+        local r=$(brew list | grep "$name")
+        if [[ -z $r ]]; then
+            echo "will install rustup-init."
+            brew install rustup-init
+            rustup-init -y
+            return 0
+        else
+            echo "[✅] ${name}: $(eval $name --version)"
+            return 0
+        fi
+    fi
     local r=$(brew list | grep "$name")
     if [[ -z $r ]]; then
         echo "will use brew install ${name}."
