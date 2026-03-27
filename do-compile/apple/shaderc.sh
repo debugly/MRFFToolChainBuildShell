@@ -73,6 +73,7 @@ mkdir -p "$build"
 cd "$build"
 
 cmake -S ${MR_BUILD_SOURCE} \
+    -DCMAKE_PREFIX_PATH=${PKG_CONFIG_LIBDIR} \
     -DCMAKE_INSTALL_PREFIX=${MR_BUILD_PREFIX} \
     -DCMAKE_TOOLCHAIN_FILE="${MR_SHELL_TOOLS_DIR}/ios.toolchain.cmake" \
     -DPLATFORM=$pf \
@@ -94,3 +95,9 @@ echo "[*] install $LIB_NAME"
 echo "----------------------"
 
 cmake --install .
+
+# clean up pkgconfig files
+rm -f ${MR_BUILD_PREFIX}/lib/pkgconfig/SPIRV-Tools-shared.pc
+rm -f ${MR_BUILD_PREFIX}/lib/pkgconfig/SPIRV-Tools.pc
+rm -f ${MR_BUILD_PREFIX}/lib/pkgconfig/shaderc.pc
+rm -f ${MR_BUILD_PREFIX}/lib/pkgconfig/shaderc_static.pc

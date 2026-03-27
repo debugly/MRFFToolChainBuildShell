@@ -33,6 +33,10 @@ sed -i '' 's/registry = VkXML(ET.parse(xmlfile))/registry = VkXML(ET.parse(xmlfi
 
 cd "$THIS_DIR"
 
+BUILD_DIR="${MR_BUILD_SOURCE}/meson_build"
+rm -rf "$BUILD_DIR"
+mkdir -p "$BUILD_DIR"
+
 echo "----------------------"
 echo "[*] configure $LIB_NAME"
 echo "----------------------"
@@ -42,7 +46,6 @@ echo "----------------------"
 # Use shaderc for SPIRV compilation
 
 # Find lcms2 and shaderc from our build
-PKG_CONFIG_PATH="${MR_BUILD_PREFIX}/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 # Set deployment target for macOS
 export MACOSX_DEPLOYMENT_TARGET=11.0
@@ -61,25 +64,32 @@ MESON_OPTS="--buildtype=release \
 -Ddemos=false \
 -Dxxhash=disabled"
 
-build="${MR_BUILD_SOURCE}/meson_build"
-rm -rf "$build"
-mkdir -p "$build"
-cd "$build"
 
 # Set up environment for MoltenVK
 export VK_ICD_FILENAMES="${MR_BUILD_PREFIX}/share/vulkan/icd.d/MoltenVK_icd.json"
 
 # Disable assertions to fix Xcode SDK compatibility issue
-export CFLAGS="-U_LIBCPP_ENABLE_ASSERTIONS"
-export CXXFLAGS="-U_LIBCPP_ENABLE_ASSERTIONS"
+# IMPORTANT: Preserve original CFLAGS which contains -arch parameter
+export CFLAGS="${MR_DEFAULT_CFLAGS} -U_LIBCPP_ENABLE_ASSERTIONS"
+export CXXFLAGS="${MR_DEFAULT_CFLAGS} -U_LIBCPP_ENABLE_ASSERTIONS"
 
-meson setup . ${MR_BUILD_SOURCE} ${MESON_OPTS}
+# Add shaderc and MoltenVK pkgconfig paths
+# SHADERC_PC_PATH="${MR_UNI_PROD_DIR}/shaderc/lib/pkgconfig"
+# MOLTENVK_PC_PATH="${MR_UNI_PROD_DIR}/MoltenVK/lib/pkgconfig"
+# export PKG_CONFIG_PATH="${SHADERC_PC_PATH}:${MOLTENVK_PC_PATH}:${PKG_CONFIG_PATH}"
+
+# # Configure with explicit PKG_CONFIG_LIBDIR to avoid system dependencies
+# PKG_CONFIG_LIBDIR="${SHADERC_PC_PATH}:${MOLTENVK_PC_PATH}:$PKG_CONFIG_LIBDIR" \
+# PKG_CONFIG_ALLOW_SYSTEM_LIBS=0 \
+meson setup ${BUILD_DIR} ${MR_BUILD_SOURCE} ${MESON_OPTS}
 
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-ninja
+cd "$BUILD_DIR"
+
+meson compile
 
 echo "----------------------"
 echo "[*] install $LIB_NAME"

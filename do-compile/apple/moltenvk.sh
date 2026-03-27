@@ -16,6 +16,7 @@
 #
 
 set -e
+set -o pipefail
 
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
@@ -74,7 +75,7 @@ echo "[*] fetch dependencies for $LIB_NAME"
 echo "----------------------"
 
 cd $MR_BUILD_SOURCE
-if [ -d "External" ]; then
+if [ -d "External/build" ]; then
     echo "dependencies already exist"
 else
     if [ -f "./fetchDependencies" ]; then
@@ -105,11 +106,8 @@ xcodebuild -project "$MR_BUILD_SOURCE/MoltenVKPackaging.xcodeproj" \
     -scheme "MoltenVK Package ($scheme_suffix)" \
     -destination "generic/platform=$dest" \
     -configuration Release \
-    -parallelizeTargets \
-    ONLY_ACTIVE_ARCH=YES \
-    ARCHS="$arch_param" \
     CODE_SIGNING_ALLOWED=NO \
-    build || true
+    build
 
 pkg_static_dir="$MR_BUILD_SOURCE/Package/Release/MoltenVK/static"
 if [[ -d "$pkg_static_dir/MoltenVK.xcframework" ]]; then
@@ -143,3 +141,47 @@ if [[ -d "$vk_video_headers" ]]; then
     cp -RL "$vk_video_headers"/* "$MR_BUILD_PREFIX/include/vk_video/"
     echo "Copied vk_video headers to $MR_BUILD_PREFIX/include/vk_video/"
 fi
+
+echo "----------------------"
+echo "[*] generate pkg-config files"
+echo "----------------------"
+
+mkdir -p "$MR_BUILD_PREFIX/lib/pkgconfig"
+
+MOLTENVK_MAJOR=$(grep "MVK_VERSION_MAJOR" "$MR_BUILD_PREFIX/include/MoltenVK/mvk_private_api.h" | grep -oE "[0-9]+" | head -1)
+MOLTENVK_MINOR=$(grep "MVK_VERSION_MINOR" "$MR_BUILD_PREFIX/include/MoltenVK/mvk_private_api.h" | grep -oE "[0-9]+" | head -1)
+MOLTENVK_PATCH=$(grep "MVK_VERSION_PATCH" "$MR_BUILD_PREFIX/include/MoltenVK/mvk_private_api.h" | grep -oE "[0-9]+" | head -1)
+MOLTENVK_VERSION="${MOLTENVK_MAJOR}.${MOLTENVK_MINOR}.${MOLTENVK_PATCH}"
+
+VULKAN_VERSION="1.3.250"
+
+cat > "$MR_BUILD_PREFIX/lib/pkgconfig/vulkan.pc" << EOF
+prefix=${MR_BUILD_PREFIX}
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${prefix}/include
+
+Name: Vulkan
+Description: Vulkan loader (MoltenVK)
+Version: ${VULKAN_VERSION}
+Libs: -L\${libdir} -lMoltenVK
+Libs.private: -framework Metal -framework Foundation -framework QuartzCore -framework IOKit -framework IOSurface -lc++
+Cflags: -I\${includedir} -I\${includedir}/vulkan
+EOF
+
+cat > "$MR_BUILD_PREFIX/lib/pkgconfig/moltenvk.pc" << EOF
+prefix=${MR_BUILD_PREFIX}
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${prefix}/include
+
+Name: MoltenVK
+Description: Vulkan implementation on Metal for macOS and iOS
+Version: ${MOLTENVK_VERSION}
+Libs: -L\${libdir} -lMoltenVK
+Libs.private: -framework Metal -framework Foundation -framework QuartzCore -framework IOKit -framework IOSurface -lc++
+Cflags: -I\${includedir} -I\${includedir}/vulkan -I\${includedir}/MoltenVK
+Requires: vulkan
+EOF
+
+echo "Generated vulkan.pc (${VULKAN_VERSION}) and moltenvk.pc (${MOLTENVK_VERSION})"

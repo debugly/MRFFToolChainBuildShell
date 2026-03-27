@@ -16,7 +16,7 @@
 #
 
 export LIB_NAME='shaderc'
-export LIPO_LIBS="libshaderc libshaderc_combined"
+export LIPO_LIBS="libshaderc_combined"
 export LIB_DEPENDS_BIN="cmake"
 export GIT_LOCAL_REPO=extra/shaderc
 export GIT_COMMIT=v2025.3
