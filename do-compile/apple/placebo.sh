@@ -73,14 +73,6 @@ export VK_ICD_FILENAMES="${MR_BUILD_PREFIX}/share/vulkan/icd.d/MoltenVK_icd.json
 export CFLAGS="${MR_DEFAULT_CFLAGS} -U_LIBCPP_ENABLE_ASSERTIONS"
 export CXXFLAGS="${MR_DEFAULT_CFLAGS} -U_LIBCPP_ENABLE_ASSERTIONS"
 
-# Add shaderc and MoltenVK pkgconfig paths
-# SHADERC_PC_PATH="${MR_UNI_PROD_DIR}/shaderc/lib/pkgconfig"
-# MOLTENVK_PC_PATH="${MR_UNI_PROD_DIR}/MoltenVK/lib/pkgconfig"
-# export PKG_CONFIG_PATH="${SHADERC_PC_PATH}:${MOLTENVK_PC_PATH}:${PKG_CONFIG_PATH}"
-
-# # Configure with explicit PKG_CONFIG_LIBDIR to avoid system dependencies
-# PKG_CONFIG_LIBDIR="${SHADERC_PC_PATH}:${MOLTENVK_PC_PATH}:$PKG_CONFIG_LIBDIR" \
-# PKG_CONFIG_ALLOW_SYSTEM_LIBS=0 \
 meson setup ${BUILD_DIR} ${MR_BUILD_SOURCE} ${MESON_OPTS}
 
 echo "----------------------"
