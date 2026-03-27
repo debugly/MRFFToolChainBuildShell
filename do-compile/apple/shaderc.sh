@@ -45,6 +45,7 @@ if [[ "$MR_PLAT" == 'ios' ]];then
     else
         pf='OS64'
     fi
+    export MR_DEPLOYMENT_TARGET_VER=13.0
 elif [[ "$MR_PLAT" == 'tvos' ]];then
     if [[ $_MR_ARCH == 'arm64_simulator' ]];then
         pf='SIMULATORARM64_TVOS'
