@@ -54,6 +54,7 @@ elif [[ "$MR_PLAT" == 'tvos' ]];then
     else
         pf='TVOS'
     fi
+    export MR_DEPLOYMENT_TARGET_VER=13.0
 elif [[ "$MR_PLAT" == 'macos' ]];then
     if [[ $_MR_ARCH == 'arm64' ]];then
         pf='MAC_ARM64'
