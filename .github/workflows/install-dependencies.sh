@@ -193,15 +193,15 @@ case $LIB_NAME in
     ;;
     placebo)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'lcms2 shaderc moltenvk' -p ios
-            ./main.sh install -l 'lcms2 shaderc moltenvk' -p tvos
-            ./main.sh install -l 'lcms2 shaderc moltenvk' -p macos
+            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p ios
+            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p tvos
+            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p macos
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'lcms2 shaderc moltenvk' -p ios
-            ./main.sh install -l 'lcms2 shaderc moltenvk' -p tvos
-            ./main.sh install -l 'lcms2 shaderc moltenvk' -p macos
+            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p ios
+            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p tvos
+            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p macos
         else
-            ./main.sh install -l 'lcms2 shaderc moltenvk' -p $PLAT
+            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p $PLAT
         fi
     ;;
     *)
