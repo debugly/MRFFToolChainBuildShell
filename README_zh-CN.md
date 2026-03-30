@@ -6,7 +6,7 @@
 
 MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、tvOS、Android 平台的三方库，其构建产物为 [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial) 所用.
 
-目前包含了这些库：`ass、bluray、dav1d、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、openssl、opus、unibreak、uavs3d、smb2、yuv、soundtouch、xml2、webp`.
+目前包含了这些库：`ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp`.
 
 ## 支持的平台
 
@@ -32,16 +32,17 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 - Harfbuzz：freetype
 - dvdnav：dvdread
 - 适用于 ijkplayer 的 FFmpeg: openssl
+- 适用于苹果的 Placebo: shaderc,moltenvk,dovi,lcms2
 - 适用于苹果的 Ass：harfbuzz、fribidi、unibreak
 - 适用于安卓的 Ass：harfbuzz、fribidi、unibreak、fontconfig
 - 适用于苹果的 FFmpeg4：openssl3、opus、bluray
 - 适用于苹果的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d
 - 适用于苹果的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2
-- 适用于苹果的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、webp
+- 适用于苹果的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、webp、libplacebo、shaderc、moltenvk、dovi、lcms2
 - 适用于安卓的 FFmpeg4：openssl3、opus、bluray、soundtouch
 - 适用于安卓的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d、soundtouch
 - 适用于安卓的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2、soundtouch
-- 适用于安卓的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、soundtouch
+- 适用于安卓的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、soundtouch、libplacebo、shaderc、moltenvk、dovi、lcms2
 
 提示: 
 
@@ -145,6 +146,11 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 | xml2       | 2.15.1          | https://github.com/GNOME/libxml2.git                     | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
 | yuv        | main-f94b8cf7  | https://github.com/debugly/libyuv.git                    | export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git                |
 | webp       | v1.6.0 | https://github.com/debugly/libwebp.git | export GIT_WEBP_UPSTREAM=git@xx:yy/webp.git |
+| placebo | 7.349.0 | https://github.com/haasn/libplacebo.git | export GIT_LIBPLACEBO_UPSTREAM=git@xx:yy/libplacebo.git |
+| shaderc    | 2025.1 | https://github.com/google/shaderc.git | export GIT_SHADERC_UPSTREAM=git@xx:yy/shaderc.git |
+| moltenvk   | 1.3.1 | https://github.com/KhronosGroup/MoltenVK.git | export GIT_MOLTENVK_UPSTREAM=git@xx:yy/MoltenVK.git |
+| lcms2      | 2.16 | https://github.com/mm2/Little-CMS.git | export GIT_LCMS2_UPSTREAM=git@xx:yy/Little-CMS.git |
+| dovi       | 1.6.79 | https://github.com/AMDEXA/libdovi.git | export GIT_DOVI_UPSTREAM=git@xx:yy/libdovi.git |
 
 ## 提示
 

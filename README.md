@@ -6,7 +6,7 @@
 
 MRFFToolChain is a mature set of compilation tools specifically designed for compiling third-party libraries for iOS, macOS, tvOS, and Android platforms. It's products was built for [fsplayer](https://github.com/debugly/fsplayer) 、[ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
 
-At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、openssl、opus、unibreak、uavs3d、smb2、yuv、soundtouch、xml2、webp`.
+At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp`.
 
 ## Supported Plat
 
@@ -28,7 +28,8 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、dvdnav、ff
 - Fontconfig: xml2,freetype
 - Bluray: xml2
 - Harfbuzz: freetype
-- dvdnav: dvdread
+- Dvdnav: dvdread
+- Placebo for Appple: shaderc,moltenvk,dovi,lcms2
 - Ass for Appple:  harfbuzz,fribidi,unibreak
 - Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
 - IJKFFmpeg: openssl
@@ -39,7 +40,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dvdread、dvdnav、ff
 - FFmpeg4 for Android: openssl3,opus,bluray,soundtouch
 - FFmpeg5 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,soundtouch
 - FFmpeg6 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2,soundtouch
-- FFmpeg7 for Android: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,soundtouch
+- FFmpeg7 for Android: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,soundtouch,libplacebo,shaderc,moltenvk,dovi,lcms2
 
 Tips: 
 
@@ -143,6 +144,11 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 | xml2       | 2.15.1          | https://github.com/GNOME/libxml2.git                     | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
 | yuv        | main-f94b8cf7  | https://github.com/debugly/libyuv.git                    | export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git                |
 | webp       | v1.6.0 | https://github.com/debugly/libwebp.git | export GIT_WEBP_UPSTREAM=git@xx:yy/webp.git |
+| placebo | 7.349.0 | https://github.com/haasn/libplacebo.git | export GIT_LIBPLACEBO_UPSTREAM=git@xx:yy/libplacebo.git |
+| shaderc    | 2025.1 | https://github.com/google/shaderc.git | export GIT_SHADERC_UPSTREAM=git@xx:yy/shaderc.git |
+| moltenvk   | 1.3.1 | https://github.com/KhronosGroup/MoltenVK.git | export GIT_MOLTENVK_UPSTREAM=git@xx:yy/MoltenVK.git |
+| lcms2      | 2.16 | https://github.com/mm2/Little-CMS.git | export GIT_LCMS2_UPSTREAM=git@xx:yy/Little-CMS.git |
+| dovi       | 1.6.79 | https://github.com/AMDEXA/libdovi.git | export GIT_DOVI_UPSTREAM=git@xx:yy/libdovi.git |
 
 ## Tips
 
