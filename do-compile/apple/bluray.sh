@@ -51,7 +51,14 @@ if [[ -f 'configure' ]]; then
    echo "reuse configure"
 else
    echo "auto generate configure"
-   ./bootstrap >/dev/null
+   if [[ "$(uname)" == "Darwin" ]]; then
+       if command -v glibtoolize > /dev/null; then
+           glibtoolize --force --copy
+       elif command -v libtoolize > /dev/null; then
+           libtoolize --force --copy
+       fi
+   fi
+   ./bootstrap
 fi
 
 echo 
