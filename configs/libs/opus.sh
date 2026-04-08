@@ -27,9 +27,9 @@ export LIPO_LIBS="libopus"
 export LIB_DEPENDS_BIN="cmake"
 export CMAKE_TARGETS_NAME=opus
 export GIT_LOCAL_REPO=extra/opus
-export GIT_COMMIT=v1.5.2
+export GIT_COMMIT=v1.6.1
 export REPO_DIR=opus
-export GIT_REPO_VERSION=1.5.2
+export GIT_REPO_VERSION=1.6.1
 
 # you can export GIT_OPUS_UPSTREAM=git@xx:yy/opusfile.git use your mirror
 if [[ "$GIT_OPUS_UPSTREAM" != "" ]] ;then

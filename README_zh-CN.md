@@ -137,8 +137,8 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 | fribidi    | 1.0.16          | https://github.com/fribidi/fribidi.git                   | export GIT_FRIBIDI_UPSTREAM=git@xx:yy/fribidi.git      |
 | harfbuzz   | 12.3.2          | https://github.com/harfbuzz/harfbuzz.git                 | export GIT_HARFBUZZ_UPSTREAM=git@xx:yy/harfbuzz.git    |
 | openssl    | 1.1.1w          | https://github.com/openssl/openssl.git                   | export GIT_OPENSSL_UPSTREAM=git@xx:yy/openssl.git      |
-| openssl3    | 3.5.5          | https://github.com/openssl/openssl.git                   | export GIT_OPENSSL_UPSTREAM=git@xx:yy/openssl.git      |
-| opus       | 1.5.2           | https://gitlab.xiph.org/xiph/opus.git                    | export GIT_OPUS_UPSTREAM=git@xx:yy/opus.git            |
+| openssl3    | 3.6.2          | https://github.com/openssl/openssl.git                   | export GIT_OPENSSL_UPSTREAM=git@xx:yy/openssl.git      |
+| opus       | 1.6.1           | https://gitlab.xiph.org/xiph/opus.git                    | export GIT_OPUS_UPSTREAM=git@xx:yy/opus.git            |
 | smb2       | 6.2             | https://github.com/sahlberg/libsmb2.git                  | export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git           |
 | soundtouch | 2.4.0           | https://codeberg.org/soundtouch/soundtouch.git           | export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git  |
 | unibreak   | 6.1             | https://github.com/adah1972/libunibreak.git              | export GIT_UNIBREAK_UPSTREAM=git@xx:yy/libunibreak.git |
