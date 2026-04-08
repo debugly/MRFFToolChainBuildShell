@@ -39,8 +39,20 @@ function correct_pc_file(){
         my_sed_i "s|^exec_prefix=[^$].*|exec_prefix=$bin_dir|" $pc
         my_sed_i "s|^libdir=[^$].*|libdir=$lib_dir|" "$pc"
         my_sed_i "s|^includedir=[^$].*include|includedir=$include_dir|" "$pc"
-        my_sed_i "s|-L/[^ ]*lib|-L$lib_dir|" "$pc"
-        my_sed_i "s|-I/[^ ]*include|-I$include_dir|" "$pc"
+
+        # Fix absolute paths to other internal dependencies
+        # Pattern: -L/any/path/PRODUCT_NAME/PLATFORM/universal/LIB_NAME/lib
+        # We want to replace the "/any/path/PRODUCT_NAME/PLATFORM" part with the local equivalent.
+        # Since we know the local product root is the parent of 'universal', we can use that.
+        
+        local product_root=$(cd "$fix_path"; pwd)
+        # escaped for sed
+        local escaped_root=$(echo "$product_root" | sed 's/\//\\\//g')
+        
+        # 1. Fix -L/path/to/universal/LIB_NAME/lib -> -L/local/product/universal/LIB_NAME/lib
+        my_sed_i "s|-L/[^ ]*/universal/\([^ /]*\)/lib|-L$escaped_root/universal/\1/lib|g" "$pc"
+        # 2. Fix -I/path/to/universal/LIB_NAME/include -> -I/local/product/universal/LIB_NAME/include
+        my_sed_i "s|-I/[^ ]*/universal/\([^ /]*\)/include|-I$escaped_root/universal/\1/include|g" "$pc"
     done
     
     cd "$dir"
