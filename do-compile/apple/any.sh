@@ -92,8 +92,8 @@ do_lipo_all() {
                 p="$uni_dir/$LIB_NAME"
                 escaped_p=$(echo $p | sed 's/\//\\\//g')
                 my_sed_i "s|^prefix=.*|prefix=$escaped_p|" "$pc_dst_dir/"*.pc
-                my_sed_i "s|^libdir=.*|libdir=$escaped_p|" "$pc_dst_dir/"*.pc
-                my_sed_i "s|^includedir=.*|includedir=$escaped_p|" "$pc_dst_dir/"*.pc
+                my_sed_i "s|^libdir=.*|libdir=$escaped_p/lib|" "$pc_dst_dir/"*.pc
+                my_sed_i "s|^includedir=.*|includedir=$escaped_p/include|" "$pc_dst_dir/"*.pc
             fi
         fi
     done
