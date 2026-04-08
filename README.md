@@ -45,8 +45,8 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdn
 Tips: 
 
 ```
-1、ffmpeg is not denpendent on ass.
-2、fsplayer is denpendent on ffmpeg and ass.
+1、ffmpeg is not denpendent on ass and placebo.
+2、fsplayer is denpendent on ffmpeg and ass and placebo.
 3、ijkplayer is denpendent on ijkffmpeg.
 4、FFmpegTutorial is denpendent on fftutorial.
 5、when install pre-compiled lib, will containes it's denpendencies.

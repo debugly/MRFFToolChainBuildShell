@@ -47,8 +47,8 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 提示: 
 
 ```
-1、ffmpeg 不依赖 ass
-2、fsplayer 依赖 ffmpeg 和 ass
+1、ffmpeg 不依赖 ass 和 placebo
+2、fsplayer 依赖 ffmpeg 和 ass 和 placebo
 3、ijkplayer 依赖 ijkffmpeg
 4、FFmpegTutorial 依赖 fftutorial
 5、安装预编译库时，会包含其所有依赖项
