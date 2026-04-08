@@ -52,6 +52,13 @@ if [[ -f 'configure' ]]; then
 else
    echo "auto generate configure"
    if [[ "$(uname)" == "Darwin" ]]; then
+       # Homebrew may be in different locations depending on the CPU arch
+       if [[ -d "/opt/homebrew/share/aclocal" ]]; then
+           export ACLOCAL_PATH="/opt/homebrew/share/aclocal:$ACLOCAL_PATH"
+       elif [[ -d "/usr/local/share/aclocal" ]]; then
+           export ACLOCAL_PATH="/usr/local/share/aclocal:$ACLOCAL_PATH"
+       fi
+
        if command -v glibtoolize > /dev/null; then
            glibtoolize --force --copy
        elif command -v libtoolize > /dev/null; then

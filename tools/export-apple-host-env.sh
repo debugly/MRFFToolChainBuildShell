@@ -43,8 +43,14 @@ export DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
 
 function install_depends() {
     local name="$1"
-    if command -v "$name" &> /dev/null; then
-        echo "[✅] ${name}: $(eval $name --version)"
+    local check_name="$name"
+    # On macOS, GNU libtool is installed as glibtool to avoid conflict with Apple's libtool
+    if [[ "$(uname)" == "Darwin" && "$name" == "libtool" ]]; then
+        check_name="glibtool"
+    fi
+
+    if command -v "$check_name" &> /dev/null; then
+        echo "[✅] ${name}: $(eval $check_name --version | head -n 1)"
         return 0
     else
         if [[ "$name" == "rustup" || "$name" == "cargo" ]]; then
