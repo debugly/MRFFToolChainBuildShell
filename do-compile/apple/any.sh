@@ -113,6 +113,12 @@ function do_make_xcframework() {
     mkdir -p "$MR_XCFRMK_DIR"
     
     for lib in $LIPO_LIBS; do
+        local macos_inputs=""
+        local ios_inputs=""
+        local ios_sim_inputs=""
+        local tvos_inputs=""
+        local tvos_sim_inputs=""
+        
         # add macOS
         macos_lib=$MR_MACOS_PRODUCT_ROOT/universal/$LIB_NAME/lib/${lib}.a
         if [[ -f $macos_lib ]]; then
@@ -156,6 +162,12 @@ function do_fix_pc() {
                 my_sed_i 's|[^ ]*lib\([^ /]*\)\.tbd|-l\1|g' "$pc"
                 # remove xcode sdk include path
                 my_sed_i 's|-I/Applications/Xcode[^ ]*usr/include||g' "$pc"
+                
+                # fix absolute path which contains arch suffix bug，such as /path/to/opus-arch/lib
+                if [[ -n "$_MR_ARCH" ]]; then
+                    # handle any remaining arch suffix in the path
+                    my_sed_i "s|${LIB_NAME}-${_MR_ARCH}|${LIB_NAME}|g" "$pc"
+                fi
             fi
         done
     fi
