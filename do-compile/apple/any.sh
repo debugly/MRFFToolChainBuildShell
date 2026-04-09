@@ -88,6 +88,13 @@ do_lipo_all() {
                 mkdir -p "$pc_dst_dir"
                 echo "copy pkgconfig file to $pc_dst_dir"
                 cp ${pc_src_dir}/*.pc "$pc_dst_dir"
+
+                # fix absolute path which contains arch suffix bug，such as /path/to/opus-arch/lib
+                #-L/Users/runner/work/MRFFToolChainBuildShell/MRFFToolChainBuildShell/build/product/macos/opus-arch/lib
+                #->
+                #-L/Users/runner/work/MRFFToolChainBuildShell/MRFFToolChainBuildShell/build/product/macos/universal/opus/lib
+                # my_sed_i "s|${LIB_NAME}-${arch}|universal/${LIB_NAME}|g" "$pc_dst_dir/"*.pc
+
                 #fix prefix path
                 p="$uni_dir/$LIB_NAME"
                 escaped_p=$(echo $p | sed 's/\//\\\//g')
@@ -162,12 +169,6 @@ function do_fix_pc() {
                 my_sed_i 's|[^ ]*lib\([^ /]*\)\.tbd|-l\1|g' "$pc"
                 # remove xcode sdk include path
                 my_sed_i 's|-I/Applications/Xcode[^ ]*usr/include||g' "$pc"
-                
-                # fix absolute path which contains arch suffix bug，such as /path/to/opus-arch/lib
-                if [[ -n "$_MR_ARCH" ]]; then
-                    # handle any remaining arch suffix in the path
-                    my_sed_i "s|${LIB_NAME}-${_MR_ARCH}|${LIB_NAME}|g" "$pc"
-                fi
             fi
         done
     fi
