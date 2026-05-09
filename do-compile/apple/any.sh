@@ -93,7 +93,7 @@ do_lipo_all() {
                 #-L/Users/runner/work/MRFFToolChainBuildShell/MRFFToolChainBuildShell/build/product/macos/opus-arch/lib
                 #->
                 #-L/Users/runner/work/MRFFToolChainBuildShell/MRFFToolChainBuildShell/build/product/macos/universal/opus/lib
-                # my_sed_i "s|${LIB_NAME}-${arch}|universal/${LIB_NAME}|g" "$pc_dst_dir/"*.pc
+                #my_sed_i "s|${LIB_NAME}-${arch}|universal/${LIB_NAME}|g" "$pc_dst_dir/"*.pc
 
                 #fix prefix path
                 p="$uni_dir/$LIB_NAME"
@@ -186,7 +186,6 @@ function do_compile() {
     
     mkdir -p "$MR_BUILD_PREFIX"
     ./$LIB_NAME.sh
-    do_fix_pc
 }
 
 function resolve_dep() {

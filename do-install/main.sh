@@ -64,10 +64,6 @@ function install_libs()
         fi
         echo "===================================="
     done
-    
-    if [[ ! "$FORCE_XCFRAMEWORK" ]];then
-        ./correct-pc.sh "$MR_WORKSPACE/product/$MR_PLAT"
-    fi
 }
 
 if [[ -n $MR_PC_FILE_DIR ]];then

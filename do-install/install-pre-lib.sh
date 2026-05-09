@@ -38,6 +38,8 @@ function install_plat() {
     export MR_UNCOMPRESS_DIR="$MR_WORKSPACE/product/$MR_PLAT/universal${join}"
     
     ./download-uncompress.sh
+    #由于解压后可能包含依赖库，所以保险起见修正全部的pc文件
+    ./correct-pc.sh "${MR_UNCOMPRESS_DIR}"
 }
 
 if [[ "$MR_PLAT" == 'ios' || "$MR_PLAT" == 'tvos' ]];then
