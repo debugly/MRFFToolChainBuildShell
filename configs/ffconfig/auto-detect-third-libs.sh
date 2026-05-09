@@ -107,6 +107,13 @@ gt_or_equal() {
     return 0
 }
 
+has_feature() {
+    local feature=$1
+    $MR_BUILD_SOURCE/configure --help | grep -q -- "$feature" && enable_feature=1 || enable_feature=0
+    echo $enable_feature
+    return 0
+}
+
 echo "----------------------"
 # use pkg-config fix ff4.0--ijk0.8.8--20210426--001 use openssl 1_1_1m occur can't find openssl error.
 
@@ -204,8 +211,8 @@ if [[ $result ]]; then
     fi
     echo "----------------------"
 else
-    result=$(gt_or_equal "$GIT_REPO_VERSION" "5")
-    if [[ $result ]]; then
+    dvd_feature=$(has_feature "libdvdread")
+    if [[ $dvd_feature ]]; then
         pkg-config --libs dvdread --silence-errors >/dev/null && enable_dvdread=1
         if [[ $enable_dvdread ]];then
             echo "[✅] --enable-libdvdread : $(pkg-config --modversion dvdread)"
@@ -247,8 +254,9 @@ fi
 
 echo "----------------------"
 
-enable_webp=
-if [[ $MR_PLAT != 'android' ]];then
+result=$(gt_or_equal "$GIT_REPO_VERSION" "7")
+if [[ $result && $MR_PLAT != 'android' ]]; then
+    enable_webp=
     pkg-config --libs libwebp --silence-errors >/dev/null && enable_webp=1
     if [[ $enable_webp ]];then
         echo "[✅] --enable-libwebp --enable-decoder=webp : $(pkg-config --modversion libwebp)"
