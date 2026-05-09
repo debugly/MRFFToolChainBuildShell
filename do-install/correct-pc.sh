@@ -34,16 +34,6 @@ function correct_pc_file(){
         local include_dir="${base_dir}/include"
         local bin_dir="${base_dir}/bin"
         
-        # 全局替换 prefix= 开头后面的内容
-        old_base=$(sed -n 's/^prefix=//p' "$pc")
-        my_sed_i "s|$old_base|$base_dir|g" "$pc"
-
-        # 具有局限性，比如 includedir=/Users/matt/GitWorkspace/fsplayer/FFToolChain/build/product/ios/universal-simulator/bluray
-        # my_sed_i "s|^prefix=.*|prefix=$base_dir|" "$pc"
-        # my_sed_i "s|^exec_prefix=[^$].*|exec_prefix=$bin_dir|" $pc
-        # my_sed_i "s|^libdir=[^$].*|libdir=$lib_dir|" "$pc"
-        # my_sed_i "s|^includedir=[^$].*include|includedir=$include_dir|" "$pc"
-
         # fix absolute path which contains arch suffix bug，such as /path/to/opus-arch/lib
         #-L/Users/runner/work/MRFFToolChainBuildShell/MRFFToolChainBuildShell/build/product/macos/opus-arch/lib
         #->
@@ -57,6 +47,18 @@ function correct_pc_file(){
 
         my_sed_i "s|\([^/]*\)-arm64[^/]*|universal/\1|g" "$pc"
         my_sed_i "s|\([^/]*\)-x86[^/]*|universal/\1|g" "$pc"
+        
+        # 全局替换 prefix= 开头后面的内容
+        old_base=$(sed -n 's/^prefix=//p' "$pc")
+        my_sed_i "s|$old_base|$base_dir|g" "$pc"
+
+        # 具有局限性，比如 includedir=/Users/matt/GitWorkspace/fsplayer/FFToolChain/build/product/ios/universal-simulator/bluray
+        # my_sed_i "s|^prefix=.*|prefix=$base_dir|" "$pc"
+        # my_sed_i "s|^exec_prefix=[^$].*|exec_prefix=$bin_dir|" $pc
+        # my_sed_i "s|^libdir=[^$].*|libdir=$lib_dir|" "$pc"
+        # my_sed_i "s|^includedir=[^$].*include|includedir=$include_dir|" "$pc"
+
+        
 
         # Fix absolute paths to other internal dependencies
         # Pattern: -L/any/path/PRODUCT_NAME/PLATFORM/universal/LIB_NAME/lib
