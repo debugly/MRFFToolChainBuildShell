@@ -1,0 +1,41 @@
+From eb2b38cb1107ecaa18fef1594300f9700f64318a Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Fri, 8 May 2026 17:02:34 +0800
+Subject: add 4 dummy ijkplaceholder demuxers
+
+---
+ libavformat/allformats.c | 4 ++++
+ libavformat/ijkutils.c   | 4 ++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/libavformat/allformats.c b/libavformat/allformats.c
+index 0c2d5caf82..e2f37da7a1 100644
+--- a/libavformat/allformats.c
++++ b/libavformat/allformats.c
+@@ -586,6 +586,10 @@ extern const FFInputFormat  ff_vapoursynth_demuxer;
+ 
+ // ijk custom demuxers
+ extern FFInputFormat  ff_ijklivehook_demuxer;
++extern FFInputFormat  ff_ijkplaceholder1_demuxer;
++extern FFInputFormat  ff_ijkplaceholder2_demuxer;
++extern FFInputFormat  ff_ijkplaceholder3_demuxer;
++extern FFInputFormat  ff_ijkplaceholder4_demuxer;
+ 
+ #include "libavformat/muxer_list.c"
+ #include "libavformat/demuxer_list.c"
+diff --git a/libavformat/ijkutils.c b/libavformat/ijkutils.c
+index 0314c48d8b..ac80e548f4 100644
+--- a/libavformat/ijkutils.c
++++ b/libavformat/ijkutils.c
+@@ -105,3 +105,7 @@ FFInputFormat ff_##x##_demuxer = {                                  \
+ 
+  */
+ IJK_DUMMY_DEMUXER(ijklivehook);
++IJK_DUMMY_DEMUXER(ijkplaceholder1);
++IJK_DUMMY_DEMUXER(ijkplaceholder2);
++IJK_DUMMY_DEMUXER(ijkplaceholder3);
++IJK_DUMMY_DEMUXER(ijkplaceholder4);
+\ No newline at end of file
+-- 
+2.50.1 (Apple Git-155)
+

@@ -1,6 +1,7 @@
 ## MRFFToolChain 构建脚本
 
-![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
+![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total)<img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.1%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
+
 
 **MRFFToolChain 是什么？**
 
@@ -19,13 +20,13 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 ## 最新动态
 
-- FFmpeg **7.1.3** 已投入使用
+- FFmpeg **8.1.1** 已经准备好了
 - 将所有库升级至最新版本，不少库提升了性能
 - 使用 macOS 15，Xcode_16.4构建
 
 ## 依赖关系
 
-编译了适用于安卓和 iOS 平台的 FFmpeg4，FFmpeg5，FFmpeg6，FFmpeg7。
+编译了适用于安卓和 iOS 平台的 FFmpeg4，FFmpeg5，FFmpeg6，FFmpeg7，FFmpeg8。
 
 - Fontconfig：xml2、freetype
 - Bluray：xml2
@@ -38,11 +39,12 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 - 适用于苹果的 FFmpeg4：openssl3、opus、bluray
 - 适用于苹果的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d
 - 适用于苹果的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2
-- 适用于苹果的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、webp、libplacebo、shaderc、moltenvk、dovi、lcms2
+- 适用于苹果的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、webp
+- 适用于苹果的 FFmpeg8：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、webp
 - 适用于安卓的 FFmpeg4：openssl3、opus、bluray、soundtouch
 - 适用于安卓的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d、soundtouch
 - 适用于安卓的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2、soundtouch
-- 适用于安卓的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、soundtouch、libplacebo、shaderc、moltenvk、dovi、lcms2
+- 适用于安卓的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、soundtouch
 
 提示: 
 
@@ -122,6 +124,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 | 库名称        | 当前版本      | 仓库 URL      | 镜像仓库 URL   |
 | --------------- |----------- | ----------- | ------------ |
+| ffmpeg8     | 8.1.1           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg7     | 7.1.3           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg6     | 6.1.1           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg5     | 5.1.6           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |

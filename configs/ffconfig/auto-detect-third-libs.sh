@@ -231,6 +231,11 @@ if [[ $result ]]; then
     echo "----------------------"
 fi
 
+result=$(gt_or_equal "8.1.1" "$GIT_REPO_VERSION")
+if [[ ! $result ]]; then
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-postproc"
+fi
+
 pkg-config --libs libxml-2.0 --silence-errors >/dev/null && enable_xml2=1
 
 if [[ $enable_xml2 ]];then
@@ -241,21 +246,19 @@ else
 fi
 
 echo "----------------------"
-pkg-config --libs libwebp --silence-errors >/dev/null && enable_webp=1
 
-if [[ $enable_webp && $MR_PLAT == 'android' ]];then
-    enable_webp=
-    echo "force disable libwebp on android platform"
+enable_webp=
+if [[ $MR_PLAT != 'android' ]];then
+    pkg-config --libs libwebp --silence-errors >/dev/null && enable_webp=1
+    if [[ $enable_webp ]];then
+        echo "[✅] --enable-libwebp --enable-decoder=webp : $(pkg-config --modversion libwebp)"
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libwebp --enable-demuxer=webp --enable-decoder=libwebp"
+    else
+        echo "[❌] --disable-libwebp --disable-decoder=libwebp"
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-libwebp --disable-demuxer=webp --disable-decoder=libwebp"
+    fi
+    echo "----------------------"
 fi
-
-if [[ $enable_webp ]];then
-    echo "[✅] --enable-libwebp --enable-decoder=webp : $(pkg-config --modversion libwebp)"
-    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libwebp --enable-demuxer=webp --enable-decoder=libwebp"
-else
-    echo "[❌] --disable-libwebp --disable-decoder=libwebp"
-fi
-
-echo "----------------------"
 
 # export PKG_CONFIG_LIBDIR=$PKG_CONFIG_LIBDIR:/opt/homebrew/Cellar/shaderc/2024.0/lib/pkgconfig:/opt/homebrew/Cellar/little-cms2/2.16/lib/pkgconfig
 # pkg-config --libs libplacebo --silence-errors >/dev/null && enable_placebo=1

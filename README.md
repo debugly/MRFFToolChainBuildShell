@@ -1,6 +1,6 @@
 ## MRFFToolChain Build Shell [[中文版](./README_zh-CN.md)]
 
-![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
+![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total)<img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.1%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
 
 **What's MRFFToolChain?**
 
@@ -19,7 +19,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdn
 
 ## News
 
-- FFmpeg **7.1.3** is already in use
+- FFmpeg **8.1.1** is ready
 - upgrade all libs to lastest,Improved optimizations
 - using macOS 15，Xcode_16.4
 
@@ -37,6 +37,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdn
 - FFmpeg5 for Appple: openssl3,opus,bluray,dav1d,dvdread,uavs3d
 - FFmpeg6 for Appple: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2
 - FFmpeg7 for Appple: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,webp
+- FFmpeg8 for Appple: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,webp
 - FFmpeg4 for Android: openssl3,opus,bluray,soundtouch
 - FFmpeg5 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,soundtouch
 - FFmpeg6 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2,soundtouch
@@ -120,6 +121,7 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 
 | Lib Name   | Current Version | Repository URL                                           | Mirror Repository URL                                    |
 | ---------- | --------------- | -------------------------------------------------------- | -------------------------------------------------------- |
+| ffmpeg8     | 8.1.1           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg7     | 7.1.3           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg6     | 6.1.1           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
 | ffmpeg5     | 5.1.6           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
