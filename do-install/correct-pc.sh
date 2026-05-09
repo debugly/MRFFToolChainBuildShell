@@ -44,28 +44,28 @@ function correct_pc_file(){
         # 2. 匹配 -(arm64|x86)    -> 紧跟其后的架构标识
         # 3. 匹配 [^/]*           -> 架构后的剩余后缀（如 _simulator）
         # 4. 替换为 universal/\1  -> \1 就是第一对括号捕获到的 LIB_NAME
+        
 
+        my_sed_i "s|universal-simulator|universal|g" "$pc"
         my_sed_i "s|\([^/]*\)-arm64[^/]*|universal/\1|g" "$pc"
         my_sed_i "s|\([^/]*\)-x86[^/]*|universal/\1|g" "$pc"
         
         # 全局替换 prefix= 开头后面的内容
         old_base=$(sed -n 's/^prefix=//p' "$pc")
         my_sed_i "s|$old_base|$base_dir|g" "$pc"
-
+        
         # 具有局限性，比如 includedir=/Users/matt/GitWorkspace/fsplayer/FFToolChain/build/product/ios/universal-simulator/bluray
         # my_sed_i "s|^prefix=.*|prefix=$base_dir|" "$pc"
         # my_sed_i "s|^exec_prefix=[^$].*|exec_prefix=$bin_dir|" $pc
         # my_sed_i "s|^libdir=[^$].*|libdir=$lib_dir|" "$pc"
         # my_sed_i "s|^includedir=[^$].*include|includedir=$include_dir|" "$pc"
 
-        
-
         # Fix absolute paths to other internal dependencies
         # Pattern: -L/any/path/PRODUCT_NAME/PLATFORM/universal/LIB_NAME/lib
         # We want to replace the "/any/path/PRODUCT_NAME/PLATFORM" part with the local equivalent.
         # Since we know the local product root is the parent of 'universal', we can use that.
-        
-        local product_root=$(cd "$fix_path"; pwd)
+        # base_dir is lib folder, we need to go up two levels to get to product root,eg: ios
+        local product_root=$(cd "$base_dir";cd ..;cd ..;pwd)
         # escaped for sed
         local escaped_root=$(echo "$product_root" | sed 's/\//\\\//g')
         
