@@ -49,6 +49,7 @@ on:
         type: choice
         default: 'ffmpeg7'
         options:
+          - ffmpeg8
           - ffmpeg7
           - ffmpeg6
           - ffmpeg5

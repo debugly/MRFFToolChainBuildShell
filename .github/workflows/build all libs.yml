@@ -60,6 +60,7 @@ on:
           - ffmpeg5
           - ffmpeg6
           - ffmpeg7
+          - ffmpeg8
       dryrun:
         description: 'just run workflow,but not deploy'
         required: false
@@ -204,6 +205,7 @@ jobs:
           "ffmpeg5"
           "ffmpeg6"
           "ffmpeg7"
+          "ffmpeg8"
         )
 
         first=${{ inputs.first_library }}
