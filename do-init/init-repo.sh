@@ -79,8 +79,8 @@ function apply_patches() {
     local patch_dir="${THIS_DIR}/../patches/$PATCH_DIR"
     local patch_dirs=(
         "$patch_dir"
-        "${patch_dir}_${MR_PLAT}"
-        "${patch_dir}_pro"
+        "${patch_dir}-${MR_PLAT}"
+        "${patch_dir}-pro"
     )
 
     for patch_dir in "${patch_dirs[@]}"; do
