@@ -76,24 +76,27 @@ function apply_patches() {
         return
     fi
 
-    local plat="$MR_PLAT"
     local patch_dir="${THIS_DIR}/../patches/$PATCH_DIR"
-    
-    if [[ -d "${patch_dir}_${plat}" ]]; then
-        patch_dir="${patch_dir}_${plat}"
-    fi
-    
-    if [[ -d "$patch_dir" ]]; then
+    local patch_dirs=(
+        "$patch_dir"
+        "${patch_dir}_${MR_PLAT}"
+        "${patch_dir}_pro"
+    )
+
+    for patch_dir in "${patch_dirs[@]}"; do
+        if [[ ! -d "$patch_dir" ]]; then
+            continue
+        fi
+
         echo
-        echo "== Applying patches: $(basename $patch_dir) → $(basename $PWD) =="
-        git am --whitespace=fix --keep $patch_dir/*.patch
-        if [[ $? -ne 0 ]]; then
+        echo "== Applying patches: $(basename "$patch_dir") → $(basename "$PWD") =="
+        if ! git am --whitespace=fix --keep "$patch_dir"/*.patch; then
             echo 'Apply patches failed!'
             git am --skip
             exit 1
         fi
         echo
-    fi
+    done
 }
 
 function make_arch_repo() {
