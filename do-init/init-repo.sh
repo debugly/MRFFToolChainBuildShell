@@ -21,14 +21,15 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-SMART_APPLY=
-
 echo "=== [$0] check env begin==="
 env_assert "REPO_DIR"
 env_assert "GIT_COMMIT"
 env_assert "GIT_LOCAL_REPO"
 env_assert "GIT_UPSTREAM"
 env_assert "MR_WORKSPACE"
+env_assert "SKIP_PULL_BASE"
+env_assert "SMART_APPLY"
+
 echo "===check env end==="
 
 GIT_LOCAL_REPO="${MR_WORKSPACE}/${GIT_LOCAL_REPO}"
@@ -46,13 +47,13 @@ function pull_common() {
             git remote add origin "$GIT_UPSTREAM"
             echo "force update origin to: $GIT_UPSTREAM"
         fi
-        if [[ "$SKIP_PULL_BASE" ]]; then
+        if [[ "$SKIP_PULL_BASE" == "1" ]]; then
             echo "⚠️ skip pull $REPO_DIR because you set SKIP_PULL_BASE env."
         else
             git fetch --all --tags
         fi
     else
-        if [[ "$SKIP_PULL_BASE" ]]; then
+        if [[ "$SKIP_PULL_BASE" == "1" ]]; then
             echo "== local repo $REPO_DIR not exist,must clone by net firstly. =="
             echo "try:unset SKIP_PULL_BASE"
             exit -1
@@ -122,7 +123,7 @@ function apply_patches() {
 
         echo
         echo "== Applying patches: $(basename "$patch_dir") → $(basename "$PWD") =="
-        if [[ "$SMART_APPLY" ]]; then
+        if [[ "$SMART_APPLY" == "1" ]]; then
             for patch_file in "$patch_dir"/*.patch; do
                 if ! apply_patch_smart "$patch_file"; then
                     echo "Apply patch failed: $patch_file"
@@ -157,24 +158,6 @@ function make_arch_repo() {
     cd - >/dev/null
 }
 
-function parse_args() {
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-            --skip-pull-base)
-                SKIP_PULL_BASE=1
-            ;;
-            --smart-apply)
-                SMART_APPLY=1
-                ;;
-            *)
-                echo "unknown option: $1"
-                sleep 2
-                ;;
-        esac
-        shift
-    done
-}
-
 function main() {
     case "$MR_PLAT" in
         ios | macos | tvos | android)
@@ -190,8 +173,4 @@ function main() {
     esac
 }
 
-parse_args "$@"
-
-echo "SKIP_PULL_BASE  : [$SKIP_PULL_BASE]"
-echo "SMART_APPLY     : [$SMART_APPLY]"
 main

@@ -22,11 +22,54 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-for lib in $MR_VENDOR_LIBS
-do
-    echo "===[init $lib]==========="
-    [[ ! -f "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh" ]] && (echo "❌$lib config not exist,init will stop.";exit 1;)
-    source "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
-    ./init-repo.sh "$@"
+function parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --skip-pull-base)
+                SKIP_PULL_BASE=1
+            ;;
+            --smart-apply)
+                SMART_APPLY=1
+                ;;
+            -lib-config)
+                shift
+                LIB_CONFIG_PATH="$1"
+            ;;
+            *)
+                echo "unknown option: $1"
+                sleep 2
+                ;;
+        esac
+        shift
+    done
+}
+
+function do_init_a_lib()
+{
+    local lib_config="$1"    
+    echo "===[init $lib_config]===================="
+    [[ ! -f "$lib_config" ]] && (echo "❌$lib_config config not exist,init will stop.";exit 1;)
+    source "$lib_config"
+    ./init-repo.sh
     echo "========================="
-done
+}
+
+function main() {
+
+    export SKIP_PULL_BASE=${SKIP_PULL_BASE:-0}
+    export SMART_APPLY=${SMART_APPLY:-0}
+
+    for lib in $MR_VENDOR_LIBS
+    do
+        do_init_a_lib "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
+    done
+
+    if [[ -n "$LIB_CONFIG_PATH" ]];then
+        echo 
+        echo "init specific lib config : [$LIB_CONFIG_PATH]"
+        do_init_a_lib "$LIB_CONFIG_PATH"
+    fi
+}
+
+parse_args "$@"
+main
