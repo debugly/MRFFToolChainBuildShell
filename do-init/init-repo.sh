@@ -166,13 +166,8 @@ function parse_args() {
             --smart-apply)
                 SMART_APPLY=1
                 ;;
-            -h | --help)
-                usage
-                exit 0
-                ;;
-            --*)
+            *)
                 echo "unknown option: $1"
-                usage
                 exit 1
                 ;;
         esac

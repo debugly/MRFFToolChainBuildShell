@@ -66,8 +66,4 @@ function install_libs()
     done
 }
 
-if [[ -n $MR_PC_FILE_DIR ]];then
-    ./correct-pc.sh "$MR_PC_FILE_DIR"
-else
-    install_libs    
-fi
+install_libs

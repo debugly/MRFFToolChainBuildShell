@@ -80,7 +80,6 @@ OPTIONS:
    -p            Specify platform (ios,macos,tvos), can't be nil
    -l            Specify which libs need 'cmd' (libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
    -s            Specify workspace dir
-   -correct-pc  Specify a path for correct the pc file prefix recursion
    --help        Show intall help
    --fmwk        Install xcframework bundle instead of .a
 EOF
@@ -123,7 +122,6 @@ arch=
 libs=
 workspace=
 debug=
-pc_file_dir=
 MR_UNKNOWN_OPTIONS=()
 
 case $1 in
@@ -180,10 +178,6 @@ while [[ $# -gt 0 ]]; do
         --fmwk)
             export MR_MAKE_XCFRAMEWORK=1
         ;;
-        -correct-pc)
-            shift
-            pc_file_dir="$1"
-        ;;
         *)
             MR_UNKNOWN_OPTIONS+=("$1")
         ;;
@@ -202,9 +196,7 @@ if [[ "$platform" != 'ios' && "$platform" != 'macos' && "$platform" != 'tvos' &&
     exit 1
 fi
 
-export MR_PC_FILE_DIR="$pc_file_dir"
-
-if [[ -z "$MR_PC_FILE_DIR" && -z "$libs" ]];then
+if [[ -z "$libs" ]];then
     echo "libs can't be nil, use -l specify libs"
     exit 1
 fi
@@ -275,6 +267,5 @@ echo "MR_DEBUG        : [$MR_DEBUG]"
 echo "MR_INIT_CFLAGS  : [$MR_INIT_CFLAGS]"
 echo "MR_MAKE_XCFRAMEWORK" : [$MR_MAKE_XCFRAMEWORK]
 [[ ${#MR_UNKNOWN_OPTIONS[@]} -gt 0 ]] && echo "MR_UNKNOWN_OPTIONS : [${MR_UNKNOWN_OPTIONS[*]}]"
-[[ -n $MR_PC_FILE_DIR ]] && echo "MR_PC_FILE_DIR : [$MR_PC_FILE_DIR]"
 
-unset platform cmd arch libs workspace debug action cflags pc_file_dir
+unset platform cmd arch libs workspace debug action cflags
