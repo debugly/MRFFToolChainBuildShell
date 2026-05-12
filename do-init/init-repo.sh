@@ -102,11 +102,7 @@ apply_patch_smart() {
 }
 
 function apply_patches() {
-    if [[ "$SKIP_FFMPEG_PATHCHES" && $LIB_NAME == ffmpeg* ]]; then
-        echo "⚠️ skip apply $REPO_DIR patches,because you set SKIP_FFMPEG_PATHCHES env."
-        return
-    fi
-    
+
     if [[ -z "$PATCH_DIR" ]]; then
         echo "$REPO_DIR hasn't any patch"
         return

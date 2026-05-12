@@ -46,7 +46,6 @@ OPTIONS:
     -s                   Specify workspace dir
     --help               Show help banner of init command
     --skip-pull-base     Skip pull base repo
-    --skip-patches       Skip apply FFmpeg patches
     --smart-apply        Apply patches with smart fallback
 EOF
 }
@@ -61,7 +60,7 @@ Compile libs, such as ass、ffmpeg...
 OPTIONS:
     -c            Specify sub command (build,clean,rebuild) rebuild=clean+build, default is build
     -a            Specify archs (x86_64,arm64,x86_64_simulator,arm64_simulator,all) all="x86_64,arm64,x86_64_simulator,arm64_simulator"
-    -l            Specify which libs need 'cmd' (all|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
+    -l            Specify which libs need 'cmd' (openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
     -s            Specify workspace dir
     -j            Force number of cores to be used
     --help        Show help banner of compile command
@@ -79,7 +78,7 @@ Download and Install Pre-compile library to product dir
 
 OPTIONS:
    -p            Specify platform (ios,macos,tvos), can't be nil
-   -l            Specify which libs need 'cmd' (all|libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
+   -l            Specify which libs need 'cmd' (libyuv|openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
    -s            Specify workspace dir
    -correct-pc  Specify a path for correct the pc file prefix recursion
    --help        Show intall help
@@ -181,9 +180,6 @@ while [[ $# -gt 0 ]]; do
         --skip-pull-base)
             export SKIP_PULL_BASE=1
         ;;
-        --skip-ff-patches)
-            export SKIP_FFMPEG_PATHCHES=1
-        ;;
         --fmwk)
             export MR_MAKE_XCFRAMEWORK=1
         ;;
@@ -281,7 +277,6 @@ echo "MR_HOST_NPROC   : [$MR_HOST_NPROC]"
 echo "MR_DEBUG        : [$MR_DEBUG]"
 echo "MR_INIT_CFLAGS  : [$MR_INIT_CFLAGS]"
 echo "SKIP_PULL_BASE  : [$SKIP_PULL_BASE]"
-echo "SKIP_FFMPEG_PATHCHES : [$SKIP_FFMPEG_PATHCHES]"
 echo "MR_MAKE_XCFRAMEWORK" : [$MR_MAKE_XCFRAMEWORK]
 [[ ${#MR_UNKNOWN_OPTIONS[@]} -gt 0 ]] && echo "MR_UNKNOWN_OPTIONS : [${MR_UNKNOWN_OPTIONS[*]}]"
 [[ -n $MR_PC_FILE_DIR ]] && echo "MR_PC_FILE_DIR : [$MR_PC_FILE_DIR]"

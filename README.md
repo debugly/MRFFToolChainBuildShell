@@ -156,6 +156,5 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 
 - To download pre-compiled xcframework libraries, add the --fmwk parameter when using the install command.
 - To skip pulling remote repositories during initialization, add the --skip-pull-base parameter when using the init command.
-- To skip applying FFmpeg patches during initialization, add the --skip-patches parameter when using the init command.
 - Currently, FFmpeg uses the **module-full.sh** configuration, resulting in slightly larger package sizes.
 - You can download all pre-compiled GitHub libraries to your own server and specify your server address using MR_DOWNLOAD_BASEURL before running the install command.

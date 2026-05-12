@@ -112,8 +112,8 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 ./main.sh install -p ios -l ffmpeg7
 # 另外一个选择，自己选择性地安装 FFmpeg7 的依赖库
 ./main.sh install -p ios -l "openssl3 opus bluray dav1d dvdnav uavs3d smb2"
-# 编译 iOS 平台 arm64 架构的 FFmpeg7，并且跳过生成 xcframework
-./main.sh compile -p ios -a arm64 -l ffmepg7 --skip-fmwk
+# 编译 iOS 平台 arm64 架构的 FFmpeg7，并且生成 xcframework
+./main.sh compile -p ios -a arm64 -l ffmepg7 --fmwk
 ```
 
 这些参数的顺序无关紧要，可以按任意顺序排列。
@@ -159,6 +159,5 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 - 要下载预编译的 xcframework 库，使用 install 命令时添加 --fmwk 参数
 - 初始化时要跳过拉取远程仓库，使用 init 命令时添加 --skip-pull-base 参数
-- 初始化时要跳过应用 FFmpeg 补丁，使用 init 命令时添加 --skip-patches 参数
 - 目前 FFmpeg 使用 module-full.sh 配置，功能全但同时导致包体积略大
 - 可以将所有预编译的 GitHub 库下载到自己的服务器，并在运行 install 命令前通过 MR\_DOWNLOAD\_BASEURL 指定你的服务器地址
