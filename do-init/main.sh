@@ -27,6 +27,6 @@ do
     echo "===[init $lib]==========="
     [[ ! -f "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh" ]] && (echo "❌$lib config not exist,init will stop.";exit 1;)
     source "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
-    ./init-repo.sh
+    ./init-repo.sh "$@"
     echo "========================="
 done

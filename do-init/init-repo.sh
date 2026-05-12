@@ -21,6 +21,8 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
+SMART_APPLY=
+
 echo "=== [$0] check env begin==="
 env_assert "REPO_DIR"
 env_assert "GIT_COMMIT"
@@ -65,6 +67,40 @@ function pull_common() {
     cd - >/dev/null
 }
 
+# 用于合并ffmpeg的patch
+apply_patch_smart() {
+    local patch_file=$1
+
+    if [ -z "$patch_file" ]; then
+        echo "Usage: apply_patch_smart <patch_file>"
+        return 1
+    fi
+
+    # 尝试静默执行 git am
+    if git am "$patch_file" > /dev/null 2>&1; then
+        echo "Successfully applied $(basename "$patch_file")"
+    else
+        echo "git am failed. Falling back to [git apply --reject]..."
+
+        # 终止失败的 am 进程
+        git am --abort
+
+        # 尝试使用 --reject 强制应用
+        if git apply --reject "$patch_file"; then
+            echo "----------------------------------------------------"
+            echo "Patch partially applied with --reject."
+            echo "Please check for .rej files and resolve them manually."
+            echo "----------------------------------------------------"
+
+            # 列出生成的 .rej 文件提醒用户
+            find . -name "*.rej"
+        else
+            echo "Error: [git apply --reject] also failed. Please check the patch file."
+            return 1
+        fi
+    fi
+}
+
 function apply_patches() {
     if [[ "$SKIP_FFMPEG_PATHCHES" && $LIB_NAME == ffmpeg* ]]; then
         echo "⚠️ skip apply $REPO_DIR patches,because you set SKIP_FFMPEG_PATHCHES env."
@@ -90,10 +126,19 @@ function apply_patches() {
 
         echo
         echo "== Applying patches: $(basename "$patch_dir") → $(basename "$PWD") =="
-        if ! git am --whitespace=fix --keep "$patch_dir"/*.patch; then
-            echo 'Apply patches failed!'
-            git am --skip
-            exit 1
+        if [[ "$SMART_APPLY" ]]; then
+            for patch_file in "$patch_dir"/*.patch; do
+                if ! apply_patch_smart "$patch_file"; then
+                    echo "Apply patch failed: $patch_file"
+                    exit 1
+                fi
+            done
+        else
+            if ! git am --whitespace=fix --keep "$patch_dir"/*.patch; then
+                echo 'Apply patches failed!'
+                git am --skip
+                exit 1
+            fi
         fi
         echo
     done
@@ -118,7 +163,28 @@ function make_arch_repo() {
 
 function usage() {
     echo "usage:"
-    echo "$0 ios|macos|tvos|all [arm64|x86_64]"
+    echo "$0 ios|macos|tvos|all [arm64|x86_64] [--smart-apply]"
+    echo "  --smart-apply    apply patches with apply_patch_smart instead of git am"
+}
+
+function parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --smart-apply)
+                SMART_APPLY=1
+                ;;
+            -h | --help)
+                usage
+                exit 0
+                ;;
+            --*)
+                echo "unknown option: $1"
+                usage
+                exit 1
+                ;;
+        esac
+        shift
+    done
 }
 
 function main() {
@@ -136,4 +202,5 @@ function main() {
     esac
 }
 
+parse_args "$@"
 main

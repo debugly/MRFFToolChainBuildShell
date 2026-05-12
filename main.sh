@@ -56,9 +56,9 @@ case $MR_PLAT in
 esac
 
 if [[ "$MR_ACTION" == "init" || "$MR_ACTION" == "install" ]];then
-    ./do-$MR_ACTION/main.sh "$@"
+    ./do-$MR_ACTION/main.sh "${MR_UNKNOWN_OPTIONS[@]}"
 else
-    ./do-$MR_ACTION/$plat/main.sh "$@"
+    ./do-$MR_ACTION/$plat/main.sh "${MR_UNKNOWN_OPTIONS[@]}"
 fi 
 
 echo "---$MR_ACTION end-------------------------------"

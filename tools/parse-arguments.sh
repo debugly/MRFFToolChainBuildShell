@@ -22,7 +22,7 @@ function main_usage()
 cat << EOF
 usage: ./main.sh [options]
 
-compile ijkplayer using libs for iOS、macOS、tvOS、Android platform, such as ass、ffmpeg...
+compile fsplayer using libs for iOS、macOS、tvOS、Android platform, such as ass、ffmpeg...
 
 Commands:
    +help         Show help banner of specified command
@@ -47,6 +47,7 @@ OPTIONS:
     --help               Show help banner of init command
     --skip-pull-base     Skip pull base repo
     --skip-patches       Skip apply FFmpeg patches
+    --smart-apply        Apply patches with smart fallback
 EOF
 }
 
@@ -124,6 +125,7 @@ libs=
 workspace=
 debug=
 pc_file_dir=
+MR_UNKNOWN_OPTIONS=()
 
 case $1 in
     init | install)
@@ -189,8 +191,8 @@ while [[ $# -gt 0 ]]; do
             shift
             pc_file_dir="$1"
         ;;
-        **)
-            echo "unkonwn option:$1"
+        *)
+            MR_UNKNOWN_OPTIONS+=("$1")
         ;;
     esac
     shift
@@ -281,6 +283,7 @@ echo "MR_INIT_CFLAGS  : [$MR_INIT_CFLAGS]"
 echo "SKIP_PULL_BASE  : [$SKIP_PULL_BASE]"
 echo "SKIP_FFMPEG_PATHCHES : [$SKIP_FFMPEG_PATHCHES]"
 echo "MR_SKIP_MAKE_XCFRAMEWORK" : [$MR_SKIP_MAKE_XCFRAMEWORK]
+[[ ${#MR_UNKNOWN_OPTIONS[@]} -gt 0 ]] && echo "MR_UNKNOWN_OPTIONS : [${MR_UNKNOWN_OPTIONS[*]}]"
 [[ -n $MR_PC_FILE_DIR ]] && echo "MR_PC_FILE_DIR : [$MR_PC_FILE_DIR]"
 
 unset platform cmd arch libs workspace debug action cflags pc_file_dir
