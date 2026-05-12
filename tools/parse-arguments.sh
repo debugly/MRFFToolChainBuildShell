@@ -82,6 +82,7 @@ OPTIONS:
    -s            Specify workspace dir
    --help        Show intall help
    --fmwk        Install xcframework bundle instead of .a
+   -lib-config   Read library config from specified path,eg: -lib-path ~/matt/lib/ffmpeg.sh
 EOF
 }
 
@@ -196,7 +197,7 @@ if [[ "$platform" != 'ios' && "$platform" != 'macos' && "$platform" != 'tvos' &&
     exit 1
 fi
 
-if [[ -z "$libs" ]];then
+if [[ -z "$libs" && "$action" != "install" ]];then
     echo "libs can't be nil, use -l specify libs"
     exit 1
 fi

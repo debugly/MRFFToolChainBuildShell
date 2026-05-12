@@ -168,7 +168,7 @@ function parse_args() {
                 ;;
             *)
                 echo "unknown option: $1"
-                exit 1
+                sleep 2
                 ;;
         esac
         shift

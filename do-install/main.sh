@@ -47,23 +47,52 @@ function parse_lib_config() {
     export LIB_NAME
 }
 
+function do_install_a_lib()
+{
+    local lib_config="$1"
+    [[ ! -f "$lib_config" ]] && (echo "❌$lib_config config not exist,install will stop."; exit 1;)
+        
+    echo "===[install $lib_config]===================="
+    source "$lib_config"
+    parse_lib_config
+    if [[ $FORCE_XCFRAMEWORK ]];then
+        ./install-pre-xcf.sh
+    else
+        ./install-pre-lib.sh
+    fi
+    echo "===================================="
+}
+
 function install_libs()
 {
     # 循环安装所有的库
     for lib in $MR_VENDOR_LIBS
     do
-        [[ ! -f "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh" ]] && (echo "❌$lib config not exist,install will stop.";exit 1;)
-        
-        echo "===[install $lib]===================="
-        source "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
-        parse_lib_config
-        if [[ $FORCE_XCFRAMEWORK ]];then
-            ./install-pre-xcf.sh
-        else
-            ./install-pre-lib.sh
-        fi
-        echo "===================================="
+        do_install_a_lib "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
+    done
+    
+    if [[ -n "$LIB_CONFIG_PATH" ]];then
+        echo 
+        echo "install specific lib config : [$LIB_CONFIG_PATH]"
+        do_install_a_lib "$LIB_CONFIG_PATH"
+    fi
+}
+
+function parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -lib-config)
+                shift
+                LIB_CONFIG_PATH="$1"
+            ;;
+            *)
+                echo "unknown option: $1"
+                sleep 2
+                ;;
+        esac
+        shift
     done
 }
 
+parse_args "$@"
 install_libs
