@@ -1,22 +1,22 @@
-From a0019b9ae6f4f9e2722f63dee3fc71170aadc251 Mon Sep 17 00:00:00 2001
+From 19b58c47ccc043355572fdcbce8c359b6dfc1057 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Thu, 29 May 2025 11:16:11 +0800
+Date: Tue, 12 May 2026 14:20:38 +0800
 Subject: [PATCH] custom bluray fs for network Blu-ray Disc and BDMV
 
 ---
  libavformat/Makefile           |   2 +-
- libavformat/bluray.c           | 118 +++++++++-
- libavformat/bluray_custom_fs.c | 413 +++++++++++++++++++++++++++++++++
- libavformat/bluray_custom_fs.h |  29 +++
- 4 files changed, 553 insertions(+), 9 deletions(-)
+ libavformat/bluray.c           | 128 ++++++++-
+ libavformat/bluray_custom_fs.c | 459 +++++++++++++++++++++++++++++++++
+ libavformat/bluray_custom_fs.h |  33 +++
+ 4 files changed, 610 insertions(+), 12 deletions(-)
  create mode 100644 libavformat/bluray_custom_fs.c
  create mode 100644 libavformat/bluray_custom_fs.h
 
 diff --git a/libavformat/Makefile b/libavformat/Makefile
-index 17222ee..08dc08c 100644
+index e299e72..1f32e4c 100644
 --- a/libavformat/Makefile
 +++ b/libavformat/Makefile
-@@ -678,7 +678,7 @@ OBJS-$(CONFIG_VAPOURSYNTH_DEMUXER)       += vapoursynth.o
+@@ -679,7 +679,7 @@ OBJS-$(CONFIG_VAPOURSYNTH_DEMUXER)       += vapoursynth.o
  OBJS-$(CONFIG_ANDROID_CONTENT_PROTOCOL)  += file.o
  OBJS-$(CONFIG_ASYNC_PROTOCOL)            += async.o
  OBJS-$(CONFIG_APPLEHTTP_PROTOCOL)        += hlsproto.o
@@ -26,7 +26,7 @@ index 17222ee..08dc08c 100644
  OBJS-$(CONFIG_CONCAT_PROTOCOL)           += concat.o
  OBJS-$(CONFIG_CONCATF_PROTOCOL)          += concat.o
 diff --git a/libavformat/bluray.c b/libavformat/bluray.c
-index 1845551..cd50523 100644
+index 1845551..eb43340 100644
 --- a/libavformat/bluray.c
 +++ b/libavformat/bluray.c
 @@ -21,23 +21,27 @@
@@ -97,21 +97,22 @@ index 1845551..cd50523 100644
      av_strstart(path, BLURAY_PROTO_PREFIX, &diskname);
  
 -    bd->bd = bd_open(diskname, NULL);
-+    fs_access *access = NULL;
-+
+-    if (!bd->bd) {
 +    diskname = ff_urldecode(diskname, 0);
 +
-+    if (av_strstart(diskname, "file://", NULL) || av_strstart(diskname, "/", NULL)) {
-+        access = NULL;
-+    } else {
++    fs_access *access = NULL;
++    int is_file = av_strstart(diskname, "file://", NULL) || av_strstart(diskname, "/", NULL);
++
++    // file protocl can't handle AVIO_FLAG_DIRECT flag,so file not create custom access
++    if (!is_file) {
 +        //set read packet buffer size is important! the default packet size is 32768, when use smb2 protocol, download speed is limited to 2MB; but when set the size to 1048576, download speed is 16MB;
 +        h->max_packet_size = 1048576;
-+        access = create_bluray_custom_access(diskname, options);
++        access = create_bluray_custom_access(diskname, options, &h->interrupt_callback);
 +    }
 +
 +    bd->bd = bd_open_fs(diskname, NULL, access);
 +
-     if (!bd->bd) {
++    if (!bd->bd || is_bluray_custom_access_cancelled(access)) {
          av_log(h, AV_LOG_ERROR, "bd_open() failed\n");
 +        if (access) {
 +            destroy_bluray_custom_access(&access);
@@ -122,7 +123,17 @@ index 1845551..cd50523 100644
  
      /* check if disc can be played */
      if (check_disc_info(h) < 0) {
-@@ -159,12 +198,13 @@ static int bluray_open(URLContext *h, const char *path, int flags)
+@@ -150,6 +189,9 @@ static int bluray_open(URLContext *h, const char *path, int flags)
+         int i;
+         for (i = 0; i < num_title_idx; i++) {
+             BLURAY_TITLE_INFO *info = bd_get_title_info(bd->bd, i, 0);
++            if (!info) {
++                continue;
++            }
+ 
+             av_log(h, AV_LOG_INFO, "playlist %05d.mpls (%d:%02d:%02d)\n",
+                    info->playlist,
+@@ -159,17 +201,19 @@ static int bluray_open(URLContext *h, const char *path, int flags)
  
              if (info->duration > duration) {
                  bd->playlist = info->playlist;
@@ -137,7 +148,15 @@ index 1845551..cd50523 100644
      }
  
      /* select playlist */
-@@ -222,13 +262,75 @@ static int64_t bluray_seek(URLContext *h, int64_t pos, int whence)
+-    if (bd_select_playlist(bd->bd, bd->playlist) <= 0) {
+-        av_log(h, AV_LOG_ERROR, "bd_select_playlist(%05d.mpls) failed\n", bd->playlist);
++    if (bd->playlist >= 0 && bd_select_playlist(bd->bd, bd->playlist) <= 0) {
++        av_log(h, AV_LOG_ERROR, "bd_select_playlist(%05d.mpls) failed\n",
++               bd->playlist);
+         return AVERROR(EIO);
+     }
+ 
+@@ -222,13 +266,75 @@ static int64_t bluray_seek(URLContext *h, int64_t pos, int whence)
      return AVERROR(EINVAL);
  }
  
@@ -216,10 +235,10 @@ index 1845551..cd50523 100644
  };
 diff --git a/libavformat/bluray_custom_fs.c b/libavformat/bluray_custom_fs.c
 new file mode 100644
-index 0000000..bdf2451
+index 0000000..8a8f377
 --- /dev/null
 +++ b/libavformat/bluray_custom_fs.c
-@@ -0,0 +1,413 @@
+@@ -0,0 +1,459 @@
 +//
 +//  bluray_custom_fs_smb2.c
 +//
@@ -256,20 +275,19 @@ index 0000000..bdf2451
 +    URLContext *url_context;
 +    int64_t offset;
 +    AVApplicationContext *app_ctx;
++    int64_t last_read;
 +} ff_builtin_io;
 +
 +typedef struct ff_bluray_access {
 +    const char *url;
 +    AVDictionary *opts;
 +    ff_builtin_io *io;
++    const AVIOInterruptCB *int_cb;
++    int cancel;
 +} ff_bluray_access;
 +
-+static int interrupt_cb(void *ctx)
++static void close_builtin_io(ff_builtin_io *io)
 +{
-+    return 0;
-+}
-+
-+static void close_builtin_io(ff_builtin_io *io) {
 +    if (!io) {
 +        return;
 +    }
@@ -278,31 +296,37 @@ index 0000000..bdf2451
 +    }
 +}
 +
-+static int create_builtin_io(ff_builtin_io **io, const char *url, AVDictionary **opts, int is_dir)
++static int create_builtin_io(ff_builtin_io **io, const char *url,
++                             AVDictionary **opts, int is_dir,
++                             const AVIOInterruptCB *int_cb)
 +{
 +    if (!io) {
 +        return -1;
 +    }
 +
-+    ff_builtin_io * app = av_mallocz(sizeof(ff_builtin_io));
++    ff_builtin_io *app = av_mallocz(sizeof(ff_builtin_io));
 +    if (!app) {
 +        return -2;
 +    }
 +
-+    char *protocol_whitelist = NULL;
++    const char *protocol_whitelist = NULL;
 +
 +    if (opts) {
 +        const AVDictionary *dict = *opts;
 +
-+        if (!av_strstart(url, "http", NULL) && !av_strstart(url, "smb2", NULL)) {
-+            AVDictionaryEntry *app_dict = av_dict_get(dict, "ijkapplication", NULL, 0);
++        if (!av_strstart(url, "http", NULL) &&
++            !av_strstart(url, "smb2", NULL)) {
++            AVDictionaryEntry *app_dict =
++                av_dict_get(dict, "ijkapplication", NULL, 0);
 +            if (app_dict) {
-+                app->app_ctx = (AVApplicationContext *)av_dict_strtoptr(app_dict->value);
++                app->app_ctx =
++                    (AVApplicationContext *)av_dict_strtoptr(app_dict->value);
 +                av_application_will_http_open(app->app_ctx, NULL, url);
 +            }
 +        }
 +
-+        AVDictionaryEntry *proto_dict = av_dict_get(dict, "protocol_whitelist", NULL, 0);
++        AVDictionaryEntry *proto_dict =
++            av_dict_get(dict, "protocol_whitelist", NULL, 0);
 +        if (proto_dict) {
 +            protocol_whitelist = av_strdup(proto_dict->value);
 +        }
@@ -312,23 +336,17 @@ index 0000000..bdf2451
 +        protocol_whitelist = "ijkio,ijkhttphook,http,tcp,https,tls,file,smb2";
 +    }
 +
-+    AVIOInterruptCB cb = {&interrupt_cb, app};
 +    int flags = AVIO_FLAG_READ;
 +    if (is_dir) {
 +        flags |= AVIO_FLAG_DIRECT;
 +    }
 +
-+    int ret = ffurl_open_whitelist(&app->url_context,
-+                               url,
-+                               flags,
-+                               &cb,
-+                               opts,
-+                               protocol_whitelist,
-+                               NULL,
-+                               NULL);
++    int ret = ffurl_open_whitelist(&app->url_context, url, flags, int_cb, opts,
++                                   protocol_whitelist, NULL, NULL);
 +
-+    av_application_did_http_open(app->app_ctx, (void*)app->url_context, url, ret < 0 ? AVERROR(errno) : 0, ret < 0 ? 500 : 200, 0);
-+
++    av_application_did_http_open(app->app_ctx, (void *)app->url_context, url,
++                                 ret < 0 ? AVERROR(errno) : 0,
++                                 ret < 0 ? 500 : 200, 0);
 +    if (ret < 0) {
 +        close_builtin_io(app);
 +        av_freep(&app);
@@ -344,51 +362,26 @@ index 0000000..bdf2451
 +    }
 +
 +    if (io->offset == offset && origin == SEEK_SET) {
++        io->last_read = offset;
 +        return offset;
 +    }
 +
-+    av_application_will_http_seek(io->app_ctx, (void*)io->url_context, io->url_context->filename, offset);
++    av_application_will_http_seek(io->app_ctx, (void *)io->url_context,
++                                  io->url_context->filename, offset);
 +
-+    int64_t pos = io->url_context->prot->url_seek(io->url_context, offset, origin);
++    int64_t pos =
++        io->url_context->prot->url_seek(io->url_context, offset, origin);
 +    if (pos < 0) {
-+        av_application_did_http_seek(io->app_ctx, (void*)io->url_context, io->url_context->filename, offset, AVERROR(errno), 500);
++        av_application_did_http_seek(io->app_ctx, (void *)io->url_context,
++                                     io->url_context->filename, offset,
++                                     AVERROR(errno), 500);
 +        return AVERROR(errno);
 +    }
++    io->last_read = pos;
 +    io->offset = pos;
-+
-+    av_application_did_http_seek(io->app_ctx, (void*)io->url_context, io->url_context->filename, offset, 0, 200);
++    av_application_did_http_seek(io->app_ctx, (void *)io->url_context,
++                                 io->url_context->filename, offset, 0, 200);
 +    return pos;
-+}
-+
-+static int read_builtin_io(ff_builtin_io *io, uint8_t *buf, int buf_size)
-+{
-+    if (!io) {
-+        return 0;
-+    }
-+
-+    uint8_t *buf1 = buf;
-+    int buf_size1 = buf_size;
-+    int read = 0;
-+
-+    while (buf_size1 > 0) {
-+        read = io->url_context->prot->url_read(io->url_context, buf1, buf_size1);
-+        if (read <= 0) {
-+            //maybe AVERROR_EOF
-+            break;
-+        }
-+
-+        io->offset += read;
-+        buf1 += read;
-+        buf_size1 -= read;
-+    }
-+
-+    int bytes = buf_size - buf_size1;
-+    if (bytes == 0 && read == AVERROR_EOF) {
-+        return AVERROR_EOF;
-+    } else {
-+        av_application_did_io_tcp_read(io->app_ctx, (void*)io->url_context, bytes);
-+        return bytes;
-+    }
 +}
 +
 +static int write_builtin_io(ff_builtin_io *io, uint8_t *buf, int buf_size)
@@ -400,18 +393,63 @@ index 0000000..bdf2451
 +    return io->url_context->prot->url_write(io->url_context, buf, buf_size);
 +}
 +
-+static int read_blocks(void * fs_handle, void *buf, int lba, int num_blocks)
++static int read_builtin_io(ff_builtin_io *io, uint8_t *buf, int buf_size,
++                           int64_t pos)
++{
++    if (!io) {
++        return 0;
++    }
++
++    uint8_t *buf1 = buf;
++    int buf_size1 = buf_size;
++    int read = 0;
++
++    seek_builtin_io(io, pos, SEEK_SET);
++
++    while (buf_size1 > 0) {
++        read =
++            io->url_context->prot->url_read(io->url_context, buf1, buf_size1);
++        if (read <= 0) {
++            // maybe AVERROR_EOF
++            break;
++        }
++        io->offset += read;
++        buf1 += read;
++        buf_size1 -= read;
++    }
++    if (read == AVERROR_EXIT) {
++        return AVERROR_EXIT;
++    }
++    int bytes = buf_size - buf_size1;
++    if (bytes == 0 && read == AVERROR_EOF) {
++        return AVERROR_EOF;
++    } else {
++        av_application_did_io_tcp_read(io->app_ctx, (void *)io->url_context,
++                                       bytes);
++        return bytes;
++    }
++}
++
++static int read_blocks(void *fs_handle, void *buf, int lba, int num_blocks)
 +{
 +    ff_bluray_access *access = fs_handle;
++    if (access->cancel == 1) {
++        return AVERROR_EXIT;
++    }
++
 +    ff_builtin_io *io = access->io;
 +    if (!io) {
 +        return -1;
 +    }
 +    int got = -1;
 +    int64_t pos = (int64_t)lba * UDF_BLOCK_SIZE;
++    int buf_size = num_blocks * UDF_BLOCK_SIZE;
++    int bytes = read_builtin_io(io, buf, buf_size, pos);
++    if (bytes == AVERROR_EXIT) {
++        access->cancel = 1;
++        return AVERROR_EXIT;
++    }
 +
-+    seek_builtin_io(io, pos, SEEK_SET);
-+    int bytes = read_builtin_io(io, (uint8_t*)buf, num_blocks * UDF_BLOCK_SIZE);
 +    if (bytes > 0) {
 +        got = (int)(bytes / UDF_BLOCK_SIZE);
 +    }
@@ -461,10 +499,17 @@ index 0000000..bdf2451
 +    if (!io) {
 +        return -1;
 +    }
-+    return read_builtin_io(io, buf, size);
++
++    int read = read_builtin_io(io, buf, size, io->last_read);
++
++    if (read > 0) {
++        io->last_read += read;
++    }
++
++    return read;
 +}
 +
-+static int64_t _file_write(BD_FILE_H *file, const uint8_t *buf, int64_t size)
++static int64_t _file_write(BD_FILE_H *file, uint8_t *buf, int64_t size)
 +{
 +    if (size <= 0) {
 +        return 0;
@@ -492,15 +537,19 @@ index 0000000..bdf2451
 +    if (!io) {
 +        return -1;
 +    }
-+    return seek_builtin_io(io, 0, SEEK_CUR);
++    return io->last_read;
++    // return seek_builtin_io(io, 0, SEEK_CUR);
 +}
 +
-+static struct bd_file_s* open_file(void *fs_handle, const char *rel_path)
++static struct bd_file_s *open_file(void *fs_handle, const char *rel_path)
 +{
 +    ff_bluray_access *access = fs_handle;
 +
-+    char *url = NULL;
-+    url = av_append_path_component(access->url, rel_path);
++    if (access->cancel == 1) {
++        return NULL;
++    }
++
++    const char *url = av_append_path_component(access->url, rel_path);
 +    if (!url) {
 +        return NULL;
 +    }
@@ -508,15 +557,16 @@ index 0000000..bdf2451
 +    av_dict_copy(&opts, access->opts, 0);
 +
 +    ff_builtin_io *io = NULL;
-+    int ret = create_builtin_io(&io, url, &opts, 0);
++    int ret = create_builtin_io(&io, url, &opts, 0, access->int_cb);
 +    av_dict_free(&opts);
-+    av_free(url);
 +
 +    if (0 != ret) {
-+        av_log(NULL, AV_LOG_ERROR, "can't open url %s,error:%s", url, av_err2str(ret));
++        av_log(NULL, AV_LOG_ERROR, "[bluray] can't open %s,error:%s", url,
++               av_err2str(ret));
++        av_free(url);
 +        return NULL;
 +    }
-+
++    av_free(url);
 +    BD_FILE_H *file = av_malloc(sizeof(BD_FILE_H));
 +    if (!file) {
 +        close_builtin_io(io);
@@ -572,8 +622,11 @@ index 0000000..bdf2451
 +{
 +    ff_bluray_access *access = fs_handle;
 +
-+    char *url = NULL;
-+    url = av_append_path_component(access->url, rel_path);
++    if (access->cancel == 1) {
++        return NULL;
++    }
++
++    const char *url = av_append_path_component(access->url, rel_path);
 +    if (!url) {
 +        return NULL;
 +    }
@@ -581,15 +634,16 @@ index 0000000..bdf2451
 +    av_dict_copy(&opts, access->opts, 0);
 +
 +    ff_builtin_io *io = NULL;
-+    int ret = create_builtin_io(&io, url, &opts, 1);
++    int ret = create_builtin_io(&io, url, &opts, 1, access->int_cb);
 +    av_dict_free(&opts);
-+    av_free(url);
-+
++    
 +    if (0 != ret) {
-+        av_log(NULL, AV_LOG_ERROR, "can't open dir %s,error:%s", url, av_err2str(ret));
++        av_log(NULL, AV_LOG_ERROR, "[bluray] can't open dir %s,error:%s", url,
++               av_err2str(ret));
++        av_free(url);
 +        return NULL;
 +    }
-+
++    av_free(url);
 +    BD_DIR_H *dir = av_malloc(sizeof(BD_DIR_H));
 +    if (!dir) {
 +        close_builtin_io(io);
@@ -602,6 +656,16 @@ index 0000000..bdf2451
 +    dir->read     = _dir_read;
 +
 +    return dir;
++}
++
++int is_bluray_custom_access_cancelled(fs_access *access)
++{
++    if (!access) {
++        return 0;
++    }
++
++    ff_bluray_access *opaque = access->fs_handle;
++    return opaque->cancel;
 +}
 +
 +// 构建fs_access结构体
@@ -617,10 +681,11 @@ index 0000000..bdf2451
 +        if (options) {
 +            av_dict_copy(&opaque->opts, *options, 0);
 +        }
-+
-+        int ret = create_builtin_io(&opaque->io, url, options, 0);
++        opaque->int_cb = int_cb;
++        int ret = create_builtin_io(&opaque->io, url, options, 0, int_cb);
 +        if (0 != ret) {
-+            av_log(NULL, AV_LOG_ERROR, "can't open file %s,error:%s", url, av_err2str(ret));
++            av_log(NULL, AV_LOG_ERROR, "[bluray] can't open file %s,error:%s",
++                   url, av_err2str(ret));
 +        }
 +
 +        fs_access *access = av_malloc(sizeof(fs_access));
@@ -633,12 +698,13 @@ index 0000000..bdf2451
 +    }
 +    return NULL;
 +}
+\ No newline at end of file
 diff --git a/libavformat/bluray_custom_fs.h b/libavformat/bluray_custom_fs.h
 new file mode 100644
-index 0000000..806fe29
+index 0000000..058d2da
 --- /dev/null
 +++ b/libavformat/bluray_custom_fs.h
-@@ -0,0 +1,29 @@
+@@ -0,0 +1,33 @@
 +//
 +//  bluray_custom_fs.h
 +//
@@ -665,9 +731,14 @@ index 0000000..806fe29
 +
 +typedef struct fs_access fs_access;
 +typedef struct AVDictionary AVDictionary;
++typedef struct AVIOInterruptCB AVIOInterruptCB;
++
 +void destroy_bluray_custom_access(fs_access **p);
-+fs_access * create_bluray_custom_access(const char *url, AVDictionary **options);
-+#endif /* bluray_custom_fs_smb2_h */
++int is_bluray_custom_access_cancelled(fs_access *access);
++fs_access *create_bluray_custom_access(const char *url, AVDictionary **options,
++                                       const AVIOInterruptCB *int_cb);
++#endif /* bluray_custom_fs_h */
+\ No newline at end of file
 -- 
-2.39.5 (Apple Git-154)
+2.50.1 (Apple Git-155)
 

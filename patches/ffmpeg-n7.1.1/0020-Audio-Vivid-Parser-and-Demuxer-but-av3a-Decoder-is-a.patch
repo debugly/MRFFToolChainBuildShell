@@ -1,6 +1,6 @@
-From 1dddf06f8c49c6a1e362b492945cdd6bb5941c3b Mon Sep 17 00:00:00 2001
+From 110f494ac101540119bee647af782b9effe63b41 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Tue, 20 Jan 2026 14:06:57 +0800
+Date: Tue, 12 May 2026 10:02:14 +0800
 Subject: [PATCH] Audio Vivid Parser and Demuxer, but av3a Decoder is absent
 
 ---
@@ -12,19 +12,19 @@ Subject: [PATCH] Audio Vivid Parser and Demuxer, but av3a Decoder is absent
  libavcodec/parsers.c     |   1 +
  libavcodec/utils.c       |   1 +
  libavformat/Makefile     |   1 +
- libavformat/allformats.c |   3 +
+ libavformat/allformats.c |   1 +
  libavformat/av3adec.c    | 473 +++++++++++++++++++++++++++++++++++++++
  libavformat/isom_tags.c  |   1 +
  libavformat/mov.c        | 135 +++++++++++
  libavformat/mpegts.c     |   6 +
- libavformat/mpegts.h     |   2 +-
- 14 files changed, 1163 insertions(+), 1 deletion(-)
+ libavformat/mpegts.h     |   1 +
+ 14 files changed, 1161 insertions(+)
  create mode 100644 libavcodec/av3a.h
  create mode 100644 libavcodec/av3a_parser.c
  create mode 100644 libavformat/av3adec.c
 
 diff --git a/libavcodec/Makefile b/libavcodec/Makefile
-index ed5c705..03e80a2 100644
+index 79903a1..6db860f 100644
 --- a/libavcodec/Makefile
 +++ b/libavcodec/Makefile
 @@ -1185,6 +1185,7 @@ OBJS-$(CONFIG_AMR_PARSER)              += amr_parser.o
@@ -581,12 +581,12 @@ index 0000000..a563b55
 +};
 \ No newline at end of file
 diff --git a/libavcodec/codec_desc.c b/libavcodec/codec_desc.c
-index d58c3d8..38cab26 100644
+index d58c3d8..a91c0b5 100644
 --- a/libavcodec/codec_desc.c
 +++ b/libavcodec/codec_desc.c
-@@ -3728,6 +3728,13 @@ static const AVCodecDescriptor codec_descriptors[] = {
-         .name      = "anull",
-         .long_name = NULL_IF_CONFIG_SMALL("Null audio codec"),
+@@ -3716,6 +3716,13 @@ static const AVCodecDescriptor codec_descriptors[] = {
+         .long_name = NULL_IF_CONFIG_SMALL("AVFrame to AVPacket passthrough"),
+         .props     = AV_CODEC_PROP_LOSSLESS,
      },
 +    {
 +        .id        = AV_CODEC_ID_AVS3DA,
@@ -595,21 +595,21 @@ index d58c3d8..38cab26 100644
 +        .long_name = NULL_IF_CONFIG_SMALL("Audio Vivid"),
 +        .props     = AV_CODEC_PROP_LOSSY,
 +    },
- };
- 
- static int descriptor_compare(const void *key, const void *member)
+     {
+         .id        = AV_CODEC_ID_VNULL,
+         .type      = AVMEDIA_TYPE_VIDEO,
 diff --git a/libavcodec/codec_id.h b/libavcodec/codec_id.h
-index 0a8d3be..8c724a0 100644
+index 0a8d3be..a95f400 100644
 --- a/libavcodec/codec_id.h
 +++ b/libavcodec/codec_id.h
-@@ -590,6 +590,7 @@ enum AVCodecID {
-     AV_CODEC_ID_BIN_DATA,
-     AV_CODEC_ID_SMPTE_2038,
-     AV_CODEC_ID_LCEVC,
+@@ -600,6 +600,7 @@ enum AVCodecID {
+                                 * stream (only used by libavformat) */
+     AV_CODEC_ID_FFMETADATA = 0x21000,   ///< Dummy codec for streams containing only metadata information.
+     AV_CODEC_ID_WRAPPED_AVFRAME = 0x21001, ///< Passthrough codec, AVFrames wrapped in AVPacket
 +    AV_CODEC_ID_AVS3DA,
- 
- 
-     AV_CODEC_ID_PROBE = 0x19000, ///< codec_id is not known (like AV_CODEC_ID_NONE) but lavf should attempt to identify it
+     /**
+      * Dummy null video codec, useful mainly for development and debugging.
+      * Null encoder/decoder discard all input and never return any output.
 diff --git a/libavcodec/parsers.c b/libavcodec/parsers.c
 index 5128009..ad49461 100644
 --- a/libavcodec/parsers.c
@@ -647,19 +647,17 @@ index 5e88060..ada27f6 100644
  OBJS-$(CONFIG_BFI_DEMUXER)               += bfi.o
  OBJS-$(CONFIG_BINK_DEMUXER)              += bink.o
 diff --git a/libavformat/allformats.c b/libavformat/allformats.c
-index 31a9509..a3553bb 100644
+index 311b435..9d7a98a 100644
 --- a/libavformat/allformats.c
 +++ b/libavformat/allformats.c
-@@ -576,6 +576,9 @@ extern const FFInputFormat  ff_libmodplug_demuxer;
- extern const FFInputFormat  ff_libopenmpt_demuxer;
- extern const FFInputFormat  ff_vapoursynth_demuxer;
- 
-+// custom AV3A demuxer
+@@ -99,6 +99,7 @@ extern const FFInputFormat  ff_avs2_demuxer;
+ extern const FFOutputFormat ff_avs2_muxer;
+ extern const FFInputFormat  ff_avs3_demuxer;
+ extern const FFOutputFormat ff_avs3_muxer;
 +extern const FFInputFormat  ff_av3a_demuxer;
-+
- // ijk custom demuxers
- extern FFInputFormat  ff_ijklivehook_demuxer;
- extern FFInputFormat  ff_ijklas_demuxer;
+ extern const FFInputFormat  ff_bethsoftvid_demuxer;
+ extern const FFInputFormat  ff_bfi_demuxer;
+ extern const FFInputFormat  ff_bintext_demuxer;
 diff --git a/libavformat/av3adec.c b/libavformat/av3adec.c
 new file mode 100644
 index 0000000..9bb8729
@@ -1153,7 +1151,7 @@ index 5dd72d5..1c52d7c 100644
  };
  
 diff --git a/libavformat/mov.c b/libavformat/mov.c
-index d9d7b80..51deb1a 100644
+index 495e2e7..486e2a3 100644
 --- a/libavformat/mov.c
 +++ b/libavformat/mov.c
 @@ -69,6 +69,10 @@
@@ -1302,7 +1300,7 @@ index d9d7b80..51deb1a 100644
  static int mov_metadata_track_or_disc_number(MOVContext *c, AVIOContext *pb,
                                               unsigned len, const char *key)
  {
-@@ -9204,6 +9336,9 @@ static const MOVParseTableEntry mov_default_parse_table[] = {
+@@ -9211,6 +9343,9 @@ static const MOVParseTableEntry mov_default_parse_table[] = {
  #if CONFIG_IAMFDEC
  { MKTAG('i','a','c','b'), mov_read_iacb },
  #endif
@@ -1337,14 +1335,13 @@ index 58b50cb..59039ed 100644
  };
  
 diff --git a/libavformat/mpegts.h b/libavformat/mpegts.h
-index 14ae312..8a45eef 100644
+index 14ae312..fdef48a 100644
 --- a/libavformat/mpegts.h
 +++ b/libavformat/mpegts.h
-@@ -134,7 +134,7 @@
- #define STREAM_TYPE_VIDEO_AVS3      0xd4
+@@ -135,6 +135,7 @@
  #define STREAM_TYPE_VIDEO_VC1       0xea
  #define STREAM_TYPE_VIDEO_DIRAC     0xd1
--
+ 
 +#define STREAM_TYPE_AUDIO_AV3A      0xd5
  #define STREAM_TYPE_AUDIO_AC3       0x81
  #define STREAM_TYPE_AUDIO_DTS       0x82

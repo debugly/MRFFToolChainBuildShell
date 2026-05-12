@@ -1,6 +1,6 @@
-From ad3b9e537d7fba11e5d899c4987fd4e84ce9eb03 Mon Sep 17 00:00:00 2001
+From 7ff0d4ac7726a91ea3659dae6cea56c154a1172d Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Tue, 20 Jan 2026 11:48:50 +0800
+Date: Tue, 12 May 2026 10:06:39 +0800
 Subject: [PATCH] add webp demuxer and libwebp decoder
 
 ---
@@ -18,10 +18,10 @@ Subject: [PATCH] add webp demuxer and libwebp decoder
  create mode 100644 libavformat/webpdec.c
 
 diff --git a/configure b/configure
-index 7daa9ff..fc5e423 100755
+index 0a4e28a..54493ff 100755
 --- a/configure
 +++ b/configure
-@@ -7044,7 +7044,12 @@ enabled libvpx            && {
+@@ -7065,7 +7065,12 @@ enabled libvpx            && {
  enabled libvvenc          && require_pkg_config libvvenc "libvvenc >= 1.6.1" "vvenc/vvenc.h" vvenc_get_version
  enabled libwebp           && {
      enabled libwebp_encoder      && require_pkg_config libwebp "libwebp >= 0.2.0" webp/encode.h WebPGetEncoderVersion
@@ -36,7 +36,7 @@ index 7daa9ff..fc5e423 100755
                               require_cpp_condition libx264 x264.h "X264_BUILD >= 155" && {
                               [ "$toolchain" != "msvc" ] ||
 diff --git a/libavcodec/Makefile b/libavcodec/Makefile
-index 03e80a2..441d4ee 100644
+index 6db860f..12ccbff 100644
 --- a/libavcodec/Makefile
 +++ b/libavcodec/Makefile
 @@ -812,6 +812,7 @@ OBJS-$(CONFIG_WBMP_DECODER)            += wbmpdec.o
@@ -60,12 +60,12 @@ index aa0fc47..fa448b8 100644
  /* audio codecs */
  extern const FFCodec ff_aac_encoder;
 diff --git a/libavcodec/codec_desc.c b/libavcodec/codec_desc.c
-index 38cab26..9a56d7c 100644
+index a91c0b5..d1c4ed0 100644
 --- a/libavcodec/codec_desc.c
 +++ b/libavcodec/codec_desc.c
-@@ -1959,6 +1959,15 @@ static const AVCodecDescriptor codec_descriptors[] = {
-         .long_name = NULL_IF_CONFIG_SMALL("LEAD MCMP"),
-         .props     = AV_CODEC_PROP_INTRA_ONLY | AV_CODEC_PROP_LOSSY,
+@@ -3723,6 +3723,15 @@ static const AVCodecDescriptor codec_descriptors[] = {
+         .long_name = NULL_IF_CONFIG_SMALL("Audio Vivid"),
+         .props     = AV_CODEC_PROP_LOSSY,
      },
 +    {
 +        .id        = AV_CODEC_ID_LIBWEBP,
@@ -76,21 +76,21 @@ index 38cab26..9a56d7c 100644
 +                     AV_CODEC_PROP_LOSSLESS,
 +        .mime_types= MT("image/webp"),
 +    },
- 
-     /* various PCM "codecs" */
      {
+         .id        = AV_CODEC_ID_VNULL,
+         .type      = AVMEDIA_TYPE_VIDEO,
 diff --git a/libavcodec/codec_id.h b/libavcodec/codec_id.h
-index 8c724a0..b0a9274 100644
+index a95f400..aff41f6 100644
 --- a/libavcodec/codec_id.h
 +++ b/libavcodec/codec_id.h
-@@ -323,6 +323,7 @@ enum AVCodecID {
-     AV_CODEC_ID_VMIX,
-     AV_CODEC_ID_LEAD,
- 
+@@ -601,6 +601,7 @@ enum AVCodecID {
+     AV_CODEC_ID_FFMETADATA = 0x21000,   ///< Dummy codec for streams containing only metadata information.
+     AV_CODEC_ID_WRAPPED_AVFRAME = 0x21001, ///< Passthrough codec, AVFrames wrapped in AVPacket
+     AV_CODEC_ID_AVS3DA,
 +    AV_CODEC_ID_LIBWEBP,
-     /* various PCM "codecs" */
-     AV_CODEC_ID_FIRST_AUDIO = 0x10000,     ///< A dummy id pointing at the start of audio codecs
-     AV_CODEC_ID_PCM_S16LE = 0x10000,
+     /**
+      * Dummy null video codec, useful mainly for development and debugging.
+      * Null encoder/decoder discard all input and never return any output.
 diff --git a/libavcodec/libwebpdec.c b/libavcodec/libwebpdec.c
 new file mode 100644
 index 0000000..17b69d0
@@ -486,10 +486,10 @@ index 1f32e4c..90aef47 100644
  OBJS-$(CONFIG_WEBVTT_MUXER)              += webvttenc.o
  OBJS-$(CONFIG_WSAUD_DEMUXER)             += westwood_aud.o
 diff --git a/libavformat/allformats.c b/libavformat/allformats.c
-index a3553bb..e10385f 100644
+index 9d7a98a..0a778a9 100644
 --- a/libavformat/allformats.c
 +++ b/libavformat/allformats.c
-@@ -564,6 +564,7 @@ extern const FFInputFormat  ff_image_svg_pipe_demuxer;
+@@ -565,6 +565,7 @@ extern const FFInputFormat  ff_image_svg_pipe_demuxer;
  extern const FFInputFormat  ff_image_sunrast_pipe_demuxer;
  extern const FFInputFormat  ff_image_tiff_pipe_demuxer;
  extern const FFInputFormat  ff_image_vbn_pipe_demuxer;
