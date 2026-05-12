@@ -50,6 +50,7 @@ function do_init_a_lib()
     echo "===[init $lib_config]===================="
     [[ ! -f "$lib_config" ]] && (echo "❌$lib_config config not exist,init will stop.";exit 1;)
     source "$lib_config"
+    export MR_LIB_CONFIG_PATH="$lib_config"
     ./init-repo.sh
     echo "========================="
 }

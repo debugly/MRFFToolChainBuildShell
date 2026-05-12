@@ -30,7 +30,7 @@ export GIT_LOCAL_REPO=extra/soundtouch
 export REPO_DIR=soundtouch
 export GIT_COMMIT=2.4.0
 export GIT_REPO_VERSION=2.4.0
-export PATCH_DIR=soundtouch
+export PATCH_DIR=../../patches/soundtouch
 
 # you can export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git use your mirror
 if [[ "$GIT_SOUNDTOUCH_UPSTREAM" != "" ]] ;then

@@ -62,6 +62,4 @@ else
 fi 
 
 echo "---$MR_ACTION end-------------------------------"
-echo
-
 elapsed

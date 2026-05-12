@@ -35,7 +35,7 @@ export GIT_LOCAL_REPO=extra/yuv
 export GIT_COMMIT=f94b8cf7
 export REPO_DIR=yuv
 export GIT_REPO_VERSION=main-f94b8cf7
-export PATCH_DIR=yuv
+export PATCH_DIR=../../patches/yuv
 
 # you can export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git use your mirror
 if [[ "$GIT_YUV_UPSTREAM" != "" ]] ;then

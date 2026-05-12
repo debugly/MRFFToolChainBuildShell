@@ -29,13 +29,13 @@ env_assert "GIT_UPSTREAM"
 env_assert "MR_WORKSPACE"
 env_assert "SKIP_PULL_BASE"
 env_assert "SMART_APPLY"
-
+env_assert "MR_LIB_CONFIG_PATH"
 echo "===check env end==="
 
 GIT_LOCAL_REPO="${MR_WORKSPACE}/${GIT_LOCAL_REPO}"
 
 function pull_common() {
-    echo "== pull $REPO_DIR base =="
+    
     if [[ -d "$GIT_LOCAL_REPO" ]]; then
         cd "$GIT_LOCAL_REPO"
         [[ -d .git/rebase-apply ]] && git am --skip
@@ -50,6 +50,7 @@ function pull_common() {
         if [[ "$SKIP_PULL_BASE" == "1" ]]; then
             echo "⚠️ skip pull $REPO_DIR because you set SKIP_PULL_BASE env."
         else
+            echo "== pull $REPO_DIR base =="
             git fetch --all --tags
         fi
     else
@@ -109,7 +110,8 @@ function apply_patches() {
         return
     fi
 
-    local patch_dir="${THIS_DIR}/../patches/$PATCH_DIR"
+    local patch_base_dir=$(dirname "$MR_LIB_CONFIG_PATH")
+    local patch_dir="${patch_base_dir}/$PATCH_DIR"
     local patch_dirs=(
         "$patch_dir"
         "${patch_dir}-${MR_PLAT}"
@@ -118,6 +120,7 @@ function apply_patches() {
 
     for patch_dir in "${patch_dirs[@]}"; do
         if [[ ! -d "$patch_dir" ]]; then
+            #echo "patch dir not exist: $patch_dir, skip."
             continue
         fi
 

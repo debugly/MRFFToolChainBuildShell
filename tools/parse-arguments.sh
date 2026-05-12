@@ -47,6 +47,7 @@ OPTIONS:
     --help               Show help banner of init command
     --skip-pull-base     Skip pull base repo
     --smart-apply        Apply patches with git apply --reject instead of git am
+    -lib-config          Read library config from specified path,eg: -lib-path ~/matt/lib/ffmpeg.sh
 EOF
 }
 
@@ -123,6 +124,7 @@ arch=
 libs=
 workspace=
 debug=
+has_lib_config=
 MR_UNKNOWN_OPTIONS=()
 
 case $1 in
@@ -179,6 +181,10 @@ while [[ $# -gt 0 ]]; do
         --fmwk)
             export MR_MAKE_XCFRAMEWORK=1
         ;;
+        -lib-config)
+            MR_UNKNOWN_OPTIONS+=("$1")
+            has_lib_config=1
+        ;;
         *)
             MR_UNKNOWN_OPTIONS+=("$1")
         ;;
@@ -197,7 +203,7 @@ if [[ "$platform" != 'ios' && "$platform" != 'macos' && "$platform" != 'tvos' &&
     exit 1
 fi
 
-if [[ -z "$libs" && "$action" != "install" ]];then
+if [[ -z "$libs" && "$has_lib_config" != "1" ]];then
     echo "libs can't be nil, use -l specify libs"
     exit 1
 fi
