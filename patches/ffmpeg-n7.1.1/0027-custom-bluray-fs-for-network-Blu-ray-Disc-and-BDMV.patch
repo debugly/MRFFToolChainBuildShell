@@ -1,6 +1,6 @@
-From 19b58c47ccc043355572fdcbce8c359b6dfc1057 Mon Sep 17 00:00:00 2001
+From 5582bd1c8aa667f9dc0ca6c14ffb916e7a666c0e Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Tue, 12 May 2026 14:20:38 +0800
+Date: Tue, 12 May 2026 16:26:37 +0800
 Subject: [PATCH] custom bluray fs for network Blu-ray Disc and BDMV
 
 ---
@@ -235,7 +235,7 @@ index 1845551..eb43340 100644
  };
 diff --git a/libavformat/bluray_custom_fs.c b/libavformat/bluray_custom_fs.c
 new file mode 100644
-index 0000000..8a8f377
+index 0000000..b82e0b2
 --- /dev/null
 +++ b/libavformat/bluray_custom_fs.c
 @@ -0,0 +1,459 @@
@@ -636,7 +636,7 @@ index 0000000..8a8f377
 +    ff_builtin_io *io = NULL;
 +    int ret = create_builtin_io(&io, url, &opts, 1, access->int_cb);
 +    av_dict_free(&opts);
-+    
++
 +    if (0 != ret) {
 +        av_log(NULL, AV_LOG_ERROR, "[bluray] can't open dir %s,error:%s", url,
 +               av_err2str(ret));
@@ -669,7 +669,7 @@ index 0000000..8a8f377
 +}
 +
 +// 构建fs_access结构体
-+fs_access * create_bluray_custom_access(const char *url, AVDictionary **options)
++fs_access * create_bluray_custom_access(const char *url, AVDictionary **options, const AVIOInterruptCB *int_cb)
 +{
 +    ff_bluray_access * opaque = av_mallocz(sizeof(ff_bluray_access));
 +    if (!opaque) {
