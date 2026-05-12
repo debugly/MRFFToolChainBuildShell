@@ -157,15 +157,12 @@ function make_arch_repo() {
     cd - >/dev/null
 }
 
-function usage() {
-    echo "usage:"
-    echo "$0 ios|macos|tvos|all [arm64|x86_64] [--smart-apply]"
-    echo "  --smart-apply    apply patches with apply_patch_smart instead of git am"
-}
-
 function parse_args() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
+            --skip-pull-base)
+                SKIP_PULL_BASE=1
+            ;;
             --smart-apply)
                 SMART_APPLY=1
                 ;;
@@ -199,4 +196,7 @@ function main() {
 }
 
 parse_args "$@"
+
+echo "SKIP_PULL_BASE  : [$SKIP_PULL_BASE]"
+echo "SMART_APPLY     : [$SMART_APPLY]"
 main

@@ -46,7 +46,7 @@ OPTIONS:
     -s                   Specify workspace dir
     --help               Show help banner of init command
     --skip-pull-base     Skip pull base repo
-    --smart-apply        Apply patches with smart fallback
+    --smart-apply        Apply patches with git apply --reject instead of git am
 EOF
 }
 
@@ -177,9 +177,6 @@ while [[ $# -gt 0 ]]; do
         --debug)
             export MR_DEBUG='debug'
         ;;
-        --skip-pull-base)
-            export SKIP_PULL_BASE=1
-        ;;
         --fmwk)
             export MR_MAKE_XCFRAMEWORK=1
         ;;
@@ -276,7 +273,6 @@ echo "MR_ACTIVE_ARCHS : [$MR_ACTIVE_ARCHS]"
 echo "MR_HOST_NPROC   : [$MR_HOST_NPROC]"
 echo "MR_DEBUG        : [$MR_DEBUG]"
 echo "MR_INIT_CFLAGS  : [$MR_INIT_CFLAGS]"
-echo "SKIP_PULL_BASE  : [$SKIP_PULL_BASE]"
 echo "MR_MAKE_XCFRAMEWORK" : [$MR_MAKE_XCFRAMEWORK]
 [[ ${#MR_UNKNOWN_OPTIONS[@]} -gt 0 ]] && echo "MR_UNKNOWN_OPTIONS : [${MR_UNKNOWN_OPTIONS[*]}]"
 [[ -n $MR_PC_FILE_DIR ]] && echo "MR_PC_FILE_DIR : [$MR_PC_FILE_DIR]"
