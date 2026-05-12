@@ -109,8 +109,8 @@ The following code demonstrates how to compile FFmpeg 7 for the iOS platform：
 ./main.sh install -p ios -l ffmpeg7
 # other choice (you must know ffmpeg7's dependent lib name)
 ./main.sh install -p ios -l "openssl3 opus bluray dav1d dvdnav uavs3d smb2"
-# Compile FFmpeg7 for the arm64 architecture on iOS
-./main.sh compile -p ios -a arm64 -l ffmepg7 --skip-fmwk
+# Compile FFmpeg7 for the arm64 architecture on iOS with xcframework
+./main.sh compile -p ios -a arm64 -l ffmepg7 --fmwk
 ```
 
 The order of these parameters does not matter; they can be arranged in any sequence.

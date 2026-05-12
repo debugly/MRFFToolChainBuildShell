@@ -51,9 +51,9 @@ function compile_ios_platform
     local log_file="$DIST_DIR/ios-compile-log-$RELEASE_VERSION.md"
 
     if [[ $VERBOSE ]];then
-        ./main.sh compile -p ios -c build -l ${LIB_NAME} --skip-fmwk 2>&1 | tee -a "$log_file"
+        ./main.sh compile -p ios -c build -l ${LIB_NAME} 2>&1 | tee -a "$log_file"
     else
-        ./main.sh compile -p ios -c build -l ${LIB_NAME} --skip-fmwk >> "$log_file" 2>&1
+        ./main.sh compile -p ios -c build -l ${LIB_NAME} >> "$log_file" 2>&1
     fi
          
     cd build/product/ios/universal
@@ -71,9 +71,9 @@ function compile_macos_platform
     local log_file="$DIST_DIR/macos-compile-log-$RELEASE_VERSION.md"
 
     if [[ $VERBOSE ]];then
-        ./main.sh compile -p macos -c build -l ${LIB_NAME} --skip-fmwk 2>&1 | tee -a "$log_file"
+        ./main.sh compile -p macos -c build -l ${LIB_NAME} 2>&1 | tee -a "$log_file"
     else
-        ./main.sh compile -p macos -c build -l ${LIB_NAME} --skip-fmwk >> "$log_file" 2>&1
+        ./main.sh compile -p macos -c build -l ${LIB_NAME} >> "$log_file" 2>&1
     fi
 
     cd build/product/macos/universal
@@ -88,9 +88,9 @@ function compile_tvos_platform
     local log_file="$DIST_DIR/android-compile-log-$RELEASE_VERSION.md"
 
     if [[ $VERBOSE ]];then
-        ./main.sh compile -p tvos -c build -l ${LIB_NAME} --skip-fmwk 2>&1 | tee -a "$log_file"
+        ./main.sh compile -p tvos -c build -l ${LIB_NAME} 2>&1 | tee -a "$log_file"
     else
-        ./main.sh compile -p tvos -c build -l ${LIB_NAME} --skip-fmwk >> "$log_file" 2>&1
+        ./main.sh compile -p tvos -c build -l ${LIB_NAME} >> "$log_file" 2>&1
     fi     
 
     cd build/product/tvos/universal

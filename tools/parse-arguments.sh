@@ -66,7 +66,7 @@ OPTIONS:
     -j            Force number of cores to be used
     --help        Show help banner of compile command
     --debug       Enable debug mode (disable by default)
-    --skip-fmwk   Skip make xcframework(apple platform only)
+    --fmwk        Make xcframework(apple platform only)
 EOF
 }
 
@@ -184,8 +184,8 @@ while [[ $# -gt 0 ]]; do
         --skip-ff-patches)
             export SKIP_FFMPEG_PATHCHES=1
         ;;
-        --skip-fmwk)
-            export MR_SKIP_MAKE_XCFRAMEWORK=1
+        --fmwk)
+            export MR_MAKE_XCFRAMEWORK=1
         ;;
         -correct-pc)
             shift
@@ -282,7 +282,7 @@ echo "MR_DEBUG        : [$MR_DEBUG]"
 echo "MR_INIT_CFLAGS  : [$MR_INIT_CFLAGS]"
 echo "SKIP_PULL_BASE  : [$SKIP_PULL_BASE]"
 echo "SKIP_FFMPEG_PATHCHES : [$SKIP_FFMPEG_PATHCHES]"
-echo "MR_SKIP_MAKE_XCFRAMEWORK" : [$MR_SKIP_MAKE_XCFRAMEWORK]
+echo "MR_MAKE_XCFRAMEWORK" : [$MR_MAKE_XCFRAMEWORK]
 [[ ${#MR_UNKNOWN_OPTIONS[@]} -gt 0 ]] && echo "MR_UNKNOWN_OPTIONS : [${MR_UNKNOWN_OPTIONS[*]}]"
 [[ -n $MR_PC_FILE_DIR ]] && echo "MR_PC_FILE_DIR : [$MR_PC_FILE_DIR]"
 

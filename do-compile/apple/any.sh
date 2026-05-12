@@ -106,11 +106,11 @@ do_lipo_all() {
     done
     
     echo '----------------------'
-    if [[ "$MR_SKIP_MAKE_XCFRAMEWORK" ]]; then
-        echo "⚠️ skip make xcframework" 
-    else
+    if [[ "$MR_MAKE_XCFRAMEWORK" ]]; then
         echo '[*] make xcframework'
         do_make_xcframework
+    else
+        echo "⚠️ skip make xcframework"
     fi
     echo '----------------------'
     echo 
