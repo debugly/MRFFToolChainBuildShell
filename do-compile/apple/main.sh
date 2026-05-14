@@ -22,14 +22,14 @@ set -e
 THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
-# 循环编译所有的库
-for lib in $MR_VENDOR_LIBS
-do
-    [[ ! -f "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh" ]] && (echo "❌$lib config not exist, compile will stop.";exit 1;)
+function do_compile_a_lib() 
+{
+    local lib_config="$1"
+    [[ ! -f "$lib_config" ]] && (echo "❌$lib_config config not exist, compile will stop."; exit 1;)
 
     echo "===[$MR_CMD $lib]===================="
-    source "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
-    
+    source "$lib_config"
+
     echo "LIB_NAME        : [$LIB_NAME]"
     echo "GIT_COMMIT      : [$GIT_COMMIT]"
     echo "LIPO_LIBS       : [$LIPO_LIBS]"
@@ -42,4 +42,39 @@ do
         echo
     fi
     echo "===================================="
-done
+}
+
+function compile_libs()
+{
+    # 循环编译所有的库
+    for lib in $MR_VENDOR_LIBS
+    do
+        do_compile_a_lib "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
+    done
+
+    if [[ -n "$LIB_CONFIG_PATH" ]];then
+        echo 
+        echo "install specific lib config : [$LIB_CONFIG_PATH]"
+        do_compile_a_lib "$LIB_CONFIG_PATH"
+    fi
+}
+
+function parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -lib-config)
+                shift
+                LIB_CONFIG_PATH="$1"
+            ;;
+            *)
+                echo "unknown option: $1"
+                sleep 2
+                ;;
+        esac
+        shift
+    done
+}
+
+parse_args "$@"
+echo "LIB_CONFIG_PATH:$LIB_CONFIG_PATH"
+compile_libs

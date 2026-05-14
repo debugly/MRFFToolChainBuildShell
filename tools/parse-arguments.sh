@@ -64,6 +64,7 @@ OPTIONS:
     -l            Specify which libs need 'cmd' (openssl|opus|bluray|dav1d|dvdread|freetype|fribidi|harfbuzz|unibreak|ass|ffmpeg), can't be nil
     -s            Specify workspace dir
     -j            Force number of cores to be used
+    -lib-config   Read library config from specified path,eg: -lib-path ~/matt/lib/ffmpeg.sh
     --help        Show help banner of compile command
     --debug       Enable debug mode (disable by default)
     --fmwk        Make xcframework(apple platform only)
