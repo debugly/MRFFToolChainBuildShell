@@ -19,7 +19,7 @@
 # If you really want to compile without asm, configure with --disable-asm.
 
 export LIB_NAME='ffmpeg'
-export LIPO_LIBS="libavcodec libavformat libavutil libswscale libswresample libavfilter libavdevice"
+export LIPO_LIBS="libavcodec libavformat libavutil libswscale libswresample libavfilter libavdevice libpostproc"
 export LIB_DEPENDS_BIN="nasm pkg-config"
 export GIT_LOCAL_REPO=extra/ffmpeg
 export REPO_DIR=ffmpeg7
