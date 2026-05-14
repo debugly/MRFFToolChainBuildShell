@@ -84,6 +84,7 @@ OPTIONS:
    --help        Show intall help
    --fmwk        Install xcframework bundle instead of .a
    -lib-config   Read library config from specified path,eg: -lib-path ~/matt/lib/ffmpeg.sh
+   -correct-pc   Specify a path for correct the pc file prefix recursion
 EOF
 }
 
@@ -185,6 +186,10 @@ while [[ $# -gt 0 ]]; do
             MR_UNKNOWN_OPTIONS+=("$1")
             has_lib_config=1
         ;;
+        -correct-pc)
+            MR_UNKNOWN_OPTIONS+=("$1")
+            has_correct_pc=1
+        ;;
         *)
             MR_UNKNOWN_OPTIONS+=("$1")
         ;;
@@ -203,7 +208,7 @@ if [[ "$platform" != 'ios' && "$platform" != 'macos' && "$platform" != 'tvos' &&
     exit 1
 fi
 
-if [[ -z "$libs" && "$has_lib_config" != "1" ]];then
+if [[ -z "$libs" && "$has_lib_config" != "1" && "$has_correct_pc" != "1" ]];then
     echo "libs can't be nil, use -l specify libs"
     exit 1
 fi

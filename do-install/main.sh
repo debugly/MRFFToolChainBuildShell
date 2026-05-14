@@ -85,6 +85,10 @@ function parse_args() {
                 shift
                 LIB_CONFIG_PATH="$1"
             ;;
+            -correct-pc)
+                shift
+                CORRECT_PC="$1"
+            ;;
             *)
                 echo "unknown option: $1"
                 sleep 2
@@ -95,4 +99,10 @@ function parse_args() {
 }
 
 parse_args "$@"
-install_libs
+
+if [[ -n "$CORRECT_PC" ]];then
+    echo "correct pc file : [$CORRECT_PC]"
+    ./correct-pc.sh "$CORRECT_PC"
+else
+    install_libs
+fi
