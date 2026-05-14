@@ -29,7 +29,8 @@ env_assert "GIT_UPSTREAM"
 env_assert "MR_WORKSPACE"
 env_assert "SKIP_PULL_BASE"
 env_assert "SMART_APPLY"
-env_assert "MR_LIB_CONFIG_PATH"
+echo_env "MR_LIB_CONFIG_PATH"
+echo_env "PATCH_DIR"
 echo "===check env end==="
 
 GIT_LOCAL_REPO="${MR_WORKSPACE}/${GIT_LOCAL_REPO}"
@@ -120,7 +121,7 @@ function apply_patches() {
 
     for patch_dir in "${patch_dirs[@]}"; do
         if [[ ! -d "$patch_dir" ]]; then
-            #echo "patch dir not exist: $patch_dir, skip."
+            echo "patch dir not exist: $patch_dir, skip."
             continue
         fi
 

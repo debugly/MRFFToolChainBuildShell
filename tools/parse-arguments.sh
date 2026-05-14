@@ -112,7 +112,17 @@ function env_assert()
     fi
 }
 
+function echo_env()
+{
+    name="$1"
+    value=$(eval echo "\$$name")
+    if [[ -n "$value" ]]; then
+        echo "$name : [${value}]" >&2    
+    fi
+}
+
 export -f env_assert
+export -f echo_env
 
 function help()
 {
