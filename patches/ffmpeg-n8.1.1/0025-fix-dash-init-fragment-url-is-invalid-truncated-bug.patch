@@ -1,4 +1,4 @@
-From 570be1565c563c878856ec79f6276ec66e7de24d Mon Sep 17 00:00:00 2001
+From 83bd2fe0fa738f659c59d28cc484501d7260913a Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Wed, 21 May 2025 18:05:52 +0800
 Subject: fix dash init fragment url is "invalid:truncated" bug
@@ -8,7 +8,7 @@ Subject: fix dash init fragment url is "invalid:truncated" bug
  1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/libavformat/dashdec.c b/libavformat/dashdec.c
-index 9a2ea78149..5927a6ee3b 100644
+index 9a2ea78..5927a6e 100644
 --- a/libavformat/dashdec.c
 +++ b/libavformat/dashdec.c
 @@ -479,6 +479,10 @@ static char *get_content_url(xmlNodePtr *baseurl_nodes,

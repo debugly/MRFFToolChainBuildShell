@@ -1,4 +1,4 @@
-From 5f75c2d325ee7519854a826f85d7b97187052eae Mon Sep 17 00:00:00 2001
+From 75225b69a8442347087c02a7ee24944e7c3b41e6 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 8 May 2026 17:02:15 +0800
 Subject: restore ijk custom protocols and demuxers except long
@@ -17,7 +17,7 @@ Subject: restore ijk custom protocols and demuxers except long
  create mode 100644 libavformat/ijkutils.c
 
 diff --git a/libavcodec/Makefile b/libavcodec/Makefile
-index 1410bd8142..4445d9ea61 100644
+index 1410bd8..4445d9e 100644
 --- a/libavcodec/Makefile
 +++ b/libavcodec/Makefile
 @@ -26,6 +26,7 @@ HEADERS = ac3_parser.h                                                  \
@@ -29,7 +29,7 @@ index 1410bd8142..4445d9ea61 100644
  OBJS = ac3_parser.o                                                     \
         adts_parser.o                                                    \
 diff --git a/libavformat/Makefile b/libavformat/Makefile
-index 3c95fc4b7f..85ed05b0f2 100644
+index 3c95fc4..85ed05b 100644
 --- a/libavformat/Makefile
 +++ b/libavformat/Makefile
 @@ -7,6 +7,15 @@ HEADERS = avformat.h                                                    \
@@ -57,7 +57,7 @@ index 3c95fc4b7f..85ed05b0f2 100644
  OBJS-$(HAVE_LIBC_MSVCRT)                 += file_open.o
  
 diff --git a/libavformat/allformats.c b/libavformat/allformats.c
-index 6ec361fb7b..0c2d5caf82 100644
+index 6ec361f..0c2d5ca 100644
 --- a/libavformat/allformats.c
 +++ b/libavformat/allformats.c
 @@ -584,6 +584,9 @@ extern const FFInputFormat  ff_libmodplug_demuxer;
@@ -71,7 +71,7 @@ index 6ec361fb7b..0c2d5caf82 100644
  #include "libavformat/demuxer_list.c"
  
 diff --git a/libavformat/demux.c b/libavformat/demux.c
-index a1909237f0..05ab1e172d 100644
+index a190923..05ab1e1 100644
 --- a/libavformat/demux.c
 +++ b/libavformat/demux.c
 @@ -235,6 +235,7 @@ int avformat_open_input(AVFormatContext **ps, const char *filename,
@@ -116,7 +116,7 @@ index a1909237f0..05ab1e172d 100644
          avio_closep(&s->pb);
      avformat_free_context(s);
 diff --git a/libavformat/demux.h b/libavformat/demux.h
-index f09afc849f..531c433968 100644
+index f09afc8..531c433 100644
 --- a/libavformat/demux.h
 +++ b/libavformat/demux.h
 @@ -98,6 +98,8 @@ typedef struct FFInputFormat {
@@ -130,7 +130,7 @@ index f09afc849f..531c433968 100644
       * set. 'avformat_new_stream' can be called only if the flag
 diff --git a/libavformat/ijkutils.c b/libavformat/ijkutils.c
 new file mode 100644
-index 0000000000..0314c48d8b
+index 0000000..0314c48
 --- /dev/null
 +++ b/libavformat/ijkutils.c
 @@ -0,0 +1,107 @@
@@ -242,7 +242,7 @@ index 0000000000..0314c48d8b
 + */
 +IJK_DUMMY_DEMUXER(ijklivehook);
 diff --git a/libavformat/protocols.c b/libavformat/protocols.c
-index 207b6bf8d9..de0926beea 100644
+index 207b6bf..de0926b 100644
 --- a/libavformat/protocols.c
 +++ b/libavformat/protocols.c
 @@ -79,6 +79,12 @@ extern const URLProtocol ff_libzmq_protocol;
@@ -259,7 +259,7 @@ index 207b6bf8d9..de0926beea 100644
  
  const AVClass *ff_urlcontext_child_class_iterate(void **iter)
 diff --git a/libavutil/Makefile b/libavutil/Makefile
-index c5241895ff..a9fbf9923b 100644
+index c524189..a9fbf99 100644
 --- a/libavutil/Makefile
 +++ b/libavutil/Makefile
 @@ -99,7 +99,8 @@ HEADERS = adler32.h                                                     \

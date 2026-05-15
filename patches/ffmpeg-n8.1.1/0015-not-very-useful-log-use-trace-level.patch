@@ -1,4 +1,4 @@
-From b5ff5beaad904e0b4f896c434d8ecb86df3f858c Mon Sep 17 00:00:00 2001
+From 6a0647fe06239adcca0d09afe5ac0e78cc0224aa Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Thu, 29 May 2025 09:02:16 +0800
 Subject: not very useful log use trace level
@@ -10,7 +10,7 @@ Subject: not very useful log use trace level
  3 files changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/libavcodec/h2645_parse.c b/libavcodec/h2645_parse.c
-index 659e818393..63f3460926 100644
+index 659e818..63f3460 100644
 --- a/libavcodec/h2645_parse.c
 +++ b/libavcodec/h2645_parse.c
 @@ -417,7 +417,7 @@ static int vvc_parse_nal_header(H2645NAL *nal, void *logctx)
@@ -41,7 +41,7 @@ index 659e818393..63f3460926 100644
             nal->type, h264_nal_unit_name(nal->type), nal->ref_idc);
  
 diff --git a/libavcodec/h2645_vui.c b/libavcodec/h2645_vui.c
-index 0e576c1563..445e471a2e 100644
+index 0e576c1..445e471 100644
 --- a/libavcodec/h2645_vui.c
 +++ b/libavcodec/h2645_vui.c
 @@ -36,7 +36,7 @@
@@ -54,7 +54,7 @@ index 0e576c1563..445e471a2e 100644
      vui->aspect_ratio_info_present_flag = get_bits1(gb);
      if (vui->aspect_ratio_info_present_flag) {
 diff --git a/libavformat/demux.c b/libavformat/demux.c
-index 05ab1e172d..494e15f3c1 100644
+index 05ab1e1..494e15f 100644
 --- a/libavformat/demux.c
 +++ b/libavformat/demux.c
 @@ -2074,11 +2074,11 @@ static void estimate_timings(AVFormatContext *ic, int64_t old_offset)

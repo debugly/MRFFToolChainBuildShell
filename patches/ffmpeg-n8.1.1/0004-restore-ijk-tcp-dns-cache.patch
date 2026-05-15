@@ -1,4 +1,4 @@
-From e3804da4a5b88dabf071ad5070070489a9efb874 Mon Sep 17 00:00:00 2001
+From acffa5bb5305c8f28419c0f476e8d123f09d9bcd Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 8 May 2026 16:39:50 +0800
 Subject: restore ijk tcp dns cache
@@ -8,7 +8,7 @@ Subject: restore ijk tcp dns cache
  1 file changed, 310 insertions(+), 14 deletions(-)
 
 diff --git a/libavformat/tcp.c b/libavformat/tcp.c
-index 69b1e12c49..46b48e609d 100644
+index 69b1e12..46b48e6 100644
 --- a/libavformat/tcp.c
 +++ b/libavformat/tcp.c
 @@ -26,6 +26,7 @@

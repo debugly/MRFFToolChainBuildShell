@@ -1,4 +1,4 @@
-From 08d684edc3dd2fe28dbda3beaff216e2a235369e Mon Sep 17 00:00:00 2001
+From 633c6546e554aba1f6219f467b1759b6f39430a8 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 8 May 2026 17:58:33 +0800
 Subject: add built-in smb2 protocol via libsmb2
@@ -12,7 +12,7 @@ Subject: add built-in smb2 protocol via libsmb2
  create mode 100644 libavformat/libsmb2.c
 
 diff --git a/configure b/configure
-index 1759694274..10c688ca4e 100755
+index 1759694..10c688c 100755
 --- a/configure
 +++ b/configure
 @@ -276,6 +276,7 @@ External library support:
@@ -49,7 +49,7 @@ index 1759694274..10c688ca4e 100755
  enabled libsoxr           && require libsoxr soxr.h soxr_create -lsoxr
  enabled libssh            && require_pkg_config libssh "libssh >= 0.6.0" libssh/sftp.h sftp_init
 diff --git a/libavformat/Makefile b/libavformat/Makefile
-index 158a11d10f..6100e33b30 100644
+index 158a11d..6100e33 100644
 --- a/libavformat/Makefile
 +++ b/libavformat/Makefile
 @@ -751,6 +751,7 @@ OBJS-$(CONFIG_LIBRTMPS_PROTOCOL)         += librtmp.o
@@ -62,7 +62,7 @@ index 158a11d10f..6100e33b30 100644
  OBJS-$(CONFIG_LIBZMQ_PROTOCOL)           += libzmq.o
 diff --git a/libavformat/libsmb2.c b/libavformat/libsmb2.c
 new file mode 100644
-index 0000000000..408f9e1609
+index 0000000..408f9e1
 --- /dev/null
 +++ b/libavformat/libsmb2.c
 @@ -0,0 +1,412 @@
@@ -479,7 +479,7 @@ index 0000000000..408f9e1609
 +    .url_close_dir   = libsmb2_close_dir,
 +};
 diff --git a/libavformat/protocols.c b/libavformat/protocols.c
-index d1c1095364..fb712a5128 100644
+index d1c1095..fb712a5 100644
 --- a/libavformat/protocols.c
 +++ b/libavformat/protocols.c
 @@ -75,6 +75,7 @@ extern const URLProtocol ff_librtmpte_protocol;

@@ -1,4 +1,4 @@
-From 6f63a6880358a91c79119e58cac80179a1d37a73 Mon Sep 17 00:00:00 2001
+From 861f2778fd0f40ec42a2dd1827afe0fc11786e32 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Thu, 29 May 2025 11:14:13 +0800
 Subject: URLProtocol add url_parse_priv function pointer
@@ -9,7 +9,7 @@ Subject: URLProtocol add url_parse_priv function pointer
  2 files changed, 13 insertions(+)
 
 diff --git a/libavformat/demux.c b/libavformat/demux.c
-index 494e15f3c1..524018f1aa 100644
+index 494e15f..524018f 100644
 --- a/libavformat/demux.c
 +++ b/libavformat/demux.c
 @@ -355,6 +355,17 @@ int avformat_open_input(AVFormatContext **ps, const char *filename,
@@ -31,7 +31,7 @@ index 494e15f3c1..524018f1aa 100644
          goto close;
  
 diff --git a/libavformat/url.h b/libavformat/url.h
-index 53c6f13d23..f7e5bb2a95 100644
+index 53c6f13..f7e5bb2 100644
 --- a/libavformat/url.h
 +++ b/libavformat/url.h
 @@ -48,6 +48,7 @@ typedef struct URLContext {

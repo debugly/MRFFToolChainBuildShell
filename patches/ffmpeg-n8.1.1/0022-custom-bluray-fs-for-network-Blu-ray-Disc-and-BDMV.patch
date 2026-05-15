@@ -1,7 +1,7 @@
-From eb2726a246f316be45dc5b1b534e581c4d432592 Mon Sep 17 00:00:00 2001
+From 016c42a6ca0b61fef87a703b7e71765af8abc501 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 15 May 2026 17:00:02 +0800
-Subject: [PATCH] custom bluray fs for network Blu-ray Disc and BDMV
+Subject: custom bluray fs for network Blu-ray Disc and BDMV
 
 ---
  libavformat/Makefile           |   2 +-

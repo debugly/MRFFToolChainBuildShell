@@ -1,4 +1,4 @@
-From 637bd6415e37d86600aecb161d5a067cebc7cb69 Mon Sep 17 00:00:00 2001
+From 0eb8def6e29ed4193013c3f7c2a01acf7eb40b28 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 8 May 2026 17:47:08 +0800
 Subject: fix http open and http_seek (redirect) authentication
@@ -9,7 +9,7 @@ Subject: fix http open and http_seek (redirect) authentication
  1 file changed, 27 insertions(+), 5 deletions(-)
 
 diff --git a/libavformat/http.c b/libavformat/http.c
-index cd39796ab3..b648596d77 100644
+index cd39796..b648596 100644
 --- a/libavformat/http.c
 +++ b/libavformat/http.c
 @@ -83,6 +83,7 @@ typedef struct HTTPContext {

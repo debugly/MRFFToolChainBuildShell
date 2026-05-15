@@ -1,4 +1,4 @@
-From aa354e9e139f7b028d71c92afe72dfef97c61dc0 Mon Sep 17 00:00:00 2001
+From 3da3f038de2cd4067263b69a06ac42ceb01b56d5 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Wed, 28 May 2025 18:33:27 +0800
 Subject: restore ijk av_dict_get that converts the value to a
@@ -10,7 +10,7 @@ Subject: restore ijk av_dict_get that converts the value to a
  2 files changed, 47 insertions(+), 1 deletion(-)
 
 diff --git a/libavutil/dict.c b/libavutil/dict.c
-index fafb454fd3..db8ee05699 100644
+index fafb454..db8ee05 100644
 --- a/libavutil/dict.c
 +++ b/libavutil/dict.c
 @@ -63,7 +63,7 @@ AVDictionaryEntry *av_dict_get(const AVDictionary *m, const char *key,
@@ -67,7 +67,7 @@ index fafb454fd3..db8ee05699 100644
                                  const char *key_val_sep, const char *pairs_sep,
                                  int flags)
 diff --git a/libavutil/dict.h b/libavutil/dict.h
-index 93c7cbf128..d97a601f66 100644
+index 93c7cbf..d97a601 100644
 --- a/libavutil/dict.h
 +++ b/libavutil/dict.h
 @@ -173,6 +173,15 @@ int av_dict_set(AVDictionary **pm, const char *key, const char *value, int flags

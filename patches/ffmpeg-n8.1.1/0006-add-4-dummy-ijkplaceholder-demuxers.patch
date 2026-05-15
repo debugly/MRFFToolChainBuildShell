@@ -1,4 +1,4 @@
-From eb2b38cb1107ecaa18fef1594300f9700f64318a Mon Sep 17 00:00:00 2001
+From 44ce37e539f1db0fce3804b192f2e48a7d72e040 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 8 May 2026 17:02:34 +0800
 Subject: add 4 dummy ijkplaceholder demuxers
@@ -9,7 +9,7 @@ Subject: add 4 dummy ijkplaceholder demuxers
  2 files changed, 8 insertions(+)
 
 diff --git a/libavformat/allformats.c b/libavformat/allformats.c
-index 0c2d5caf82..e2f37da7a1 100644
+index 0c2d5ca..e2f37da 100644
 --- a/libavformat/allformats.c
 +++ b/libavformat/allformats.c
 @@ -586,6 +586,10 @@ extern const FFInputFormat  ff_vapoursynth_demuxer;
@@ -24,7 +24,7 @@ index 0c2d5caf82..e2f37da7a1 100644
  #include "libavformat/muxer_list.c"
  #include "libavformat/demuxer_list.c"
 diff --git a/libavformat/ijkutils.c b/libavformat/ijkutils.c
-index 0314c48d8b..ac80e548f4 100644
+index 0314c48..ac80e54 100644
 --- a/libavformat/ijkutils.c
 +++ b/libavformat/ijkutils.c
 @@ -105,3 +105,7 @@ FFInputFormat ff_##x##_demuxer = {                                  \

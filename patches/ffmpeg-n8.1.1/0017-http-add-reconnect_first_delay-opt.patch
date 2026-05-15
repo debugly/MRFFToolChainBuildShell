@@ -1,4 +1,4 @@
-From c6578110a2bf027b1fff7eb263c80499f2179584 Mon Sep 17 00:00:00 2001
+From 63de5ca190448e027cf758f548b2213095638bd6 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Thu, 29 May 2025 09:57:28 +0800
 Subject: http add reconnect_first_delay opt
@@ -8,7 +8,7 @@ Subject: http add reconnect_first_delay opt
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/libavformat/http.c b/libavformat/http.c
-index f4bf225728..cd39796ab3 100644
+index f4bf225..cd39796 100644
 --- a/libavformat/http.c
 +++ b/libavformat/http.c
 @@ -131,6 +131,7 @@ typedef struct HTTPContext {

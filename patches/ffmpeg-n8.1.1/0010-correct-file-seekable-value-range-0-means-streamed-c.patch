@@ -1,4 +1,4 @@
-From f98ffd5b75b7c85f4f336f5a193357a2675e71e5 Mon Sep 17 00:00:00 2001
+From a238a10d136f21902de411f024536b43c87cae95 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 8 May 2026 17:11:02 +0800
 Subject: correct file seekable value range, 0 means streamed
@@ -9,7 +9,7 @@ Subject: correct file seekable value range, 0 means streamed
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/libavformat/file.c b/libavformat/file.c
-index 3ceddc8c25..59a0442c5a 100644
+index 3ceddc8..59a0442 100644
 --- a/libavformat/file.c
 +++ b/libavformat/file.c
 @@ -106,7 +106,7 @@ static const AVOption file_options[] = {

@@ -1,4 +1,4 @@
-From f34b1dde280aa3ece94b7b8a79d1bbd683429f1e Mon Sep 17 00:00:00 2001
+From ccea039f4d65a0f46eaf8c316ed602b95b3f6b90 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Wed, 28 May 2025 18:52:01 +0800
 Subject: Correct the wrong codecpar->codec_id which read from
@@ -11,7 +11,7 @@ Subject: Correct the wrong codecpar->codec_id which read from
  3 files changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/libavformat/id3v2.c b/libavformat/id3v2.c
-index 5fc82ad9dc..4ae12b65e8 100644
+index 5fc82ad..4ae12b6 100644
 --- a/libavformat/id3v2.c
 +++ b/libavformat/id3v2.c
 @@ -1187,8 +1187,13 @@ int ff_id3v2_parse_apic(AVFormatContext *s, ID3v2ExtraMeta *extra_meta)
@@ -30,7 +30,7 @@ index 5fc82ad9dc..4ae12b65e8 100644
          if (apic->description[0])
              av_dict_set(&st->metadata, "title", apic->description, 0);
 diff --git a/libavformat/img2dec.c b/libavformat/img2dec.c
-index ecb7ea8946..0a26d5aa52 100644
+index ecb7ea8..0a26d5a 100644
 --- a/libavformat/img2dec.c
 +++ b/libavformat/img2dec.c
 @@ -892,7 +892,7 @@ static int png_probe(const AVProbeData *p)
@@ -43,7 +43,7 @@ index ecb7ea8946..0a26d5aa52 100644
      return 0;
  }
 diff --git a/libavformat/mov.c b/libavformat/mov.c
-index 222d79ec1f..e1147700d3 100644
+index 222d79e..e114770 100644
 --- a/libavformat/mov.c
 +++ b/libavformat/mov.c
 @@ -259,7 +259,7 @@ static int mov_read_covr(MOVContext *c, AVIOContext *pb, int type, int len)

@@ -1,4 +1,4 @@
-From a58c1231a04f47af13819d9091acd33ac5a8c991 Mon Sep 17 00:00:00 2001
+From da901ac77bf2a238a947809aa1b276a13af6e055 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Thu, 29 May 2025 11:15:16 +0800
 Subject: bluray protocol add dvd fallback
@@ -8,7 +8,7 @@ Subject: bluray protocol add dvd fallback
  1 file changed, 19 insertions(+), 4 deletions(-)
 
 diff --git a/libavformat/demux.c b/libavformat/demux.c
-index 524018f1aa..531992f9d9 100644
+index 524018f..531992f 100644
 --- a/libavformat/demux.c
 +++ b/libavformat/demux.c
 @@ -161,7 +161,8 @@ static int init_input(AVFormatContext *s, const char *filename,

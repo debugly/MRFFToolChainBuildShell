@@ -1,4 +1,4 @@
-From 23773b2fbcdd5f495622318db9a7cc5c35942cef Mon Sep 17 00:00:00 2001
+From 21a946850b1be93508b3d2d4478e60d347d9993f Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Wed, 28 May 2025 17:28:22 +0800
 Subject: restore ijk h264_ps null pointer fault tolerant
@@ -8,7 +8,7 @@ Subject: restore ijk h264_ps null pointer fault tolerant
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/libavcodec/h264_ps.c b/libavcodec/h264_ps.c
-index ac204172cb..2c35e0d6f6 100644
+index ac20417..2c35e0d 100644
 --- a/libavcodec/h264_ps.c
 +++ b/libavcodec/h264_ps.c
 @@ -437,7 +437,7 @@ int ff_h264_decode_seq_parameter_set(GetBitContext *gb, AVCodecContext *avctx,

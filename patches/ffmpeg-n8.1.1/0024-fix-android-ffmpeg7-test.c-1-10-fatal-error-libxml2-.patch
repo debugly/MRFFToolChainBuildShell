@@ -1,4 +1,4 @@
-From 7bef6e629786e43b24ce6b91678de69be4153768 Mon Sep 17 00:00:00 2001
+From 6e2fc211aad20c73775334f040fbab8543236672 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 6 Jun 2025 14:09:50 +0800
 Subject: fix android ffmpeg7 test.c:1:10: fatal error:
@@ -9,7 +9,7 @@ Subject: fix android ffmpeg7 test.c:1:10: fatal error:
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/configure b/configure
-index 10c688ca4e..9761c84bd3 100755
+index 10c688c..9761c84 100755
 --- a/configure
 +++ b/configure
 @@ -7448,7 +7448,7 @@ enabled libzmq            && require_pkg_config libzmq "libzmq >= 4.2.1" zmq.h z

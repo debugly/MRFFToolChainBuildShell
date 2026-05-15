@@ -1,4 +1,4 @@
-From 2e1aa0b9b5baf39c29b6c4e85fd26776badaba55 Mon Sep 17 00:00:00 2001
+From 74355a6170c59a122461ff0adeccaf178eeaf602 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Thu, 29 May 2025 08:56:02 +0800
 Subject: fix http chunked transfer get wrong size cause
@@ -9,7 +9,7 @@ Subject: fix http chunked transfer get wrong size cause
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/libavformat/img2dec.c b/libavformat/img2dec.c
-index 0a26d5aa52..088c21907d 100644
+index 0a26d5a..088c219 100644
 --- a/libavformat/img2dec.c
 +++ b/libavformat/img2dec.c
 @@ -451,7 +451,13 @@ int ff_img_read_packet(AVFormatContext *s1, AVPacket *pkt)

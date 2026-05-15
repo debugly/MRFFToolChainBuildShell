@@ -1,4 +1,4 @@
-From 60a55d7df18fb383b3f393a2648a5802020bd0a7 Mon Sep 17 00:00:00 2001
+From 5aef56e86381c8151a63486524fd475536f64fe4 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Wed, 28 May 2025 18:48:39 +0800
 Subject: avformat/mpegts: index only keyframes to ensure
@@ -9,7 +9,7 @@ Subject: avformat/mpegts: index only keyframes to ensure
  1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/libavformat/mpegts.c b/libavformat/mpegts.c
-index 4b326d309b..47944c7884 100644
+index 4b326d3..47944c7 100644
 --- a/libavformat/mpegts.c
 +++ b/libavformat/mpegts.c
 @@ -158,6 +158,7 @@ struct MpegTSContext {

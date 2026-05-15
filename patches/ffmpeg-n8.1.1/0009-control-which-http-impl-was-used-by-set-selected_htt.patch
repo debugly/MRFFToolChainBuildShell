@@ -1,4 +1,4 @@
-From 453a18e73206f0074fe6cf94240b9066cf95f6d0 Mon Sep 17 00:00:00 2001
+From 5b78a77e4274c7aa8199ad5cc0aa1aa464b381c8 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Wed, 28 May 2025 18:25:51 +0800
 Subject: control which http impl was used by set selected_http
@@ -10,7 +10,7 @@ Subject: control which http impl was used by set selected_http
  2 files changed, 77 insertions(+), 2 deletions(-)
 
 diff --git a/libavformat/avio.c b/libavformat/avio.c
-index b146ac9f19..0287cc6092 100644
+index b146ac9..0287cc6 100644
 --- a/libavformat/avio.c
 +++ b/libavformat/avio.c
 @@ -360,6 +360,65 @@ int ffurl_alloc(URLContext **puc, const char *filename, int flags,
@@ -98,7 +98,7 @@ index b146ac9f19..0287cc6092 100644
  
      if (h->prot->url_open_dir && h->prot->url_read_dir && h->prot->url_close_dir) {
 diff --git a/libavformat/url.h b/libavformat/url.h
-index 0784d77b64..53c6f13d23 100644
+index 0784d77..53c6f13 100644
 --- a/libavformat/url.h
 +++ b/libavformat/url.h
 @@ -112,6 +112,22 @@ typedef struct URLProtocol {

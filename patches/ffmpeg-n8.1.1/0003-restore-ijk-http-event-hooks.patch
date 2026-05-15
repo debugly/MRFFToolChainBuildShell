@@ -1,4 +1,4 @@
-From 45eb43659ad56bcf3aea1ab1f5358c1995c57089 Mon Sep 17 00:00:00 2001
+From 91b1bc44f636fd2c2a4a40fabffadfd6fa9d22e8 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 8 May 2026 16:30:34 +0800
 Subject: restore ijk http event hooks
@@ -10,7 +10,7 @@ Subject: restore ijk http event hooks
  3 files changed, 86 insertions(+), 8 deletions(-)
 
 diff --git a/libavformat/http.c b/libavformat/http.c
-index 52073ffcb6..f4bf225728 100644
+index 52073ff..f4bf225 100644
 --- a/libavformat/http.c
 +++ b/libavformat/http.c
 @@ -48,6 +48,7 @@
@@ -132,7 +132,7 @@ index 52073ffcb6..f4bf225728 100644
  redo:
      ret = ffurl_open_whitelist(&s->hd, lower_url, AVIO_FLAG_READ_WRITE,
 diff --git a/libavformat/tcp.c b/libavformat/tcp.c
-index ce9f69a50b..69b1e12c49 100644
+index ce9f69a..69b1e12 100644
 --- a/libavformat/tcp.c
 +++ b/libavformat/tcp.c
 @@ -24,7 +24,8 @@
@@ -259,7 +259,7 @@ index ce9f69a50b..69b1e12c49 100644
      return ret < 0 ? ff_neterrno() : ret;
  }
 diff --git a/libavutil/error.h b/libavutil/error.h
-index 1efa86c4c1..9dee755c69 100644
+index 1efa86c..9dee755 100644
 --- a/libavutil/error.h
 +++ b/libavutil/error.h
 @@ -85,6 +85,10 @@

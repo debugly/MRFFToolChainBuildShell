@@ -1,7 +1,7 @@
-From 6e7abe54b59f8227df2c1149665b314cd2ac5892 Mon Sep 17 00:00:00 2001
+From afbd088c5f65683f1edb1383224eeddbc4bf718b Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Tue, 12 May 2026 11:45:56 +0800
-Subject: [PATCH] bluray open and find the right m2ts, then read/seek it
+Subject: bluray open and find the right m2ts, then read/seek it
  direactly instread of bluray logic.
 
 ---
@@ -9,7 +9,7 @@ Subject: [PATCH] bluray open and find the right m2ts, then read/seek it
  1 file changed, 20 insertions(+), 5 deletions(-)
 
 diff --git a/libavformat/bluray.c b/libavformat/bluray.c
-index cd50523..7fdffdd 100644
+index eb43340..254538f 100644
 --- a/libavformat/bluray.c
 +++ b/libavformat/bluray.c
 @@ -42,6 +42,7 @@ typedef struct {
@@ -20,7 +20,7 @@ index cd50523..7fdffdd 100644
  } BlurayContext;
  
  #define OFFSET(x) offsetof(BlurayContext, x)
-@@ -222,7 +223,8 @@ static int bluray_open(URLContext *h, const char *path, int flags, AVDictionary
+@@ -226,7 +227,8 @@ static int bluray_open(URLContext *h, const char *path, int flags, AVDictionary
      if (bd->chapter > 1) {
          bd_seek_chapter(bd->bd, bd->chapter - 1);
      }
@@ -30,7 +30,7 @@ index cd50523..7fdffdd 100644
      return 0;
  }
  
-@@ -234,7 +236,13 @@ static int bluray_read(URLContext *h, unsigned char *buf, int size)
+@@ -238,7 +240,13 @@ static int bluray_read(URLContext *h, unsigned char *buf, int size)
      if (!bd || !bd->bd) {
          return AVERROR(EFAULT);
      }
@@ -45,7 +45,7 @@ index cd50523..7fdffdd 100644
      len = bd_read(bd->bd, buf, size);
  
      return len == 0 ? AVERROR_EOF : len;
-@@ -252,10 +260,17 @@ static int64_t bluray_seek(URLContext *h, int64_t pos, int whence)
+@@ -256,10 +264,17 @@ static int64_t bluray_seek(URLContext *h, int64_t pos, int whence)
      case SEEK_SET:
      case SEEK_CUR:
      case SEEK_END:

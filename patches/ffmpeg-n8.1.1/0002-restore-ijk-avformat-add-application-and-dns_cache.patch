@@ -1,4 +1,4 @@
-From 886512c82e75af2e3ab48b8ebf5070995426c253 Mon Sep 17 00:00:00 2001
+From c4bfe93521942a600c8ba3e477b74aca1d8c745d Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Fri, 8 May 2026 15:58:55 +0800
 Subject: restore ijk avformat add application and dns_cache
@@ -16,7 +16,7 @@ Subject: restore ijk avformat add application and dns_cache
  create mode 100644 libavformat/dns_cache.h
 
 diff --git a/libavformat/Makefile b/libavformat/Makefile
-index 4786a9345a..3c95fc4b7f 100644
+index 4786a93..3c95fc4 100644
 --- a/libavformat/Makefile
 +++ b/libavformat/Makefile
 @@ -5,6 +5,9 @@ HEADERS = avformat.h                                                    \
@@ -40,7 +40,7 @@ index 4786a9345a..3c95fc4b7f 100644
  
 diff --git a/libavformat/application.c b/libavformat/application.c
 new file mode 100644
-index 0000000000..de093b9c89
+index 0000000..de093b9
 --- /dev/null
 +++ b/libavformat/application.c
 @@ -0,0 +1,213 @@
@@ -259,7 +259,7 @@ index 0000000000..de093b9c89
 +}
 diff --git a/libavformat/application.h b/libavformat/application.h
 new file mode 100644
-index 0000000000..b9e7f5b69a
+index 0000000..b9e7f5b
 --- /dev/null
 +++ b/libavformat/application.h
 @@ -0,0 +1,120 @@
@@ -385,7 +385,7 @@ index 0000000000..b9e7f5b69a
 +#endif /* AVUTIL_APPLICATION_H */
 diff --git a/libavformat/dns_cache.c b/libavformat/dns_cache.c
 new file mode 100644
-index 0000000000..aab2435b90
+index 0000000..aab2435
 --- /dev/null
 +++ b/libavformat/dns_cache.c
 @@ -0,0 +1,232 @@
@@ -623,7 +623,7 @@ index 0000000000..aab2435b90
 +}
 diff --git a/libavformat/dns_cache.h b/libavformat/dns_cache.h
 new file mode 100644
-index 0000000000..23c695e827
+index 0000000..23c695e
 --- /dev/null
 +++ b/libavformat/dns_cache.h
 @@ -0,0 +1,39 @@
