@@ -25,6 +25,7 @@ cd "$THIS_DIR"
 function do_compile_a_lib() 
 {
     local lib_config="$1"
+    lib_config=$(make_absolute_path "$lib_config")
     [[ ! -f "$lib_config" ]] && (echo "❌$lib_config config not exist, compile will stop."; exit 1;)
 
     echo "===[$MR_CMD $lib]===================="
@@ -49,7 +50,7 @@ function compile_libs()
     # 循环编译所有的库
     for lib in $MR_VENDOR_LIBS
     do
-        do_compile_a_lib "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
+        do_compile_a_lib "configs/libs/${lib}.sh"
     done
 
     if [[ -n "$LIB_CONFIG_PATH" ]];then

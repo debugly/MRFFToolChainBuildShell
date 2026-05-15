@@ -113,6 +113,7 @@ function apply_patches() {
 
     local patch_base_dir=$(dirname "$MR_LIB_CONFIG_PATH")
     local patch_dir="${patch_base_dir}/$PATCH_DIR"
+    patch_dir=$(make_absolute_path "$patch_dir")
     local patch_dirs=(
         "$patch_dir"
         "${patch_dir}-${MR_PLAT}"

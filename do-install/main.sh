@@ -50,6 +50,7 @@ function parse_lib_config() {
 function do_install_a_lib()
 {
     local lib_config="$1"
+    lib_config=$(make_absolute_path "$lib_config")
     [[ ! -f "$lib_config" ]] && (echo "❌$lib_config config not exist,install will stop."; exit 1;)
         
     echo "===[install $lib_config]===================="
@@ -68,7 +69,7 @@ function install_libs()
     # 循环安装所有的库
     for lib in $MR_VENDOR_LIBS
     do
-        do_install_a_lib "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
+        do_install_a_lib "configs/libs/${lib}.sh"
     done
     
     if [[ -n "$LIB_CONFIG_PATH" ]];then

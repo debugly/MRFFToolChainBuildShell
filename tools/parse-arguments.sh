@@ -121,8 +121,19 @@ function echo_env()
     fi
 }
 
+function make_absolute_path()
+{
+    local p="$1"
+    if [[ $p == /* ]]; then
+        echo "$(cd "$(dirname "$p")" && pwd)/$(basename "$p")"
+    else
+        echo "$(cd "$(dirname "$MR_SHELL_ROOT_DIR/$p")" && pwd)/$(basename "$p")"
+    fi
+}
+
 export -f env_assert
 export -f echo_env
+export -f make_absolute_path
 
 function help()
 {

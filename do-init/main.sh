@@ -46,7 +46,9 @@ function parse_args() {
 
 function do_init_a_lib()
 {
-    local lib_config="$1"    
+    local lib_config="$1"
+    lib_config=$(make_absolute_path "$lib_config")
+    [[ ! -f "$lib_config" ]] && (echo "❌$lib_config config not exist,init will stop.";exit 1;) 
     echo "===[init $lib_config]===================="
     [[ ! -f "$lib_config" ]] && (echo "❌$lib_config config not exist,init will stop.";exit 1;)
     source "$lib_config"
@@ -62,7 +64,7 @@ function main() {
 
     for lib in $MR_VENDOR_LIBS
     do
-        do_init_a_lib "$MR_SHELL_CONFIGS_DIR/libs/${lib}.sh"
+        do_init_a_lib "configs/libs/${lib}.sh"
     done
 
     if [[ -n "$LIB_CONFIG_PATH" ]];then
