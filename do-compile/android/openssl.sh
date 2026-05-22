@@ -50,7 +50,7 @@ case $_MR_ARCH in
     ;;
 esac
 
-CFG_FLAGS="no-shared no-engine no-apps no-dynamic-engine no-static-engine \
+CFG_FLAGS="no-shared no-engine no-dynamic-engine no-static-engine \
         no-dso no-ui-console no-tests \
         --prefix=$MR_BUILD_PREFIX \
         --openssldir=$MR_BUILD_PREFIX \
