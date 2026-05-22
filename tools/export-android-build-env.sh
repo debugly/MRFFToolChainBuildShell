@@ -18,7 +18,7 @@
 # https://developer.android.com/ndk/guides/abis?hl=zh-cn#cmake_1
 
 
-export MR_ANDROID_API=21
+export MR_ANDROID_API=19
 
 case $_MR_ARCH in
     *v7a)
