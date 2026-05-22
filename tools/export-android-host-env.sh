@@ -19,10 +19,19 @@
 
 function install_depends() {
     local name="$1"
-    local r=$(brew list | grep "$name")
-    if [[ -z $r ]]; then
-        echo "will use brew install ${name}."
-        brew install "$name"
+    if command -v "$name" &> /dev/null; then
+        echo "[✅] ${name}: $(eval $name --version | head -n 1)"
+        return 0
+    else
+        if [[ "$name" == "rustup" || "$name" == "cargo" ]]; then
+            echo "will install rustup-init."
+            brew install rustup-init
+            rustup-init -y
+            return 0    
+        else
+            echo "will use brew install ${name}."
+            brew install "$name"
+        fi
     fi
     echo "[✅] ${name}: $(eval $name --version)"
 }

@@ -32,11 +32,20 @@ case $_MR_ARCH in
     export MR_ANDROID_ABI=x86
     ;;
     x86_64)
+    # -lt 代表 less than（小于）
+    if [[ $MR_ANDROID_API -lt 21 ]]; then
+        export MR_ANDROID_API=21
+    fi
     export MR_TRIPLE=x86_64-linux-android$MR_ANDROID_API
     export MR_FF_ARCH=x86_64
     export MR_ANDROID_ABI=x86_64
     ;;
     arm64*)
+    # 64 位 ARM 架构是从 Android 5.0（API 21）才开始诞生的
+    # -lt 代表 less than（小于）
+    if [[ $MR_ANDROID_API -lt 21 ]]; then
+        export MR_ANDROID_API=21
+    fi
     export MR_TRIPLE=aarch64-linux-android$MR_ANDROID_API
     export MR_FF_ARCH=aarch64
     export MR_ANDROID_ABI=arm64-v8a
