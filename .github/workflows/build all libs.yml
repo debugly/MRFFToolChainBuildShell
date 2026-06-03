@@ -94,6 +94,7 @@ jobs:
       with:
         ndk-version: r21e
         add-to-path: true
+        link-to-sdk: true
         local-cache: false
     - name: Checkout code
       uses: actions/checkout@v4
