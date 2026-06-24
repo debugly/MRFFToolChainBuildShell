@@ -23,9 +23,9 @@ export LIPO_LIBS="libavcodec libavformat libavutil libswscale libswresample liba
 export LIB_DEPENDS_BIN="nasm pkg-config"
 export GIT_LOCAL_REPO=extra/ffmpeg
 export REPO_DIR=ffmpeg8
-export PATCH_DIR=../../patches/ffmpeg-n8.1.1
-export GIT_COMMIT=n8.1.1
-export GIT_REPO_VERSION=8.1.1
+export PATCH_DIR=../../patches/ffmpeg-n8.1.2
+export GIT_COMMIT=n8.1.2
+export GIT_REPO_VERSION=8.1.2
 
 # you can export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git use your mirror
 if [[ "$GIT_FFMPEG_UPSTREAM" != "" ]] ;then
