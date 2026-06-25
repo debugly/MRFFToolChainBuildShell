@@ -7,20 +7,20 @@ echo "=== 1. 初始化并编译/配置各个 FFmpeg 版本 ==="
 ./main.sh init -p macos -l 'ffmpeg4 ffmpeg5 ffmpeg6 ffmpeg7 ffmpeg8' -a arm64
 
 echo "=== 2. 创建发布目录 ==="
-# GitHub Pages 默认支持根目录或 docs 目录，这里我们统一生成到 docs/
 OUTPUT_DIR="docs"
 mkdir -p "$OUTPUT_DIR"
 
-echo "=== 3. 生成带 Front Matter 的 index.md ==="
-# 写入 GitHub Pages / Jekyll 所需的元数据头部
-cat << 'EOF' > "$OUTPUT_DIR/index.md"
----
-layout: default
-title: FFmpeg Evolution Matrix (macOS arm64)
-description: A comprehensive feature comparison matrix between FFmpeg 4.x, 5.x, 6.x, 7.x, and 8.x.
-permalink: /
----
+echo "=== 3. 解决自定义域名与路由冲突 (关键修复) ==="
+# 1. 彻底禁用 Jekyll 编译，防止它乱动 permalink 路由
+touch "$OUTPUT_DIR/.nojekyll"
 
+# 2. 【核心】如果你的当前仓库在 Settings 绑定了自定义域名，请把下面这行的注释解开，并换成你的域名：
+# echo "debugly.github.io" > "$OUTPUT_DIR/CNAME"
+
+
+echo "=== 4. 生成 index.md (去掉了干扰路由的 Front Matter) ==="
+# 回归最纯粹的 Markdown 头部，靠 GitHub 原生渲染，不再加任何 permalink
+cat << 'EOF' > "$OUTPUT_DIR/index.md"
 # FFmpeg Feature Evolution Matrix (macOS arm64)
 
 > [!NOTE]
@@ -32,8 +32,4 @@ EOF
 # 追加原有的矩阵表格生成脚本的输出
 ./tools/list-all-feature.sh >> "$OUTPUT_DIR/index.md"
 
-echo "=== 4. 生成附加说明文件 ==="
-# 顺手生成一个简易的本地预览配置文件（防止 Jekyll 忽略下划线文件）
-echo "include: [_pages, _columns]" > "$OUTPUT_DIR/_config.yml"
-
-echo "🎉 完善成功！内容已生成至 ./$OUTPUT_DIR/index.md"
+echo "🎉 针对自定义域名优化成功！内容已生成至 ./$OUTPUT_DIR/index.md"
