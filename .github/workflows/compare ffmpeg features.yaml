@@ -26,10 +26,10 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
       - name: Setup Pages
-        uses: actions/configure-pages@v4
-
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Run Toolchain and Generate Matrix
         run: |
           chmod +x ./tools/publish-feature-doc.sh
