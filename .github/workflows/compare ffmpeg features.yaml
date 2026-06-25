@@ -32,7 +32,7 @@ jobs:
           enablement: true
       # custom domain cause 404 There isn't a GitHub Pages site here.
       - name: Install Markdown Parser
-        run: pip3 install markdown
+        run: pip3 install markdown --break-system-packages
 
       - name: Run Toolchain and Generate Matrix
         run: |
