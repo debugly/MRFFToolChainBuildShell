@@ -238,8 +238,8 @@ if [[ $result ]]; then
     echo "----------------------"
 fi
 
-result=$(gt_or_equal "8.1.1" "$GIT_REPO_VERSION")
-if [[ ! $result ]]; then
+# only for ffmpeg 8.1.1 need disable postproc module
+if [[ "8.1.1" == "$GIT_REPO_VERSION" ]]; then
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-postproc"
 fi
 
