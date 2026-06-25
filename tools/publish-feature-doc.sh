@@ -4,7 +4,7 @@
 set -e
 
 echo "=== 1. 初始化并编译/配置各个 FFmpeg 版本 ==="
-./main.sh init -p macos -l 'ffmpeg4,ffmpeg5,ffmpeg6,ffmpeg7,ffmpeg8' -a arm64 --skip-pull-base
+./main.sh init -p macos -l 'ffmpeg4 ffmpeg5 ffmpeg6 ffmpeg7 ffmpeg8' -a arm64 --skip-pull-base
 
 echo "=== 2. 创建发布目录 ==="
 # GitHub Pages 默认支持根目录或 docs 目录，这里我们统一生成到 docs/
