@@ -30,11 +30,15 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
+      # custom domain cause 404 There isn't a GitHub Pages site here.
+      - name: Install Markdown Parser
+        run: pip3 install markdown
+
       - name: Run Toolchain and Generate Matrix
         run: |
-          chmod +x ./tools/publish-feature-doc.sh
+          chmod +x ./tools/publish-feature-html.sh
           chmod +x ./tools/list-all-feature.sh
-          ./tools/publish-feature-doc.sh
+          ./tools/publish-feature-html.sh
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
