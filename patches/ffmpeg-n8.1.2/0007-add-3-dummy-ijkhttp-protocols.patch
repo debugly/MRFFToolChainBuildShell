@@ -1,0 +1,41 @@
+From 86da4f9eeb7824aa61cb59b690507a0772972a1d Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Fri, 8 May 2026 17:07:35 +0800
+Subject: add 3 dummy ijkhttp protocols
+
+---
+ libavformat/ijkutils.c  | 3 +++
+ libavformat/protocols.c | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/libavformat/ijkutils.c b/libavformat/ijkutils.c
+index ac80e54..ba8eadd 100644
+--- a/libavformat/ijkutils.c
++++ b/libavformat/ijkutils.c
+@@ -69,6 +69,9 @@ IJK_DUMMY_PROTOCOL(ijkhttphook);
+ IJK_DUMMY_PROTOCOL(ijksegment);
+ IJK_DUMMY_PROTOCOL(ijktcphook);
+ IJK_DUMMY_PROTOCOL(ijkio);
++IJK_DUMMY_PROTOCOL(ijkhttp1);
++IJK_DUMMY_PROTOCOL(ijkhttp2);
++IJK_DUMMY_PROTOCOL(ijkhttp3);
+ 
+ #define IJK_FF_DEMUXER(x)                                                                          \
+ extern FFInputFormat ff_##x##_demuxer;                                                               \
+diff --git a/libavformat/protocols.c b/libavformat/protocols.c
+index de0926b..d1c1095 100644
+--- a/libavformat/protocols.c
++++ b/libavformat/protocols.c
+@@ -84,6 +84,9 @@ extern const URLProtocol ff_ijkmediadatasource_protocol;
+ extern const URLProtocol ff_ijksegment_protocol;
+ extern const URLProtocol ff_ijktcphook_protocol;
+ extern const URLProtocol ff_ijkio_protocol;
++extern const URLProtocol ff_ijkhttp1_protocol;
++extern const URLProtocol ff_ijkhttp2_protocol;
++extern const URLProtocol ff_ijkhttp3_protocol;
+ 
+ #include "libavformat/protocol_list.c"
+ 
+-- 
+2.50.1 (Apple Git-155)
+
