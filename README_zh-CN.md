@@ -1,6 +1,6 @@
 ## MRFFToolChain 构建脚本
 
-![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total)<img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.1%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
+![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total)<img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.2%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
 
 
 **MRFFToolChain 是什么？**
@@ -13,14 +13,14 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 | 平台      | 架构                            | 最低部署目标版本 |
 | -------- | -------------------------------------- | ------------------------- |
-| iOS      | arm64、arm64_simulator、x86_64_simulator | 12.0                      |
-| tvOS     | arm64、arm64_simulator、x86_64_simulator | 12.0                      |
+| iOS      | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
+| tvOS     | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
 | macOS    | arm64、x86_64                           | 10.14                     |
 | Android  | arm64、armv7a、x86_64、x86                | 21                        |
 
 ## 最新动态
 
-- FFmpeg **8.1.1** 已经准备好了
+- FFmpeg **8.1.2** 已经准备好了
 - 将所有库升级至最新版本，不少库提升了性能
 - 使用 macOS 15，Xcode_16.4构建
 
@@ -124,36 +124,36 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 | 库名称        | 当前版本      | 仓库 URL      | 镜像仓库 URL   |
 | --------------- |----------- | ----------- | ------------ |
-| ffmpeg8     | 8.1.1           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
-| ffmpeg7     | 7.1.3           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
-| ffmpeg6     | 6.1.1           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
-| ffmpeg5     | 5.1.6           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
-| ffmpeg4     | 4.0.5           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT_FFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git        |
-| ijkffmpeg   | ff4.0--ijk0.8.8--20210426--001 | https://github.com/bilibili/FFmpeg.git    | export GIT_IJKFFMPEG_UPSTREAM=git@xx:yy/FFmpeg.git     |
-| ass        | 0.17.4          | https://github.com/libass/libass.git                     | export GIT_ASS_UPSTREAM=git@xx:yy/libass.git           |
-| bluray     | 1.3.4           | https://code.videolan.org/videolan/libbluray.git         | export GIT_BLURAY_UPSTREAM=git@xx:yy/libbluray.git     |
-| dav1d      | 1.5.3           | https://code.videolan.org/videolan/dav1d.git             | export GIT_DAV1D_UPSTREAM=git@xx:yy/dav1d.git          |
-| dvdread    | 6.1.3           | https://code.videolan.org/videolan/libdvdread.git        | export GIT_DVDREAD_UPSTREAM=git@xx:yy/libdvdread.git   |
-| dvdnav     | master-9831fe01 | https://code.videolan.org/videolan/libdvdnav.git         | export GIT_DVDNAV_UPSTREAM=git@xx:yy/libdvdnav.git     |
-| fontconfig | 2.17.1          | https://gitlab.freedesktop.org/fontconfig/fontconfig.git | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
-| freetype   | 2.14.1          | https://gitlab.freedesktop.org/freetype/freetype.git     | export GIT_FREETYPE_UPSTREAM=git@xx:yy/freetype.git    |
-| fribidi    | 1.0.16          | https://github.com/fribidi/fribidi.git                   | export GIT_FRIBIDI_UPSTREAM=git@xx:yy/fribidi.git      |
-| harfbuzz   | 12.3.2          | https://github.com/harfbuzz/harfbuzz.git                 | export GIT_HARFBUZZ_UPSTREAM=git@xx:yy/harfbuzz.git    |
-| openssl    | 1.1.1w          | https://github.com/openssl/openssl.git                   | export GIT_OPENSSL_UPSTREAM=git@xx:yy/openssl.git      |
-| openssl3    | 3.6.2          | https://github.com/openssl/openssl.git                   | export GIT_OPENSSL_UPSTREAM=git@xx:yy/openssl.git      |
-| opus       | 1.6.1           | https://gitlab.xiph.org/xiph/opus.git                    | export GIT_OPUS_UPSTREAM=git@xx:yy/opus.git            |
-| smb2       | 6.2             | https://github.com/sahlberg/libsmb2.git                  | export GIT_SMB2_UPSTREAM=git@xx:yy/libsmb2.git           |
-| soundtouch | 2.4.0           | https://codeberg.org/soundtouch/soundtouch.git           | export GIT_SOUNDTOUCH_UPSTREAM=git@xx:yy/soundtouch.git  |
-| unibreak   | 6.1             | https://github.com/adah1972/libunibreak.git              | export GIT_UNIBREAK_UPSTREAM=git@xx:yy/libunibreak.git |
-| uavs3d     | 1.2.1           | https://github.com/uavs3/uavs3d.git                      | export GIT_UAVS3D_UPSTREAM=git@xx:yy/UAVS3D.git          |
-| xml2       | 2.15.1          | https://github.com/GNOME/libxml2.git                     | export GIT_FONTCONFIG_UPSTREAM=git@xx:yy/fontconfig.git  |
-| yuv        | main-f94b8cf7  | https://github.com/debugly/libyuv.git                    | export GIT_YUV_UPSTREAM=git@xx:yy/yuv.git                |
-| webp       | v1.6.0 | https://github.com/debugly/libwebp.git | export GIT_WEBP_UPSTREAM=git@xx:yy/webp.git |
-| placebo | 7.349.0 | https://github.com/haasn/libplacebo.git | export GIT_LIBPLACEBO_UPSTREAM=git@xx:yy/libplacebo.git |
-| shaderc    | 2025.1 | https://github.com/google/shaderc.git | export GIT_SHADERC_UPSTREAM=git@xx:yy/shaderc.git |
-| moltenvk   | 1.3.1 | https://github.com/KhronosGroup/MoltenVK.git | export GIT_MOLTENVK_UPSTREAM=git@xx:yy/MoltenVK.git |
-| lcms2      | 2.16 | https://github.com/mm2/Little-CMS.git | export GIT_LCMS2_UPSTREAM=git@xx:yy/Little-CMS.git |
-| dovi       | 1.6.79 | https://github.com/AMDEXA/libdovi.git | export GIT_DOVI_UPSTREAM=git@xx:yy/libdovi.git |
+| ffmpeg8     | 8.1.2           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT\_FFMPEG\_UPSTREAM=git@xx:yy/FFmpeg.git        |
+| ffmpeg7     | 7.1.3           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT\_FFMPEG\_UPSTREAM=git@xx:yy/FFmpeg.git        |
+| ffmpeg6     | 6.1.1           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT\_FFMPEG\_UPSTREAM=git@xx:yy/FFmpeg.git        |
+| ffmpeg5     | 5.1.6           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT\_FFMPEG\_UPSTREAM=git@xx:yy/FFmpeg.git        |
+| ffmpeg4     | 4.0.5           | https://github.com/FFmpeg/FFmpeg.git                     | export GIT\_FFMPEG\_UPSTREAM=git@xx:yy/FFmpeg.git        |
+| ijkffmpeg   | ff4.0--ijk0.8.8--20210426--001 | https://github.com/bilibili/FFmpeg.git    | export GIT\_IJKFFMPEG\_UPSTREAM=git@xx:yy/FFmpeg.git     |
+| ass        | 0.17.4          | https://github.com/libass/libass.git                     | export GIT\_ASS\_UPSTREAM=git@xx:yy/libass.git           |
+| bluray     | 1.3.4           | https://code.videolan.org/videolan/libbluray.git         | export GIT\_BLURAY\_UPSTREAM=git@xx:yy/libbluray.git     |
+| dav1d      | 1.5.3           | https://code.videolan.org/videolan/dav1d.git             | export GIT\_DAV1D\_UPSTREAM=git@xx:yy/dav1d.git          |
+| dvdread    | 6.1.3           | https://code.videolan.org/videolan/libdvdread.git        | export GIT\_DVDREAD\_UPSTREAM=git@xx:yy/libdvdread.git   |
+| dvdnav     | master-9831fe01 | https://code.videolan.org/videolan/libdvdnav.git         | export GIT\_DVDNAV\_UPSTREAM=git@xx:yy/libdvdnav.git     |
+| fontconfig | 2.17.1          | https://gitlab.freedesktop.org/fontconfig/fontconfig.git | export GIT\_FONTCONFIG\_UPSTREAM=git@xx:yy/fontconfig.git  |
+| freetype   | 2.14.1          | https://gitlab.freedesktop.org/freetype/freetype.git     | export GIT\_FREETYPE\_UPSTREAM=git@xx:yy/freetype.git    |
+| fribidi    | 1.0.16          | https://github.com/fribidi/fribidi.git                   | export GIT\_FRIBIDI\_UPSTREAM=git@xx:yy/fribidi.git      |
+| harfbuzz   | 12.3.2          | https://github.com/harfbuzz/harfbuzz.git                 | export GIT\_HARFBUZZ\_UPSTREAM=git@xx:yy/harfbuzz.git    |
+| openssl    | 1.1.1w          | https://github.com/openssl/openssl.git                   | export GIT\_OPENSSL\_UPSTREAM=git@xx:yy/openssl.git      |
+| openssl3    | 3.6.2          | https://github.com/openssl/openssl.git                   | export GIT\_OPENSSL\_UPSTREAM=git@xx:yy/openssl.git      |
+| opus       | 1.6.1           | https://gitlab.xiph.org/xiph/opus.git                    | export GIT\_OPUS\_UPSTREAM=git@xx:yy/opus.git            |
+| smb2       | 6.2             | https://github.com/sahlberg/libsmb2.git                  | export GIT\_SMB2\_UPSTREAM=git@xx:yy/libsmb2.git           |
+| soundtouch | 2.4.0           | https://codeberg.org/soundtouch/soundtouch.git           | export GIT\_SOUNDTOUCH\_UPSTREAM=git@xx:yy/soundtouch.git  |
+| unibreak   | 6.1             | https://github.com/adah1972/libunibreak.git              | export GIT\_UNIBREAK\_UPSTREAM=git@xx:yy/libunibreak.git |
+| uavs3d     | 1.2.1           | https://github.com/uavs3/uavs3d.git                      | export GIT\_UAVS3D\_UPSTREAM=git@xx:yy/UAVS3D.git          |
+| xml2       | 2.15.1          | https://github.com/GNOME/libxml2.git                     | export GIT\_FONTCONFIG\_UPSTREAM=git@xx:yy/fontconfig.git  |
+| yuv        | main-f94b8cf7  | https://github.com/debugly/libyuv.git                    | export GIT\_YUV\_UPSTREAM=git@xx:yy/yuv.git                |
+| webp       | v1.6.0 | https://github.com/debugly/libwebp.git | export GIT\_WEBP\_UPSTREAM=git@xx:yy/webp.git |
+| placebo | 7.349.0 | https://github.com/haasn/libplacebo.git | export GIT\_LIBPLACEBO\_UPSTREAM=git@xx:yy/libplacebo.git |
+| shaderc    | 2025.1 | https://github.com/google/shaderc.git | export GIT\_SHADERC\_UPSTREAM=git@xx:yy/shaderc.git |
+| moltenvk   | 1.3.1 | https://github.com/KhronosGroup/MoltenVK.git | export GIT\_MOLTENVK\_UPSTREAM=git@xx:yy/MoltenVK.git |
+| lcms2      | 2.16 | https://github.com/mm2/Little-CMS.git | export GIT\_LCMS2\_UPSTREAM=git@xx:yy/Little-CMS.git |
+| dovi       | 1.6.79 | https://github.com/AMDEXA/libdovi.git | export GIT\_DOVI\_UPSTREAM=git@xx:yy/libdovi.git |
 
 ## 提示
 
