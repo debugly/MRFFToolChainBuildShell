@@ -11,12 +11,12 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 ## 支持的平台
 
-| 平台      | 架构                            | 最低部署目标版本 |
-| -------- | -------------------------------------- | ------------------------- |
+| 平台      | 架构                                        |        最低部署目标版本      |
+| -------- | ------------------------------------------ | ------------------------- |
 | iOS      | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
 | tvOS     | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
-| macOS    | arm64、x86_64                           | 10.14                     |
-| Android  | arm64、armv7a、x86_64、x86                | 21                        |
+| macOS    | arm64、x86_64                               | 10.14                     |
+| Android  | arm64、armv7a、x86_64、x86                   | 21                        |
 
 ## 最新动态
 
@@ -159,5 +159,6 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 - 要下载预编译的 xcframework 库，使用 install 命令时添加 --fmwk 参数
 - 初始化时要跳过拉取远程仓库，使用 init 命令时添加 --skip-pull-base 参数
+- 编译 macOS 平台时可同时生成 `ffmpeg` 可执行程序（并启用 VideoToolbox 编码器和 lavfi 输入设备），使用 compile 命令时添加 `--enable-ffmpeg`
 - 目前 FFmpeg 使用 module-full.sh 配置，功能全但同时导致包体积略大
 - 可以将所有预编译的 GitHub 库下载到自己的服务器，并在运行 install 命令前通过 MR\_DOWNLOAD\_BASEURL 指定你的服务器地址

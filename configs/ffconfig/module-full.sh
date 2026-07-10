@@ -19,8 +19,12 @@ export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-gray"
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-swscale-alpha"
 
 # Program options:
-export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-programs"
-export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-ffmpeg"
+if [[ "$MR_ENABLE_FFMPEG" == "1" ]]; then
+    export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-ffmpeg"
+else
+    export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-programs"
+    export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-ffmpeg"
+fi
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-ffplay"
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-ffprobe"
 #ff4.0--ijk0.8.25--20190703--001 Unknown option "--disable-ffserver"
@@ -82,7 +86,12 @@ export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-encoders"
 # export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-encoder=wmv*"
 # export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-encoder=msmpeg4*"
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-encoder=gif"
-
+if [[ "$MR_ENABLE_FFMPEG" == "1" ]]; then
+    # 显式启用 VideoToolbox hevc(H.265) 编码器
+    export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-encoder=hevc_videotoolbox"
+    # 显式启用 VideoToolbox H.264 编码器
+    export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-encoder=h264_videotoolbox"
+fi
 # ./configure --list-decoders
 #audio
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-decoders"
@@ -440,6 +449,9 @@ export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-protocol=unix"
 
 #
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-devices"
+if [[ "$MR_ENABLE_FFMPEG" == "1" ]]; then
+    export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-indev=lavfi,testsrc,sine"
+fi
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-filters"
 # transpose_vt available macos(13.0), ios(16.0), tvos(16.0), visionos(1.0)
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --disable-filter=transpose_vt"
