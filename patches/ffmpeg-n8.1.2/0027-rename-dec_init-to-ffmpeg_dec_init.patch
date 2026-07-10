@@ -1,0 +1,53 @@
+From 084de7be0cb02d765b9a85d5273dcf11abaa9564 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Fri, 10 Jul 2026 16:07:13 +0800
+Subject: rename dec_init to ffmpeg_dec_init
+
+---
+ fftools/ffmpeg.h       | 2 +-
+ fftools/ffmpeg_dec.c   | 2 +-
+ fftools/ffmpeg_demux.c | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/fftools/ffmpeg.h b/fftools/ffmpeg.h
+index 3e33438..8b37e77 100644
+--- a/fftools/ffmpeg.h
++++ b/fftools/ffmpeg.h
+@@ -887,7 +887,7 @@ int dec_create(const OptionsContext *o, const char *arg, Scheduler *sch);
+  * @retval ">=0" non-negative scheduler index on success
+  * @retval "<0"  an error code on failure
+  */
+-int dec_init(Decoder **pdec, Scheduler *sch,
++int ffmpeg_dec_init(Decoder **pdec, Scheduler *sch,
+              AVDictionary **dec_opts, const DecoderOpts *o,
+              AVFrame *param_out);
+ void dec_free(Decoder **pdec);
+diff --git a/fftools/ffmpeg_dec.c b/fftools/ffmpeg_dec.c
+index e424c0b..ae288c8 100644
+--- a/fftools/ffmpeg_dec.c
++++ b/fftools/ffmpeg_dec.c
+@@ -1662,7 +1662,7 @@ static int dec_open(DecoderPriv *dp, AVDictionary **dec_opts,
+     return 0;
+ }
+ 
+-int dec_init(Decoder **pdec, Scheduler *sch,
++int ffmpeg_dec_init(Decoder **pdec, Scheduler *sch,
+              AVDictionary **dec_opts, const DecoderOpts *o,
+              AVFrame *param_out)
+ {
+diff --git a/fftools/ffmpeg_demux.c b/fftools/ffmpeg_demux.c
+index 7c708ff..7900ea2 100644
+--- a/fftools/ffmpeg_demux.c
++++ b/fftools/ffmpeg_demux.c
+@@ -1015,7 +1015,7 @@ int ist_use(InputStream *ist, int decoding_needed,
+         if (!ds->decoded_params)
+             return AVERROR(ENOMEM);
+ 
+-        ret = dec_init(&ist->decoder, d->sch,
++        ret = ffmpeg_dec_init(&ist->decoder, d->sch,
+                        &ds->decoder_opts, &ds->dec_opts, ds->decoded_params);
+         if (ret < 0)
+             return ret;
+-- 
+2.50.1 (Apple Git-155)
+
