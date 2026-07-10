@@ -70,15 +70,32 @@ function compile_macos_platform
     
     local log_file="$DIST_DIR/macos-compile-log-$RELEASE_VERSION.md"
 
+    local repo_dir=$(grep REPO_DIR= ./configs/libs/${LIB_NAME}.sh | tail -n 1 | awk -F = '{printf "%s",$2}' | tr -d '"'\''')
+    local extra_args=""
+    if [[ "$repo_dir" == "ffmpeg8" ]]; then
+        extra_args="--enable-ffmpeg"
+    fi
+
     if [[ $VERBOSE ]];then
-        ./main.sh compile -p macos -c build -l ${LIB_NAME} 2>&1 | tee -a "$log_file"
+        ./main.sh compile -p macos -c build -l ${LIB_NAME} $extra_args 2>&1 | tee -a "$log_file"
     else
-        ./main.sh compile -p macos -c build -l ${LIB_NAME} >> "$log_file" 2>&1
+        ./main.sh compile -p macos -c build -l ${LIB_NAME} $extra_args >> "$log_file" 2>&1
     fi
 
     cd build/product/macos/universal
     zip -ryq $DIST_DIR/${LIB_NAME}-macos-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
+
+    # Copy the architecture-specific ffmpeg binaries if they were compiled
+    if [[ "$repo_dir" == "ffmpeg8" ]]; then
+        for arch in arm64 x86_64; do
+            local ffmpeg_bin="build/product/macos/${LIB_NAME}-${arch}/bin/ffmpeg"
+            if [ -f "$ffmpeg_bin" ]; then
+                cp "$ffmpeg_bin" "$DIST_DIR/ffmpeg-macos-${arch}"
+                echo "Copied $ffmpeg_bin to $DIST_DIR/ffmpeg-macos-${arch}"
+            fi
+        done
+    fi
 }
 
 function compile_tvos_platform
@@ -183,11 +200,11 @@ function publish()
 {
     echo "---Create Release--------------------------------------"
     if [[ $DRYRUN ]];then
-        echo "DRYRUN: gh release create $TAG -t $TITLE $DIST_DIR/*.*"
+        echo "DRYRUN: gh release create $TAG -t $TITLE $DIST_DIR/*"
         return
     fi
     upgrade
-    gh release create $TAG --target $(git branch --show-current) -t $TITLE $DIST_DIR/*.* --generate-notes
+    gh release create $TAG --target $(git branch --show-current) -t $TITLE $DIST_DIR/* --generate-notes
 }
 
 function main()
