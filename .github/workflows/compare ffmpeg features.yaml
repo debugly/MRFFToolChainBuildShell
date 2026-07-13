@@ -32,6 +32,16 @@ jobs:
       - name: Install Markdown Parser
         run: pip3 install markdown --break-system-packages
 
+      - name: Build Custom ffmpeg8-bin
+        run: |
+          ./.github/workflows/install-dependencies.sh macos
+          ./main.sh compile -p macos -c rebuild -l "ffmpeg8-bin"
+
+      - name: Generate Test Videos
+        run: |
+          chmod +x ./.github/workflows/generate-test-videos.sh
+          ./.github/workflows/generate-test-videos.sh 5 ./docs/videos
+
       - name: Run Toolchain and Generate Matrix
         run: |
           chmod +x ./tools/publish-feature-html.sh
