@@ -1,9 +1,7 @@
 name: Compare FFmpeg Features
 
 on:
-  push:
-    branches:
-      - master # 或者 main，根据你的主分支名字修改
+  workflow_dispatch:
 
 # 给 Action 赋予修改 Pages 的权限
 permissions:
