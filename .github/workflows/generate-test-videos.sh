@@ -30,6 +30,9 @@ CANDIDATES=(
     "build/product/macos/ffmpeg8-bin-${HOST_ARCH}/bin/ffmpeg"
     "build/product/macos/ffmpeg8-bin-arm64/bin/ffmpeg"
     "build/product/macos/ffmpeg8-bin-x86_64/bin/ffmpeg"
+    "product/macos/universal/bin/ffmpeg-macos-${HOST_ARCH}"
+    "product/macos/universal/bin/ffmpeg-macos-arm64"
+    "product/macos/universal/bin/ffmpeg-macos-x86_64"
 )
 
 for path in "${CANDIDATES[@]}"; do

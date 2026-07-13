@@ -79,11 +79,25 @@ function compile_macos_platform
         ./main.sh compile -p macos -c build -l ${LIB_NAME} $extra_args >> "$log_file" 2>&1
     fi
 
+    # Copy the architecture-specific binaries to universal/bin before zipping if they were compiled
+    if [[ "$REPO_DIR" == "ffmpeg8" ]]; then
+        mkdir -p build/product/macos/universal/bin
+        for arch in arm64 x86_64; do
+            for bin in ffmpeg ffplay ffprobe; do
+                local bin_file="build/product/macos/${LIB_NAME}-${arch}/bin/$bin"
+                if [ -f "$bin_file" ]; then
+                    cp "$bin_file" "build/product/macos/universal/bin/$bin-macos-${arch}"
+                    echo "Copied $bin_file to build/product/macos/universal/bin/$bin-macos-${arch}"
+                fi
+            done
+        done
+    fi
+
     cd build/product/macos/universal
     zip -ryq $DIST_DIR/${LIB_NAME}-macos-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 
-    # Copy the architecture-specific binaries if they were compiled
+    # Copy the architecture-specific binaries to release assets if they were compiled
     if [[ "$REPO_DIR" == "ffmpeg8" ]]; then
         for arch in arm64 x86_64; do
             for bin in ffmpeg ffplay ffprobe; do
