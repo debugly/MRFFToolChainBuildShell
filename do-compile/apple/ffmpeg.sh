@@ -39,21 +39,7 @@ CFG_FLAGS="$CFG_FLAGS $COMMON_FF_CFG_FLAGS"
 CFG_FLAGS="$CFG_FLAGS $THIRD_CFG_FLAGS"
 
 C_FLAGS="$MR_DEFAULT_CFLAGS"
-EXTRA_LDFLAGS=
-if [[ "$MR_ENABLE_FFMPEG" == "1" && "$MR_PLAT" = "macos" ]]; then
-    # Dynamically find third-party static libraries using pkg-config
-    pkgs="libass libbluray dav1d dvdread dvdnav freetype2 fribidi harfbuzz openssl opus libsmb2 uavs3d libunibreak libxml-2.0 libwebp libwebpdecoder libwebpdemux"
-    enabled_pkgs=""
-    for pkg in $pkgs; do
-        if pkg-config --exists "$pkg" 2>/dev/null; then
-            enabled_pkgs="$enabled_pkgs $pkg"
-        fi
-    done
-    if [ -n "$enabled_pkgs" ]; then
-        EXTRA_LDFLAGS=$(pkg-config --static --libs $enabled_pkgs)
-    fi
-fi
-LDFLAGS="$C_FLAGS $EXTRA_LDFLAGS"
+LDFLAGS="$C_FLAGS"
 # C_FLAGS="$C_FLAGS -I/Users/matt/GitWorkspace/MoltenVK/Package/Release/MoltenVK/include"
 # use system xml2 lib
 # C_FLAGS="$C_FLAGS $(xml2-config --prefix=${MR_SYS_ROOT}/usr --cflags)"

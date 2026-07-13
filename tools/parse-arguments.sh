@@ -68,7 +68,6 @@ OPTIONS:
     --help              Show help banner of compile command
     --debug             Enable debug mode (disable by default)
     --fmwk              Make xcframework(apple platform only)
-    --enable-ffmpeg     Enable ffmpeg program and VT encoders / indevs (macos platform only)
 EOF
 }
 
@@ -205,9 +204,6 @@ while [[ $# -gt 0 ]]; do
         --fmwk)
             export MR_MAKE_XCFRAMEWORK=1
         ;;
-        --enable-ffmpeg)
-            export MR_ENABLE_FFMPEG=1
-        ;;
         -lib-config)
             MR_UNKNOWN_OPTIONS+=("$1")
             has_lib_config=1
@@ -304,7 +300,6 @@ echo "MR_HOST_NPROC   : [$MR_HOST_NPROC]"
 echo "MR_DEBUG        : [$MR_DEBUG]"
 echo "MR_INIT_CFLAGS  : [$MR_INIT_CFLAGS]"
 echo "MR_MAKE_XCFRAMEWORK" : [$MR_MAKE_XCFRAMEWORK]
-echo "MR_ENABLE_FFMPEG"    : [$MR_ENABLE_FFMPEG]
 [[ ${#MR_UNKNOWN_OPTIONS[@]} -gt 0 ]] && echo "MR_UNKNOWN_OPTIONS : [${MR_UNKNOWN_OPTIONS[*]}]"
 
 unset platform cmd arch libs workspace debug action cflags

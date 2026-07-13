@@ -25,6 +25,7 @@ fi
 export HOMEBREW_NO_AUTO_UPDATE=1
 export RELEASE_DATE=$(TZ=UTC-8 date +'%y%m%d%H%M%S')
 export RELEASE_VERSION=$(grep GIT_REPO_VERSION= ./configs/libs/${LIB_NAME}.sh | tail -n 1 | awk -F = '{printf "%s",$2}')
+export REPO_DIR=$(grep REPO_DIR= ./configs/libs/${LIB_NAME}.sh | tail -n 1 | awk -F = '{printf "%s",$2}' | tr -d "'\"")
 export TAG=${LIB_NAME}-${RELEASE_VERSION}-${RELEASE_DATE}
 export TITLE="👏👏${LIB_NAME}-${PLAT}-${RELEASE_VERSION}"
 
@@ -70,11 +71,7 @@ function compile_macos_platform
     
     local log_file="$DIST_DIR/macos-compile-log-$RELEASE_VERSION.md"
 
-    local repo_dir=$(grep REPO_DIR= ./configs/libs/${LIB_NAME}.sh | tail -n 1 | awk -F = '{printf "%s",$2}' | tr -d '"'\''')
     local extra_args=""
-    if [[ "$repo_dir" == "ffmpeg8" ]]; then
-        extra_args="--enable-ffmpeg"
-    fi
 
     if [[ $VERBOSE ]];then
         ./main.sh compile -p macos -c build -l ${LIB_NAME} $extra_args 2>&1 | tee -a "$log_file"
@@ -86,14 +83,16 @@ function compile_macos_platform
     zip -ryq $DIST_DIR/${LIB_NAME}-macos-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 
-    # Copy the architecture-specific ffmpeg binaries if they were compiled
-    if [[ "$repo_dir" == "ffmpeg8" ]]; then
+    # Copy the architecture-specific binaries if they were compiled
+    if [[ "$REPO_DIR" == "ffmpeg8" ]]; then
         for arch in arm64 x86_64; do
-            local ffmpeg_bin="build/product/macos/${LIB_NAME}-${arch}/bin/ffmpeg"
-            if [ -f "$ffmpeg_bin" ]; then
-                cp "$ffmpeg_bin" "$DIST_DIR/ffmpeg-macos-${arch}"
-                echo "Copied $ffmpeg_bin to $DIST_DIR/ffmpeg-macos-${arch}"
-            fi
+            for bin in ffmpeg ffplay ffprobe; do
+                local bin_file="build/product/macos/${LIB_NAME}-${arch}/bin/$bin"
+                if [ -f "$bin_file" ]; then
+                    cp "$bin_file" "$DIST_DIR/$bin-macos-${arch}"
+                    echo "Copied $bin_file to $DIST_DIR/$bin-macos-${arch}"
+                fi
+            done
         done
     fi
 }

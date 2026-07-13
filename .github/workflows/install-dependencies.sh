@@ -54,6 +54,9 @@ case $LIB_NAME in
             fi
         fi
     ;;
+    ffmpeg8-bin)
+        ./main.sh install -l 'ass openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp x264 x265' -p macos
+    ;;
     ffmpeg7)
         if [[ $PLAT == all ]];then
             ./main.sh install -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp' -p ios

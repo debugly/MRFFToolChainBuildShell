@@ -50,6 +50,7 @@ on:
         default: 'ffmpeg7'
         options:
           - ffmpeg8
+          - ffmpeg8-bin
           - ffmpeg7
           - ffmpeg6
           - ffmpeg5
