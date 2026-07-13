@@ -7,7 +7,7 @@
 
 MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、tvOS、Android 平台的三方库，其构建产物为 [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial) 所用.
 
-目前包含了这些库：`ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp`.
+目前包含了这些库：`ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp、x264、x265`.
 
 ## 支持的平台
 
@@ -154,6 +154,8 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 | moltenvk   | 1.3.1 | https://github.com/KhronosGroup/MoltenVK.git | export GIT\_MOLTENVK\_UPSTREAM=git@xx:yy/MoltenVK.git |
 | lcms2      | 2.16 | https://github.com/mm2/Little-CMS.git | export GIT\_LCMS2\_UPSTREAM=git@xx:yy/Little-CMS.git |
 | dovi       | 1.6.79 | https://github.com/AMDEXA/libdovi.git | export GIT\_DOVI\_UPSTREAM=git@xx:yy/libdovi.git |
+| x264       | master          | https://code.videolan.org/videolan/x264.git             | export GIT\_X264\_UPSTREAM=git@xx:yy/x264.git             |
+| x265       | 4.2             | https://bitbucket.org/multicoreware/x265_git.git        | export GIT\_X265\_UPSTREAM=git@xx:yy/x265.git             |
 
 ## 提示
 

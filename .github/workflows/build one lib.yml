@@ -75,6 +75,8 @@ on:
           - smb2
           - soundtouch
           - uavs3d
+          - x264
+          - x265
           - unibreak
           - yuv
           - xml2

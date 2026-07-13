@@ -52,6 +52,8 @@ on:
           - bluray
           - dav1d
           - uavs3d
+          - x264
+          - x265
           - smb2
           - webp
           - ijkffmpeg
@@ -196,6 +198,8 @@ jobs:
           "bluray"
           "dav1d"
           "uavs3d"
+          "x264"
+          "x265"
           "smb2"
           "webp"
           "lcms2"

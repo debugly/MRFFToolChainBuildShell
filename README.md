@@ -6,7 +6,7 @@
 
 MRFFToolChain is a mature set of compilation tools specifically designed for compiling third-party libraries for iOS, macOS, tvOS, and Android platforms. It's products was built for [fsplayer](https://github.com/debugly/fsplayer) 、[ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
 
-At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp`.
+At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp、x264、x265`.
 
 ## Supported Plat
 
@@ -151,6 +151,8 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 | moltenvk   | 1.3.1 | https://github.com/KhronosGroup/MoltenVK.git | export GIT\_MOLTENVK\_UPSTREAM=git@xx:yy/MoltenVK.git |
 | lcms2      | 2.16 | https://github.com/mm2/Little-CMS.git | export GIT\_LCMS2\_UPSTREAM=git@xx:yy/Little-CMS.git |
 | dovi       | 1.6.79 | https://github.com/AMDEXA/libdovi.git | export GIT\_DOVI\_UPSTREAM=git@xx:yy/libdovi.git |
+| x264       | master          | https://code.videolan.org/videolan/x264.git             | export GIT\_X264\_UPSTREAM=git@xx:yy/x264.git             |
+| x265       | 4.2             | https://bitbucket.org/multicoreware/x265_git.git        | export GIT\_X265\_UPSTREAM=git@xx:yy/x265.git             |
 
 ## Tips
 

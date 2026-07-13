@@ -185,7 +185,7 @@ function do_compile() {
     fi
     
     mkdir -p "$MR_BUILD_PREFIX"
-    ./$LIB_NAME.sh
+    bash ./$LIB_NAME.sh
 }
 
 function resolve_dep() {

@@ -25,16 +25,27 @@
 
 THIRD_CFG_FLAGS=
 
-# echo "----------------------"
+echo "----------------------"
 
-# pkg-config --libs x264 --silence-errors >/dev/null && enable_x264=1
+pkg-config --libs x264 --silence-errors >/dev/null && enable_x264=1
 
-# if [[ $enable_x264 ]];then
-#     echo "[✅] --enable-libx264 : $(pkg-config --modversion x264)"
-#     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-gpl --enable-libx264"
-# else
-#     echo "[❌] --disable-libx264"
-# fi
+if [[ $enable_x264 ]];then
+    echo "[✅] --enable-libx264 : $(pkg-config --modversion x264)"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-gpl --enable-libx264 --enable-encoder=libx264"
+else
+    echo "[❌] --disable-libx264"
+fi
+
+echo "----------------------"
+
+pkg-config --libs x265 --silence-errors >/dev/null && enable_x265=1
+
+if [[ $enable_x265 ]];then
+    echo "[✅] --enable-libx265 : $(pkg-config --modversion x265)"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-gpl --enable-libx265 --enable-encoder=libx265"
+else
+    echo "[❌] --disable-libx265"
+fi
 
 # echo "----------------------"
 
