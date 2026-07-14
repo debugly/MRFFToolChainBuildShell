@@ -31,15 +31,52 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
 # ffmpeg config options
-source $MR_SHELL_CONFIGS_DIR/ffconfig/module-full.sh
+if [[ "$ENABLE_BIN" == "1" ]]; then
+    source $MR_SHELL_CONFIGS_DIR/ffconfig/module-program.sh
+
+    # Prep PKG_CONFIG_PATH with our built universal products
+    for d in "$MR_PRODUCT_ROOT/universal"/*; do
+        if [[ -d "$d/lib/pkgconfig" ]]; then
+            export PKG_CONFIG_PATH="$d/lib/pkgconfig:$PKG_CONFIG_PATH"
+        fi
+    done
+else
+    source $MR_SHELL_CONFIGS_DIR/ffconfig/module-full.sh
+fi
+
 source $MR_SHELL_CONFIGS_DIR/ffconfig/auto-detect-third-libs.sh
 
 CFG_FLAGS=
 CFG_FLAGS="$CFG_FLAGS $COMMON_FF_CFG_FLAGS"
 CFG_FLAGS="$CFG_FLAGS $THIRD_CFG_FLAGS"
 
+if [[ "$ENABLE_BIN" == "1" ]]; then
+    # If sdl2 is not found on host, disable sdl2 and ffplay
+    if ! pkg-config --exists sdl2 2>/dev/null; then
+        echo "[!] SDL2 not found, disabling sdl2 and ffplay"
+        CFG_FLAGS="$CFG_FLAGS --disable-sdl2 --disable-ffplay"
+    fi
+fi
+
 C_FLAGS="$MR_DEFAULT_CFLAGS"
-LDFLAGS="$C_FLAGS"
+
+if [[ "$ENABLE_BIN" == "1" ]]; then
+    EXTRA_LDFLAGS=
+    # Dynamically query pkg-config to link all available third party static libraries
+    pkgs="libx264 libx265 libass libbluray dav1d dvdread dvdnav freetype2 fribidi harfbuzz openssl opus libsmb2 uavs3d libunibreak libxml-2.0 libwebp libwebpdecoder libwebpdemux"
+    enabled_pkgs=""
+    for pkg in $pkgs; do
+        if pkg-config --exists "$pkg" 2>/dev/null; then
+            enabled_pkgs="$enabled_pkgs $pkg"
+        fi
+    done
+    if [ -n "$enabled_pkgs" ]; then
+        EXTRA_LDFLAGS=$(pkg-config --static --libs $enabled_pkgs)
+    fi
+    LDFLAGS="$C_FLAGS $EXTRA_LDFLAGS"
+else
+    LDFLAGS="$C_FLAGS"
+fi
 # C_FLAGS="$C_FLAGS -I/Users/matt/GitWorkspace/MoltenVK/Package/Release/MoltenVK/include"
 # use system xml2 lib
 # C_FLAGS="$C_FLAGS $(xml2-config --prefix=${MR_SYS_ROOT}/usr --cflags)"

@@ -1,4 +1,5 @@
-export LIB_NAME='ffmpeg8-bin'
+export LIB_NAME='ffmpeg'
+export ENABLE_BIN=1
 
 if [[ "$MR_PLAT" != "macos" ]]; then
     echo "❌ ffmpeg8-bin is only supported on the macos platform."
@@ -8,7 +9,7 @@ fi
 export LIPO_LIBS=""
 export LIB_DEPENDS_BIN="nasm pkg-config"
 export GIT_LOCAL_REPO=extra/ffmpeg
-export REPO_DIR=ffmpeg8
+export REPO_DIR=ffmpeg8-bin
 export PATCH_DIR=../../patches/ffmpeg8-bin
 export GIT_COMMIT=n8.1.2
 export GIT_REPO_VERSION=8.1.2

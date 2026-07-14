@@ -32,19 +32,16 @@ function parse_lib_config() {
         exit
     fi
     
-    export TAG=$vt
     # opus-1.3.1-231124151836
     # yuv-stable-eb6e7bb-250225223408
-    LIB_NAME=$(echo $TAG | awk -F - '{print $1}')
+    export TAG=$vt
+    
     local prefix="${LIB_NAME}-"
     local suffix=$(echo $TAG | awk -F - '{printf "-%s", $NF}')
     # 去掉前缀
     local temp=${TAG#$prefix}
     # 去掉后缀
-    VER=${temp%$suffix}
-    
-    export VER
-    export LIB_NAME
+    export VER=${temp%$suffix}
 }
 
 function do_install_a_lib()
