@@ -19,10 +19,13 @@ export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-ffprobe"
 
 # enable virtual and capture indevs for the binary program
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-indev=lavfi,testsrc,sine"
-if [[ "$MR_PLAT" == "macos" || "$MR_PLAT" == "ios" ]]; then
+export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-encoder=aac"
+
+if [[ "$MR_PLAT" == "macos" ]]; then
     export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-indev=avfoundation,openal"
     export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-outdev=audiotoolbox"
-    # 显式启用 VideoToolbox hevc(H.265) 与 H.264 硬件加速编码器
+    # 显式启用 VideoToolbox hevc(H.265) 与 H.264 硬件加速编码器，以及 AudioToolbox AAC 编码器
     export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-encoder=hevc_videotoolbox"
     export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-encoder=h264_videotoolbox"
+    export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-encoder=aac_at"
 fi
