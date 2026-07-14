@@ -61,10 +61,10 @@ function compile_ios_platform
     fi
          
     cd build/product/ios/universal
-    zip -ryq $DIST_DIR/${LIB_NAME}-ios-universal-${RELEASE_VERSION}.zip ./*
+    zip -ryq $DIST_DIR/${CONFIG_NAME}-ios-universal-${RELEASE_VERSION}.zip ./*
     
     cd ../universal-simulator
-    zip -ryq $DIST_DIR/${LIB_NAME}-ios-universal-simulator-${RELEASE_VERSION}.zip ./*
+    zip -ryq $DIST_DIR/${CONFIG_NAME}-ios-universal-simulator-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
 
@@ -105,7 +105,7 @@ function compile_macos_platform
     fi
 
     cd build/product/macos/universal
-    zip -ryq $DIST_DIR/${LIB_NAME}-macos-universal-${RELEASE_VERSION}.zip ./*
+    zip -ryq $DIST_DIR/${CONFIG_NAME}-macos-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
 
@@ -122,10 +122,10 @@ function compile_tvos_platform
     fi     
 
     cd build/product/tvos/universal
-    zip -ryq $DIST_DIR/${LIB_NAME}-tvos-universal-${RELEASE_VERSION}.zip ./*
+    zip -ryq $DIST_DIR/${CONFIG_NAME}-tvos-universal-${RELEASE_VERSION}.zip ./*
     
     cd ../universal-simulator
-    zip -ryq $DIST_DIR/${LIB_NAME}-tvos-universal-simulator-${RELEASE_VERSION}.zip ./*
+    zip -ryq $DIST_DIR/${CONFIG_NAME}-tvos-universal-simulator-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
 
@@ -143,7 +143,7 @@ function compile_android_platform
     fi
 
     cd build/product/android/universal
-    zip -ryq $DIST_DIR/${LIB_NAME}-android-universal-${RELEASE_VERSION}.zip ./*
+    zip -ryq $DIST_DIR/${CONFIG_NAME}-android-universal-${RELEASE_VERSION}.zip ./*
     cd $ROOT_DIR
 }
 
@@ -152,7 +152,7 @@ function make_xcfmwk_bundle()
     echo "---skip apple xcframework--------------------------------------"
     # echo "---Zip apple xcframework--------------------------------------"
     # cd build/product/xcframework
-    # zip -ryq $DIST_DIR/${LIB_NAME}-apple-xcframework-${RELEASE_VERSION}.zip ./*
+    # zip -ryq $DIST_DIR/${CONFIG_NAME}-apple-xcframework-${RELEASE_VERSION}.zip ./*
     # cd $ROOT_DIR
 }
 
