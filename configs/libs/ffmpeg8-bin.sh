@@ -19,4 +19,4 @@ if [[ "$GIT_FFMPEG_UPSTREAM" != "" ]] ;then
 else
     export GIT_UPSTREAM=https://github.com/FFmpeg/FFmpeg.git
 fi
-export PRE_COMPILE_TAG_MACOS=ffmpeg8-bin-8.1.2-260713170208
+export PRE_COMPILE_TAG_MACOS=ffmpeg8-bin-8.1.2-260714110512
