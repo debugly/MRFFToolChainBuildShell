@@ -149,6 +149,69 @@ echo -e "\033[34m[*] Case 5.1: Generating MP4 with standard AAC audio (Universal
 #     -c:a libopus \
 #     -y "$OUTPUT_DIR/test_audio_opus.mp4"
 
+# ---------------------------------------------------------------------
+# VIRTUAL SOURCES: Generate showcase videos for virtual test sources
+# ---------------------------------------------------------------------
+echo "=========================================================="
+echo -e "\033[35m[*] Section 6: Generating Virtual Sources Showcase Videos...\033[0m"
+echo "=========================================================="
+
+echo -e "\033[34m[*] Generating Showcase: testsrc (Color bars + timing)...\033[0m"
+"$FFMPEG_BIN" -f lavfi -i "testsrc=duration=${DURATION}:size=640x360:rate=30" \
+    -pix_fmt yuv420p \
+    -c:v libx264 \
+    -y "$OUTPUT_DIR/vsrc_testsrc.mp4"
+
+echo -e "\033[34m[*] Generating Showcase: testsrc2 (Modern color bars)...\033[0m"
+"$FFMPEG_BIN" -f lavfi -i "testsrc2=duration=${DURATION}:size=640x360:rate=30" \
+    -pix_fmt yuv420p \
+    -c:v libx264 \
+    -y "$OUTPUT_DIR/vsrc_testsrc2.mp4"
+
+echo -e "\033[34m[*] Generating Showcase: sine (1000Hz tone with static background)...\033[0m"
+"$FFMPEG_BIN" -f lavfi -i "color=color=darkblue:duration=${DURATION}:size=640x360:rate=30" \
+    -f lavfi -i "sine=frequency=1000:duration=${DURATION}" \
+    -pix_fmt yuv420p \
+    -c:v libx264 \
+    -c:a aac \
+    -y "$OUTPUT_DIR/vsrc_sine.mp4"
+
+echo -e "\033[34m[*] Generating Showcase: color (Solid green background)...\033[0m"
+"$FFMPEG_BIN" -f lavfi -i "color=color=0x1a823b:duration=${DURATION}:size=640x360:rate=30" \
+    -pix_fmt yuv420p \
+    -c:v libx264 \
+    -y "$OUTPUT_DIR/vsrc_color.mp4"
+
+echo -e "\033[34m[*] Generating Showcase: mandelbrot (Mandelbrot fractal zoom)...\033[0m"
+"$FFMPEG_BIN" -f lavfi -i "mandelbrot=duration=${DURATION}:size=640x360:rate=30" \
+    -pix_fmt yuv420p \
+    -c:v libx264 \
+    -y "$OUTPUT_DIR/vsrc_mandelbrot.mp4"
+
+echo -e "\033[34m[*] Generating Showcase: gradients (Linear gradient dynamic colors)...\033[0m"
+"$FFMPEG_BIN" -f lavfi -i "gradients=duration=${DURATION}:size=640x360:rate=30" \
+    -pix_fmt yuv420p \
+    -c:v libx264 \
+    -y "$OUTPUT_DIR/vsrc_gradients.mp4"
+
+echo -e "\033[34m[*] Generating Showcase: yuvtestsrc (YUV space analysis)...\033[0m"
+"$FFMPEG_BIN" -f lavfi -i "yuvtestsrc=duration=${DURATION}:size=640x360:rate=30" \
+    -pix_fmt yuv420p \
+    -c:v libx264 \
+    -y "$OUTPUT_DIR/vsrc_yuvtestsrc.mp4"
+
+echo -e "\033[34m[*] Generating Showcase: rgbtestsrc (RGB space analysis)...\033[0m"
+"$FFMPEG_BIN" -f lavfi -i "rgbtestsrc=duration=${DURATION}:size=640x360:rate=30" \
+    -pix_fmt yuv420p \
+    -c:v libx264 \
+    -y "$OUTPUT_DIR/vsrc_rgbtestsrc.mp4"
+
+echo -e "\033[34m[*] Generating Showcase: colorchart (24-color reference chart)...\033[0m"
+"$FFMPEG_BIN" -f lavfi -i "colorchart=duration=${DURATION}:size=640x360:rate=30" \
+    -pix_fmt yuv420p \
+    -c:v libx264 \
+    -y "$OUTPUT_DIR/vsrc_colorchart.mp4"
+
 echo "=========================================================="
 echo -e "\033[32m🎉 Success! All test videos generated successfully in $OUTPUT_DIR.\033[0m"
 echo "=========================================================="

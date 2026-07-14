@@ -32,6 +32,9 @@ cat << 'EOF' >> "$TMP_MD_DATA"
 
 This test suite presents the most common video/audio encoding pitfalls in player hardware/software compatibility, generated dynamically using our custom **FFmpeg 8-bin**. Download and test these samples on your target players (QuickTime, Safari, VLC, Chrome, iOS/Android Native Player) to witness the compatibility differences!
 
+> [!TIP]
+> 🌈 **FFmpeg Virtual Test Sources Showcase**: We have generated high-quality demo videos for all available virtual test sources (like Mandelbrot fractal, dynamic gradients, custom test patterns, etc.) compiled into our binary. Since it is extremely rich, we have put them in a dedicated page: **[Explore FFmpeg Virtual Sources & Patterns ➜](virtual-sources.html)**
+
 ## 1. HEVC/H.265 Tagging Compatibility (Apple Safari & QuickTime Pitfall)
 
 | Test Sample MP4 | HEVC Video Tag | Expected Player Support (QuickTime / Safari) | FFmpeg Encoding Command |
@@ -118,5 +121,130 @@ ${MD_CONTENT}
 </html>
 EOF
 
+echo "=== 5. 生成虚拟源测试专属网页 virtual-sources.html ==="
+TMP_VSRC_MD=$(mktemp /tmp/ffmpeg_vsrc_md.XXXXXX)
+
+cat << 'EOF' > "$TMP_VSRC_MD"
+# 🌈 FFmpeg Virtual Test Sources Showcase (macOS arm64)
+
+[← Back to Feature Evolution Matrix](index.html)
+
+This dedicated page showcases all the built-in virtual test video and audio sources compiled within our custom-built **FFmpeg 8-bin**. These source filters can be loaded dynamically via the `lavfi` input device to generate colors, shapes, noise, charts, and mathematical patterns without needing external files!
+
+---
+
+## 1. Standard Patterns & Grids
+
+### 💚 Standard Color Bars & Timing (`testsrc`)
+* **FFmpeg Command**: `ffmpeg -f lavfi -i "testsrc=duration=5:size=640x360:rate=30" -pix_fmt yuv420p -c:v libx264 vsrc_testsrc.mp4`
+* **Visual Demo**:
+  <video width="640" height="360" controls muted loop src="videos/vsrc_testsrc.mp4"></video>
+
+### 💚 Modern Test Pattern (`testsrc2`)
+* **FFmpeg Command**: `ffmpeg -f lavfi -i "testsrc2=duration=5:size=640x360:rate=30" -pix_fmt yuv420p -c:v libx264 vsrc_testsrc2.mp4`
+* **Visual Demo**:
+  <video width="640" height="360" controls muted loop src="videos/vsrc_testsrc2.mp4"></video>
+
+---
+
+## 2. Advanced Mathematical & Algorithmic Patterns
+
+### 🌀 Mandelbrot Fractal Zoom (`mandelbrot`)
+* **FFmpeg Command**: `ffmpeg -f lavfi -i "mandelbrot=duration=5:size=640x360:rate=30" -pix_fmt yuv420p -c:v libx264 vsrc_mandelbrot.mp4`
+* **Visual Demo**:
+  <video width="640" height="360" controls muted loop src="videos/vsrc_mandelbrot.mp4"></video>
+
+### 🎨 Linear Gradient Dynamic Colors (`gradients`)
+* **FFmpeg Command**: `ffmpeg -f lavfi -i "gradients=duration=5:size=640x360:rate=30" -pix_fmt yuv420p -c:v libx264 vsrc_gradients.mp4`
+* **Visual Demo**:
+  <video width="640" height="360" controls muted loop src="videos/vsrc_gradients.mp4"></video>
+
+---
+
+## 3. Analysis & Color Space Calibration
+
+### 📊 YUV Color Space Reference (`yuvtestsrc`)
+* **FFmpeg Command**: `ffmpeg -f lavfi -i "yuvtestsrc=duration=5:size=640x360:rate=30" -pix_fmt yuv420p -c:v libx264 vsrc_yuvtestsrc.mp4`
+* **Visual Demo**:
+  <video width="640" height="360" controls muted loop src="videos/vsrc_yuvtestsrc.mp4"></video>
+
+### 📊 RGB Color Space Reference (`rgbtestsrc`)
+* **FFmpeg Command**: `ffmpeg -f lavfi -i "rgbtestsrc=duration=5:size=640x360:rate=30" -pix_fmt yuv420p -c:v libx264 vsrc_rgbtestsrc.mp4`
+* **Visual Demo**:
+  <video width="640" height="360" controls muted loop src="videos/vsrc_rgbtestsrc.mp4"></video>
+
+### 🎨 24-Color Reference Color Chart (`colorchart`)
+* **FFmpeg Command**: `ffmpeg -f lavfi -i "colorchart=duration=5:size=640x360:rate=30" -pix_fmt yuv420p -c:v libx264 vsrc_colorchart.mp4`
+* **Visual Demo**:
+  <video width="640" height="360" controls muted loop src="videos/vsrc_colorchart.mp4"></video>
+
+---
+
+## 4. Solid Colors & Audio Generation
+
+### 💚 Solid Color Reference Background (`color`)
+* **FFmpeg Command**: `ffmpeg -f lavfi -i "color=color=0x1a823b:duration=5:size=640x360:rate=30" -pix_fmt yuv420p -c:v libx264 vsrc_color.mp4`
+* **Visual Demo**:
+  <video width="640" height="360" controls muted loop src="videos/vsrc_color.mp4"></video>
+
+### 🔊 1000Hz Sine Tone Waveform (`sine`)
+* **FFmpeg Command**: `ffmpeg -f lavfi -i "color=color=darkblue:duration=5:size=640x360:rate=30" -f lavfi -i "sine=frequency=1000:duration=5" -pix_fmt yuv420p -c:v libx264 -c:a aac vsrc_sine.mp4`
+* **Visual Demo (With Audio)**:
+  <video width="640" height="360" controls loop src="videos/vsrc_sine.mp4"></video>
+EOF
+
+VSRC_MD_CONTENT=$(cat "$TMP_VSRC_MD")
+
+cat << EOF > "$OUTPUT_DIR/virtual-sources.html"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>FFmpeg Virtual Test Sources Showcase</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+$(cat ./tools/GitHub-2025.css)
+
+        body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 45px;
+        }
+        @media (max-width: 767px) {
+            body { padding: 15px; }
+        }
+        .markdown-body table {
+            display: table;
+            width: 100%;
+        }
+        .markdown-body video {
+            max-width: 100%;
+            border-radius: 6px;
+            border: 1px solid var(--color-border-default, #d0d7de);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body class="markdown-body">
+
+    <article id="content">
+        </article>
+
+    <script type="text/markdown" id="markdown-source">
+${VSRC_MD_CONTENT}
+    </script>
+
+    <script>
+        const src = document.getElementById('markdown-source').innerHTML;
+        document.getElementById('content').innerHTML = marked.parse(src);
+    </script>
+</body>
+</html>
+EOF
+
+rm -f "$TMP_VSRC_MD"
 rm -f "$TMP_MD_DATA"
-echo "🎉 融合 GitHub-2025.css 成功！完美的原生体验网页已生成至 ./$OUTPUT_DIR/index.html"
+echo "🎉 融合 GitHub-2025.css 成功！原生网页与专属虚拟源测试页已生成至 ./$OUTPUT_DIR/ 目录。"
