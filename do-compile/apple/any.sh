@@ -79,8 +79,9 @@ do_lipo_all() {
         local inc_dst_dir="$uni_dir/$LIB_NAME"
         
         if [[ -d "$inc_src_dir" ]]; then
-            echo "copy include dir to $inc_dst_dir"
-            cp -Rf "$inc_src_dir" "$inc_dst_dir"
+            mkdir -p "$inc_dst_dir"
+            echo "copy include dir to $inc_dst_dir/"
+            cp -Rf "$inc_src_dir" "$inc_dst_dir/"
             
             local pc_src_dir="$MR_PRODUCT_ROOT/$LIB_NAME-$arch/lib/pkgconfig"
             if ls ${pc_src_dir}/*.pc >/dev/null 2>&1;then
