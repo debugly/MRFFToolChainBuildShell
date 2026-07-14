@@ -28,7 +28,7 @@ export RELEASE_DATE=$(TZ=UTC-8 date +'%y%m%d%H%M%S')
 
 source ./configs/libs/${CONFIG_NAME}.sh
 export RELEASE_VERSION=$GIT_REPO_VERSION
-export TAG=${LIB_NAME}-${RELEASE_VERSION}-${RELEASE_DATE}
+export TAG=${CONFIG_NAME}-${RELEASE_VERSION}-${RELEASE_DATE}
 
 export TITLE="👏👏${CONFIG_NAME}-${PLAT}-${RELEASE_VERSION}"
 

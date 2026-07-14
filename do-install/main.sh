@@ -23,6 +23,9 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
 function parse_lib_config() {
+    local lib_config="$1"
+    local config_file_name=$(basename "$lib_config")
+    local config_name=${config_file_name%.sh}
     
     local t=$(echo "PRE_COMPILE_TAG_$MR_PLAT" | tr '[:lower:]' '[:upper:]')
     local vt=$(eval echo "\$$t")
@@ -36,12 +39,14 @@ function parse_lib_config() {
     # yuv-stable-eb6e7bb-250225223408
     export TAG=$vt
     
-    local prefix="${LIB_NAME}-"
+    local prefix="${config_name}-"
     local suffix=$(echo $TAG | awk -F - '{printf "-%s", $NF}')
     # 去掉前缀
     local temp=${TAG#$prefix}
     # 去掉后缀
     export VER=${temp%$suffix}
+    # 跟onestep.sh保持一致，库名字是配置文件名
+    export LIB_NAME="$config_name"
 }
 
 function do_install_a_lib()
@@ -52,7 +57,7 @@ function do_install_a_lib()
         
     echo "===[install $lib_config]===================="
     source "$lib_config"
-    parse_lib_config
+    parse_lib_config "$lib_config"
     if [[ $FORCE_XCFRAMEWORK ]];then
         ./install-pre-xcf.sh
     else
