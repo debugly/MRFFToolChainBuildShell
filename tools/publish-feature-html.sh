@@ -61,12 +61,11 @@ This test suite presents the most common video/audio encoding pitfalls in player
 | 💚 [test_x264_baseline.mp4](videos/test_x264_baseline.mp4) | `baseline` | **Low efficiency** but supports ancient legacy embedded devices | `ffmpeg -i ... -c:v libx264 -profile:v baseline` |
 | 💚 [test_x264_high.mp4](videos/test_x264_high.mp4) | `high` | **Standard modern efficiency** for almost all web and desktop players | `ffmpeg -i ... -c:v libx264 -profile:v high` |
 
-## 5. Audio Container Support (AAC vs Opus inside MP4)
+## 5. Audio Container Support (AAC inside MP4)
 
 | Test Sample MP4 | Audio Codec | Expected Native iOS/macOS Player Support | FFmpeg Encoding Command |
 | :--- | :---: | :--- | :--- |
 | 💚 [test_audio_aac.mp4](videos/test_audio_aac.mp4) | `aac` (AAC-LC) | **Universal**: Flawless audio playback on all players/devices | `ffmpeg -i ... -c:v libx264 -c:a aac` |
-| ❌ [test_audio_opus.mp4](videos/test_audio_opus.mp4) | `libopus` | **Failures**: Fails silently or unsupported on native Apple players | `ffmpeg -i ... -c:v libx264 -c:a libopus` |
 
 EOF
 
