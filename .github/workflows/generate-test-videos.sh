@@ -207,7 +207,7 @@ echo -e "\033[34m[*] Generating Showcase: rgbtestsrc (RGB space analysis)...\033
     -y "$OUTPUT_DIR/vsrc_rgbtestsrc.mp4"
 
 echo -e "\033[34m[*] Generating Showcase: colorchart (24-color reference chart)...\033[0m"
-"$FFMPEG_BIN" -t "${DURATION}" -f lavfi -i "colorchart=size=640x360:rate=30" \
+"$FFMPEG_BIN" -t "${DURATION}" -f lavfi -i "colorchart=rate=30,scale=640:360" \
     -pix_fmt yuv420p \
     -c:v libx264 \
     -y "$OUTPUT_DIR/vsrc_colorchart.mp4"
