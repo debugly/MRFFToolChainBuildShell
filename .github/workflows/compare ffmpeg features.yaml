@@ -39,7 +39,7 @@ jobs:
       - name: Generate Test Videos
         run: |
           chmod +x ./.github/workflows/generate-test-videos.sh
-          ./.github/workflows/generate-test-videos.sh 5 ./docs/videos
+          ./.github/workflows/generate-test-videos.sh 15 ./docs/videos
 
       - name: Run Toolchain and Generate Matrix
         run: |

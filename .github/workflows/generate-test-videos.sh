@@ -14,7 +14,7 @@
 set -e
 
 # Duration parameter (default to 5 seconds for fast CI execution)
-DURATION=${1:-5}
+DURATION=${1:-15}
 # Output directory (default to docs/videos relative to the workspace root)
 OUTPUT_DIR=${2:-./docs/videos}
 
