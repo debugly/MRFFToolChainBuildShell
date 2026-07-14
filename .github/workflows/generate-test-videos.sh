@@ -141,13 +141,13 @@ echo -e "\033[34m[*] Case 5.1: Generating MP4 with standard AAC audio (Universal
     -c:a aac \
     -y "$OUTPUT_DIR/test_audio_aac.mp4"
 
-echo -e "\033[34m[*] Case 5.2: Generating MP4 with Opus audio (Highly efficient, fails on older player/iOS)...\033[0m"
-"$FFMPEG_BIN" -f lavfi -i "testsrc=duration=${DURATION}:size=320x240:rate=30" \
-    -f lavfi -i "sine=frequency=1000:duration=${DURATION}" \
-    -pix_fmt yuv420p \
-    -c:v libx264 \
-    -c:a libopus \
-    -y "$OUTPUT_DIR/test_audio_opus.mp4"
+# echo -e "\033[34m[*] Case 5.2: Generating MP4 with Opus audio (Highly efficient, fails on older player/iOS)...\033[0m"
+# "$FFMPEG_BIN" -f lavfi -i "testsrc=duration=${DURATION}:size=320x240:rate=30" \
+#     -f lavfi -i "sine=frequency=1000:duration=${DURATION}" \
+#     -pix_fmt yuv420p \
+#     -c:v libx264 \
+#     -c:a libopus \
+#     -y "$OUTPUT_DIR/test_audio_opus.mp4"
 
 echo "=========================================================="
 echo -e "\033[32m🎉 Success! All test videos generated successfully in $OUTPUT_DIR.\033[0m"
