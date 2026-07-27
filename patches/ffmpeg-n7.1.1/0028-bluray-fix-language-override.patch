@@ -1,0 +1,196 @@
+From fac36cc918fb56cc1057d6d94dec6977ceaec462 Mon Sep 17 00:00:00 2001
+From: Justin <qianyoushi@gmail.com>
+Date: Mon, 27 Jul 2026 11:09:03 +0800
+Subject: [PATCH] bluray map stream languages by PID
+
+---
+ libavformat/bluray.c | 126 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 126 insertions(+)
+
+diff --git a/libavformat/bluray.c b/libavformat/bluray.c
+index f23bfa4..2bed615 100644
+--- a/libavformat/bluray.c
++++ b/libavformat/bluray.c
+@@ -27,6 +27,7 @@
+ #include "libavutil/opt.h"
+ #include "bluray_custom_fs.h"
+ #include "libavutil/dict.h"
++#include "libavformat/avformat.h"
+ 
+ #define BLURAY_PROTO_PREFIX     "bluray://"
+ #define MIN_PLAYLIST_LENGTH     180     /* 3 min */
+@@ -40,6 +41,7 @@ typedef struct {
+     int angle;
+     int chapter;
+     /*int region;*/
++    int title_idx;
+ } BlurayContext;
+ 
+ #define OFFSET(x) offsetof(BlurayContext, x)
+@@ -102,6 +104,81 @@ static int check_disc_info(URLContext *h)
+     return 0;
+ }
+ 
++static int bluray_lang_is_unknown(const char *lang)
++{
++    return !lang || !lang[0] ||
++           !av_strcasecmp(lang, "und") ||
++           !av_strcasecmp(lang, "unknown");
++}
++
++static const char *bluray_find_stream_language(const BLURAY_TITLE_INFO *title_info,
++                                               enum AVMediaType type, int pid)
++{
++    uint32_t clip_idx;
++
++    for (clip_idx = 0; clip_idx < title_info->clip_count; clip_idx++) {
++        const BLURAY_CLIP_INFO *clip = &title_info->clips[clip_idx];
++        const BLURAY_STREAM_INFO *streams = NULL;
++        int stream_count = 0;
++        int stream_idx;
++
++        switch (type) {
++        case AVMEDIA_TYPE_VIDEO:
++            streams = clip->video_streams;
++            stream_count = clip->video_stream_count;
++            break;
++        case AVMEDIA_TYPE_AUDIO:
++            streams = clip->audio_streams;
++            stream_count = clip->audio_stream_count;
++            break;
++        case AVMEDIA_TYPE_SUBTITLE:
++            streams = clip->pg_streams;
++            stream_count = clip->pg_stream_count;
++            break;
++        default:
++            continue;
++        }
++
++        for (stream_idx = 0; stream_idx < stream_count; stream_idx++) {
++            const char *lang = (const char *)streams[stream_idx].lang;
++
++            if (streams[stream_idx].pid == pid &&
++                !bluray_lang_is_unknown(lang)) {
++                return lang;
++            }
++        }
++    }
++
++    return NULL;
++}
++
++static void bluray_set_stream_language(URLContext *h, AVStream *st,
++                                       const BLURAY_TITLE_INFO *title_info)
++{
++    const AVDictionaryEntry *old_lang;
++    const char *lang;
++
++    if (!st || !st->codecpar) {
++        return;
++    }
++
++    lang = bluray_find_stream_language(title_info, st->codecpar->codec_type,
++                                       st->id);
++    if (!lang) {
++        return;
++    }
++
++    old_lang = av_dict_get(st->metadata, "language", NULL, 0);
++    if (old_lang && !bluray_lang_is_unknown(old_lang->value)) {
++        return;
++    }
++
++    av_log(h, AV_LOG_INFO,
++           "bluray stream %d pid=0x%x language %s -> %s\n",
++           st->index, st->id, old_lang ? old_lang->value : "unset", lang);
++    av_dict_set(&st->metadata, "language", lang, 0);
++}
++
+ static int bluray_close(URLContext *h)
+ {
+     BlurayContext *bd = h->priv_data;
+@@ -124,6 +201,7 @@ static void bluray_DebugHandler(const char *psz)
+ }
+ #endif
+ 
++
+ static int bluray_open(URLContext *h, const char *path, int flags, AVDictionary **options)
+ {
+ #ifdef DEBUG_BLURAY
+@@ -198,12 +276,29 @@ static int bluray_open(URLContext *h, const char *path, int flags, AVDictionary
+ 
+             if (info->duration > duration) {
+                 bd->playlist = info->playlist;
++                bd->title_idx = i;
+                 duration = info->duration;
+             }
+ 
+             bd_free_title_info(info);
+         }
+         av_log(h, AV_LOG_INFO, "select longest playlist: %05d.mpls\n", bd->playlist);
++    } else {
++        int i;
++
++        for (i = 0; i < num_title_idx; i++) {
++            BLURAY_TITLE_INFO *info = bd_get_title_info(bd->bd, i, 0);
++
++            if (!info) {
++                continue;
++            }
++            if (info->playlist == bd->playlist) {
++                bd->title_idx = i;
++                bd_free_title_info(info);
++                break;
++            }
++            bd_free_title_info(info);
++        }
+     }
+ 
+     /* select playlist */
+@@ -262,12 +357,43 @@ static int64_t bluray_seek(URLContext *h, int64_t pos, int whence)
+     return AVERROR(EINVAL);
+ }
+ 
++static int bluray_parse_priv(AVFormatContext *ic, URLContext *h)
++{
++    BlurayContext *bd = h->priv_data;
++    BLURAY_TITLE_INFO *title_info = NULL;
++    unsigned int i;
++    int ret = 0;
++
++    if (!bd || !bd->bd) {
++        return AVERROR(EFAULT);
++    }
++
++    title_info = bd_get_title_info(bd->bd, bd->title_idx, 0);
++    if (!title_info) {
++        return AVERROR(EFAULT);
++    }
++
++    if (title_info->clip_count <= 0) {
++        ret = EFAULT;
++        goto fail;
++    }
++
++    for (i = 0; i < ic->nb_streams; i++) {
++        bluray_set_stream_language(h, ic->streams[i], title_info);
++    }
++
++fail:
++    bd_free_title_info(title_info);
++    return ret != 0 ? AVERROR(ret) : 0;
++}
++
+ const URLProtocol ff_bluray_protocol = {
+     .name            = "bluray",
+     .url_close       = bluray_close,
+     .url_open2       = bluray_open,
+     .url_read        = bluray_read,
+     .url_seek        = bluray_seek,
++    .url_parse_priv  = bluray_parse_priv,
+     .priv_data_size  = sizeof(BlurayContext),
+     .priv_data_class = &bluray_context_class,
+ };
+-- 
+2.50.1 (Apple Git-155)
+
