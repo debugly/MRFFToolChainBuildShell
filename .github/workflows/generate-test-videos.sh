@@ -150,6 +150,17 @@ echo -e "\033[34m[*] Case 5.1: Generating MP4 with standard AAC audio (Universal
 #     -y "$OUTPUT_DIR/test_audio_opus.mp4"
 
 # ---------------------------------------------------------------------
+# PITFALL 6: Interlaced Video Generation (tinterlace / comb video)
+# ---------------------------------------------------------------------
+echo -e "\033[34m[*] Case 6.1: Generating Interlaced Video (interleave_top)...\033[0m"
+"$FFMPEG_BIN" -f lavfi -i "testsrc2=size=1280x720:rate=50" \
+    -vf "tinterlace=mode=interleave_top" \
+    -c:v libx264 \
+    -pix_fmt yuv420p \
+    -t "${DURATION}" \
+    -y "$OUTPUT_DIR/test_comb.mp4"
+
+# ---------------------------------------------------------------------
 # VIRTUAL SOURCES: Generate showcase videos for virtual test sources
 # ---------------------------------------------------------------------
 echo "=========================================================="

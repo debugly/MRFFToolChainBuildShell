@@ -71,6 +71,12 @@ This test suite presents the most common video/audio encoding pitfalls in player
 | Test Sample MP4 | Audio Codec | Expected Native iOS/macOS Player Support | FFmpeg Encoding Command |
 | :--- | :---: | :--- | :--- |
 | 💚 [test_audio_aac.mp4](videos/test_audio_aac.mp4) | `aac` (AAC-LC) | **Universal**: Flawless audio playback on all players/devices | `ffmpeg -i ... -c:v libx264 -c:a aac` |
+
+## 6. Interlaced Video Generation (Comb Video)
+
+| Test Sample MP4 | Filter Mode | Expected Player Behavior | FFmpeg Encoding Command |
+| :--- | :---: | :--- | :--- |
+| ⚠️ [test_comb.mp4](videos/test_comb.mp4) | `interleave_top` | **Comb Effect**: Interlaced video (top field first), requires deinterlacing | `ffmpeg -f lavfi -i "testsrc2=size=1280x720:rate=50" -vf "tinterlace=mode=interleave_top" -c:v libx264 -pix_fmt yuv420p -t 10 -y test_comb.mp4` |
 EOF
 
 echo "=== 5. 生成 Virtual Test Sources Markdown 数据 ==="
