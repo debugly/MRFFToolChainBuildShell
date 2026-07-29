@@ -274,6 +274,11 @@ if [[ $result && $MR_PLAT != 'android' ]]; then
     echo "----------------------"
 fi
 
+result=$(gt_or_equal "$GIT_REPO_VERSION" "8")
+if [[ ! $result ]]; then
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-postproc"
+fi
+
 # export PKG_CONFIG_LIBDIR=$PKG_CONFIG_LIBDIR:/opt/homebrew/Cellar/shaderc/2024.0/lib/pkgconfig:/opt/homebrew/Cellar/little-cms2/2.16/lib/pkgconfig
 # pkg-config --libs libplacebo --silence-errors >/dev/null && enable_placebo=1
 
