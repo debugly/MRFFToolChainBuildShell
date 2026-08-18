@@ -77,6 +77,23 @@ This test suite presents the most common video/audio encoding pitfalls in player
 | Test Sample MP4 | Filter Mode | Expected Player Behavior | FFmpeg Encoding Command |
 | :--- | :---: | :--- | :--- |
 | ⚠️ [test_comb.mp4](videos/test_comb.mp4) | `interleave_top` | **Comb Effect**: Interlaced video (top field first), requires deinterlacing | `ffmpeg -f lavfi -i "testsrc2=size=1280x720:rate=50" -vf "tinterlace=mode=interleave_top" -c:v libx264 -pix_fmt yuv420p -t 10 -y test_comb.mp4` |
+
+## 7. Transparent Background Video (Alpha Channel / VP9 WebM)
+
+WebM with a VP9 alpha channel (`yuva420p`) lets video composite over a page background — no green-screen keying required. **Chrome & Firefox** render the transparency correctly; **Safari/QuickTime** have poor support for alpha WebM and may show a black/opaque background instead.
+
+> [!WARNING]
+> Do **not** use the `drawbox` filter to draw onto a fully transparent canvas — it blends against alpha=0 and silently produces an all-transparent (empty) video. Composite an opaque shape onto the transparent base with `overlay` instead, as shown below.
+
+| Test Sample WebM | Pixel Format | Expected Player Behavior | FFmpeg Encoding Command |
+| :--- | :---: | :--- | :--- |
+| 💚 [test_transparent.webm](videos/test_transparent.webm) | `yuva420p` | **Transparent**: background shows through on Chrome/Firefox; opaque on Safari | `ffmpeg -f lavfi -i "color=c=black@0.0:s=640x480:r=30:d=5,format=yuva420p" -f lavfi -i "color=c=red:s=80x80:r=30:d=5,format=yuva420p" -filter_complex "[0][1]overlay=x='100+t*80':y=200:format=auto" -c:v libvpx-vp9 -pix_fmt yuva420p -auto-alt-ref 0 test_transparent.webm` |
+
+**Visual Demo** (checkerboard shows through the transparent regions):
+
+<div style="display:inline-block;padding:10px;border-radius:8px;background-color:#808080;background-image:linear-gradient(45deg,#ccc 25%,transparent 25%),linear-gradient(-45deg,#ccc 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ccc 75%),linear-gradient(-45deg,transparent 75%,#ccc 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0;">
+  <video width="640" height="480" autoplay loop muted playsinline src="videos/test_transparent.webm"></video>
+</div>
 EOF
 
 echo "=== 5. 生成 Virtual Test Sources Markdown 数据 ==="
