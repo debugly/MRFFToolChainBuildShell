@@ -249,11 +249,6 @@ if [[ $result ]]; then
     echo "----------------------"
 fi
 
-# only for ffmpeg 8.1.1 need disable postproc module
-if [[ "8.1.1" == "$GIT_REPO_VERSION" ]]; then
-    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-postproc"
-fi
-
 pkg-config --libs libxml-2.0 --silence-errors >/dev/null && enable_xml2=1
 
 if [[ $enable_xml2 ]];then
@@ -277,6 +272,11 @@ if [[ $result && $MR_PLAT != 'android' ]]; then
         THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-libwebp --disable-demuxer=webp --disable-decoder=libwebp"
     fi
     echo "----------------------"
+fi
+
+result=$(gt_or_equal "$GIT_REPO_VERSION" "8")
+if [[ ! $result ]]; then
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-postproc"
 fi
 
 # export PKG_CONFIG_LIBDIR=$PKG_CONFIG_LIBDIR:/opt/homebrew/Cellar/shaderc/2024.0/lib/pkgconfig:/opt/homebrew/Cellar/little-cms2/2.16/lib/pkgconfig
