@@ -1,6 +1,6 @@
 ## MRFFToolChain Build Shell [[中文版](./README_zh-CN.md)]
 
-![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total)<img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.2%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
+![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.2%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
 
 **What's MRFFToolChain?**
 
@@ -29,7 +29,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdn
 - Bluray: xml2
 - Harfbuzz: freetype
 - Dvdnav: dvdread
-- Placebo for Appple: shaderc,moltenvk,dovi,lcms2
+- Placebo for macOS: shaderc,moltenvk,dovi,lcms2
 - Ass for Appple:  harfbuzz,fribidi,unibreak
 - Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
 - IJKFFmpeg: openssl
@@ -41,7 +41,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdn
 - FFmpeg4 for Android: openssl3,opus,bluray,soundtouch
 - FFmpeg5 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,soundtouch
 - FFmpeg6 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2,soundtouch
-- FFmpeg7 for Android: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,soundtouch,libplacebo,shaderc,moltenvk,dovi,lcms2
+- FFmpeg7 for Android: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,soundtouch
 
 Tips: 
 

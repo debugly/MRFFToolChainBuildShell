@@ -1,6 +1,6 @@
 ## MRFFToolChain 构建脚本
 
-![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total)<img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.2%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
+![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.2%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
 
 
 **MRFFToolChain 是什么？**
@@ -26,14 +26,14 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 ## 依赖关系
 
-编译了适用于安卓和 iOS 平台的 FFmpeg4，FFmpeg5，FFmpeg6，FFmpeg7，FFmpeg8。
+编译了适用于安卓和苹果三大平台的 FFmpeg4，FFmpeg5，FFmpeg6，FFmpeg7，FFmpeg8。
 
 - Fontconfig：xml2、freetype
 - Bluray：xml2
 - Harfbuzz：freetype
 - dvdnav：dvdread
 - 适用于 ijkplayer 的 FFmpeg: openssl
-- 适用于苹果的 Placebo: shaderc,moltenvk,dovi,lcms2
+- 适用于 macOS 的 Placebo: shaderc,moltenvk,dovi,lcms2
 - 适用于苹果的 Ass：harfbuzz、fribidi、unibreak
 - 适用于安卓的 Ass：harfbuzz、fribidi、unibreak、fontconfig
 - 适用于苹果的 FFmpeg4：openssl3、opus、bluray
