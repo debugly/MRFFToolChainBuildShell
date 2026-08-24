@@ -30,4 +30,4 @@ else
     export GIT_UPSTREAM=https://github.com/quietvoid/dovi_tool.git
 fi
 
-export PRE_COMPILE_TAG_MACOS=dovi-3.3.2-260326175522
+export PRE_COMPILE_TAG_MACOS=dovi-3.4.0-260824213022
