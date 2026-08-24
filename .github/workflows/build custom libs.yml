@@ -76,7 +76,6 @@ jobs:
         tool: cargo-c
     - name: One Step
       run: |
-
         Platform=${{ inputs.platform }}
         DryRun=${{ inputs.dryrun }}
         Verbose=${{ inputs.verbose }}

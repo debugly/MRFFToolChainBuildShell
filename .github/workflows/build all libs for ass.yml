@@ -38,32 +38,6 @@ on:
           - fontconfig
           - harfbuzz
           - ass
-          - yuv
-          - soundtouch
-          - opus
-          - openssl3
-          - lcms2
-          - shaderc
-          - moltenvk
-          - dovi
-          - placebo
-          - dvdread
-          - dvdnav
-          - bluray
-          - dav1d
-          - uavs3d
-          - x264
-          - x265
-          - smb2
-          - webp
-          - ijkffmpeg
-          - fftutorial
-          - ffmpeg4
-          - ffmpeg5
-          - ffmpeg6
-          - ffmpeg7
-          - ffmpeg8
-          - ffmpeg8-bin
       dryrun:
         description: 'just run workflow,but not deploy'
         required: false
@@ -83,7 +57,7 @@ on:
   pull_request:
     branches: [master]
 
-name: build all libs
+name: build ass libs
 
 jobs:
   build:
@@ -191,32 +165,6 @@ jobs:
           "fontconfig"
           "harfbuzz"
           "ass"
-          "yuv"
-          "soundtouch"
-          "opus"
-          "openssl3"
-          "dvdread"
-          "dvdnav"
-          "bluray"
-          "dav1d"
-          "uavs3d"
-          "x264"
-          "x265"
-          "smb2"
-          "webp"
-          "lcms2"
-          "shaderc"
-          "moltenvk"
-          "dovi"
-          "placebo"
-          "ijkffmpeg"
-          "fftutorial"
-          "ffmpeg4"
-          "ffmpeg5"
-          "ffmpeg6"
-          "ffmpeg7"
-          "ffmpeg8"
-          "ffmpeg8-bin"
         )
 
         first=${{ inputs.first_library }}
