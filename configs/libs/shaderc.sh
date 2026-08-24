@@ -32,4 +32,4 @@ if [[ "$GIT_SHADERC_UPSTREAM" != "" ]] ;then
 else
     export GIT_UPSTREAM=https://github.com/google/shaderc.git
 fi
-export PRE_COMPILE_TAG_MACOS=shaderc-v2025.3-260327181828
+export PRE_COMPILE_TAG_MACOS=shaderc-v2026.3-260824210917
