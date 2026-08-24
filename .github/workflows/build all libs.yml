@@ -105,7 +105,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Install cargo-c
-      run: cargo install cargo-c
+      uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-c
     - name: One Step
       run: |
 

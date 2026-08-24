@@ -71,7 +71,9 @@ jobs:
       uses: actions/checkout@v4
     - name: Install cargo-c
       if: contains(inputs.libraries, 'dovi')
-      run: cargo install cargo-c
+      uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-c
     - name: One Step
       run: |
 

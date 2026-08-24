@@ -109,7 +109,9 @@ jobs:
       uses: actions/checkout@v4
     - name: Install cargo-c
       if: inputs.lib == 'dovi'
-      run: cargo install cargo-c
+      uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-c
     - name: Install dependencies
       run: .github/workflows/install-dependencies.sh ${{ inputs.lib }} ${{ inputs.platform }}
     - name: One Step
