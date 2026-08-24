@@ -6,6 +6,8 @@
 [binaries]
 c = 'clang'
 cpp = 'clang++'
+objc = 'clang'
+objcpp = 'clang++'
 ar = 'ar'
 strip = 'strip'
 pkgconfig = 'pkg-config'
