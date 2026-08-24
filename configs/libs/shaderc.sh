@@ -19,9 +19,9 @@ export LIB_NAME='shaderc'
 export LIPO_LIBS="libshaderc_combined"
 export LIB_DEPENDS_BIN="cmake"
 export GIT_LOCAL_REPO=extra/shaderc
-export GIT_COMMIT=v2025.3
+export GIT_COMMIT=v2026.3
 export REPO_DIR=shaderc
-export GIT_REPO_VERSION=v2025.3
+export GIT_REPO_VERSION=v2026.3
 
 # macOS deployment target must be 11.0+ for std::filesystem in glslang
 export MR_DEPLOYMENT_TARGET_VER_MACOS=11.0

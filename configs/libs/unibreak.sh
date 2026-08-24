@@ -26,9 +26,9 @@ export LIB_NAME='unibreak'
 export LIPO_LIBS="libunibreak"
 export LIB_DEPENDS_BIN="autoconf automake libtool"
 export GIT_LOCAL_REPO=extra/unibreak
-export GIT_COMMIT=libunibreak_6_1
+export GIT_COMMIT=libunibreak_7_0
 export REPO_DIR=unibreak
-export GIT_REPO_VERSION=6.1
+export GIT_REPO_VERSION=7.0
 
 # you can export GIT_UNIBREAK_UPSTREAM=git@xx:yy/UNIBREAK.git use your mirror
 if [[ "$GIT_UNIBREAK_UPSTREAM" != "" ]] ;then

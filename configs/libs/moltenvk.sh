@@ -19,9 +19,9 @@
 export LIB_NAME='MoltenVK'
 export LIPO_LIBS="libMoltenVK"
 export GIT_LOCAL_REPO=extra/MoltenVK
-export GIT_COMMIT=v1.4.1
+export GIT_COMMIT=v1.4.2
 export REPO_DIR=MoltenVK
-export GIT_REPO_VERSION=v1.4.1
+export GIT_REPO_VERSION=v1.4.2
 
 # you can export GIT_MOLTENVK_UPSTREAM=git@xx:yy/MoltenVK.git use your mirror
 if [[ "$GIT_MOLTENVK_UPSTREAM" != "" ]] ;then

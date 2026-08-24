@@ -26,9 +26,9 @@ export LIB_NAME='harfbuzz'
 export LIPO_LIBS="libharfbuzz libharfbuzz-subset"
 export LIB_DEPENDS_BIN="meson pkg-config"
 export GIT_LOCAL_REPO=extra/harfbuzz
-export GIT_COMMIT=12.3.2
+export GIT_COMMIT=14.3.1
 export REPO_DIR=harfbuzz
-export GIT_REPO_VERSION=12.3.2
+export GIT_REPO_VERSION=14.3.1
 
 # you can export GIT_HARFBUZZ_UPSTREAM=git@xx:yy/HARFBUZZ.git use your mirror
 if [[ "$GIT_HARFBUZZ_UPSTREAM" != "" ]] ;then
