@@ -21,6 +21,12 @@ THIS_DIR=$(DIRNAME=$(dirname "$0"); cd "$DIRNAME"; pwd)
 cd "$THIS_DIR"
 
 # prepare build config
+if [[ -f "$MR_BUILD_SOURCE/meson.build" ]]; then
+    CFG_FLAGS="-Denable_docs=false -Denable_tools=false -Denable_devtools=false -Denable_examples=false -Dbdj_jar=disabled -Dfontconfig=disabled -Dfreetype=disabled -Dlibxml2=enabled"
+    ./meson-compatible.sh "$CFG_FLAGS"
+    exit 0
+fi
+
 CFG_FLAGS="--prefix=$MR_BUILD_PREFIX --disable-shared --disable-dependency-tracking --disable-silent-rules --disable-bdjava-jar --without-freetype --without-fontconfig --disable-doxygen-doc --disable-examples"
 CFLAGS="$MR_DEFAULT_CFLAGS"
 
