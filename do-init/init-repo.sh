@@ -151,7 +151,7 @@ function make_arch_repo() {
     ./copy-local-repo.sh $GIT_LOCAL_REPO $dest_repo
     cd $dest_repo
     if [[ "$GIT_WITH_SUBMODULE" ]]; then
-        git submodule update --init --depth=1
+        git -c protocol.file.allow=always submodule update --init --depth=1
     fi
     echo "last commit:"$(git log -1 --pretty=format:"[%h] %s:%ce %cd")
     apply_patches
