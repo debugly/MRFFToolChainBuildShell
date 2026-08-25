@@ -1,7 +1,7 @@
 From 2a66063488ef59131f603db5aa7316658a3901e4 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
 Date: Tue, 25 Aug 2026 11:45:55 +0800
-Subject: [PATCH 2/3] add bd_open_fs function
+Subject: [PATCH] add bd_open_fs function
 
 ---
  meson.build               |  2 +-

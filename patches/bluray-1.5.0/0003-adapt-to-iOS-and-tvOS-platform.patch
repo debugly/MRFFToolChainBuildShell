@@ -1,12 +1,13 @@
-From 07fe7d7b1450b07be3e3234485283d1d8c1dbbfe Mon Sep 17 00:00:00 2001
+From 99a7f3eeb46f792f2b331294139017cc63af4207 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Tue, 25 Aug 2026 11:46:34 +0800
-Subject: [PATCH 3/3] adapt to iOS and tvOS platform
+Date: Tue, 25 Aug 2026 14:20:53 +0800
+Subject: [PATCH] adapt to iOS and tvOS platform
 
 ---
- meson.build     | 8 +++++++-
- src/meson.build | 6 +++++-
- 2 files changed, 12 insertions(+), 2 deletions(-)
+ meson.build             | 8 +++++++-
+ src/libbluray/bdj/bdj.c | 6 ++++--
+ src/meson.build         | 6 +++++-
+ 3 files changed, 16 insertions(+), 4 deletions(-)
 
 diff --git a/meson.build b/meson.build
 index 9e5e897..ad1eadd 100644
@@ -27,6 +28,37 @@ index 9e5e897..ad1eadd 100644
  elif host_machine.system() == 'netbsd'
      test_args += '-D_NETBSD_SOURCE'
  elif host_machine.system() == 'openbsd'
+diff --git a/src/libbluray/bdj/bdj.c b/src/libbluray/bdj/bdj.c
+index 359bc8f..e807d8c 100644
+--- a/src/libbluray/bdj/bdj.c
++++ b/src/libbluray/bdj/bdj.c
+@@ -40,6 +40,7 @@
+ #include <string.h>
+ 
+ #ifdef __APPLE__
++#include <TargetConditionals.h>
+ #include <sys/types.h>
+ #include <sys/wait.h>
+ #include <limits.h>
+@@ -238,7 +239,7 @@ static inline char *_utf8_to_cp(const char *utf8)
+ static const char *jre_plugin_path = MACOS_JRE_HOME;
+ #endif
+ 
+-#if defined(__APPLE__) && !defined(HAVE_BDJ_J2ME)
++#if defined(__APPLE__) && !defined(HAVE_BDJ_J2ME) && TARGET_OS_OSX
+ 
+ #define MACOS_JAVA_HOME "/usr/libexec/java_home"
+ static char *_java_home_macos()
+@@ -300,7 +301,8 @@ static char *_java_home_macos()
+     return result;
+ }
+ #undef MACOS_JAVA_HOME
+-
++#else
++static char *_java_home_macos() { return NULL; }
+ #endif
+ 
+ static void *_jvm_dlopen(const char *java_home, const char *jvm_dir, const char *jvm_lib)
 diff --git a/src/meson.build b/src/meson.build
 index 255fbc4..03386bb 100644
 --- a/src/meson.build
