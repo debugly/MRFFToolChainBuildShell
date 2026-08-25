@@ -1,20 +1,34 @@
-From 96a21cd80adc7e687b3161b97b2df0d014433a14 Mon Sep 17 00:00:00 2001
+From 2a66063488ef59131f603db5aa7316658a3901e4 Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Tue, 25 Aug 2026 11:07:49 +0800
+Date: Tue, 25 Aug 2026 11:45:55 +0800
 Subject: [PATCH 2/3] add bd_open_fs function
 
 ---
+ meson.build               |  2 +-
  src/libbluray/bluray-fs.h | 29 +++++++++++++++++++++++++++++
  src/libbluray/bluray.c    | 19 ++++++++++++++++++-
  src/libbluray/bluray.h    | 11 +++++++++++
  src/libbluray/disc/disc.h | 12 +-----------
  src/libbluray/meson.build |  1 +
- 5 files changed, 60 insertions(+), 12 deletions(-)
+ 6 files changed, 61 insertions(+), 13 deletions(-)
  create mode 100644 src/libbluray/bluray-fs.h
 
+diff --git a/meson.build b/meson.build
+index 6cea3f7..9e5e897 100644
+--- a/meson.build
++++ b/meson.build
+@@ -20,7 +20,7 @@ cdata = configuration_data()
+ add_project_arguments('-DHAVE_CONFIG_H=1', language: 'c')
+ 
+ # Include directories
+-libbluray_inc_dirs = [include_directories('.', 'src', 'src/libbluray', 'src/libbluray/disc')]
++libbluray_inc_dirs = [include_directories('.', 'src', 'src/libbluray', 'src/libbluray/disc', 'src/file')]
+ 
+ # The version number for the shared library
+ libbluray_soname_version = '4.0.0'
 diff --git a/src/libbluray/bluray-fs.h b/src/libbluray/bluray-fs.h
 new file mode 100644
-index 00000000..3946df7d
+index 0000000..3946df7
 --- /dev/null
 +++ b/src/libbluray/bluray-fs.h
 @@ -0,0 +1,29 @@
@@ -48,7 +62,7 @@ index 00000000..3946df7d
 +
 +#endif //_BLURAY_FS_H_
 diff --git a/src/libbluray/bluray.c b/src/libbluray/bluray.c
-index f5f5f55d..aa4880b0 100644
+index f5f5f55..aa4880b 100644
 --- a/src/libbluray/bluray.c
 +++ b/src/libbluray/bluray.c
 @@ -22,7 +22,7 @@
@@ -82,7 +96,7 @@ index f5f5f55d..aa4880b0 100644
 +    return bd;
 +}
 diff --git a/src/libbluray/bluray.h b/src/libbluray/bluray.h
-index 95d551aa..e8a3c2e8 100644
+index 95d551a..e8a3c2e 100644
 --- a/src/libbluray/bluray.h
 +++ b/src/libbluray/bluray.h
 @@ -1289,6 +1289,17 @@ BD_PUBLIC struct bd_dir_s *bd_open_dir(BLURAY *bd, const char *dir);
@@ -104,7 +118,7 @@ index 95d551aa..e8a3c2e8 100644
  }
  #endif
 diff --git a/src/libbluray/disc/disc.h b/src/libbluray/disc/disc.h
-index 418c5b19..1eebc2c5 100644
+index 418c5b1..29a6b2d 100644
 --- a/src/libbluray/disc/disc.h
 +++ b/src/libbluray/disc/disc.h
 @@ -29,17 +29,7 @@ struct bd_file_s;
@@ -122,12 +136,12 @@ index 418c5b19..1eebc2c5 100644
 -    struct bd_dir_s  *(*open_dir) (void *fs_handle, const char *rel_path);
 -    struct bd_file_s *(*open_file)(void *fs_handle, const char *rel_path);
 -} fs_access;
-+#include "bluray-fs.h" 
++#include "bluray-fs.h"
  
  /*
   * BluRay Virtual File System
 diff --git a/src/libbluray/meson.build b/src/libbluray/meson.build
-index e0dcb916..89e5e1e2 100644
+index e0dcb91..89e5e1e 100644
 --- a/src/libbluray/meson.build
 +++ b/src/libbluray/meson.build
 @@ -3,6 +3,7 @@

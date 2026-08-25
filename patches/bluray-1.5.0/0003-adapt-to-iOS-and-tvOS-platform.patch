@@ -1,6 +1,6 @@
-From 614d0a080948246a8259a80f06403795f41aa3ab Mon Sep 17 00:00:00 2001
+From 07fe7d7b1450b07be3e3234485283d1d8c1dbbfe Mon Sep 17 00:00:00 2001
 From: qianlongxu <qianlongxu@gmail.com>
-Date: Tue, 25 Aug 2026 11:10:36 +0800
+Date: Tue, 25 Aug 2026 11:46:34 +0800
 Subject: [PATCH 3/3] adapt to iOS and tvOS platform
 
 ---
@@ -9,7 +9,7 @@ Subject: [PATCH 3/3] adapt to iOS and tvOS platform
  2 files changed, 12 insertions(+), 2 deletions(-)
 
 diff --git a/meson.build b/meson.build
-index 6cea3f77..fd1e483b 100644
+index 9e5e897..ad1eadd 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -54,7 +54,13 @@ endif
@@ -28,7 +28,7 @@ index 6cea3f77..fd1e483b 100644
      test_args += '-D_NETBSD_SOURCE'
  elif host_machine.system() == 'openbsd'
 diff --git a/src/meson.build b/src/meson.build
-index 255fbc47..03386bb9 100644
+index 255fbc4..03386bb 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -77,8 +77,12 @@ elif host_machine.system() == 'darwin'
