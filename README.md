@@ -151,7 +151,7 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 | shaderc    | 2026.3                         | [https://github.com/google/shaderc.git](https://github.com/google/shaderc.git)                                       | export GIT\_SHADERC\_UPSTREAM=git@xx:yy/shaderc.git       |
 | moltenvk   | 1.4.2                          | [https://github.com/KhronosGroup/MoltenVK.git](https://github.com/KhronosGroup/MoltenVK.git)                         | export GIT\_MOLTENVK\_UPSTREAM=git@xx:yy/MoltenVK.git     |
 | lcms2      | 2.19                           | [https://github.com/mm2/Little-CMS.git](https://github.com/mm2/Little-CMS.git)                                       | export GIT\_LCMS2\_UPSTREAM=git@xx:yy/Little-CMS.git      |
-| dovi       | 2.3.3                          | [https://github.com/quietvoid/dovi\_tool.git](https://github.com/quietvoid/dovi_tool.git)                            | export GIT\_DOVI\_UPSTREAM=git@xx:yy/libdovi.git          |
+| dovi       | libdovi-3.4.0                  | [https://github.com/quietvoid/dovi\_tool.git](https://github.com/quietvoid/dovi_tool.git)                            | export GIT\_DOVI\_UPSTREAM=git@xx:yy/libdovi.git          |
 | x264       | master                         | [https://code.videolan.org/videolan/x264.git](https://code.videolan.org/videolan/x264.git)                           | export GIT\_X264\_UPSTREAM=git@xx:yy/x264.git             |
 | x265       | 4.2                            | [https://bitbucket.org/multicoreware/x265\_git.git](https://bitbucket.org/multicoreware/x265_git.git)                | export GIT\_X265\_UPSTREAM=git@xx:yy/x265.git             |
 
