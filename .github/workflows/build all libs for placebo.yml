@@ -46,7 +46,7 @@ on:
           - false
       verbose:
         description: 'print detail logs'
-        required: false
+        required: true
         type: choice
         default: 'false'
         options:

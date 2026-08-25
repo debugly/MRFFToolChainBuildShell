@@ -27,22 +27,6 @@ on:
           - ios
           - tvos
           - macos
-      dryrun:
-        description: 'just run workflow,but not deploy'
-        required: false
-        type: choice
-        default: 'false'
-        options:
-          - true
-          - false
-      verbose:
-        description: 'print detail logs'
-        required: false
-        type: choice
-        default: 'false'
-        options:
-          - true
-          - false
       lib:
         description: 'choose a lib for compile'
         required: true
@@ -83,6 +67,22 @@ on:
           - xml2
           - webp
           - dovi
+      dryrun:
+        description: 'just run workflow,but not deploy'
+        required: false
+        type: choice
+        default: 'false'
+        options:
+          - true
+          - false
+      verbose:
+        description: 'print detail logs'
+        required: true
+        type: choice
+        default: 'false'
+        options:
+          - true
+          - false
   pull_request:
     branches: [master]
 
