@@ -4,7 +4,7 @@ cpp = 'i686-linux-android21-clang++'
 ar = 'llvm-ar'
 strip = 'llvm-strip'
 ranlib = 'llvm-ranlib'
-pkgconfig = 'pkg-config'
+pkg-config = 'pkg-config'
 
 [properties]
 needs_exe_wrapper = true
