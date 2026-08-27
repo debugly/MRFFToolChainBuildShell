@@ -465,7 +465,7 @@ index 0000000..17b69d0
 +    .p.id = AV_CODEC_ID_LIBWEBP,
 +    .priv_data_size = sizeof(LibWebPDecoderContext),
 +    .init = libwebp_decode_init,
-+    .cb.decode = libwebp_decode_frame,
++    FF_CODEC_DECODE_CB(libwebp_decode_frame),
 +    .flush = libwebp_decode_flush,
 +    .close = libwebp_decode_close,
 +    .p.capabilities = AV_CODEC_CAP_DR1,
