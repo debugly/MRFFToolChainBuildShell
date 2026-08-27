@@ -73,6 +73,11 @@ function correct_pc_file(){
         my_sed_i "s|-L/[^ ]*/universal/\([^ /]*\)/lib|-L$escaped_root/universal/\1/lib|g" "$pc"
         # 2. Fix -I/path/to/universal/LIB_NAME/include -> -I/local/product/universal/LIB_NAME/include
         my_sed_i "s|-I/[^ ]*/universal/\([^ /]*\)/include|-I$escaped_root/universal/\1/include|g" "$pc"
+        # 3. Fix tbd link path
+        my_sed_i 's|[^ ]*lib\([^ /]*\)\.tbd|-l\1|g' "$pc"
+        # 4. Remove xcode sdk include path
+        my_sed_i 's|-I/Applications/Xcode[^ ]*usr/include||g' "$pc"
+        my_sed_i 's|-I/[^ ]*/SDKs/[^ ]*/usr/include||g' "$pc"
     done
     
     cd "$dir"

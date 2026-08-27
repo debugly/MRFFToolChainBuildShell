@@ -102,6 +102,13 @@ do_lipo_all() {
                 my_sed_i "s|^prefix=.*|prefix=$escaped_p|" "$pc_dst_dir/"*.pc
                 my_sed_i "s|^libdir=.*|libdir=$escaped_p/lib|" "$pc_dst_dir/"*.pc
                 my_sed_i "s|^includedir=.*|includedir=$escaped_p/include|" "$pc_dst_dir/"*.pc
+
+                # fix tbd link path in pkgconfig
+                # matching: /path/to/libNAME.tbd or path/to/libNAME.tbd -> -lNAME
+                my_sed_i 's|[^ ]*lib\([^ /]*\)\.tbd|-l\1|g' "$pc_dst_dir/"*.pc
+                # remove xcode sdk include path
+                my_sed_i 's|-I/Applications/Xcode[^ ]*usr/include||g' "$pc_dst_dir/"*.pc
+                my_sed_i 's|-I/[^ ]*/SDKs/[^ ]*/usr/include||g' "$pc_dst_dir/"*.pc
             fi
         fi
     done
@@ -159,21 +166,6 @@ function do_make_xcframework() {
     done
 }
 
-function do_fix_pc() {
-    # fix tbd link path in pkgconfig
-    # matching: /path/to/libNAME.tbd or path/to/libNAME.tbd -> -lNAME
-    if [[ -d "${MR_BUILD_PREFIX}/lib/pkgconfig" ]]; then
-        for pc in "${MR_BUILD_PREFIX}/lib/pkgconfig/"*.pc; do
-            if [[ -f "$pc" ]]; then
-                echo "fix pkgconfig in $pc"
-                # fix tbd link path
-                my_sed_i 's|[^ ]*lib\([^ /]*\)\.tbd|-l\1|g' "$pc"
-                # remove xcode sdk include path
-                my_sed_i 's|-I/Applications/Xcode[^ ]*usr/include||g' "$pc"
-            fi
-        done
-    fi
-}
 
 function do_compile() {
     if [ ! -d $MR_BUILD_SOURCE ]; then
