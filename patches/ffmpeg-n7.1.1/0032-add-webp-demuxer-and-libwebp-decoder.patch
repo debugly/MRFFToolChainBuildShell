@@ -21,7 +21,16 @@ diff --git a/configure b/configure
 index 0a4e28a..54493ff 100755
 --- a/configure
 +++ b/configure
-@@ -7065,7 +7065,12 @@ enabled libvpx            && {
+@@ -3584,6 +3584,8 @@ libvpx_vp9_encoder_deps="libvpx"
+ libvvenc_encoder_deps="libvvenc"
+ libwebp_encoder_deps="libwebp"
+ libwebp_anim_encoder_deps="libwebp"
++libwebp_decoder_deps="libwebp"
++webp_demuxer_deps="libwebpdemux"
+ libx262_encoder_deps="libx262"
+ libx264_encoder_deps="libx264"
+ libx264_encoder_select="atsc_a53 golomb"
+ @@ -7065,7 +7065,12 @@ enabled libvpx            && {
  enabled libvvenc          && require_pkg_config libvvenc "libvvenc >= 1.6.1" "vvenc/vvenc.h" vvenc_get_version
  enabled libwebp           && {
      enabled libwebp_encoder      && require_pkg_config libwebp "libwebp >= 0.2.0" webp/encode.h WebPGetEncoderVersion
@@ -31,7 +40,7 @@ index 0a4e28a..54493ff 100755
 +    if enabled libwebpdemux; then
 +        enable webp_demuxer
 +        enable libwebp_decoder
-+    fi }
+     fi }
  enabled libx264           && require_pkg_config libx264 x264 "stdint.h x264.h" x264_encoder_encode &&
                               require_cpp_condition libx264 x264.h "X264_BUILD >= 155" && {
                               [ "$toolchain" != "msvc" ] ||
