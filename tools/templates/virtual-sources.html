@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>FFmpeg Virtual Test Sources Showcase</title>
+    <link rel="stylesheet" href="GitHub-2025.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 45px;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Ambient Glowing Backgrounds */
+        body::before {
+            content: '';
+            position: fixed;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
+            top: -100px;
+            left: -100px;
+            z-index: -1;
+            pointer-events: none;
+            filter: blur(50px);
+            animation: floatGlow 15s infinite alternate ease-in-out;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
+            bottom: -150px;
+            right: -100px;
+            z-index: -1;
+            pointer-events: none;
+            filter: blur(60px);
+            animation: floatGlowAlt 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(100px, 50px) scale(1.1); }
+        }
+
+        @keyframes floatGlowAlt {
+            0% { transform: translate(0, 0) scale(1.1); }
+            100% { transform: translate(-120px, -50px) scale(0.9); }
+        }
+
+        @media (max-width: 767px) {
+            body { padding: 15px; }
+        }
+
+        .markdown-body table {
+            display: table;
+            width: 100%;
+            margin-bottom: 30px;
+            background: #ffffff;
+            border-radius: 8px;
+            border-collapse: separate;
+            border-spacing: 0;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        }
+
+        .markdown-body video {
+            display: block;
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid var(--color-border-default, #e2e8f0);
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+            margin: 12px 0 24px 0;
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body class="markdown-body">
+
+    <article id="content">
+    </article>
+
+    <script type="text/markdown" id="markdown-source">
+{{MARKDOWN_CONTENT}}
+    </script>
+
+    <script>
+        const src = document.getElementById('markdown-source').innerHTML;
+        const container = document.getElementById('content');
+        container.innerHTML = marked.parse(src);
+
+        // 渲染 GitHub-style 警告框 (Alerts)
+        container.querySelectorAll('blockquote').forEach(bq => {
+            const text = bq.textContent.trim();
+            const match = text.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/i);
+            if (match) {
+                const type = match[1].toUpperCase();
+                bq.className = 'markdown-alert markdown-alert-' + type.toLowerCase();
+                
+                const titleText = type.charAt(0) + type.slice(1).toLowerCase();
+                let iconSvg = '';
+                if (type === 'NOTE') {
+                    iconSvg = '<svg class="octicon octicon-info" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true" fill="currentColor" style="margin-right: 8px; display: inline-block; vertical-align: text-bottom;"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>';
+                } else if (type === 'TIP') {
+                    iconSvg = '<svg class="octicon octicon-light-bulb" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true" fill="currentColor" style="margin-right: 8px; display: inline-block; vertical-align: text-bottom;"><path d="M8 1.5c-2.363 0-4 1.832-4 4 0 1.053.383 1.896.9 2.525.503.613.9 1.157.9 2.225a.75.75 0 0 0 .75.75h3a.75.75 0 0 0 .75-.75c0-1.068.397-1.612.9-2.225.517-.629.9-1.472.9-2.525 0-2.168-1.637-4-4-4Zm0 11.5c-.822 0-1.5.618-1.5 1.5A1.5 1.5 0 0 0 8 16c.822 0 1.5-.618 1.5-1.5A1.5 1.5 0 0 0 8 13Z"></path></svg>';
+                } else if (type === 'IMPORTANT') {
+                    iconSvg = '<svg class="octicon octicon-report" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true" fill="currentColor" style="margin-right: 8px; display: inline-block; vertical-align: text-bottom;"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v10.5A1.75 1.75 0 0 1 14.25 14H8.75L5 15.75V14H1.75A1.75 1.75 0 0 1 0 12.25Zm1.75-.25a.25.25 0 0 0-.25.25v10.5c0 .138.112.25.25.25h3.75a.75.75 0 0 1 .75.75v1.07l2.28-1.07a.75.75 0 0 1 .47-.16h5.3a.25.25 0 0 0 .25-.25V1.75a.25.25 0 0 0-.25-.25ZM9 9H7V5h2Zm0 2.25h-2v-1.5h2Z"></path></svg>';
+                } else if (type === 'WARNING') {
+                    iconSvg = '<svg class="octicon octicon-alert" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true" fill="currentColor" style="margin-right: 8px; display: inline-block; vertical-align: text-bottom;"><path d="M6.457 1.047c.66-1.125 2.426-1.125 3.086 0l6.03 10.273c.63 1.074-.143 2.43-1.543 2.43H1.97c-1.4 0-2.173-1.356-1.543-2.43L6.457 1.047ZM9 5H7v4h2V5Zm0 5.25H7v1.5h2v-1.5Z"></path></svg>';
+                } else if (type === 'CAUTION') {
+                    iconSvg = '<svg class="octicon octicon-stop" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true" fill="currentColor" style="margin-right: 8px; display: inline-block; vertical-align: text-bottom;"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6c0 .199-.079.389-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5H5.31ZM8 4a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm1 5H7v4h2V9Z"></path></svg>';
+                }
+                
+                const titleHtml = '<p class="markdown-alert-title">' + iconSvg + titleText + '</p>';
+                let html = bq.innerHTML;
+                html = html.replace(/\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\](\s*<br\s*\/?>)?\s*/i, '');
+                bq.innerHTML = titleHtml + html;
+            }
+        });
+    </script>
+</body>
+</html>

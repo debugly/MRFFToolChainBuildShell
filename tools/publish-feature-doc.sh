@@ -18,10 +18,10 @@ touch "$OUTPUT_DIR/.nojekyll"
 # echo "debugly.github.io" > "$OUTPUT_DIR/CNAME"
 
 
-echo "=== 4. 生成 index.md (去掉了干扰路由的 Front Matter) ==="
+echo "=== 4. 生成 index.md  ==="
 # 回归最纯粹的 Markdown 头部，靠 GitHub 原生渲染，不再加任何 permalink
 cat << 'EOF' > "$OUTPUT_DIR/index.md"
-# FFmpeg Feature Evolution Matrix (macOS arm64)
+# FFmpeg Feature Evolution Matrix
 
 > [!NOTE]
 > This page is automatically generated. It compares the availability of protocols, codecs, filters, and other features across different FFmpeg versions.
