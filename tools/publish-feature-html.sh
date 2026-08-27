@@ -2,7 +2,7 @@
 set -e
 
 echo "=== 1. 初始化并配置各个 FFmpeg 版本 ==="
-#./main.sh init -p macos -l 'ffmpeg4 ffmpeg5 ffmpeg6 ffmpeg7 ffmpeg8' -a arm64
+./main.sh init -p macos -l 'ffmpeg4 ffmpeg5 ffmpeg6 ffmpeg7 ffmpeg8' -a arm64
 
 echo "=== 2. 创建发布目录并同步静态文件 ==="
 OUTPUT_DIR="docs"
