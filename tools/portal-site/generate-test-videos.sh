@@ -15,8 +15,8 @@ set -e
 
 # Duration parameter (default to 5 seconds for fast CI execution)
 DURATION=${1:-15}
-# Output directory (default to docs/videos relative to the workspace root)
-OUTPUT_DIR=${2:-./docs/videos}
+# Output directory (default to build/docs/videos relative to the workspace root)
+OUTPUT_DIR=${2:-./build/docs/videos}
 
 mkdir -p "$OUTPUT_DIR"
 
@@ -183,7 +183,8 @@ echo -e "\033[34m[*] Case 6.1: Generating Interlaced Video (interleave_top)...\0
 #     -y "$OUTPUT_DIR/test_transparent.webm"
 
 # Ship the pre-generated transparent sample until the VP9 encoder is available.
-PREBUILT_TRANSPARENT="tools/test_transparent.webm"
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+PREBUILT_TRANSPARENT="$SCRIPT_DIR/test_transparent.webm"
 if [[ -f "$PREBUILT_TRANSPARENT" ]]; then
     echo -e "\033[34m[*] Case 7.1: Copying pre-generated Transparent WebM (VP9 encoder unavailable)...\033[0m"
     cp "$PREBUILT_TRANSPARENT" "$OUTPUT_DIR/test_transparent.webm"

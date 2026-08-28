@@ -1,4 +1,4 @@
-name: Compare FFmpeg Features
+name: Generate Portal Website
 
 on:
   workflow_dispatch:
@@ -36,21 +36,15 @@ jobs:
         run: |
           ./main.sh install -p macos -l "ffmpeg8-bin"
 
-      - name: Generate Test Videos
+      - name: Build Portal & Feature Matrix (with Test Videos)
         run: |
-          chmod +x ./.github/workflows/generate-test-videos.sh
-          ./.github/workflows/generate-test-videos.sh 15 ./docs/videos
-
-      - name: Run Toolchain and Generate Matrix
-        run: |
-          chmod +x ./tools/publish-feature-html.sh
-          chmod +x ./tools/list-all-feature.sh
-          ./tools/publish-feature-html.sh
+          chmod +x ./tools/portal-site/*.sh
+          ./tools/portal-site/main.sh
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './docs' # 指定刚才在脚本里创建的输出目录
+          path: './build/docs' # 指定刚才在脚本里创建的输出目录
 
       - name: Deploy to GitHub Pages
         id: deployment

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>FFmpeg Feature Evolution Matrix</title>
+    <title>📊 FFmpeg Feature Evolution Matrix</title>
     <link rel="stylesheet" href="GitHub-2025.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
@@ -80,6 +80,15 @@
             box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
         }
 
+        .markdown-body del,
+        .markdown-body s,
+        del,
+        s {
+            color: #94a3b8 !important;
+            text-decoration: line-through !important;
+            opacity: 0.75;
+        }
+
         /* 浮动/悬浮分类标题 (Sticky H2) */
         .markdown-body h2 {
             position: -webkit-sticky;
@@ -114,10 +123,10 @@
         /* 浮动侧边分类快速跳转导航栏 (Floating Quick Jump Panel) */
         .floating-nav-panel {
             position: fixed;
-            bottom: 74px;
+            bottom: 24px;
             right: 24px;
             z-index: 999;
-            background: rgba(255, 255, 255, 0.92);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--card-border);
@@ -128,31 +137,100 @@
             flex-direction: column;
             gap: 6px;
             max-width: 220px;
-            max-height: calc(100vh - 150px);
-            overflow-y: auto;
+            max-height: calc(100vh - 80px);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .floating-nav-panel::-webkit-scrollbar {
-            width: 4px;
+        .floating-nav-panel.collapsed {
+            right: 0;
+            padding: 8px 6px 8px 8px;
+            border-radius: 12px 0 0 12px;
+            border-right: none;
+            box-shadow: -4px 6px 20px rgba(15, 23, 42, 0.15);
+            max-width: 36px;
+            gap: 0;
+            cursor: pointer;
         }
 
-        .floating-nav-panel::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
+        .category-nav-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 0 2px;
+            margin-bottom: 4px;
+        }
+
+        .floating-nav-panel.collapsed .category-nav-header {
+            margin-bottom: 0;
+            justify-content: center;
         }
 
         .category-nav-title {
             font-size: 11px;
             font-weight: 700;
             color: var(--text-secondary);
-            margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            padding: 0 4px;
             display: flex;
             align-items: center;
             gap: 6px;
+            white-space: nowrap;
+        }
+
+        .floating-nav-panel.collapsed .category-nav-title {
+            display: none;
+        }
+
+        .category-nav-toggle {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            width: 22px;
+            height: 22px;
+        }
+
+        .category-nav-toggle:hover {
+            background: #e2e8f0;
+            color: var(--color-blue);
+        }
+
+        .category-nav-toggle .toggle-icon {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 展开状态箭头向右(收起)，折叠状态箭头向左(展开) */
+        .floating-nav-panel.collapsed .category-nav-toggle .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .category-nav-body {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+            max-height: calc(100vh - 140px);
+        }
+
+        .category-nav-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .category-nav-body::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .floating-nav-panel.collapsed .category-nav-body {
+            display: none;
         }
 
         .category-nav-item {
@@ -179,33 +257,22 @@
             box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
         }
 
-        /* 回到顶部按钮 */
-        #back-to-top {
-            display: none;
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 999;
-            border: none;
-            outline: none;
-            background-color: var(--color-blue);
-            color: white;
-            cursor: pointer;
-            padding: 8px 18px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
-            transition: all 0.2s ease;
+        /* 集成在面板里的回到顶部按钮 */
+        .category-nav-top-item {
+            margin-top: 4px;
+            background: #eff6ff !important;
+            border: 1px solid #bfdbfe !important;
+            color: var(--color-blue) !important;
+            font-weight: 600 !important;
             text-align: center;
-            width: fit-content;
-            min-width: 90px;
         }
 
-        #back-to-top:hover {
-            background-color: #1d4ed8;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+        .category-nav-top-item:hover {
+            background: var(--color-blue) !important;
+            color: #ffffff !important;
+            border-color: var(--color-blue) !important;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+            transform: translateY(-1px) !important;
         }
 
         @media (max-width: 900px) {
@@ -225,7 +292,11 @@
     </script>
 
     <script>
-        const src = document.getElementById('markdown-source').innerHTML;
+        marked.setOptions({
+            gfm: true,
+            breaks: false
+        });
+        const src = document.getElementById('markdown-source').textContent;
         const container = document.getElementById('content');
         container.innerHTML = marked.parse(src);
 
@@ -263,11 +334,52 @@
         if (h2List.length > 0) {
             const navContainer = document.createElement('div');
             navContainer.className = 'floating-nav-panel';
+            navContainer.id = 'floating-nav-panel';
             
-            const navTitle = document.createElement('div');
+            const navHeader = document.createElement('div');
+            navHeader.className = 'category-nav-header';
+
+            const navTitle = document.createElement('span');
             navTitle.className = 'category-nav-title';
             navTitle.textContent = '⚡ Categories';
-            navContainer.appendChild(navTitle);
+            navHeader.appendChild(navTitle);
+
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'category-nav-toggle';
+            toggleBtn.title = '收起分类导航';
+            toggleBtn.innerHTML = '<svg class="toggle-icon" viewBox="0 0 16 16" width="12" height="12" fill="currentColor"><path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.69 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"></path></svg>';
+            navHeader.appendChild(toggleBtn);
+            navContainer.appendChild(navHeader);
+
+            const navBody = document.createElement('div');
+            navBody.className = 'category-nav-body';
+
+            let isCollapsed = localStorage.getItem('category_nav_collapsed') === 'true';
+            const applyCollapsed = () => {
+                if (isCollapsed) {
+                    navContainer.classList.add('collapsed');
+                    toggleBtn.title = '展开分类导航';
+                } else {
+                    navContainer.classList.remove('collapsed');
+                    toggleBtn.title = '收起分类导航';
+                }
+            };
+            applyCollapsed();
+
+            toggleBtn.onclick = (e) => {
+                e.stopPropagation();
+                isCollapsed = !isCollapsed;
+                localStorage.setItem('category_nav_collapsed', isCollapsed);
+                applyCollapsed();
+            };
+
+            navContainer.onclick = (e) => {
+                if (isCollapsed) {
+                    isCollapsed = false;
+                    localStorage.setItem('category_nav_collapsed', isCollapsed);
+                    applyCollapsed();
+                }
+            };
 
             h2List.forEach((h2, idx) => {
                 const id = 'category-' + idx;
@@ -289,24 +401,24 @@
                     window.scrollTo({ top: Math.max(0, targetTop), behavior: 'instant' });
                     history.pushState(null, null, '#' + id);
                 };
-                navContainer.appendChild(link);
+                navBody.appendChild(link);
             });
+
+            // 回到顶部按钮 (集成在 Categories 面板底部)
+            const topLink = document.createElement('a');
+            topLink.href = '#';
+            topLink.className = 'category-nav-item category-nav-top-item';
+            topLink.innerHTML = '↑ Back to Top';
+            topLink.onclick = (e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                history.pushState(null, null, ' ');
+            };
+            navBody.appendChild(topLink);
+
+            navContainer.appendChild(navBody);
             document.body.appendChild(navContainer);
         }
-
-        // 回到顶部按钮
-        const topBtn = document.createElement('button');
-        topBtn.id = 'back-to-top';
-        topBtn.innerHTML = '↑ Top';
-        topBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'instant' });
-        document.body.appendChild(topBtn);
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 200) {
-                topBtn.style.display = 'block';
-            } else {
-                topBtn.style.display = 'none';
-            }
-        });
     </script>
 </body>
 </html>

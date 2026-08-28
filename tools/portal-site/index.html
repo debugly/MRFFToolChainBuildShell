@@ -141,9 +141,21 @@
         /* Dashboard Overview */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             margin-bottom: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 580px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .dash-item {
@@ -157,6 +169,7 @@
             gap: 6px;
             box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
             transition: var(--transition-smooth);
+            min-width: 0;
         }
         
         .dash-item:hover {
@@ -175,9 +188,18 @@
 
         .dash-value {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
+            line-height: 1.25;
+            min-width: 0;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        .dash-value-platform {
+            font-size: clamp(1.05rem, 1.35vw, 1.35rem);
+            letter-spacing: -0.01em;
         }
 
         /* Card Grid for Portal Links */
@@ -353,12 +375,6 @@
             .container { padding: 40px 16px 24px; }
             .portal-grid { grid-template-columns: 1fr; }
         }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 2.2rem; }
-            .container { padding: 40px 16px 24px; }
-            .portal-grid { grid-template-columns: 1fr; }
-        }
     </style>
 </head>
 <body>
@@ -377,25 +393,25 @@
                 </svg>
             </div>
             <h1>MR FFmpeg Diagnostics Portal</h1>
-            <p class="subtitle">An advanced environment-diagnostics, pitfall validation, and feature cross-reference cockpit for our custom Apple Silicon & Android built-in FFmpeg Toolchains.</p>
+            <p class="subtitle">An advanced environment-diagnostics, pitfall validation, and feature cross-reference cockpit for our custom Apple & Android built-in FFmpeg Toolchains.</p>
         </header>
 
         <div class="dashboard-grid">
             <div class="dash-item">
                 <span class="dash-label">Target Platform</span>
-                <span class="dash-value" style="color: var(--color-blue);">macOS/iOS/tvOS/Android</span>
+                <span class="dash-value dash-value-platform" style="color: var(--color-blue);">macOS/iOS/tvOS/Android</span>
             </div>
             <div class="dash-item">
                 <span class="dash-label">Tracked Toolchains</span>
                 <span class="dash-value" style="color: var(--color-purple);">5 Versions</span>
             </div>
             <div class="dash-item">
-                <span class="dash-label">Diagnostic Checks</span>
-                <span class="dash-value" style="color: var(--color-emerald);">2,500+ Nodes</span>
+                <span class="dash-label">Feature Categories</span>
+                <span class="dash-value" style="color: var(--color-emerald);">11 Categories</span>
             </div>
             <div class="dash-item">
-                <span class="dash-label">Validation Assets</span>
-                <span class="dash-value" style="color: var(--color-amber);">13 Modules</span>
+                <span class="dash-label">Supported Libraries</span>
+                <span class="dash-value" style="color: var(--color-amber);">28 Libraries</span>
             </div>
         </div>
 
@@ -463,7 +479,7 @@
     </div>
 
     <footer>
-        &copy; 2026 debugly. All rights reserved. Built dynamically with Vanilla Web Tech.
+        &copy; 2026 debugly. Built dynamically with Vanilla Web Tech.
     </footer>
 
 </body>
