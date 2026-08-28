@@ -34,7 +34,7 @@ done
 
 if [ "$NEED_INIT" -eq 1 ]; then
     echo "检测到部分 FFmpeg 源码未初始化，正在执行初始化与配置..."
-    ./main.sh init -p macos -l 'ffmpeg4 ffmpeg5 ffmpeg6 ffmpeg7 ffmpeg8' -a arm64 --skip-pull-base
+    ./main.sh init -p macos -l 'ffmpeg4 ffmpeg5 ffmpeg6 ffmpeg7 ffmpeg8' -a arm64
 else
     echo "所有 FFmpeg 源码均已初始化，跳过 init。"
 fi
