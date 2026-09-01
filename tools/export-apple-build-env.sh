@@ -117,3 +117,29 @@ THIS_DIR=$(DIRNAME=$(dirname "${BASH_SOURCE[0]}"); cd "${DIRNAME}"; pwd)
 source "$THIS_DIR/export-apple-pkg-config-dir.sh"
 
 echo "PKG_CONFIG_LIBDIR: [$PKG_CONFIG_LIBDIR]"
+
+# ---------------------------------------------------------------------------
+# nasm wrapper: 让 Apple(Mach-O) 汇编对象带上 LC_BUILD_VERSION, 消除 Xcode 15+
+# 链接器 "No platform load command found" 警告。
+# 做法: 记录真实 nasm 到 MR_REAL_NASM, 并在 PATH 最前面放一个名为 nasm 的软链,
+# 指向 wrapper; 后续 ffmpeg/x264/dav1d/opus/openssl 的 configure/meson/make
+# 解析到的 nasm 即命中 wrapper。wrapper 仅对 macho 输出注入, elf 等透传。
+# ---------------------------------------------------------------------------
+NASM_WRAPPER="$THIS_DIR/nasm-macho-wrapper.sh"
+if [[ -f "$NASM_WRAPPER" ]]; then
+    # 定位真实 nasm (此时 PATH 尚未被 shim 污染)。
+    if [[ -z "$MR_REAL_NASM" ]]; then
+        export MR_REAL_NASM="$(command -v nasm)"
+    fi
+    if [[ -n "$MR_REAL_NASM" ]]; then
+        NASM_SHIM_DIR="${MR_WORKSPACE:-$THIS_DIR/build}/.nasm-shim"
+        mkdir -p "$NASM_SHIM_DIR"
+        ln -sf "$NASM_WRAPPER" "$NASM_SHIM_DIR/nasm"
+        case ":$PATH:" in
+            *":$NASM_SHIM_DIR:"*) : ;;              # 已在 PATH 中, 不重复
+            *) export PATH="$NASM_SHIM_DIR:$PATH" ;;
+        esac
+        echo "MR_REAL_NASM     : [$MR_REAL_NASM]"
+        echo "NASM_SHIM_DIR    : [$NASM_SHIM_DIR]"
+    fi
+fi
