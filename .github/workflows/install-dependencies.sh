@@ -2,7 +2,14 @@
 
 set -e
 
-LIB_NAME=$1
+CONFIG_FILE="./configs/libs/${1}.sh"
+if [[ -L "$CONFIG_FILE" ]]; then
+    REAL_CONFIG_FILE=$(realpath "$CONFIG_FILE")
+    CONFIG_BASE=$(basename "$REAL_CONFIG_FILE")
+    LIB_NAME="${CONFIG_BASE%.sh}"
+else
+    LIB_NAME=$1
+fi
 PLAT=$2
 
 case $LIB_NAME in

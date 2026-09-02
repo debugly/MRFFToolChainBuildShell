@@ -7,7 +7,14 @@
 set -e
 set -o pipefail
 
-export CONFIG_NAME=$1
+CONFIG_FILE="./configs/libs/${1}.sh"
+if [[ -L "$CONFIG_FILE" ]]; then
+    REAL_CONFIG_FILE=$(realpath "$CONFIG_FILE")
+    CONFIG_BASE=$(basename "$REAL_CONFIG_FILE")
+    export CONFIG_NAME="${CONFIG_BASE%.sh}"
+else
+    export CONFIG_NAME=$1
+fi
 export PLAT=$2
 export MR_PLAT=$PLAT
 
