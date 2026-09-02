@@ -159,12 +159,15 @@ function make_xcfmwk_bundle()
 function replace_tag()
 {
     local file=$1
+    if [ -L "$file" ]; then
+        file=$(realpath "$file")
+    fi
     local key=$2
 
     # check PRE_COMPILE_TAG_IOS
     if grep -q "$key" "$file"; then
         # replace PRE_COMPILE_TAG_IOS=new_tag
-        sed -i "" "s/^export $key=.*/export $key=$TAG/" $file
+        sed -i "" "s/^export $key=.*/export $key=$TAG/" "$file"
     else
         # PRE_COMPILE_TAG_IOS not found, append PRE_COMPILE_TAG_IOS
         [ -n "$(tail -c1 "$file")" ] && echo "" >> "$file"
@@ -175,6 +178,9 @@ function replace_tag()
 function upgrade()
 {
     local file="configs/libs/${CONFIG_NAME}.sh"
+    if [ -L "$file" ]; then
+        file=$(realpath "$file")
+    fi
     case $PLAT in
         ios)
             replace_tag $file PRE_COMPILE_TAG_IOS
