@@ -75,9 +75,13 @@ echo "[*] fetch dependencies for $LIB_NAME"
 echo "----------------------"
 
 cd $MR_BUILD_SOURCE
-if [ -d "External/build" ]; then
-    echo "dependencies already exist"
-else
+cached_ext="${MR_SRC_ROOT}/MoltenVK-arm64/External"
+if [ ! -d "External/build" ]; then
+    if [ "$cached_ext" != "$MR_BUILD_SOURCE/External" ] && [ -d "$cached_ext" ]; then
+        echo "[*] copy cached External sources from $cached_ext..."
+        mkdir -p External
+        rsync -a --exclude 'build' "$cached_ext/" "External/" 2>/dev/null || true
+    fi
     if [ -f "./fetchDependencies" ]; then
         echo "fetching dependencies for $fetch_deps_arg..."
         chmod +x ./fetchDependencies
@@ -85,6 +89,8 @@ else
     else
         echo "fetchDependencies script not found, trying with CMake..."
     fi
+else
+    echo "dependencies already exist"
 fi
 
 cd "$THIS_DIR"
@@ -112,10 +118,25 @@ xcodebuild -project "$MR_BUILD_SOURCE/MoltenVKPackaging.xcodeproj" \
 pkg_static_dir="$MR_BUILD_SOURCE/Package/Release/MoltenVK/static"
 if [[ -d "$pkg_static_dir/MoltenVK.xcframework" ]]; then
     xcframework_dir="$pkg_static_dir/MoltenVK.xcframework"
-    archs_dir=$(ls "$xcframework_dir/" 2>/dev/null | grep -v Info.plist | head -1)
+    if [[ $_MR_ARCH == *simulator ]]; then
+        archs_dir=$(ls "$xcframework_dir/" 2>/dev/null | grep -i "simulator" | head -1)
+    else
+        archs_dir=$(ls "$xcframework_dir/" 2>/dev/null | grep -v -i "simulator" | grep -v Info.plist | head -1)
+    fi
     if [[ -n "$archs_dir" && -f "$xcframework_dir/$archs_dir/libMoltenVK.a" ]]; then
-        cp "$xcframework_dir/$archs_dir/libMoltenVK.a" "$MR_BUILD_PREFIX/lib/"
-        echo "Copied libMoltenVK.a from xcframework to $MR_BUILD_PREFIX/lib/"
+        lib_src="$xcframework_dir/$archs_dir/libMoltenVK.a"
+        if xcrun lipo -info "$lib_src" | grep -q "Architectures in the fat file"; then
+            if xcrun lipo -info "$lib_src" | grep -q "$arch_param"; then
+                xcrun lipo -thin "$arch_param" "$lib_src" -output "$MR_BUILD_PREFIX/lib/libMoltenVK.a"
+                echo "Extracted $arch_param from $archs_dir/libMoltenVK.a to $MR_BUILD_PREFIX/lib/"
+            else
+                cp "$lib_src" "$MR_BUILD_PREFIX/lib/"
+                echo "Copied libMoltenVK.a from xcframework to $MR_BUILD_PREFIX/lib/"
+            fi
+        else
+            cp "$lib_src" "$MR_BUILD_PREFIX/lib/"
+            echo "Copied non-fat libMoltenVK.a from xcframework to $MR_BUILD_PREFIX/lib/"
+        fi
     fi
 fi
 
@@ -155,6 +176,11 @@ MOLTENVK_VERSION="${MOLTENVK_MAJOR}.${MOLTENVK_MINOR}.${MOLTENVK_PATCH}"
 
 VULKAN_VERSION="1.3.250"
 
+extra_frameworks=""
+if [[ "$MR_PLAT" == 'macos' ]]; then
+    extra_frameworks="-framework IOKit"
+fi
+
 cat > "$MR_BUILD_PREFIX/lib/pkgconfig/vulkan.pc" << EOF
 prefix=${MR_BUILD_PREFIX}
 exec_prefix=\${prefix}
@@ -165,7 +191,7 @@ Name: Vulkan
 Description: Vulkan loader (MoltenVK)
 Version: ${VULKAN_VERSION}
 Libs: -L\${libdir} -lMoltenVK
-Libs.private: -framework Metal -framework Foundation -framework QuartzCore -framework IOKit -framework IOSurface -lc++
+Libs.private: -framework Metal -framework Foundation -framework QuartzCore ${extra_frameworks} -framework IOSurface -lc++
 Cflags: -I\${includedir} -I\${includedir}/vulkan
 EOF
 
@@ -179,7 +205,7 @@ Name: MoltenVK
 Description: Vulkan implementation on Metal for macOS and iOS
 Version: ${MOLTENVK_VERSION}
 Libs: -L\${libdir} -lMoltenVK
-Libs.private: -framework Metal -framework Foundation -framework QuartzCore -framework IOKit -framework IOSurface -lc++
+Libs.private: -framework Metal -framework Foundation -framework QuartzCore ${extra_frameworks} -framework IOSurface -lc++
 Cflags: -I\${includedir} -I\${includedir}/vulkan -I\${includedir}/MoltenVK
 Requires: vulkan
 EOF
