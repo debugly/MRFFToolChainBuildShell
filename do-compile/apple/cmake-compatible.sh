@@ -62,35 +62,55 @@ elif [[ "$MR_PLAT" == 'macos' ]];then
     fi
 fi
 
-cmake -S ${MR_BUILD_SOURCE} \
-    -DCMAKE_INSTALL_PREFIX=${MR_BUILD_PREFIX} \
-    -DCMAKE_TOOLCHAIN_FILE="${MR_SHELL_TOOLS_DIR}/ios.toolchain.cmake" \
+CMAKE_GEN="${CMAKE_GENERATOR:-Xcode}"
+
+cmake_opts="-DCMAKE_INSTALL_PREFIX=${MR_BUILD_PREFIX} \
+    -DCMAKE_TOOLCHAIN_FILE=${MR_SHELL_TOOLS_DIR}/ios.toolchain.cmake \
     -DPLATFORM=$pf \
     -DDEPLOYMENT_TARGET=$MR_DEPLOYMENT_TARGET_VER \
-    ${CMAKE_OTHER_OPTS} \
-    -GXcode
+    -DBUILD_SHARED_LIBS=OFF"
+
+if [[ -n "$PKG_CONFIG_LIBDIR" ]]; then
+    cmake_opts="$cmake_opts -DCMAKE_PREFIX_PATH=${PKG_CONFIG_LIBDIR}"
+fi
+
+cmake_opts="$cmake_opts ${CMAKE_OTHER_OPTS}"
+
+if [[ "$CMAKE_GEN" == "Ninja" ]]; then
+    if [[ "$MR_DEBUG" == "debug" ]]; then
+        cmake_opts="$cmake_opts -DCMAKE_BUILD_TYPE=Debug"
+    else
+        cmake_opts="$cmake_opts -DCMAKE_BUILD_TYPE=Release"
+    fi
+    cmake -S ${MR_BUILD_SOURCE} $cmake_opts -GNinja
+else
+    cmake -S ${MR_BUILD_SOURCE} $cmake_opts -GXcode
+fi
 
 echo "----------------------"
 echo "[*] compile $LIB_NAME"
 echo "----------------------"
 
-
 # 初始化构建命令
 camke_cmd="cmake --build ."
 
 # 以逗号分割目标名称，并为每个目标添加 --target 参数
-IFS=',' read -ra targets <<< "$CMAKE_TARGETS_NAME"
-for target in "${targets[@]}"; do
-    camke_cmd="$camke_cmd --target $target"
-done
-
-
-if [[ "$MR_DEBUG" == "debug" ]];then
-    camke_cmd="$camke_cmd --config Debug -- CODE_SIGNING_ALLOWED=NO"
-else
-    camke_cmd="$camke_cmd --config Release -- CODE_SIGNING_ALLOWED=NO"
+if [[ -n "$CMAKE_TARGETS_NAME" ]]; then
+    IFS=',' read -ra targets <<< "$CMAKE_TARGETS_NAME"
+    for target in "${targets[@]}"; do
+        camke_cmd="$camke_cmd --target $target"
+    done
 fi
 
+if [[ "$CMAKE_GEN" == "Ninja" ]]; then
+    camke_cmd="$camke_cmd --parallel"
+else
+    if [[ "$MR_DEBUG" == "debug" ]];then
+        camke_cmd="$camke_cmd --config Debug -- CODE_SIGNING_ALLOWED=NO"
+    else
+        camke_cmd="$camke_cmd --config Release -- CODE_SIGNING_ALLOWED=NO"
+    fi
+fi
 
 # 执行构建命令
 eval "$camke_cmd"
