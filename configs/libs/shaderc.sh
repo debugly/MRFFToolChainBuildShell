@@ -33,3 +33,4 @@ else
     export GIT_UPSTREAM=https://github.com/google/shaderc.git
 fi
 export PRE_COMPILE_TAG_MACOS=shaderc-v2026.3-260824210917
+export PRE_COMPILE_TAG_IOS=shaderc-v2026.3-260910185834
