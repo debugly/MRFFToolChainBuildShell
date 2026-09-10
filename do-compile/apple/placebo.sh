@@ -29,62 +29,27 @@ git submodule update --init --recursive
 
 # Fix Python 3.14 compatibility issue in utils_gen.py
 # ET.parse() returns ElementTree, need to call .getroot() to get Element
-sed -i '' 's/registry = VkXML(ET.parse(xmlfile))/registry = VkXML(ET.parse(xmlfile).getroot())/g' src/vulkan/utils_gen.py
+if [[ -f src/vulkan/utils_gen.py ]]; then
+    sed -i '' 's/registry = VkXML(ET.parse(xmlfile))/registry = VkXML(ET.parse(xmlfile).getroot())/g' src/vulkan/utils_gen.py || true
+fi
 
 cd "$THIS_DIR"
-
-BUILD_DIR="${MR_BUILD_SOURCE}/meson_build"
-rm -rf "$BUILD_DIR"
-mkdir -p "$BUILD_DIR"
-
-echo "----------------------"
-echo "[*] configure $LIB_NAME"
-echo "----------------------"
-
-# libplacebo uses meson, and we need to specify MoltenVK as Vulkan ICD
-# Only enable vulkan backend (no opengl/d3d11)
-# Use shaderc for SPIRV compilation
-
-# Find lcms2 and shaderc from our build
-
-# Set deployment target for macOS
-export MACOSX_DEPLOYMENT_TARGET=11.0
-
-MESON_OPTS="--buildtype=release \
---prefix=$MR_BUILD_PREFIX \
---default-library=static \
--Dvulkan=enabled \
--Dshaderc=enabled \
--Dglslang=disabled \
--Dopengl=disabled \
--Dd3d11=disabled \
--Dlcms=enabled \
--Dtests=false \
--Dbench=false \
--Ddemos=false \
--Dxxhash=disabled"
-
-
-# Set up environment for MoltenVK
-export VK_ICD_FILENAMES="${MR_BUILD_PREFIX}/share/vulkan/icd.d/MoltenVK_icd.json"
 
 # Disable assertions to fix Xcode SDK compatibility issue
 # IMPORTANT: Preserve original CFLAGS which contains -arch parameter
 export CFLAGS="${MR_DEFAULT_CFLAGS} -U_LIBCPP_ENABLE_ASSERTIONS"
 export CXXFLAGS="${MR_DEFAULT_CFLAGS} -U_LIBCPP_ENABLE_ASSERTIONS"
 
-meson setup ${BUILD_DIR} ${MR_BUILD_SOURCE} ${MESON_OPTS}
+MESON_OPTS="-Dvulkan=enabled \
+-Dshaderc=enabled \
+-Dglslang=disabled \
+-Dopengl=disabled \
+-Dd3d11=disabled \
+-Dlcms=enabled \
+-Ddovi=enabled \
+-Dtests=false \
+-Dbench=false \
+-Ddemos=false \
+-Dxxhash=disabled"
 
-echo "----------------------"
-echo "[*] compile $LIB_NAME"
-echo "----------------------"
-
-cd "$BUILD_DIR"
-
-meson compile
-
-echo "----------------------"
-echo "[*] install $LIB_NAME"
-echo "----------------------"
-
-meson install
+./meson-compatible.sh "$MESON_OPTS"
