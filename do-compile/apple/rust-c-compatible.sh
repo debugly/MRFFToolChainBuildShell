@@ -17,6 +17,10 @@
 
 set -e
 
+if [[ -d "$HOME/.cargo/bin" ]]; then
+    export PATH="$HOME/.cargo/bin:$PATH"
+fi
+
 if ! command -v rustup &> /dev/null; then
     return 0
 fi
