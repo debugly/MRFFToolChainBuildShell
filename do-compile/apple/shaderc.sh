@@ -25,15 +25,21 @@ echo "[*] sync dependencies for $LIB_NAME"
 echo "----------------------"
 
 cd $MR_BUILD_SOURCE
-cached_tp="${MR_SRC_ROOT}/shaderc-arm64/third_party"
+extra_tp="${MR_WORKSPACE}/extra/shaderc/third_party"
 if [ ! -d "$MR_BUILD_SOURCE/third_party/spirv-tools" ]; then
-    if [ -d "$cached_tp/spirv-tools" ]; then
-        echo "[*] copy third_party from $cached_tp..."
-        cp -R "$cached_tp/"* "$MR_BUILD_SOURCE/third_party/"
+    if [ -d "$extra_tp/spirv-tools" ]; then
+        echo "[*] copy third_party from $extra_tp..."
+        mkdir -p "$MR_BUILD_SOURCE/third_party"
+        cp -R "$extra_tp/"* "$MR_BUILD_SOURCE/third_party/"
     elif [ -f "./utils/git-sync-deps" ]; then
         echo "running git-sync-deps..."
         chmod +x ./utils/git-sync-deps
         ./utils/git-sync-deps
+        if [ -d "$MR_BUILD_SOURCE/third_party/spirv-tools" ]; then
+            echo "[*] save third_party cache to $extra_tp..."
+            mkdir -p "$extra_tp"
+            cp -R "$MR_BUILD_SOURCE/third_party/"* "$extra_tp/"
+        fi
     else
         echo "git-sync-deps not found"
         exit 1
