@@ -1,0 +1,41 @@
+From 4a0b2bab27672c6eef489617b416bbd08a145bfd Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Fri, 11 Sep 2026 16:24:25 +0800
+Subject: [PATCH] do not force hard float for armv7 on android
+
+---
+ source/CMakeLists.txt | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/source/CMakeLists.txt b/source/CMakeLists.txt
+index 774d1e8..406bb5f 100644
+--- a/source/CMakeLists.txt
++++ b/source/CMakeLists.txt
+@@ -61,14 +61,16 @@ elseif("${UAVS3D_TARGET_CPU}" MATCHES "armv7")
+   add_definitions(-D _armv7a)
+   enable_language(ASM)
+   
+-  # Add NEON support for ARMv7
+-  # Use hard float ABI to match the musleabihf toolchain
+-  # Use a specific CPU that supports NEON and hard float
+-  set(ARMV7_FLAGS "-mcpu=cortex-a9 -mfpu=neon -mfloat-abi=hard")
+-  
+-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ARMV7_FLAGS}")
+-  set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} ${ARMV7_FLAGS}")
+-  message(STATUS "ARMv7-A NEON flags added: ${ARMV7_FLAGS}")
++  if(NOT ANDROID)
++    # Add NEON support for ARMv7
++    # Use hard float ABI to match the musleabihf toolchain
++    # Use a specific CPU that supports NEON and hard float
++    set(ARMV7_FLAGS "-mcpu=cortex-a9 -mfpu=neon -mfloat-abi=hard")
++    
++    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ARMV7_FLAGS}")
++    set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} ${ARMV7_FLAGS}")
++    message(STATUS "ARMv7-A NEON flags added: ${ARMV7_FLAGS}")
++  endif()
+   
+ elseif("${UAVS3D_TARGET_CPU}" MATCHES "arm64")
+   list(APPEND UAVS3D_ASM_FILES "./decore/arm64/arm64.c")
+-- 
+2.50.1 (Apple Git-155)
+
