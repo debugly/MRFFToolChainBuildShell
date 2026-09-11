@@ -31,5 +31,6 @@ if [[ "$GIT_LIBPLACEB0_UPSTREAM" != "" ]] ;then
 else
     export GIT_UPSTREAM=https://github.com/haasn/libplacebo.git
 fi
-export PRE_COMPILE_TAG_MACOS=placebo-v7.360.1-260824213151
-export PRE_COMPILE_TAG_IOS=placebo-v7.360.1-260910192529
+export PRE_COMPILE_TAG_MACOS=placebo-v7.360.1-260911161546
+export PRE_COMPILE_TAG_IOS=placebo-v7.360.1-260911161546
+export PRE_COMPILE_TAG_TVOS=placebo-v7.360.1-260911161546
