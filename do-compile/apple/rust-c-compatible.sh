@@ -115,7 +115,7 @@ rust_c_build() {
     fi
 
     local target
-    target=$(arch_target "$MR_ARCH" "$MR_PLAT")
+    target=$(arch_target "$_MR_ARCH" "$MR_PLAT")
 
     echo "----------------------"
     echo "[*] compile $LIB_NAME"
