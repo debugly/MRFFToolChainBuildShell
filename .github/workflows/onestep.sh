@@ -120,7 +120,7 @@ function compile_tvos_platform
 {
     echo "---do compile tvos libs--------------------------------------"
 
-    local log_file="$DIST_DIR/android-compile-log-$RELEASE_VERSION.md"
+    local log_file="$DIST_DIR/tvos-compile-log-$RELEASE_VERSION.md"
 
     if [[ $VERBOSE ]];then
         ./main.sh compile -p tvos -c build -l ${CONFIG_NAME} 2>&1 | tee -a "$log_file"
