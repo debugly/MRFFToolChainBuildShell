@@ -19,20 +19,12 @@ if [[ "$MR_PLAT" != 'macos' ]]; then
     export MR_FORCE_CROSS=true
 fi
 
-if [[ "$MR_VENDOR_LIBS" == *"moltenvk"* || "$MR_VENDOR_LIBS" == "moltenvk" ]]; then
-    if [[ "$MR_PLAT" == 'macos' ]]; then
-        export MR_DEFAULT_ARCHS="arm64"
-    elif [[ "$MR_PLAT" == 'ios' || "$MR_PLAT" == 'tvos' ]]; then
-        export MR_DEFAULT_ARCHS="arm64 arm64_simulator"
-    fi
-else
-    if [[ "$MR_PLAT" == 'ios' ]]; then
-        export MR_DEFAULT_ARCHS="arm64 arm64_simulator x86_64_simulator"
-    elif [[ "$MR_PLAT" == 'macos' ]]; then
-        export MR_DEFAULT_ARCHS="x86_64 arm64"
-    elif [[ "$MR_PLAT" == 'tvos' ]]; then
-        export MR_DEFAULT_ARCHS="arm64 arm64_simulator x86_64_simulator"
-    fi
+if [[ "$MR_PLAT" == 'ios' ]]; then
+    export MR_DEFAULT_ARCHS="arm64 arm64_simulator x86_64_simulator"
+elif [[ "$MR_PLAT" == 'macos' ]]; then
+    export MR_DEFAULT_ARCHS="x86_64 arm64"
+elif [[ "$MR_PLAT" == 'tvos' ]]; then
+    export MR_DEFAULT_ARCHS="arm64 arm64_simulator x86_64_simulator"
 fi
 
 # Number of physical cores in the system to facilitate parallel assembling
