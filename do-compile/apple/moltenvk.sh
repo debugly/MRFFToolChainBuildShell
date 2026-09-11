@@ -75,17 +75,22 @@ echo "[*] fetch dependencies for $LIB_NAME"
 echo "----------------------"
 
 cd $MR_BUILD_SOURCE
-cached_ext="${MR_SRC_ROOT}/MoltenVK-arm64/External"
+extra_ext="${MR_WORKSPACE}/extra/MoltenVK/External"
 if [ ! -d "External/build" ]; then
-    if [ "$cached_ext" != "$MR_BUILD_SOURCE/External" ] && [ -d "$cached_ext" ]; then
-        echo "[*] copy cached External sources from $cached_ext..."
+    if [ -d "$extra_ext" ]; then
+        echo "[*] copy cached External sources from $extra_ext..."
         mkdir -p External
-        rsync -a --exclude 'build' "$cached_ext/" "External/" 2>/dev/null || true
+        rsync -a --exclude 'build' "$extra_ext/" "External/" 2>/dev/null || true
     fi
     if [ -f "./fetchDependencies" ]; then
         echo "fetching dependencies for $fetch_deps_arg..."
         chmod +x ./fetchDependencies
         ./fetchDependencies $fetch_deps_arg
+        if [ ! -d "$extra_ext" ]; then
+            echo "[*] save External cache to $extra_ext..."
+            mkdir -p "$extra_ext"
+            rsync -a --exclude 'build' "External/" "$extra_ext/" 2>/dev/null || true
+        fi
     else
         echo "fetchDependencies script not found, trying with CMake..."
     fi
