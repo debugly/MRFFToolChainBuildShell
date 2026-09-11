@@ -30,5 +30,6 @@ else
     export GIT_UPSTREAM=https://github.com/quietvoid/dovi_tool.git
 fi
 
-export PRE_COMPILE_TAG_MACOS=dovi-3.4.0-260824213022
-export PRE_COMPILE_TAG_IOS=dovi-3.4.0-260910192416
+export PRE_COMPILE_TAG_MACOS=dovi-3.4.0-260911161032
+export PRE_COMPILE_TAG_IOS=dovi-3.4.0-260911161032
+export PRE_COMPILE_TAG_TVOS=dovi-3.4.0-260911161032
