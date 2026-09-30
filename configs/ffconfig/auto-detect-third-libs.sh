@@ -126,18 +126,6 @@ has_feature() {
 }
 
 echo "----------------------"
-# use pkg-config fix ff4.0--ijk0.8.8--20210426--001 use openssl 1_1_1m occur can't find openssl error.
-
-pkg-config --libs openssl --silence-errors >/dev/null && enable_openssl=1
-
-if [[ $enable_openssl ]];then
-    echo "[✅] --enable-openssl : $(pkg-config --modversion openssl)"
-    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-nonfree --enable-openssl"
-else
-    echo "[❌] --disable-openssl"
-fi
-
-echo "----------------------"
 
 pkg-config --libs opus --silence-errors >/dev/null && enable_opus=1
 
@@ -208,6 +196,7 @@ fi
 
 echo "----------------------"
 
+is_gpl=0
 #不确定7代之前的版本是否支持dvdvideo
 result=$(gt_or_equal "$GIT_REPO_VERSION" "7.1.1")
 if [[ $result ]]; then
@@ -217,6 +206,7 @@ if [[ $result ]]; then
         echo "[✅] --enable-demuxer=dvdvideo --enable-gpl --enable-libdvdread : $(pkg-config --modversion dvdread)"
         #libdvdread is gpl and --enable-gpl is not specified.
         THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libdvdread --enable-libdvdnav --enable-demuxer=dvdvideo --enable-gpl"
+        is_gpl=1
     else
         echo "[❌] --disable-dvdvideo"
     fi
@@ -228,12 +218,28 @@ else
         if [[ $enable_dvdread ]];then
             echo "[✅] --enable-libdvdread : $(pkg-config --modversion dvdread)"
             THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libdvdread --enable-protocol=dvd"
+            is_gpl=1
         else
             echo "[❌] --disable-dvd protocol"
         fi
         echo "----------------------"
     fi
 fi
+
+# use pkg-config fix ff4.0--ijk0.8.8--20210426--001 use openssl 1_1_1m occur can't find openssl error.
+pkg-config --libs openssl --silence-errors >/dev/null && enable_openssl=1
+
+if [[ $enable_openssl ]];then
+    echo "[✅] --enable-openssl : $(pkg-config --modversion openssl)"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-openssl"
+    if [[ $is_gpl -eq 1 ]]; then
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-nonfree"
+    fi
+else
+    echo "[❌] --disable-openssl"
+fi
+
+echo "----------------------"
 
 result=$(gt_or_equal "$GIT_REPO_VERSION" "5")
 if [[ $result ]]; then
