@@ -1,11 +1,11 @@
 ## MRFFToolChain 构建脚本
 
-![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.2%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
+![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android%20HarmonyOS-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.2%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
 
 
 **MRFFToolChain 是什么？**
 
-MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、tvOS、Android 平台的三方库，其构建产物为 [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial) 所用.
+MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、tvOS、Android、HarmonyOS（鸿蒙）平台的三方库，其构建产物为 [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial) 所用.
 
 目前包含了这些库：`ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp、x264、x265`.
 
@@ -17,6 +17,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 | tvOS     | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
 | macOS    | arm64、x86_64                               | 10.14                     |
 | Android  | arm64、armv7a、x86_64、x86                   | 21                        |
+| HarmonyOS（鸿蒙） | arm64、x86_64                            | 5.0.0 (API 12)            |
 
 ## 最新动态
 
@@ -26,7 +27,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 ## 依赖关系
 
-编译了适用于安卓和苹果三大平台的 FFmpeg4，FFmpeg5，FFmpeg6，FFmpeg7，FFmpeg8。
+编译了适用于苹果、安卓、鸿蒙三大平台的 FFmpeg4、FFmpeg5、FFmpeg6、FFmpeg7、FFmpeg8。
 
 - Fontconfig：xml2、freetype
 - Bluray：xml2
@@ -45,6 +46,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 - 适用于安卓的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d、soundtouch
 - 适用于安卓的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2、soundtouch
 - 适用于安卓的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、soundtouch
+- 适用于鸿蒙（HarmonyOS）的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
 
 提示: 
 
@@ -69,6 +71,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 ./main.sh install -p macos -l ffmpeg
 ./main.sh install -p ios -l 'ass ffmpeg'
 ./main.sh install -p android -l openssl3
+./main.sh install -p ohos -l ffmpeg8
 ```
 
 ## 自行编译
@@ -88,6 +91,8 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 ./main.sh init -p ios -l ffmpeg7 -a x86_64_simulator
 # 为 Android 平台准备特定库的源代码
 ./main.sh init -p android -l "openssl ffmpeg"
+# 为鸿蒙平台准备 ffmpeg8 源代码
+./main.sh init -p ohos -l ffmpeg8
 ```
 
 ### 编译

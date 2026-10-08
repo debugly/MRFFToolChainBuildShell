@@ -1,10 +1,10 @@
 ## MRFFToolChain Build Shell [[中文版](./README_zh-CN.md)]
 
-![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.2%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
+![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android%20HarmonyOS-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.2%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
 
 **What's MRFFToolChain?**
 
-MRFFToolChain is a mature set of compilation tools specifically designed for compiling third-party libraries for iOS, macOS, tvOS, and Android platforms. It's products was built for [fsplayer](https://github.com/debugly/fsplayer) 、[ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
+MRFFToolChain is a mature set of compilation tools specifically designed for compiling third-party libraries for iOS, macOS, tvOS, Android, and HarmonyOS platforms. It's products was built for [fsplayer](https://github.com/debugly/fsplayer) 、[ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
 
 At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp、x264、x265`.
 
@@ -16,6 +16,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdn
 | tvOS     | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
 | macOS    | arm64、x86_64                               | 10.14                     |
 | Android  | arm64、armv7a、x86_64、x86                   | 21                        |
+| HarmonyOS | arm64、x86_64                               | 5.0.0 (API 12)            |
 
 ## News
 
@@ -42,6 +43,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdn
 - FFmpeg5 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,soundtouch
 - FFmpeg6 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2,soundtouch
 - FFmpeg7 for Android: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,soundtouch
+- FFmpeg8 for HarmonyOS: openssl3,opus,bluray,dav1d,uavs3d,smb2,soundtouch
 
 Tips: 
 
@@ -65,6 +67,7 @@ These pre-compiled libraries already applied patches which in the patches direct
 ./main.sh install -p macos -l ffmpeg
 ./main.sh install -p ios -l 'ass ffmpeg'
 ./main.sh install -p android -l openssl3
+./main.sh install -p ohos -l ffmpeg8
 ```
 
 ## Compile by Yourself
@@ -85,6 +88,8 @@ The script parameters are flexible and can be combined as needed. Here are some 
 ./main.sh init -p ios -l ffmpeg7 -a x86_64_simulator
 # Prepare source code for specific libraries for the Android platform
 ./main.sh init -p android -l "openssl ffmpeg"
+# Prepare ffmpeg8 source code for the HarmonyOS platform
+./main.sh init -p ohos -l ffmpeg8
 ```
 
 ### Compile
