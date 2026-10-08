@@ -114,24 +114,32 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        SDK_URL="https://repo.huaweicloud.com/harmonyos/os/5.0.0-Release/ohos-sdk-mac-public.tar.gz"
         SDK_WORK="$RUNNER_TEMP/ohos-sdk"
         mkdir -p "$SDK_WORK"
-        echo "Downloading HarmonyOS SDK: $SDK_URL"
-        curl -fL --retry 5 --retry-delay 5 "$SDK_URL" -o "$SDK_WORK/ohos-sdk.tar.gz"
-        tar -xzf "$SDK_WORK/ohos-sdk.tar.gz" -C "$SDK_WORK"
-        NATIVE_ZIP=$(find "$SDK_WORK" -type f -name 'native-darwin-*.zip' | head -n 1)
-        [ -z "$NATIVE_ZIP" ] && NATIVE_ZIP=$(find "$SDK_WORK" -type f -name 'native-*.zip' | head -n 1)
-        if [ -z "$NATIVE_ZIP" ]; then
-          echo "!! native SDK zip not found inside package:"
+        NATIVE_ZIP=""
+        # Fast path: pre-mirrored native zip hosted as a GitHub release asset.
+        if gh release download ohos-native-sdk-5.0.0.71 --dir "$SDK_WORK" 2>/dev/null; then
+          NATIVE_ZIP="$SDK_WORK/native.zip"
+          echo "Downloaded HarmonyOS native SDK from GitHub releases (mirror)."
+        else
+          echo "Mirror download failed; falling back to huaweicloud..."
+          SDK_URL="https://repo.huaweicloud.com/harmonyos/os/5.0.0-Release/ohos-sdk-mac-public.tar.gz"
+          curl -fL --retry 5 --retry-delay 5 "$SDK_URL" -o "$SDK_WORK/ohos-sdk.tar.gz"
+          tar -xzf "$SDK_WORK/ohos-sdk.tar.gz" -C "$SDK_WORK"
+          NATIVE_ZIP=$(find "$SDK_WORK" -type f -name 'native-darwin-*.zip' | head -n 1)
+          [ -z "$NATIVE_ZIP" ] && NATIVE_ZIP=$(find "$SDK_WORK" -type f -name 'native-*.zip' | head -n 1)
+        fi
+        if [ -z "$NATIVE_ZIP" ] || [ ! -f "$NATIVE_ZIP" ]; then
+          echo "!! native SDK zip not found"
           find "$SDK_WORK" -maxdepth 4 -type f | sort
           exit 1
         fi
         unzip -q "$NATIVE_ZIP" -d "$SDK_WORK/native-sdk"
         OHOS_NATIVE=$(find "$SDK_WORK/native-sdk" -type d -name native | head -n 1)
-        if [ -z "$OHOS_NATIVE" ]; then
-          echo "!! native dir not found after extraction:"
-          find "$SDK_WORK/native-sdk" -maxdepth 2 -type d | sort
+        [ -z "$OHOS_NATIVE" ] && OHOS_NATIVE="$SDK_WORK/native-sdk/native"
+        if [ ! -f "$OHOS_NATIVE/llvm/bin/clang" ]; then
+          echo "!! clang not found under $OHOS_NATIVE"
+          find "$SDK_WORK/native-sdk" -maxdepth 3 -type d | sort
           exit 1
         fi
         echo "OHOS_SDK_NATIVE=$OHOS_NATIVE" >> "$GITHUB_ENV"
