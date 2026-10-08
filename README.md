@@ -31,14 +31,14 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdn
 - Harfbuzz: freetype
 - Dvdnav: dvdread
 - Placebo for macOS: shaderc,moltenvk,dovi,lcms2
-- Ass for Appple:  harfbuzz,fribidi,unibreak
+- Ass for Apple:  harfbuzz,fribidi,unibreak
 - Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
 - IJKFFmpeg: openssl
-- FFmpeg4 for Appple: openssl3,opus,bluray
-- FFmpeg5 for Appple: openssl3,opus,bluray,dav1d,dvdread,uavs3d
-- FFmpeg6 for Appple: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2
-- FFmpeg7 for Appple: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,webp
-- FFmpeg8 for Appple: openssl3,opus,bluray,dav1d,uavs3d,smb2,webp
+- FFmpeg4 for Apple: openssl3,opus,bluray
+- FFmpeg5 for Apple: openssl3,opus,bluray,dav1d,dvdread,uavs3d
+- FFmpeg6 for Apple: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2
+- FFmpeg7 for Apple: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,webp
+- FFmpeg8 for Apple: openssl3,opus,bluray,dav1d,uavs3d,smb2,webp
 - FFmpeg4 for Android: openssl3,opus,bluray,soundtouch
 - FFmpeg5 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,soundtouch
 - FFmpeg6 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2,soundtouch
