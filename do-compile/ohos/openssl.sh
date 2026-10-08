@@ -48,6 +48,7 @@ CFG_FLAGS="no-shared no-engine no-apps no-dynamic-engine no-static-engine \
         no-dso no-ui-console no-tests \
         --prefix=$MR_BUILD_PREFIX \
         --openssldir=$MR_BUILD_PREFIX \
+        --libdir=lib \
         $os"
 
 if [[ "$MR_DEBUG" != "debug" ]]; then
