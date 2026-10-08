@@ -138,9 +138,9 @@ The following code demonstrates how to compile FFmpeg 7 for the iOS platform：
 
 The order of these parameters does not matter; they can be arranged in any sequence.
 
-### Source Mirrors
+### Libraries
 
-If cloning from GitHub is slow, or you need to use an internal/private repository, set the corresponding environment variables before running the build script.
+Current version and repository URLs of each library:
 
 
 | Lib Name   | Current Version                | Repository URL                                                                                                       | Mirror Repository URL                                     |
