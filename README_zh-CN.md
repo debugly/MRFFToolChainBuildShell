@@ -46,6 +46,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 - 适用于安卓的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d、soundtouch
 - 适用于安卓的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2、soundtouch
 - 适用于安卓的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、soundtouch
+- 适用于安卓的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
 - 适用于鸿蒙（HarmonyOS）的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
 
 提示: 

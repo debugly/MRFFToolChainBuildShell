@@ -43,6 +43,7 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdn
 - FFmpeg5 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,soundtouch
 - FFmpeg6 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2,soundtouch
 - FFmpeg7 for Android: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,soundtouch
+- FFmpeg8 for Android: openssl3,opus,bluray,dav1d,uavs3d,smb2,soundtouch
 - FFmpeg8 for HarmonyOS: openssl3,opus,bluray,dav1d,uavs3d,smb2,soundtouch
 
 Tips: 
