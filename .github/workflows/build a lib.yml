@@ -116,12 +116,10 @@ jobs:
         set -euo pipefail
         SDK_WORK="$RUNNER_TEMP/ohos-sdk"
         mkdir -p "$SDK_WORK"
-        NATIVE_ZIP=""
-        # Fast path: pre-mirrored native zip hosted as a GitHub release asset.
-        if gh release download ohos-native-sdk-5.0.0.71 --dir "$SDK_WORK" 2>/dev/null; then
-          NATIVE_ZIP="$SDK_WORK/native.zip"
-          echo "Downloaded HarmonyOS native SDK from GitHub releases (mirror)."
-        else
+        NATIVE_ZIP="$SDK_WORK/native.zip"
+        # Fast path: native zip mirrored as a GitHub release asset (direct CDN URL).
+        MIRROR_URL="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/ohos-native-sdk-5.0.0.71/native.zip"
+        if ! curl -fL --retry 3 --retry-delay 5 "$MIRROR_URL" -o "$NATIVE_ZIP"; then
           echo "Mirror download failed; falling back to huaweicloud..."
           SDK_URL="https://repo.huaweicloud.com/harmonyos/os/5.0.0-Release/ohos-sdk-mac-public.tar.gz"
           curl -fL --retry 5 --retry-delay 5 "$SDK_URL" -o "$SDK_WORK/ohos-sdk.tar.gz"
