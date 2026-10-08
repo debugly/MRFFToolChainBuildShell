@@ -70,8 +70,8 @@ else
     echo "Openssl CFG: $CFG_FLAGS"
     echo "----------------------"
 
-    export C_FLAGS="$C_FLAGS"
-    export CXXFLAG="$C_FLAGS"
+    export CFLAGS="$C_FLAGS"
+    export CXXFLAGS="$C_FLAGS"
     export CC="$MR_TRIPLE_CC"
     export AR="$MR_AR"
     export AS="$MR_AS"
