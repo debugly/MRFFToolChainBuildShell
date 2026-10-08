@@ -1,7 +1,6 @@
 ## MRFFToolChain 构建脚本
 
-![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android%20HarmonyOS-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.2%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
-
+        
 
 **MRFFToolChain 是什么？**
 
@@ -11,17 +10,20 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 ## 支持的平台
 
-| 平台      | 架构                                        |        最低部署目标版本      |
-| -------- | ------------------------------------------ | ------------------------- |
-| iOS      | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
-| tvOS     | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
-| macOS    | arm64、x86_64                               | 10.14                     |
-| Android  | arm64、armv7a、x86_64、x86                   | 21                        |
-| HarmonyOS（鸿蒙） | arm64、x86_64                            | 5.0.0 (API 12)            |
+
+| 平台            | 架构                                        | 最低部署目标版本       |
+| ------------- | ----------------------------------------- | -------------- |
+| iOS           | arm64、arm64\_simulator、x86\_64\_simulator | 12.0           |
+| tvOS          | arm64、arm64\_simulator、x86\_64\_simulator | 12.0           |
+| macOS         | arm64、x86\_64                             | 10.14          |
+| Android       | arm64、armv7a、x86\_64、x86                  | 21             |
+| HarmonyOS（鸿蒙） | arm64、x86\_64                             | 5.0.0 (API 12) |
+
 
 ## 最新动态
 
 - FFmpeg **8.1.2** 已经准备好了
+- 新增鸿蒙（HarmonyOS）平台支持
 - 将所有库升级至最新版本，不少库提升了性能
 - 使用 macOS 15，Xcode\_16.4构建
 
@@ -79,8 +81,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 ### 初始化目标库仓库
 
-除非您修改了源代码，否则不要浪费时间编译这些库！
-何不直接下载我通过 GitHub 动作准备好的预编译库呢？
+除非您修改了源代码，否则不要浪费时间编译这些库！  
 脚本参数灵活，可根据需要组合使用。以下是一些常见示例：
 
 ```
@@ -171,3 +172,4 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 - 初始化时要跳过拉取远程仓库，使用 init 命令时添加 --skip-pull-base 参数
 - 目前 FFmpeg 使用 module-full.sh 配置，功能全但同时导致包体积略大
 - 可以将所有预编译的 GitHub 库下载到自己的服务器，并在运行 install 命令前通过 MR\_DOWNLOAD\_BASEURL 指定你的服务器地址
+

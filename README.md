@@ -1,6 +1,6 @@
-## MRFFToolChain Build Shell [[中文版](./README_zh-CN.md)]
+## MRFFToolChain Build Shell \[[中文版](./README_zh-CN.md)\]
 
-![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android%20HarmonyOS-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.2%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
+        
 
 ## What is MRFFToolChain?
 
@@ -12,28 +12,33 @@ Libraries included: `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、f
 
 ## Why MRFFToolChain?
 
-| You get                                                       | Instead of                                                  |
-| ------------------------------------------------------------- | ----------------------------------------------------------- |
-| ✅ Pre-built binaries on GitHub Releases                       | ❌ Setting up each cross-compile toolchain by hand           |
-| ✅ One-command install (`./main.sh install -p ios -l ffmpeg`)  | ❌ Running `./configure && make` for every lib, every arch   |
-| ✅ 25+ libraries with patches already applied                  | ❌ Hunting down and applying patches yourself                |
-| ✅ 5 platforms (iOS / macOS / tvOS / Android / HarmonyOS)       | ❌ Maintaining a separate build script per platform          |
-| ✅ FFmpeg 4.0.5 → 8.1.2 (five versions)                        | ❌ Only the latest commit                                    |
-| ✅ Self-hostable mirrors (`MR_DOWNLOAD_BASEURL`)               | ❌ Locked to one slow source                                 |
+
+| You get                                                      | Instead of                                                |
+| ------------------------------------------------------------ | --------------------------------------------------------- |
+| ✅ Pre-built binaries on GitHub Releases                      | ❌ Setting up each cross-compile toolchain by hand         |
+| ✅ One-command install (`./main.sh install -p ios -l ffmpeg`) | ❌ Running `./configure && make` for every lib, every arch |
+| ✅ 25+ libraries with patches already applied                 | ❌ Hunting down and applying patches yourself              |
+| ✅ 5 platforms (iOS / macOS / tvOS / Android / HarmonyOS)     | ❌ Maintaining a separate build script per platform        |
+| ✅ FFmpeg 4.0.5 → 8.1.2 (five versions)                       | ❌ Only the latest commit                                  |
+| ✅ Self-hostable mirrors (`MR_DOWNLOAD_BASEURL`)              | ❌ Locked to one slow source                               |
+
 
 ## Supported Platforms
 
-| platform | architectures                              | minimum deployment target |
-| -------- | ------------------------------------------ | ------------------------- |
-| iOS      | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
-| tvOS     | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
-| macOS    | arm64、x86_64                               | 10.14                     |
-| Android  | arm64、armv7a、x86_64、x86                   | 21                        |
-| HarmonyOS | arm64、x86_64                               | 5.0.0 (API 12)            |
+
+| platform  | architectures                             | minimum deployment target |
+| --------- | ----------------------------------------- | ------------------------- |
+| iOS       | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
+| tvOS      | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
+| macOS     | arm64、x86\_64                             | 10.14                     |
+| Android   | arm64、armv7a、x86\_64、x86                  | 21                        |
+| HarmonyOS | arm64、x86\_64                             | 5.0.0 (API 12)            |
+
 
 ## News
 
 - FFmpeg **8.1.2** is ready
+- HarmonyOS support is ready
 - Upgraded all libraries to latest, with improved optimizations
 - Built with macOS 15 and Xcode 16.4
 
@@ -89,7 +94,6 @@ These pre-compiled libraries already applied patches which in the patches direct
 ### Initialize Library Repositories
 
 Don't waste your time compiling these libraries unless you've modified the source code!
-Why not just download the pre-compiled libraries I've prepared using GitHub actions?
 
 The script parameters are flexible and can be combined as needed. Here are some common examples:
 
@@ -181,3 +185,4 @@ If cloning repositories from GitHub is slow, or if you need to use an internal p
 - To skip pulling remote repositories during initialization, add the --skip-pull-base parameter when using the init command.
 - Currently, FFmpeg uses the **module-full.sh** configuration, resulting in slightly larger package sizes.
 - You can download all pre-compiled GitHub libraries to your own server and specify your server address using MR\_DOWNLOAD\_BASEURL before running the install command.
+
