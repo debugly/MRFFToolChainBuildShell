@@ -1,9 +1,5 @@
 ## MRFFToolChain Build Shell \[[中文版](./README_zh-CN.md)\]
 
-        
-
-## What is MRFFToolChain?
-
 MRFFToolChain cross-compiles FFmpeg (4.x–8.x) and 25+ third-party libraries — ass, dav1d, x264, x265, openssl, bluray, and more — for **iOS, macOS, tvOS, Android, and HarmonyOS**, then publishes the pre-built binaries to GitHub Releases. Stop fighting cross-compilation: download a ready-made library and link it in one command.
 
 It powers [fsplayer](https://github.com/debugly/fsplayer), [ijkplayer](https://github.com/debugly/ijkplayer), and [FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
@@ -25,7 +21,6 @@ Libraries included: `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、f
 
 ## Supported Platforms
 
-
 | platform  | architectures                             | minimum deployment target |
 | --------- | ----------------------------------------- | ------------------------- |
 | iOS       | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
@@ -34,45 +29,12 @@ Libraries included: `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、f
 | Android   | arm64、armv7a、x86\_64、x86                  | 21                        |
 | HarmonyOS | arm64、x86\_64                             | 5.0.0 (API 12)            |
 
-
 ## News
 
 - FFmpeg **8.1.2** is ready
 - HarmonyOS support is ready
 - Upgraded all libraries to latest, with improved optimizations
 - Built with macOS 15 and Xcode 16.4
-
-## Dependencies
-
-- Fontconfig: xml2,freetype
-- Bluray: xml2
-- Harfbuzz: freetype
-- Dvdnav: dvdread
-- Placebo for macOS: shaderc,moltenvk,dovi,lcms2
-- Ass for Apple:  harfbuzz,fribidi,unibreak
-- Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
-- IJKFFmpeg: openssl
-- FFmpeg4 for Apple: openssl3,opus,bluray
-- FFmpeg5 for Apple: openssl3,opus,bluray,dav1d,dvdread,uavs3d
-- FFmpeg6 for Apple: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2
-- FFmpeg7 for Apple: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,webp
-- FFmpeg8 for Apple: openssl3,opus,bluray,dav1d,uavs3d,smb2,webp
-- FFmpeg4 for Android: openssl3,opus,bluray,soundtouch
-- FFmpeg5 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,soundtouch
-- FFmpeg6 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2,soundtouch
-- FFmpeg7 for Android: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,soundtouch
-- FFmpeg8 for Android: openssl3,opus,bluray,dav1d,uavs3d,smb2,soundtouch
-- FFmpeg8 for HarmonyOS: openssl3,opus,bluray,dav1d,uavs3d,smb2,soundtouch
-
-Tips: 
-
-```
-1、ffmpeg is not denpendent on ass and placebo.
-2、fsplayer is denpendent on ffmpeg and ass and placebo.
-3、ijkplayer is denpendent on ijkffmpeg.
-4、FFmpegTutorial is denpendent on fftutorial.
-5、when install pre-compiled lib, will containes it's denpendencies.
-```
 
 ## Download/Install Pre-compiled Libs
 
@@ -138,7 +100,7 @@ The following code demonstrates how to compile FFmpeg 7 for the iOS platform：
 
 The order of these parameters does not matter; they can be arranged in any sequence.
 
-### Libraries
+## Libraries
 
 Current version and repository URLs of each library:
 
@@ -179,8 +141,35 @@ Current version and repository URLs of each library:
 | x265       | 4.2                            | [https://bitbucket.org/multicoreware/x265\_git.git](https://bitbucket.org/multicoreware/x265_git.git)                | export GIT\_X265\_UPSTREAM=git@xx:yy/x265.git             |
 
 
+## Dependencies
+
+- Fontconfig: xml2,freetype
+- Bluray: xml2
+- Harfbuzz: freetype
+- Dvdnav: dvdread
+- Placebo for macOS: shaderc,moltenvk,dovi,lcms2
+- Ass for Apple:  harfbuzz,fribidi,unibreak
+- Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
+- IJKFFmpeg: openssl
+- FFmpeg4 for Apple: openssl3,opus,bluray
+- FFmpeg5 for Apple: openssl3,opus,bluray,dav1d,dvdread,uavs3d
+- FFmpeg6 for Apple: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2
+- FFmpeg7 for Apple: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,webp
+- FFmpeg8 for Apple: openssl3,opus,bluray,dav1d,uavs3d,smb2,webp
+- FFmpeg4 for Android: openssl3,opus,bluray,soundtouch
+- FFmpeg5 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,soundtouch
+- FFmpeg6 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2,soundtouch
+- FFmpeg7 for Android: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,soundtouch
+- FFmpeg8 for Android: openssl3,opus,bluray,dav1d,uavs3d,smb2,soundtouch
+- FFmpeg8 for HarmonyOS: openssl3,opus,bluray,dav1d,uavs3d,smb2,soundtouch
+
 ## Tips
 
+- ffmpeg is not denpendent on ass and placebo.
+- fsplayer is denpendent on ffmpeg and ass and placebo.
+- ijkplayer is denpendent on ijkffmpeg.
+- FFmpegTutorial is denpendent on fftutorial.
+- when install pre-compiled lib, will containes it's denpendencies.
 - To download pre-compiled xcframework libraries, add the --fmwk parameter when using the install command.
 - To skip pulling remote repositories during initialization, add the --skip-pull-base parameter when using the init command.
 - Currently, FFmpeg uses the **module-full.sh** configuration, resulting in slightly larger package sizes.

@@ -1,6 +1,4 @@
-## MRFFToolChain 构建脚本
-
-**MRFFToolChain 是什么？**
+## MRFFToolChain 构建工具
 
 MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、tvOS、Android、HarmonyOS（鸿蒙）平台的三方库，其构建产物为 [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial) 所用.
 
@@ -23,41 +21,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 - FFmpeg **8.1.2** 已经准备好了
 - 新增鸿蒙（HarmonyOS）平台支持
 - 将所有库升级至最新版本，不少库提升了性能
-- 使用 macOS 15，Xcode\_16.4构建
-
-## 依赖关系
-
-编译了适用于苹果、安卓、鸿蒙三大平台的 FFmpeg4、FFmpeg5、FFmpeg6、FFmpeg7、FFmpeg8。
-
-- Fontconfig：xml2、freetype
-- Bluray：xml2
-- Harfbuzz：freetype
-- dvdnav：dvdread
-- 适用于 ijkplayer 的 FFmpeg: openssl
-- 适用于 macOS 的 Placebo: shaderc,moltenvk,dovi,lcms2
-- 适用于苹果的 Ass：harfbuzz、fribidi、unibreak
-- 适用于安卓的 Ass：harfbuzz、fribidi、unibreak、fontconfig
-- 适用于苹果的 FFmpeg4：openssl3、opus、bluray
-- 适用于苹果的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d
-- 适用于苹果的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2
-- 适用于苹果的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、webp
-- 适用于苹果的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、webp
-- 适用于安卓的 FFmpeg4：openssl3、opus、bluray、soundtouch
-- 适用于安卓的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d、soundtouch
-- 适用于安卓的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2、soundtouch
-- 适用于安卓的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、soundtouch
-- 适用于安卓的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
-- 适用于鸿蒙（HarmonyOS）的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
-
-提示: 
-
-```
-1、ffmpeg 不依赖 ass 和 placebo
-2、fsplayer 依赖 ffmpeg 和 ass 和 placebo
-3、ijkplayer 依赖 ijkffmpeg
-4、FFmpegTutorial 依赖 fftutorial
-5、安装预编译库时，会包含其所有依赖项
-```
+- 使用 macOS 15，Xcode\_16.4 构建
 
 ## 下载 / 安装预编译库
 
@@ -123,9 +87,9 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 这些参数的顺序无关紧要，可以按任意顺序排列。
 
-### 源码镜像
+## 库明细
 
-如果从 GitHub 克隆仓库速度较慢，或者需要使用内部私有仓库，可以在运行编译脚本之前设置相应的环境变量。
+每个库的名字、版本、仓库地址，如果克隆较慢可以设置仓库镜像地址。
 
 
 | 库名称        | 当前版本                           | 仓库 URL                                                                                                               | 镜像仓库 URL                                                  |
@@ -164,10 +128,39 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 | x265       | 4.2                            | [https://bitbucket.org/multicoreware/x265\_git.git](https://bitbucket.org/multicoreware/x265_git.git)                | export GIT\_X265\_UPSTREAM=git@xx:yy/x265.git             |
 
 
+## 依赖关系
+
+编译了适用于苹果、安卓、鸿蒙三大平台的 FFmpeg4、FFmpeg5、FFmpeg6、FFmpeg7、FFmpeg8。
+
+- Fontconfig：xml2、freetype
+- Bluray：xml2
+- Harfbuzz：freetype
+- dvdnav：dvdread
+- 适用于 ijkplayer 的 FFmpeg: openssl
+- 适用于 macOS 的 Placebo: shaderc,moltenvk,dovi,lcms2
+- 适用于苹果的 Ass：harfbuzz、fribidi、unibreak
+- 适用于安卓的 Ass：harfbuzz、fribidi、unibreak、fontconfig
+- 适用于苹果的 FFmpeg4：openssl3、opus、bluray
+- 适用于苹果的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d
+- 适用于苹果的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2
+- 适用于苹果的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、webp
+- 适用于苹果的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、webp
+- 适用于安卓的 FFmpeg4：openssl3、opus、bluray、soundtouch
+- 适用于安卓的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d、soundtouch
+- 适用于安卓的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2、soundtouch
+- 适用于安卓的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、soundtouch
+- 适用于安卓的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
+- 适用于鸿蒙（HarmonyOS）的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
+
 ## 提示
 
+- ffmpeg 不依赖 ass 和 placebo
+- fsplayer 依赖 ffmpeg 和 ass 和 placebo
+- ijkplayer 依赖 ijkffmpeg
+- FFmpegTutorial 依赖 fftutorial
+- 安装预编译库时，会包含其所有依赖项
 - 要下载预编译的 xcframework 库，使用 install 命令时添加 --fmwk 参数
 - 初始化时要跳过拉取远程仓库，使用 init 命令时添加 --skip-pull-base 参数
-- 目前 FFmpeg 使用 module-full.sh 配置，功能全但同时导致包体积略大
+- 目前 FFmpeg 使用 **module-full.sh** 配置，功能全但同时导致包体积略大
 - 可以将所有预编译的 GitHub 库下载到自己的服务器，并在运行 install 命令前通过 MR\_DOWNLOAD\_BASEURL 指定你的服务器地址
 
