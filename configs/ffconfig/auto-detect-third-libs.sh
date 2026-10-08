@@ -372,4 +372,16 @@ case "$MR_PLAT" in
         THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-asm --disable-inline-asm"
     fi
     ;;
+    ohos)
+    # no mediacodec/jni on HarmonyOS; software decode only. musl: no iconv/bzlib.
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-iconv"
+    THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-bzlib"
+    if [[ "$MR_ARCH" == "arm64" ]]; then
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-neon"
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-asm --enable-inline-asm"
+    else
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-neon"
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-asm --disable-inline-asm"
+    fi
+    ;;
 esac

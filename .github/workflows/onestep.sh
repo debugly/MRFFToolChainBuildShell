@@ -154,6 +154,23 @@ function compile_android_platform
     cd $ROOT_DIR
 }
 
+function compile_ohos_platform
+{
+    echo "---do compile ohos libs--------------------------------------"
+    
+    local log_file="$DIST_DIR/ohos-compile-log-$RELEASE_VERSION.md"
+    
+    if [[ $VERBOSE ]];then
+        ./main.sh compile -p ohos -c build -l ${CONFIG_NAME} 2>&1 | tee -a "$log_file"
+    else
+        ./main.sh compile -p ohos -c build -l ${CONFIG_NAME} >> "$log_file" 2>&1
+    fi
+
+    cd build/product/ohos/universal
+    zip -ryq $DIST_DIR/${CONFIG_NAME}-ohos-universal-${RELEASE_VERSION}.zip ./*
+    cd $ROOT_DIR
+}
+
 function make_xcfmwk_bundle()
 {
     echo "---skip apple xcframework--------------------------------------"
@@ -206,11 +223,15 @@ function upgrade()
         android)
             replace_tag $file PRE_COMPILE_TAG_ANDROID
         ;;
+        ohos)
+            replace_tag $file PRE_COMPILE_TAG_OHOS
+        ;;
         all)
             replace_tag $file PRE_COMPILE_TAG_IOS
             replace_tag $file PRE_COMPILE_TAG_MACOS
             replace_tag $file PRE_COMPILE_TAG_TVOS
             replace_tag $file PRE_COMPILE_TAG_ANDROID
+            replace_tag $file PRE_COMPILE_TAG_OHOS
         ;;
     esac
 
@@ -267,6 +288,11 @@ function main()
             compile_android_platform
             publish
         ;;
+        ohos)
+            init_platform $PLAT
+            compile_ohos_platform
+            publish
+        ;;
         all)
             init_platform ios
             compile_ios_platform
@@ -278,6 +304,9 @@ function main()
 
             init_platform android
             compile_android_platform
+
+            init_platform ohos
+            compile_ohos_platform
 
             publish
         ;;

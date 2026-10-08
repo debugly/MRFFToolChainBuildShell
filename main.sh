@@ -53,6 +53,9 @@ case $MR_PLAT in
     android)
         plat=android
     ;;
+    ohos)
+        plat=ohos
+    ;;
 esac
 
 if [[ "$MR_ACTION" == "init" || "$MR_ACTION" == "install" ]];then
