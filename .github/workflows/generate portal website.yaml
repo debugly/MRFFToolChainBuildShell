@@ -36,6 +36,11 @@ jobs:
         run: |
           ./main.sh install -p macos -l "ffmpeg8-bin"
 
+      # generate-test-videos.sh builds the two alpha samples on the fly; the toolchain
+      # ffmpeg8-bin has no libvpx-vp9 / prores_ks encoder, so install a full ffmpeg for them.
+      - name: Install Homebrew ffmpeg (alpha video encoders)
+        run: HOMEBREW_NO_AUTO_UPDATE=1 brew install ffmpeg
+
       - name: Build Portal & Feature Matrix (with Test Videos)
         run: |
           chmod +x ./tools/portal-site/*.sh
