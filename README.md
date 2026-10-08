@@ -2,13 +2,26 @@
 
 ![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android%20HarmonyOS-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.2%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
 
-**What's MRFFToolChain?**
+## What is MRFFToolChain?
 
-MRFFToolChain is a mature set of compilation tools specifically designed for compiling third-party libraries for iOS, macOS, tvOS, Android, and HarmonyOS platforms. It's products was built for [fsplayer](https://github.com/debugly/fsplayer) 、[ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
+MRFFToolChain cross-compiles FFmpeg (4.x–8.x) and 25+ third-party libraries — ass, dav1d, x264, x265, openssl, bluray, and more — for **iOS, macOS, tvOS, Android, and HarmonyOS**, then publishes the pre-built binaries to GitHub Releases. Stop fighting cross-compilation: download a ready-made library and link it in one command.
 
-At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp、x264、x265`.
+It powers [fsplayer](https://github.com/debugly/fsplayer), [ijkplayer](https://github.com/debugly/ijkplayer), and [FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
 
-## Supported Plat
+Libraries included: `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp、x264、x265`.
+
+## Why MRFFToolChain?
+
+| You get                                                       | Instead of                                                  |
+| ------------------------------------------------------------- | ----------------------------------------------------------- |
+| ✅ Pre-built binaries on GitHub Releases                       | ❌ Setting up each cross-compile toolchain by hand           |
+| ✅ One-command install (`./main.sh install -p ios -l ffmpeg`)  | ❌ Running `./configure && make` for every lib, every arch   |
+| ✅ 25+ libraries with patches already applied                  | ❌ Hunting down and applying patches yourself                |
+| ✅ 5 platforms (iOS / macOS / tvOS / Android / HarmonyOS)       | ❌ Maintaining a separate build script per platform          |
+| ✅ FFmpeg 4.0.5 → 8.1.2 (five versions)                        | ❌ Only the latest commit                                    |
+| ✅ Self-hostable mirrors (`MR_DOWNLOAD_BASEURL`)               | ❌ Locked to one slow source                                 |
+
+## Supported Platforms
 
 | platform | architectures                              | minimum deployment target |
 | -------- | ------------------------------------------ | ------------------------- |
@@ -21,10 +34,10 @@ At present MRFFToolChain contained `ass、bluray、dav1d、dovi、dvdread、dvdn
 ## News
 
 - FFmpeg **8.1.2** is ready
-- upgrade all libs to lastest,Improved optimizations
-- using macOS 15，Xcode\_16.4
+- Upgraded all libraries to latest, with improved optimizations
+- Built with macOS 15 and Xcode 16.4
 
-## Denpendency
+## Dependencies
 
 - Fontconfig: xml2,freetype
 - Bluray: xml2
