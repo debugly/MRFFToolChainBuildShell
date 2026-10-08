@@ -6,9 +6,9 @@ Subject: [PATCH] add built-in smb2 protocol via libsmb2
 ---
  configure               |   5 +
  libavformat/Makefile    |   1 +
- libavformat/libsmb2.c   | 412 ++++++++++++++++++++++++++++++++++++++++
+ libavformat/libsmb2.c   | 415 ++++++++++++++++++++++++++++++++++++++++
  libavformat/protocols.c |   1 +
- 4 files changed, 419 insertions(+)
+ 4 files changed, 422 insertions(+)
  create mode 100644 libavformat/libsmb2.c
 
 diff --git a/configure b/configure
@@ -62,10 +62,10 @@ index 17222ee..155dbe1 100644
  OBJS-$(CONFIG_LIBZMQ_PROTOCOL)           += libzmq.o
 diff --git a/libavformat/libsmb2.c b/libavformat/libsmb2.c
 new file mode 100644
-index 0000000..408f9e1
+index 0000000..e2699c1
 --- /dev/null
 +++ b/libavformat/libsmb2.c
-@@ -0,0 +1,412 @@
+@@ -0,0 +1,415 @@
 +/*
 + * Copyright (c) 2014 Lukasz Marek <lukasz.m.luki@gmail.com>
 + *
@@ -202,7 +202,10 @@ index 0000000..408f9e1
 +    //smb2_set_security_mode(libsmb2->ctx, SMB2_NEGOTIATE_SIGNING_ENABLED);
 +    smb2_set_seal(libsmb2->ctx, libsmb2->smb2_seal);
 +    smb2_set_authentication(libsmb2->ctx, 1);//SMB2_SEC_NTLMSSP
-+    smb2_set_timeout(libsmb2->ctx, 60);
++    //rw_timeout is in microseconds, libsmb2's timeout is in seconds
++    //fallback to 60s, keep it >=1s (0 would break libsmb2's connect wait)
++    int smb2_timeout_s = h->rw_timeout > 0 ? (int)(h->rw_timeout / 1000000) : 60;
++    smb2_set_timeout(libsmb2->ctx, FFMAX(smb2_timeout_s, 1));
 +
 +    if (smb2_connect_share(libsmb2->ctx, url->server, url->share, url->user) != 0) {
 +        av_log(h, AV_LOG_ERROR, "smb2 connect share failed: %s\n", smb2_get_error(libsmb2->ctx));
