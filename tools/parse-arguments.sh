@@ -225,8 +225,8 @@ if [[ -z "$platform" ]];then
     exit 1
 fi
 
-if [[ "$platform" != 'ios' && "$platform" != 'macos' && "$platform" != 'tvos' && "$platform" != 'android' ]]; then
-    echo "platform must be: [ios|macos|tvos|android]"
+if [[ "$platform" != 'ios' && "$platform" != 'macos' && "$platform" != 'tvos' && "$platform" != 'android' && "$platform" != 'ohos' ]]; then
+    echo "platform must be: [ios|macos|tvos|android|ohos]"
     exit 1
 fi
 
@@ -264,6 +264,9 @@ case $MR_PLAT in
     ;;
     android)
         source $MR_SHELL_TOOLS_DIR/export-android-host-env.sh
+    ;;
+    ohos)
+        source $MR_SHELL_TOOLS_DIR/export-ohos-host-env.sh
     ;;
     *)
         echo "wrong platform $MR_PLAT"

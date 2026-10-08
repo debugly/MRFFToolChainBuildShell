@@ -165,7 +165,7 @@ function make_arch_repo() {
 
 function main() {
     case "$MR_PLAT" in
-        ios | macos | tvos | android)
+        ios | macos | tvos | android | ohos)
             pull_common
             for arch in $MR_ACTIVE_ARCHS; do
                 make_arch_repo $arch

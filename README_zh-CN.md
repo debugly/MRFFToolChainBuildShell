@@ -1,60 +1,27 @@
-## MRFFToolChain 构建脚本
+## MRFFToolChain 构建工具
 
-![](https://img.shields.io/github/downloads/debugly/MRFFToolChainBuildShell/total) <img src="https://img.shields.io/badge/Platform-%20iOS%20macOS%20tvOS%20Android-blue.svg"> <img src="https://img.shields.io/badge/FFmpeg-%208.1.2%20-34b086.svg"> <img src="https://img.shields.io/badge/FFmpeg-%207.1.3%20-28b463.svg"> <img src="https://img.shields.io/badge/FFmpeg-%206.1.1%20-138d75.svg"> <img src="https://img.shields.io/badge/FFmpeg-%205.1.6%20-17a589.svg"> <img src="https://img.shields.io/badge/FFmpeg-%204.0.5%20-1abc9c.svg"> <img src="https://img.shields.io/badge/Xcode-%2016.4%20-bc2a9c.svg"> <img src="https://img.shields.io/badge/NDK-%2027c%20-bc2a9c.svg">
-
-
-**MRFFToolChain 是什么？**
-
-MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、tvOS、Android 平台的三方库，其构建产物为 [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial) 所用.
+MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、tvOS、Android、HarmonyOS（鸿蒙）平台的三方库，其构建产物为 [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial) 所用.
 
 目前包含了这些库：`ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp、x264、x265`.
 
 ## 支持的平台
 
-| 平台      | 架构                                        |        最低部署目标版本      |
-| -------- | ------------------------------------------ | ------------------------- |
-| iOS      | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
-| tvOS     | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
-| macOS    | arm64、x86_64                               | 10.14                     |
-| Android  | arm64、armv7a、x86_64、x86                   | 21                        |
+
+| 平台            | 架构                                        | 最低部署目标版本       |
+| ------------- | ----------------------------------------- | -------------- |
+| iOS           | arm64、arm64\_simulator、x86\_64\_simulator | 12.0           |
+| tvOS          | arm64、arm64\_simulator、x86\_64\_simulator | 12.0           |
+| macOS         | arm64、x86\_64                             | 10.14          |
+| Android       | arm64、armv7a、x86\_64、x86                  | 21             |
+| HarmonyOS（鸿蒙） | arm64、x86\_64                             | 5.0.0 (API 12) |
+
 
 ## 最新动态
 
 - FFmpeg **8.1.2** 已经准备好了
+- 新增鸿蒙（HarmonyOS）平台支持
 - 将所有库升级至最新版本，不少库提升了性能
-- 使用 macOS 15，Xcode\_16.4构建
-
-## 依赖关系
-
-编译了适用于安卓和苹果三大平台的 FFmpeg4，FFmpeg5，FFmpeg6，FFmpeg7，FFmpeg8。
-
-- Fontconfig：xml2、freetype
-- Bluray：xml2
-- Harfbuzz：freetype
-- dvdnav：dvdread
-- 适用于 ijkplayer 的 FFmpeg: openssl
-- 适用于 macOS 的 Placebo: shaderc,moltenvk,dovi,lcms2
-- 适用于苹果的 Ass：harfbuzz、fribidi、unibreak
-- 适用于安卓的 Ass：harfbuzz、fribidi、unibreak、fontconfig
-- 适用于苹果的 FFmpeg4：openssl3、opus、bluray
-- 适用于苹果的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d
-- 适用于苹果的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2
-- 适用于苹果的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、webp
-- 适用于苹果的 FFmpeg8：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、webp
-- 适用于安卓的 FFmpeg4：openssl3、opus、bluray、soundtouch
-- 适用于安卓的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d、soundtouch
-- 适用于安卓的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2、soundtouch
-- 适用于安卓的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、soundtouch
-
-提示: 
-
-```
-1、ffmpeg 不依赖 ass 和 placebo
-2、fsplayer 依赖 ffmpeg 和 ass 和 placebo
-3、ijkplayer 依赖 ijkffmpeg
-4、FFmpegTutorial 依赖 fftutorial
-5、安装预编译库时，会包含其所有依赖项
-```
+- 使用 macOS 15，Xcode\_16.4 构建
 
 ## 下载 / 安装预编译库
 
@@ -69,14 +36,14 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 ./main.sh install -p macos -l ffmpeg
 ./main.sh install -p ios -l 'ass ffmpeg'
 ./main.sh install -p android -l openssl3
+./main.sh install -p ohos -l ffmpeg8
 ```
 
 ## 自行编译
 
 ### 初始化目标库仓库
 
-除非您修改了源代码，否则不要浪费时间编译这些库！
-何不直接下载我通过 GitHub 动作准备好的预编译库呢？
+除非您修改了源代码，否则不要浪费时间编译这些库！  
 脚本参数灵活，可根据需要组合使用。以下是一些常见示例：
 
 ```
@@ -88,6 +55,8 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 ./main.sh init -p ios -l ffmpeg7 -a x86_64_simulator
 # 为 Android 平台准备特定库的源代码
 ./main.sh init -p android -l "openssl ffmpeg"
+# 为鸿蒙平台准备 ffmpeg8 源代码
+./main.sh init -p ohos -l ffmpeg8
 ```
 
 ### 编译
@@ -118,9 +87,9 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 这些参数的顺序无关紧要，可以按任意顺序排列。
 
-### 支持镜像
+## 库明细
 
-如果从 GitHub 克隆仓库速度较慢，或者需要使用内部私有仓库，可以在运行编译脚本之前声明相应的环境变量！
+每个库的名字、版本、仓库地址，如果克隆较慢可以设置仓库镜像地址。
 
 
 | 库名称        | 当前版本                           | 仓库 URL                                                                                                               | 镜像仓库 URL                                                  |
@@ -159,9 +128,39 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 | x265       | 4.2                            | [https://bitbucket.org/multicoreware/x265\_git.git](https://bitbucket.org/multicoreware/x265_git.git)                | export GIT\_X265\_UPSTREAM=git@xx:yy/x265.git             |
 
 
+## 依赖关系
+
+编译了适用于苹果、安卓、鸿蒙三大平台的 FFmpeg4、FFmpeg5、FFmpeg6、FFmpeg7、FFmpeg8。
+
+- Fontconfig：xml2、freetype
+- Bluray：xml2
+- Harfbuzz：freetype
+- dvdnav：dvdread
+- 适用于 ijkplayer 的 FFmpeg: openssl
+- 适用于 macOS 的 Placebo: shaderc,moltenvk,dovi,lcms2
+- 适用于苹果的 Ass：harfbuzz、fribidi、unibreak
+- 适用于安卓的 Ass：harfbuzz、fribidi、unibreak、fontconfig
+- 适用于苹果的 FFmpeg4：openssl3、opus、bluray
+- 适用于苹果的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d
+- 适用于苹果的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2
+- 适用于苹果的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、webp
+- 适用于苹果的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、webp
+- 适用于安卓的 FFmpeg4：openssl3、opus、bluray、soundtouch
+- 适用于安卓的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d、soundtouch
+- 适用于安卓的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2、soundtouch
+- 适用于安卓的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、soundtouch
+- 适用于安卓的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
+- 适用于鸿蒙（HarmonyOS）的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
+
 ## 提示
 
+- ffmpeg 不依赖 ass 和 placebo
+- fsplayer 依赖 ffmpeg 和 ass 和 placebo
+- ijkplayer 依赖 ijkffmpeg
+- FFmpegTutorial 依赖 fftutorial
+- 安装预编译库时，会包含其所有依赖项
 - 要下载预编译的 xcframework 库，使用 install 命令时添加 --fmwk 参数
 - 初始化时要跳过拉取远程仓库，使用 init 命令时添加 --skip-pull-base 参数
-- 目前 FFmpeg 使用 module-full.sh 配置，功能全但同时导致包体积略大
+- 目前 FFmpeg 使用 **module-full.sh** 配置，功能全但同时导致包体积略大
 - 可以将所有预编译的 GitHub 库下载到自己的服务器，并在运行 install 命令前通过 MR\_DOWNLOAD\_BASEURL 指定你的服务器地址
+
