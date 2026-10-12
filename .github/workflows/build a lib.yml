@@ -9,7 +9,7 @@ on:
         description: 'macos version'
         required: false
         type: choice
-        default: 'macos-15'
+        default: 'macos-26'
         options:
           - macos-13
           - macos-14
