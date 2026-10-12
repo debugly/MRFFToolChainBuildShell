@@ -329,6 +329,23 @@
             }
         });
 
+        // 列多了之后表格会比正文容器宽（横向溢出），分类标题条要跟着铺到表格右边缘，
+        // 否则滚动时最右边的列会从标题条右侧漏出来
+        const fitCategoryHeaders = () => {
+            container.querySelectorAll('h2').forEach(h2 => { h2.style.width = ''; });
+            container.querySelectorAll('table').forEach(table => {
+                let h2 = table.previousElementSibling;
+                while (h2 && h2.tagName !== 'H2') {
+                    h2 = h2.previousElementSibling;
+                }
+                if (h2) {
+                    h2.style.width = Math.ceil(table.getBoundingClientRect().width) + 'px';
+                }
+            });
+        };
+        fitCategoryHeaders();
+        window.addEventListener('resize', fitCategoryHeaders);
+
         // 生成分类快捷悬浮导航栏 (Floating Quick Nav Bar)
         const h2List = container.querySelectorAll('h2');
         if (h2List.length > 0) {
