@@ -18,7 +18,9 @@
             background-color: var(--bg-color);
             box-sizing: border-box;
             min-width: 200px;
-            max-width: 1200px;
+            /* 正文内容宽 1280（1370 - 左右各 45 的 padding）：矩阵列多，7 列的表格
+               在这个宽度内排得下，各分类的宽度也就统一了 */
+            max-width: 1370px;
             margin: 0 auto;
             padding: 45px;
             position: relative;
@@ -71,6 +73,9 @@
         .markdown-body table {
             display: table;
             width: 100%;
+            /* 列多的分类（7 列）会把表撑得比正文还宽，给个上限：超过 1280 的表按 1280 排，
+               单元格里的长名字用 <wbr> 软换行点折行（见 JS），别把页面撑出横向滚动 */
+            max-width: 1280px;
             margin-top: 0;
             margin-bottom: 30px;
             background: #ffffff;
@@ -78,6 +83,12 @@
             border-collapse: separate;
             border-spacing: 0;
             box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        }
+
+        .markdown-body table th,
+        .markdown-body table td {
+            /* 兜底：万一某个长名字里没有下划线可断，也别让文字溢出单元格 */
+            overflow-wrap: break-word;
         }
 
         .markdown-body del,
@@ -329,8 +340,33 @@
             }
         });
 
+        // 特性名普遍很长（mp3_header_decompress 之类），列一窄浏览器就在任意字符处断行，
+        // 看着像名字写错了；在每个下划线后面放一个软换行点，让折行落在下划线上
+        const softenLongNames = () => {
+            container.querySelectorAll('table td, table th').forEach(cell => {
+                if (!cell.textContent.includes('_')) return;
+                const walker = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);
+                const nodes = [];
+                while (walker.nextNode()) nodes.push(walker.currentNode);
+                nodes.forEach(node => {
+                    if (!node.nodeValue.includes('_')) return;
+                    const frag = document.createDocumentFragment();
+                    node.nodeValue.split(/(_)/).forEach(part => {
+                        if (part === '_') {
+                            frag.appendChild(document.createTextNode('_'));
+                            frag.appendChild(document.createElement('wbr'));
+                        } else if (part) {
+                            frag.appendChild(document.createTextNode(part));
+                        }
+                    });
+                    node.parentNode.replaceChild(frag, node);
+                });
+            });
+        };
+        softenLongNames();
+
         // 列多了之后表格会比正文容器宽（横向溢出），分类标题条要跟着铺到表格右边缘，
-        // 否则滚动时最右边的列会从标题条右侧漏出来
+        // 否则滚动时最右边的列会从标题条右侧漏出来；宽度上限与表格的 1280 一致
         const fitCategoryHeaders = () => {
             container.querySelectorAll('h2').forEach(h2 => { h2.style.width = ''; });
             container.querySelectorAll('table').forEach(table => {
@@ -339,7 +375,8 @@
                     h2 = h2.previousElementSibling;
                 }
                 if (h2) {
-                    h2.style.width = Math.ceil(table.getBoundingClientRect().width) + 'px';
+                    const w = Math.min(Math.ceil(table.getBoundingClientRect().width), 1280);
+                    h2.style.width = w + 'px';
                 }
             });
         };
