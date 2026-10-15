@@ -351,6 +351,10 @@ case "$MR_PLAT" in
     # enable videotoolbox hwaccel
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-videotoolbox"
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-hwaccel=*_videotoolbox"
+    if [[ "$MR_PLAT" == "macos" && "$MR_ARCH" == "x86_64" ]]; then
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --disable-hwaccel=vp9_videotoolbox"
+        echo "[❌] --disable-hwaccel=vp9_videotoolbox for macos x86_64,https://trac.ffmpeg.org/ticket/9599"
+    fi
     # enable iconv
     THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-iconv"
     ;;
