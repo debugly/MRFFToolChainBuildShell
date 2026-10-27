@@ -171,7 +171,7 @@ Current version and repository URLs of each library:
 - FFmpegTutorial is denpendent on fftutorial.
 - when install pre-compiled lib, will containes it's denpendencies.
 - To download pre-compiled xcframework libraries, add the --fmwk parameter when using the install command.
-- To skip pulling remote repositories during initialization, add the --skip-pull-base parameter when using the init command.
+- To skip pulling existing remote repositories during initialization, add the --skip-pull-base parameter when using the init command. Missing repositories will still be cloned.
 - Currently, FFmpeg uses the **module-full.sh** configuration, resulting in slightly larger package sizes.
 - You can download all pre-compiled GitHub libraries to your own server and specify your server address using MR\_DOWNLOAD\_BASEURL before running the install command.
 

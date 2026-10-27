@@ -55,14 +55,8 @@ function pull_common() {
             git fetch --all --tags
         fi
     else
-        if [[ "$SKIP_PULL_BASE" == "1" ]]; then
-            echo "== local repo $REPO_DIR not exist,must clone by net firstly. =="
-            echo "try:unset SKIP_PULL_BASE"
-            exit -1
-        else
-            git clone $GIT_UPSTREAM $GIT_LOCAL_REPO
-            cd "$GIT_LOCAL_REPO"
-        fi
+        git clone "$GIT_UPSTREAM" "$GIT_LOCAL_REPO"
+        cd "$GIT_LOCAL_REPO"
     fi
     
     # fix fatal: 'stable' is not a commit and a branch 'localBranch' cannot be created from it
