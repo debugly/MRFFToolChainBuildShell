@@ -33,8 +33,9 @@ on:
         description: 'choose a lib for compile'
         required: true
         type: choice
-        default: 'ffmpeg7'
+        default: 'ffmpeg8'
         options:
+          - test
           - ffmpeg8
           - ffmpeg8-bin
           - ffmpeg7

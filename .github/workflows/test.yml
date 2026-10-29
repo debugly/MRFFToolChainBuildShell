@@ -1,24 +1,114 @@
+# https://github.com/actions/runner-images
+
 on:
   # push:
   #   branches: [master]
   workflow_dispatch:
-  pull_request:
-    branches: [master]
+    inputs:
+      os:
+        description: 'macos version'
+        required: false
+        type: choice
+        default: 'macos-26'
+        options:
+          - macos-13
+          - macos-14
+          - macos-15
+          - macos-15-intel
+          - macos-26
+      platform:
+        description: 'choose a platform for compile'
+        required: false
+        type: choice
+        default: 'all'
+        options:
+          - apple
+          - android
+          - ohos
+          - all
+          - ios
+          - tvos
+          - macos
+      dryrun:
+        description: 'just run workflow,but not deploy'
+        required: false
+        type: choice
+        default: 'true'
+        options:
+          - true
+          - false
+      verbose:
+        description: 'print detail logs'
+        required: true
+        type: choice
+        default: 'false'
+        options:
+          - true
+          - false
 
 name: Test Release
 
+permissions:
+  contents: write
+
 jobs:
   build:
-    name: compile none then deploy
-    runs-on: macos-15
+    name: compile test for ${{ inputs.platform }} then deploy
+    runs-on: ${{ inputs.os }}
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+    - uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      if: |
+        github.event.inputs.platform == 'all' ||
+        github.event.inputs.platform == 'android'
+      with:
+        ndk-version: r27c
+        add-to-path: true
+        link-to-sdk: true
+        local-cache: false
+    - name: Setup HarmonyOS native SDK
+      if: |
+        github.event.inputs.platform == 'ohos' ||
+        github.event.inputs.platform == 'all'
+      shell: bash
+      run: |
+        set -euo pipefail
+        SDK_WORK="$RUNNER_TEMP/ohos-sdk"
+        mkdir -p "$SDK_WORK"
+        NATIVE_ZIP="$SDK_WORK/native.zip"
+        # Fast path: native zip mirrored as a GitHub release asset (direct CDN URL).
+        MIRROR_URL="https://github.com/debugly/MRFFToolChainBuildShell/releases/download/ohos-native-sdk-5.0.0.71/native.zip"
+        if ! curl -fL --retry 3 --retry-delay 5 "$MIRROR_URL" -o "$NATIVE_ZIP"; then
+          echo "Mirror download failed; falling back to huaweicloud..."
+          SDK_URL="https://repo.huaweicloud.com/harmonyos/os/5.0.0-Release/ohos-sdk-mac-public.tar.gz"
+          curl -fL --retry 5 --retry-delay 5 "$SDK_URL" -o "$SDK_WORK/ohos-sdk.tar.gz"
+          tar -xzf "$SDK_WORK/ohos-sdk.tar.gz" -C "$SDK_WORK"
+          NATIVE_ZIP=$(find "$SDK_WORK" -type f -name 'native-darwin-*.zip' | head -n 1)
+          [ -z "$NATIVE_ZIP" ] && NATIVE_ZIP=$(find "$SDK_WORK" -type f -name 'native-*.zip' | head -n 1)
+        fi
+        if [ -z "$NATIVE_ZIP" ] || [ ! -f "$NATIVE_ZIP" ]; then
+          echo "!! native SDK zip not found"
+          find "$SDK_WORK" -maxdepth 4 -type f | sort
+          exit 1
+        fi
+        unzip -q "$NATIVE_ZIP" -d "$SDK_WORK/native-sdk"
+        OHOS_NATIVE=$(find "$SDK_WORK/native-sdk" -type d -name native | head -n 1)
+        [ -z "$OHOS_NATIVE" ] && OHOS_NATIVE="$SDK_WORK/native-sdk/native"
+        if [ ! -f "$OHOS_NATIVE/llvm/bin/clang" ]; then
+          echo "!! clang not found under $OHOS_NATIVE"
+          find "$SDK_WORK/native-sdk" -maxdepth 3 -type d | sort
+          exit 1
+        fi
+        echo "OHOS_SDK_NATIVE=$OHOS_NATIVE" >> "$GITHUB_ENV"
+        echo "HarmonyOS native SDK at: $OHOS_NATIVE"
+        ls -la "$OHOS_NATIVE/llvm/bin/clang"
     - name: Checkout code
       uses: actions/checkout@v4
-    - name: Install cargo-c
-      uses: taiki-e/install-action@v2
-      with:
-        tool: cargo-c
+    - name: Install dependencies
+      run: .github/workflows/install-dependencies.sh test ${{ inputs.platform }}
     - name: One Step
-      run: .github/workflows/onestep.sh test all
+      run: .github/workflows/onestep.sh test ${{ inputs.platform }} ${{ inputs.dryrun }} ${{ inputs.verbose }}
+      env:
+        ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}

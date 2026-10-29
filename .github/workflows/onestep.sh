@@ -43,6 +43,59 @@ ROOT_DIR=$PWD
 DIST_DIR=$ROOT_DIR/build/dist
 mkdir -p $DIST_DIR
 
+# Capture versions before compilation and upgrade can change config tags.
+RELEASE_NOTES_FILE="$ROOT_DIR/build/${CONFIG_NAME}-${PLAT}-release-notes.md"
+function generate_dependency_notes()
+{
+    local platforms
+    case $PLAT in
+        all) platforms=(ios macos tvos android ohos) ;;
+        apple) platforms=(ios macos tvos) ;;
+        *) platforms=("$PLAT") ;;
+    esac
+
+    local platform label records dependency_platform dependency tag key
+    records=$(zsh .github/workflows/install-dependencies.sh "$CONFIG_NAME" "$PLAT" --list)
+    : > "$RELEASE_NOTES_FILE"
+    for platform in "${platforms[@]}"; do
+        local heading_written=0
+        while read -r dependency_platform dependency; do
+            [[ -n "$dependency" && "$dependency_platform" == "$platform" ]] || continue
+            key="PRE_COMPILE_TAG_${(U)platform}"
+            tag=$(
+                unset "$key"
+                source "./configs/libs/${dependency}.sh"
+                print -r -- "${(P)key}"
+            )
+            if [[ -z "$tag" ]]; then
+                echo "Missing $key in configs/libs/${dependency}.sh" >&2
+            fi
+            if (( ! heading_written )); then
+                case $platform in
+                    ios) label=iOS ;;
+                    macos) label=macOS ;;
+                    tvos) label=tvOS ;;
+                    android) label=Android ;;
+                    ohos) label=OHOS ;;
+                    *) label=$platform ;;
+                esac
+                printf '%s %s deps:\n' "$label" "$CONFIG_NAME" >> "$RELEASE_NOTES_FILE"
+                heading_written=1
+            fi
+            if [[ -z "$tag" ]]; then
+                printf -- '- %s (%s is not configured)\n' "$dependency" "$key" >> "$RELEASE_NOTES_FILE"
+                continue
+            fi
+            printf -- '- [%s](https://github.com/debugly/MRFFToolChainBuildShell/releases/tag/%s)\n' "$tag" "$tag" >> "$RELEASE_NOTES_FILE"
+        done <<< "$records"
+        if (( heading_written )); then
+            printf '\n' >> "$RELEASE_NOTES_FILE"
+        fi
+    done
+}
+
+generate_dependency_notes
+
 function init_platform
 {
     local plat=$1
@@ -245,11 +298,22 @@ function publish()
 {
     echo "---Create Release--------------------------------------"
     if [[ $DRYRUN ]];then
-        echo "DRYRUN: gh release create $TAG -t $TITLE $DIST_DIR/*"
+        echo "DRYRUN: gh release create $TAG -t $TITLE $DIST_DIR/* --notes-file ${RELEASE_NOTES_FILE%.md}-with-changelog.md"
+        cat "$RELEASE_NOTES_FILE"
+        printf '\n## Changelog\n\n(Generated from GitHub at publish time)\n'
         return
     fi
     upgrade
-    gh release create $TAG --target $(git branch --show-current) -t $TITLE $DIST_DIR/* --generate-notes
+    local target_commit=$(git rev-parse HEAD)
+    local changelog
+    changelog=$(gh api --method POST 'repos/{owner}/{repo}/releases/generate-notes' \
+        -f tag_name="$TAG" -f target_commitish="$target_commit" --jq '.body')
+    local combined_notes_file="${RELEASE_NOTES_FILE%.md}-with-changelog.md"
+    {
+        cat "$RELEASE_NOTES_FILE"
+        printf '\n## Changelog\n\n%s\n' "$changelog"
+    } > "$combined_notes_file"
+    gh release create "$TAG" --target "$target_commit" -t "$TITLE" $DIST_DIR/* --notes-file "$combined_notes_file"
 }
 
 function main()

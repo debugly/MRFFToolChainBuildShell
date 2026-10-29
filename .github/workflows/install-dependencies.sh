@@ -12,227 +12,265 @@ else
 fi
 PLAT=$2
 
+# List the same dependencies used by installation without downloading anything.
+function install_dependencies() {
+    if [[ $LIST_DEPENDENCIES == 1 ]]; then
+        local libs="" platform=""
+        while (( $# )); do
+            case "$1" in
+                -l) libs=$2; shift 2 ;;
+                -p) platform=$2; shift 2 ;;
+                *) return 1 ;;
+            esac
+        done
+        local dependency
+        for dependency in ${=libs}; do
+            printf '%s %s\n' "$platform" "$dependency"
+        done
+    else
+        ./main.sh install "$@"
+    fi
+}
+
+if [[ "$3" == "--list" ]]; then
+    LIST_DEPENDENCIES=1
+fi
+
 case $LIB_NAME in
+    test)
+        case $PLAT in
+            all) platforms=(ios macos tvos android ohos) ;;
+            apple) platforms=(ios macos tvos) ;;
+            *) platforms=("$PLAT") ;;
+        esac
+        for platform in "${platforms[@]}"; do
+            install_dependencies -l 'ffmpeg8 ass' -p "$platform"
+        done
+    ;;
     ass)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'harfbuzz fribidi unibreak' -p ios
-            ./main.sh install -l 'harfbuzz fribidi unibreak' -p tvos
-            ./main.sh install -l 'harfbuzz fribidi unibreak' -p macos
-            ./main.sh install -l 'harfbuzz fribidi unibreak fontconfig' -p android
+            install_dependencies -l 'harfbuzz fribidi unibreak' -p ios
+            install_dependencies -l 'harfbuzz fribidi unibreak' -p tvos
+            install_dependencies -l 'harfbuzz fribidi unibreak' -p macos
+            install_dependencies -l 'harfbuzz fribidi unibreak fontconfig' -p android
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'harfbuzz fribidi unibreak' -p ios
-            ./main.sh install -l 'harfbuzz fribidi unibreak' -p tvos
-            ./main.sh install -l 'harfbuzz fribidi unibreak' -p macos
+            install_dependencies -l 'harfbuzz fribidi unibreak' -p ios
+            install_dependencies -l 'harfbuzz fribidi unibreak' -p tvos
+            install_dependencies -l 'harfbuzz fribidi unibreak' -p macos
         else
-            ./main.sh install -l 'harfbuzz fribidi unibreak' -p $PLAT
-            ./main.sh install -l 'harfbuzz fribidi unibreak fontconfig' -p android
+            install_dependencies -l 'harfbuzz fribidi unibreak' -p $PLAT
+            install_dependencies -l 'harfbuzz fribidi unibreak fontconfig' -p android
         fi
     ;;
     bluray)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'xml2' -p ios
-            ./main.sh install -l 'xml2' -p tvos
-            ./main.sh install -l 'xml2' -p macos
-            ./main.sh install -l 'xml2' -p android
+            install_dependencies -l 'xml2' -p ios
+            install_dependencies -l 'xml2' -p tvos
+            install_dependencies -l 'xml2' -p macos
+            install_dependencies -l 'xml2' -p android
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'xml2' -p ios
-            ./main.sh install -l 'xml2' -p tvos
-            ./main.sh install -l 'xml2' -p macos
+            install_dependencies -l 'xml2' -p ios
+            install_dependencies -l 'xml2' -p tvos
+            install_dependencies -l 'xml2' -p macos
         else
-            ./main.sh install -l 'xml2' -p $PLAT
+            install_dependencies -l 'xml2' -p $PLAT
         fi
     ;;
     ffmpeg8)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p ios
-            ./main.sh install -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p tvos
-            ./main.sh install -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p macos
-            ./main.sh install -l 'openssl3 opus bluray dav1d uavs3d smb2 soundtouch' -p android
+            install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p ios
+            install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p tvos
+            install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p macos
+            install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2 soundtouch' -p android
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p ios
-            ./main.sh install -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p tvos
-            ./main.sh install -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p macos
+            install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p ios
+            install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p tvos
+            install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p macos
         else
-            ./main.sh install -l 'openssl3 opus bluray dav1d uavs3d smb2' -p $PLAT
+            install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2' -p $PLAT
             if [[ $PLAT == android || $PLAT == ohos ]];then
-                ./main.sh install -l 'soundtouch' -p $PLAT
+                install_dependencies -l 'soundtouch' -p $PLAT
             else
-                ./main.sh install -l 'webp' -p $PLAT
+                install_dependencies -l 'webp' -p $PLAT
             fi
         fi
     ;;
     ffmpeg8-bin)
-        ./main.sh install -l 'ass openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp x264 x265' -p macos
+        install_dependencies -l 'ass openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp x264 x265' -p macos
     ;;
     ffmpeg7)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp' -p ios
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp' -p tvos
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp' -p macos
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 soundtouch' -p android
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp' -p ios
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp' -p tvos
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp' -p macos
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 soundtouch' -p android
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp' -p ios
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp' -p tvos
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp' -p macos
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp' -p ios
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp' -p tvos
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2 webp' -p macos
         else
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2' -p $PLAT
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdnav uavs3d smb2' -p $PLAT
             if [[ $PLAT == android || $PLAT == ohos ]];then
-                ./main.sh install -l 'soundtouch' -p $PLAT
+                install_dependencies -l 'soundtouch' -p $PLAT
             else
-                ./main.sh install -l 'webp' -p $PLAT
+                install_dependencies -l 'webp' -p $PLAT
             fi
         fi
     ;;
     ffmpeg6)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p ios
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p tvos
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p macos
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p android
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p ios
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p tvos
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p macos
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p android
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p ios
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p tvos
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p macos
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p ios
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p tvos
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p macos
         else
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p $PLAT
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d smb2' -p $PLAT
         fi
 
         if [[ $PLAT == android || $PLAT == ohos ]];then
-            ./main.sh install -l 'soundtouch' -p $PLAT
+            install_dependencies -l 'soundtouch' -p $PLAT
         fi
     ;;
     ffmpeg5)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p ios
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p tvos
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p macos
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p android
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p ios
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p tvos
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p macos
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p android
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p ios
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p tvos
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p macos
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p ios
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p tvos
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p macos
         else
-            ./main.sh install -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p $PLAT
+            install_dependencies -l 'openssl3 opus bluray dav1d dvdread uavs3d' -p $PLAT
         fi
 
         if [[ $PLAT == android || $PLAT == ohos ]];then
-            ./main.sh install -l 'soundtouch' -p $PLAT
+            install_dependencies -l 'soundtouch' -p $PLAT
         fi
     ;;
     ffmpeg4)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'openssl3 opus bluray' -p ios
-            ./main.sh install -l 'openssl3 opus bluray' -p tvos
-            ./main.sh install -l 'openssl3 opus bluray' -p macos
-            ./main.sh install -l 'openssl3 opus bluray' -p android
+            install_dependencies -l 'openssl3 opus bluray' -p ios
+            install_dependencies -l 'openssl3 opus bluray' -p tvos
+            install_dependencies -l 'openssl3 opus bluray' -p macos
+            install_dependencies -l 'openssl3 opus bluray' -p android
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'openssl3 opus bluray' -p ios
-            ./main.sh install -l 'openssl3 opus bluray' -p tvos
-            ./main.sh install -l 'openssl3 opus bluray' -p macos
+            install_dependencies -l 'openssl3 opus bluray' -p ios
+            install_dependencies -l 'openssl3 opus bluray' -p tvos
+            install_dependencies -l 'openssl3 opus bluray' -p macos
         else
-            ./main.sh install -l 'openssl3 opus bluray' -p $PLAT
+            install_dependencies -l 'openssl3 opus bluray' -p $PLAT
         fi
 
         if [[ $PLAT == android || $PLAT == ohos ]];then
-            ./main.sh install -l 'soundtouch' -p $PLAT
+            install_dependencies -l 'soundtouch' -p $PLAT
         fi
     ;;
     ijkffmpeg)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'openssl' -p ios
-            ./main.sh install -l 'openssl' -p tvos
-            ./main.sh install -l 'openssl' -p macos
-            ./main.sh install -l 'openssl' -p android
+            install_dependencies -l 'openssl' -p ios
+            install_dependencies -l 'openssl' -p tvos
+            install_dependencies -l 'openssl' -p macos
+            install_dependencies -l 'openssl' -p android
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'openssl' -p ios
-            ./main.sh install -l 'openssl' -p tvos
-            ./main.sh install -l 'openssl' -p macos
+            install_dependencies -l 'openssl' -p ios
+            install_dependencies -l 'openssl' -p tvos
+            install_dependencies -l 'openssl' -p macos
         else
-            ./main.sh install -l 'openssl' -p $PLAT
+            install_dependencies -l 'openssl' -p $PLAT
         fi
 
         if [[ $PLAT == android || $PLAT == ohos ]];then
-            ./main.sh install -l 'soundtouch' -p $PLAT
+            install_dependencies -l 'soundtouch' -p $PLAT
         fi
     ;;
     fftutorial)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'openssl' -p ios
-            ./main.sh install -l 'openssl' -p tvos
-            ./main.sh install -l 'openssl' -p macos
-            ./main.sh install -l 'openssl' -p android
+            install_dependencies -l 'openssl' -p ios
+            install_dependencies -l 'openssl' -p tvos
+            install_dependencies -l 'openssl' -p macos
+            install_dependencies -l 'openssl' -p android
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'openssl' -p ios
-            ./main.sh install -l 'openssl' -p tvos
-            ./main.sh install -l 'openssl' -p macos
+            install_dependencies -l 'openssl' -p ios
+            install_dependencies -l 'openssl' -p tvos
+            install_dependencies -l 'openssl' -p macos
         else
-            ./main.sh install -l 'openssl' -p $PLAT
+            install_dependencies -l 'openssl' -p $PLAT
         fi
     ;;
     harfbuzz)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'freetype' -p ios
-            ./main.sh install -l 'freetype' -p tvos
-            ./main.sh install -l 'freetype' -p macos
-            ./main.sh install -l 'freetype' -p android
+            install_dependencies -l 'freetype' -p ios
+            install_dependencies -l 'freetype' -p tvos
+            install_dependencies -l 'freetype' -p macos
+            install_dependencies -l 'freetype' -p android
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'freetype' -p ios
-            ./main.sh install -l 'freetype' -p tvos
-            ./main.sh install -l 'freetype' -p macos
+            install_dependencies -l 'freetype' -p ios
+            install_dependencies -l 'freetype' -p tvos
+            install_dependencies -l 'freetype' -p macos
         else
-            ./main.sh install -l 'freetype' -p $PLAT
+            install_dependencies -l 'freetype' -p $PLAT
         fi
     ;;
     fontconfig)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'xml2' -p ios
-            ./main.sh install -l 'xml2' -p tvos
-            ./main.sh install -l 'xml2' -p macos
-            ./main.sh install -l 'xml2' -p android
+            install_dependencies -l 'xml2' -p ios
+            install_dependencies -l 'xml2' -p tvos
+            install_dependencies -l 'xml2' -p macos
+            install_dependencies -l 'xml2' -p android
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'xml2' -p ios
-            ./main.sh install -l 'xml2' -p tvos
-            ./main.sh install -l 'xml2' -p macos
+            install_dependencies -l 'xml2' -p ios
+            install_dependencies -l 'xml2' -p tvos
+            install_dependencies -l 'xml2' -p macos
         else
-            ./main.sh install -l 'xml2' -p $PLAT
+            install_dependencies -l 'xml2' -p $PLAT
         fi
         if [[ $PLAT == android || $PLAT == all ]];then
-            ./main.sh install -p android -l 'freetype'
+            install_dependencies -p android -l 'freetype'
         elif [[ $PLAT == ohos ]];then
-            ./main.sh install -p ohos -l 'freetype'
+            install_dependencies -p ohos -l 'freetype'
         fi
     ;;
     dvdnav)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'dvdread' -p ios
-            ./main.sh install -l 'dvdread' -p tvos
-            ./main.sh install -l 'dvdread' -p macos
-            ./main.sh install -l 'dvdread' -p android
+            install_dependencies -l 'dvdread' -p ios
+            install_dependencies -l 'dvdread' -p tvos
+            install_dependencies -l 'dvdread' -p macos
+            install_dependencies -l 'dvdread' -p android
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'dvdread' -p ios
-            ./main.sh install -l 'dvdread' -p tvos
-            ./main.sh install -l 'dvdread' -p macos
+            install_dependencies -l 'dvdread' -p ios
+            install_dependencies -l 'dvdread' -p tvos
+            install_dependencies -l 'dvdread' -p macos
         else
-            ./main.sh install -l 'dvdread' -p $PLAT
+            install_dependencies -l 'dvdread' -p $PLAT
         fi
     ;;
     moltenvk)
-        echo "MoltenVK has no external dependencies, it fetches its own dependencies"
+        if [[ $LIST_DEPENDENCIES != 1 ]]; then
+            echo "MoltenVK has no external dependencies, it fetches its own dependencies"
+        fi
     ;;
     shaderc)
-        echo "shaderc has no external dependencies, it fetches its own dependencies via git-sync-deps"
+        if [[ $LIST_DEPENDENCIES != 1 ]]; then
+            echo "shaderc has no external dependencies, it fetches its own dependencies via git-sync-deps"
+        fi
     ;;
     placebo)
         if [[ $PLAT == all ]];then
-            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p ios
-            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p tvos
-            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p macos
+            install_dependencies -l 'lcms2 shaderc moltenvk dovi' -p ios
+            install_dependencies -l 'lcms2 shaderc moltenvk dovi' -p tvos
+            install_dependencies -l 'lcms2 shaderc moltenvk dovi' -p macos
         elif [[ $PLAT == apple ]];then
-            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p ios
-            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p tvos
-            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p macos
+            install_dependencies -l 'lcms2 shaderc moltenvk dovi' -p ios
+            install_dependencies -l 'lcms2 shaderc moltenvk dovi' -p tvos
+            install_dependencies -l 'lcms2 shaderc moltenvk dovi' -p macos
         else
-            ./main.sh install -l 'lcms2 shaderc moltenvk dovi' -p $PLAT
+            install_dependencies -l 'lcms2 shaderc moltenvk dovi' -p $PLAT
         fi
     ;;
     *)
