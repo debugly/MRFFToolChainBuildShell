@@ -147,15 +147,15 @@ brew install libtool
 
 编译了适用于苹果、安卓、鸿蒙三大平台的 FFmpeg4、FFmpeg5、FFmpeg6、FFmpeg7、FFmpeg8。
 
-- Fontconfig：xml2、freetype
-- Bluray：xml2
-- Harfbuzz：freetype
+- fontconfig：xml2、freetype
+- bluray：xml2
+- harfbuzz：freetype
 - dvdnav：dvdread
 - 适用于 ijkplayer 的 FFmpeg: openssl
-- 适用于 macOS 的 Placebo: shaderc,moltenvk,dovi,lcms2
-- 适用于苹果的 Ass：harfbuzz、fribidi、unibreak
-- 适用于安卓的 Ass：harfbuzz、fribidi、unibreak、fontconfig
-- 适用于鸿蒙的 Ass：freetype、harfbuzz、fribidi、unibreak、fontconfig（fontconfig 依赖 xml2 和 freetype）
+- 适用于 macOS 的 placebo: shaderc,moltenvk,dovi,lcms2
+- 适用于的 ass：harfbuzz、fribidi、unibreak
+- 适用于安卓的 ass：harfbuzz、fribidi、unibreak、fontconfig
+- 适用于鸿蒙的 ass：harfbuzz、fribidi、unibreak、fontconfig
 - 适用于苹果的 FFmpeg4：openssl3、opus、bluray
 - 适用于苹果的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d
 - 适用于苹果的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2
@@ -166,7 +166,7 @@ brew install libtool
 - 适用于安卓的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2、soundtouch
 - 适用于安卓的 FFmpeg7：openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、soundtouch
 - 适用于安卓的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
-- 适用于鸿蒙（HarmonyOS）的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
+- 适用于鸿蒙的 FFmpeg8：openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
 
 ## 提示
 
