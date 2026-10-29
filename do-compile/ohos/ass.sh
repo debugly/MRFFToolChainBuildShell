@@ -23,12 +23,11 @@ cd "$THIS_DIR"
 function check_lib()
 {
     local lib=$1
-    pkg-config --libs $lib --silence-errors >/dev/null || not_found=$?
-
-    if [[ $not_found -eq 0 ]];then
+    if pkg-config --exists "$lib"; then
         echo "[✅] $lib : $(pkg-config --modversion $lib)" #, $(pkg-config --cflags $lib)
     else
-        echo "[❌] $lib not found!"
+        echo "[❌] $lib not found!" >&2
+        return 1
     fi
 }
 

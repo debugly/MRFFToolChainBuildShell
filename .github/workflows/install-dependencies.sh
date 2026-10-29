@@ -48,19 +48,20 @@ case $LIB_NAME in
         done
     ;;
     ass)
-        if [[ $PLAT == all ]];then
-            install_dependencies -l 'harfbuzz fribidi unibreak' -p ios
-            install_dependencies -l 'harfbuzz fribidi unibreak' -p tvos
-            install_dependencies -l 'harfbuzz fribidi unibreak' -p macos
-            install_dependencies -l 'harfbuzz fribidi unibreak fontconfig' -p android
-        elif [[ $PLAT == apple ]];then
-            install_dependencies -l 'harfbuzz fribidi unibreak' -p ios
-            install_dependencies -l 'harfbuzz fribidi unibreak' -p tvos
-            install_dependencies -l 'harfbuzz fribidi unibreak' -p macos
-        else
-            install_dependencies -l 'harfbuzz fribidi unibreak' -p $PLAT
-            install_dependencies -l 'harfbuzz fribidi unibreak fontconfig' -p android
-        fi
+        case $PLAT in
+            all) platforms=(ios macos tvos android ohos) ;;
+            apple) platforms=(ios macos tvos) ;;
+            *) platforms=("$PLAT") ;;
+        esac
+        for platform in "${platforms[@]}"; do
+            if [[ $platform == ohos ]]; then
+                install_dependencies -l 'freetype harfbuzz fribidi unibreak fontconfig' -p "$platform"
+            elif [[ $platform == android ]]; then
+                install_dependencies -l 'harfbuzz fribidi unibreak fontconfig' -p "$platform"
+            else
+                install_dependencies -l 'harfbuzz fribidi unibreak' -p "$platform"
+            fi
+        done
     ;;
     bluray)
         if [[ $PLAT == all ]];then
