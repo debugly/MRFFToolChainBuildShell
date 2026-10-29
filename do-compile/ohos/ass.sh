@@ -40,3 +40,24 @@ check_lib 'fontconfig'
 echo "----------------------"
 
 ./meson-compatible.sh "-Dtest=disabled -Dprofile=disabled -Dfontconfig=enabled -Dcoretext=disabled -Dasm=disabled -Dlibunibreak=enabled"
+
+
+# A static archive alone does not verify that its dependencies can be linked.
+# Cross-link a renderer without attempting to run the OHOS executable on macOS.
+export PKG_CONFIG_LIBDIR="$MR_BUILD_PREFIX/lib/pkgconfig:$PKG_CONFIG_LIBDIR"
+cat > "$MR_BUILD_SOURCE/ass-link-check.cpp" <<'CHECK'
+#include <ass/ass.h>
+int main(void)
+{
+    ASS_Library *library = ass_library_init();
+    if (!library) return 1;
+    ASS_Renderer *renderer = ass_renderer_init(library);
+    if (renderer) ass_renderer_done(renderer);
+    ass_library_done(library);
+    return renderer ? 0 : 1;
+}
+CHECK
+"$MR_TRIPLE_CXX" $MR_DEFAULT_CFLAGS $(pkg-config --cflags libass) \
+    "$MR_BUILD_SOURCE/ass-link-check.cpp" \
+    -o "$MR_BUILD_SOURCE/ass-link-check" $(pkg-config --libs --static libass)
+echo "[✅] libass and its static dependencies link for $MR_ARCH"
