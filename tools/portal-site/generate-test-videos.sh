@@ -163,11 +163,9 @@ echo -e "\033[34m[*] Case 6.1: Generating Interlaced Video (interleave_top)...\0
 # ---------------------------------------------------------------------
 # PITFALL 7: Transparent Background Video (alpha channel)
 # ---------------------------------------------------------------------
-# Both alpha samples are generated here, nothing is committed as a binary:
-#   7.1 test_transparent.webm  VP9 alpha (yuva420p)        -- web / Android style
-#   7.2 test_transparent.mov   ProRes 4444 (yuva444p10le)  -- Apple pro format
-# $FFMPEG_BIN (the toolchain build) can encode neither: libvpx is not in the dependency
-# set and the encoder list is trimmed to what the cases above need. So the alpha cases
+# The VP9 alpha WebM sample is generated here, not committed as a binary.
+# $FFMPEG_BIN (the toolchain build) has no libvpx in its dependency set,
+# so this alpha case will
 # pick the first ffmpeg on the machine that really provides the encoder (Homebrew ffmpeg
 # in CI -- see .github/workflows/generate portal website.yaml). Generating instead of
 # shipping binaries keeps the samples reproducible and in sync with the documented commands.
@@ -189,12 +187,13 @@ ffmpeg_with_encoder() {
     return 1
 }
 
+# Move edge to edge and back every 5 seconds, keeping the whole square visible.
 FFMPEG_VP9=$(ffmpeg_with_encoder libvpx-vp9 || true)
 if [[ -n "$FFMPEG_VP9" ]]; then
     echo -e "\033[34m[*] Case 7.1: Generating Transparent WebM (VP9 yuva420p, alpha channel)...\033[0m"
     "$FFMPEG_VP9" -f lavfi -i "color=c=black@0.0:s=640x480:rate=30,format=yuva420p" \
         -f lavfi -i "color=c=red:s=80x80:rate=30,format=yuva420p" \
-        -filter_complex "[0][1]overlay=x='100+t*80':y=200:format=auto" \
+        -filter_complex "[0][1]overlay=x='(W-w)*(1-cos(2*PI*t/5))/2':y=200:format=auto" \
         -c:v libvpx-vp9 \
         -pix_fmt yuva420p \
         -auto-alt-ref 0 \
@@ -202,21 +201,6 @@ if [[ -n "$FFMPEG_VP9" ]]; then
         -y "$OUTPUT_DIR/test_transparent.webm"
 else
     echo -e "\033[33m[!] Skipping Case 7.1 (Transparent WebM): no ffmpeg with the libvpx-vp9 encoder found.\033[0m"
-fi
-
-FFMPEG_PRORES=$(ffmpeg_with_encoder prores_ks || true)
-if [[ -n "$FFMPEG_PRORES" ]]; then
-    echo -e "\033[34m[*] Case 7.2: Generating Transparent MOV (ProRes 4444 yuva444p10le, alpha channel)...\033[0m"
-    "$FFMPEG_PRORES" -f lavfi -i "color=c=black@0.0:s=640x480:rate=30,format=yuva444p10le" \
-        -f lavfi -i "color=c=red:s=80x80:rate=30,format=yuva444p10le" \
-        -filter_complex "[0][1]overlay=x='100+t*80':y=200:format=auto" \
-        -c:v prores_ks \
-        -profile:v 4444 \
-        -pix_fmt yuva444p10le \
-        -t "${DURATION}" \
-        -y "$OUTPUT_DIR/test_transparent.mov"
-else
-    echo -e "\033[33m[!] Skipping Case 7.2 (Transparent MOV): no ffmpeg with the prores_ks encoder found.\033[0m"
 fi
 
 # ---------------------------------------------------------------------
