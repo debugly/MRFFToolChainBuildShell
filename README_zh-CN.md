@@ -19,7 +19,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 ## 最新动态
 
 - FFmpeg **8.1.2** 已经准备好了
-- 新增鸿蒙（HarmonyOS）平台支持
+- 鸿蒙（HarmonyOS）平台已提供 libass 及其字体、文本处理依赖的预编译库
 - 将所有库升级至最新版本，不少库提升了性能
 - 使用 macOS 15，Xcode\_16.4 构建
 
@@ -36,7 +36,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 ./main.sh install -p macos -l ffmpeg
 ./main.sh install -p ios -l 'ass ffmpeg'
 ./main.sh install -p android -l openssl3
-./main.sh install -p ohos -l ffmpeg8
+./main.sh install -p ohos -l "ass ffmpeg8"
 ```
 
 ## 自行编译
@@ -82,10 +82,25 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 # 另外一个选择，自己选择性地安装 FFmpeg7 的依赖库
 ./main.sh install -p ios -l "openssl3 opus bluray dav1d dvdnav uavs3d smb2"
 # 编译 iOS 平台 arm64 架构的 FFmpeg7，并且生成 xcframework
-./main.sh compile -p ios -a arm64 -l ffmepg7 --fmwk
+./main.sh compile -p ios -a arm64 -l ffmpeg7 --fmwk
 ```
 
 这些参数的顺序无关紧要，可以按任意顺序排列。
+
+### 鸿蒙 libass 编译
+
+将 `OHOS_SDK_NATIVE` 指向鸿蒙 SDK 的 `native/` 目录（也支持 `OHOS_NATIVE_HOME`，或通过 `OHOS_SDK_HOME` 查找 SDK 内的 `native/` 目录）。macOS 上的 autotools 构建需要 Homebrew 的 GNU libtool（`glibtool`）。
+
+```bash
+export OHOS_SDK_NATIVE=/path/to/ohos-sdk/native
+brew install libtool
+# 安装预编译依赖（fontconfig 会带入 xml2 和 freetype）
+./main.sh install -p ohos -l "freetype harfbuzz fribidi unibreak fontconfig"
+./main.sh init -p ohos -l ass
+./main.sh compile -p ohos -a arm64 -l ass
+```
+
+模拟器构建可将 `arm64` 改为 `x86_64`。构建会检查所需依赖，并交叉链接一个 libass 渲染器程序以验证静态依赖是否完整；该程序不会在宿主机上运行。
 
 ## 库明细
 
@@ -140,6 +155,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 - 适用于 macOS 的 Placebo: shaderc,moltenvk,dovi,lcms2
 - 适用于苹果的 Ass：harfbuzz、fribidi、unibreak
 - 适用于安卓的 Ass：harfbuzz、fribidi、unibreak、fontconfig
+- 适用于鸿蒙的 Ass：freetype、harfbuzz、fribidi、unibreak、fontconfig（fontconfig 依赖 xml2 和 freetype）
 - 适用于苹果的 FFmpeg4：openssl3、opus、bluray
 - 适用于苹果的 FFmpeg5：openssl3、opus、bluray、dav1d、dvdread、uavs3d
 - 适用于苹果的 FFmpeg6：openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2

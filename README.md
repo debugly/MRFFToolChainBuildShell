@@ -32,7 +32,7 @@ Libraries included: `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、f
 ## News
 
 - FFmpeg **8.1.2** is ready
-- HarmonyOS support is ready
+- HarmonyOS support includes pre-built libass and its font/text dependencies
 - Upgraded all libraries to latest, with improved optimizations
 - Built with macOS 15 and Xcode 16.4
 
@@ -48,7 +48,7 @@ These pre-compiled libraries already applied patches which in the patches direct
 ./main.sh install -p macos -l ffmpeg
 ./main.sh install -p ios -l 'ass ffmpeg'
 ./main.sh install -p android -l openssl3
-./main.sh install -p ohos -l ffmpeg8
+./main.sh install -p ohos -l "ass ffmpeg8"
 ```
 
 ## Compile by Yourself
@@ -95,10 +95,25 @@ The following code demonstrates how to compile FFmpeg 7 for the iOS platform：
 # other choice (you must know ffmpeg7's dependent lib name)
 ./main.sh install -p ios -l "openssl3 opus bluray dav1d dvdnav uavs3d smb2"
 # Compile FFmpeg7 for the arm64 architecture on iOS with xcframework
-./main.sh compile -p ios -a arm64 -l ffmepg7 --fmwk
+./main.sh compile -p ios -a arm64 -l ffmpeg7 --fmwk
 ```
 
 The order of these parameters does not matter; they can be arranged in any sequence.
+
+### Build libass for HarmonyOS
+
+Set `OHOS_SDK_NATIVE` to the HarmonyOS SDK's `native/` directory. `OHOS_NATIVE_HOME` is also supported; alternatively, set `OHOS_SDK_HOME` to search for `native/` within the SDK. On macOS, autotools builds require Homebrew's GNU libtool (`glibtool`).
+
+```bash
+export OHOS_SDK_NATIVE=/path/to/ohos-sdk/native
+brew install libtool
+# Install pre-built dependencies (fontconfig includes xml2 and freetype)
+./main.sh install -p ohos -l "freetype harfbuzz fribidi unibreak fontconfig"
+./main.sh init -p ohos -l ass
+./main.sh compile -p ohos -a arm64 -l ass
+```
+
+Use `x86_64` instead of `arm64` for the emulator. The build checks required dependencies and cross-links a libass renderer program to verify its static dependencies; it does not run the program on the host.
 
 ## Libraries
 
@@ -150,6 +165,7 @@ Current version and repository URLs of each library:
 - Placebo for macOS: shaderc,moltenvk,dovi,lcms2
 - Ass for Apple:  harfbuzz,fribidi,unibreak
 - Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
+- Ass for HarmonyOS: freetype,harfbuzz,fribidi,unibreak,fontconfig (fontconfig depends on xml2 and freetype)
 - IJKFFmpeg: openssl
 - FFmpeg4 for Apple: openssl3,opus,bluray
 - FFmpeg5 for Apple: openssl3,opus,bluray,dav1d,dvdread,uavs3d
