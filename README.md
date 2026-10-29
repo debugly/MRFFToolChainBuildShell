@@ -165,7 +165,7 @@ Current version and repository URLs of each library:
 - Placebo for macOS: shaderc,moltenvk,dovi,lcms2
 - Ass for Apple:  harfbuzz,fribidi,unibreak
 - Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
-- Ass for HarmonyOS: freetype,harfbuzz,fribidi,unibreak,fontconfig (fontconfig depends on xml2 and freetype)
+- Ass for HarmonyOS: harfbuzz,fribidi,unibreak,fontconfig
 - IJKFFmpeg: openssl
 - FFmpeg4 for Apple: openssl3,opus,bluray
 - FFmpeg5 for Apple: openssl3,opus,bluray,dav1d,dvdread,uavs3d
