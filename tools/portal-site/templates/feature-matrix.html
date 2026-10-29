@@ -73,8 +73,8 @@
         .markdown-body table {
             display: table;
             width: 100%;
-            /* 列多的分类（7 列）会把表撑得比正文还宽，给个上限：超过 1280 的表按 1280 排，
-               单元格里的长名字用 <wbr> 软换行点折行（见 JS），别把页面撑出横向滚动 */
+            /* 所有分类使用相同表宽，各列均分，不受特性名称长度影响。 */
+            table-layout: fixed;
             max-width: 1280px;
             margin-top: 0;
             margin-bottom: 30px;
