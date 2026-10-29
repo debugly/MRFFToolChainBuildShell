@@ -30,8 +30,13 @@
 
 function install_depends() {
     local name="$1"
-    if command -v "$name" &> /dev/null; then
-        echo "[✅] ${name}: $(eval $name --version | head -n 1)"
+    local check_name="$name"
+    # Apple libtool does not provide GNU libtool/autoconf macros.
+    if [[ "$(uname)" == "Darwin" && "$name" == "libtool" ]]; then
+        check_name="glibtool"
+    fi
+    if command -v "$check_name" &> /dev/null; then
+        echo "[✅] ${name}: $("$check_name" --version | head -n 1)"
         return 0
     else
         if [[ "$name" == "rustup" || "$name" == "cargo" ]]; then
@@ -44,7 +49,7 @@ function install_depends() {
             brew install "$name"
         fi
     fi
-    echo "[✅] ${name}: $(eval $name --version)"
+    echo "[✅] ${name}: $("$check_name" --version | head -n 1)"
 }
 
 # 定义跨平台sed函数
