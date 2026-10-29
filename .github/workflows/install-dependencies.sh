@@ -44,7 +44,7 @@ case $LIB_NAME in
             *) platforms=("$PLAT") ;;
         esac
         for platform in "${platforms[@]}"; do
-            install_dependencies -l 'ffmpeg8 ass' -p "$platform"
+            install_dependencies -l 'ffmpeg8' -p "$platform"
         done
     ;;
     ass)

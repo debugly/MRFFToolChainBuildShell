@@ -4,7 +4,7 @@ set -e
 : "${MR_BUILD_SOURCE:?}"
 : "${MR_BUILD_PREFIX:?}"
 : "${MR_CC:?}"
-pkg-config --exists libavutil libass
+pkg-config --exists libavutil
 mkdir -p "$MR_BUILD_PREFIX/lib/pkgconfig" "$MR_BUILD_PREFIX/include"
 
 # Match the compiler and target flags exported by each platform's environment.
@@ -16,7 +16,7 @@ case "$MR_PLAT" in
     ohos) ;;
     *) echo "Unsupported test platform: $MR_PLAT" >&2; exit 1 ;;
 esac
-$cc $MR_DEFAULT_CFLAGS -fPIC $(pkg-config --cflags libavutil libass) \
+$cc $MR_DEFAULT_CFLAGS -fPIC $(pkg-config --cflags libavutil) \
     -c "$MR_BUILD_SOURCE/test.c" -o "$MR_BUILD_SOURCE/test.o"
 # Recreate the archive so a rebuild cannot retain stale members.
 rm -f "$MR_BUILD_PREFIX/lib/libtest.a"
@@ -28,9 +28,9 @@ libdir=\${prefix}/lib
 includedir=\${prefix}/include
 
 Name: test
-Description: Print the linked FFmpeg and libass versions
+Description: Print the linked FFmpeg version
 Version: $GIT_REPO_VERSION
-Requires.private: libavutil libass
+Requires.private: libavutil
 Libs: -L\${libdir} -ltest
 Cflags: -I\${includedir}
 PC

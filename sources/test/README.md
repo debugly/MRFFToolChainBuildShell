@@ -1,7 +1,7 @@
 # test library
 
-`test.h` exports `void say(void)`, which prints the linked FFmpeg and libass
-versions using `av_version_info()` and `ass_library_version()`.
+`test.h` exports `void say(void)`, which prints the linked FFmpeg version
+using `av_version_info()`.
 
 The source is local; initialization does not clone a remote test repository.
 For each platform (`ios`, `macos`, `tvos`, `android`, or `ohos`), run from the
