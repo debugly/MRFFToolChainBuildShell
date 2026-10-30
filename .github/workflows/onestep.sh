@@ -105,7 +105,7 @@ function init_platform
     
     echo "---generate src log--------------------------------------"
     cd build/src/$plat
-    ls | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > $DIST_DIR/$plat-compile-log-$RELEASE_VERSION.md
+    ls | awk -F ' ' '{printf "echo %s\n echo -------------\ngit -C %s log -n 1 | cat\n",$0,$0}' | bash > $DIST_DIR/$plat-compile-log-$RELEASE_VERSION.log
     cd $ROOT_DIR
 }
 
@@ -113,7 +113,7 @@ function compile_ios_platform
 {
     echo "---do compile ios libs--------------------------------------"
 
-    local log_file="$DIST_DIR/ios-compile-log-$RELEASE_VERSION.md"
+    local log_file="$DIST_DIR/ios-compile-log-$RELEASE_VERSION.log"
 
     if [[ $VERBOSE ]];then
         ./main.sh compile -p ios -c build -l ${CONFIG_NAME} 2>&1 | tee -a "$log_file"
@@ -133,7 +133,7 @@ function compile_macos_platform
 {
     echo "---do compile macos libs--------------------------------------"
     
-    local log_file="$DIST_DIR/macos-compile-log-$RELEASE_VERSION.md"
+    local log_file="$DIST_DIR/macos-compile-log-$RELEASE_VERSION.log"
 
     local extra_args=""
 
@@ -174,7 +174,7 @@ function compile_tvos_platform
 {
     echo "---do compile tvos libs--------------------------------------"
 
-    local log_file="$DIST_DIR/android-compile-log-$RELEASE_VERSION.md"
+    local log_file="$DIST_DIR/tvos-compile-log-$RELEASE_VERSION.log"
 
     if [[ $VERBOSE ]];then
         ./main.sh compile -p tvos -c build -l ${CONFIG_NAME} 2>&1 | tee -a "$log_file"
@@ -195,7 +195,7 @@ function compile_android_platform
 {
     echo "---do compile android libs--------------------------------------"
     
-    local log_file="$DIST_DIR/android-compile-log-$RELEASE_VERSION.md"
+    local log_file="$DIST_DIR/android-compile-log-$RELEASE_VERSION.log"
     
     if [[ $VERBOSE ]];then
         ./main.sh compile -p android -c build -l ${CONFIG_NAME} 2>&1 | tee -a "$log_file"
@@ -212,7 +212,7 @@ function compile_ohos_platform
 {
     echo "---do compile ohos libs--------------------------------------"
     
-    local log_file="$DIST_DIR/ohos-compile-log-$RELEASE_VERSION.md"
+    local log_file="$DIST_DIR/ohos-compile-log-$RELEASE_VERSION.log"
     
     if [[ $VERBOSE ]];then
         ./main.sh compile -p ohos -c build -l ${CONFIG_NAME} 2>&1 | tee -a "$log_file"
