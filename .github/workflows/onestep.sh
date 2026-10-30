@@ -19,9 +19,9 @@ export PLAT=$2
 export MR_PLAT=$PLAT
 
 if [[ -n $3 && "$3" == 'true' ]];then
-    export DRYRUN=1 
+    export DRAFT=1
 else
-    export DRYRUN=
+    export DRAFT=
 fi
 
 if [[ -n $4 && "$4" == 'true' ]];then
@@ -298,13 +298,12 @@ function upgrade()
 function publish()
 {
     echo "---Create Release--------------------------------------"
-    if [[ $DRYRUN ]];then
-        echo "DRYRUN: gh release create $TAG -t $TITLE $DIST_DIR/* --notes-file ${RELEASE_NOTES_FILE%.md}-with-changelog.md"
-        cat "$RELEASE_NOTES_FILE"
-        printf '\n## Changelog\n\n(Generated from GitHub at publish time)\n'
-        return
+    local release_args=()
+    if [[ $DRAFT ]]; then
+        release_args+=(--draft)
+    else
+        upgrade
     fi
-    upgrade
     local target_commit=$(git rev-parse HEAD)
     local changelog
     changelog=$(gh api --method POST 'repos/{owner}/{repo}/releases/generate-notes' \
@@ -314,7 +313,7 @@ function publish()
         cat "$RELEASE_NOTES_FILE"
         printf '\n## Changelog\n\n%s\n' "$changelog"
     } > "$combined_notes_file"
-    gh release create "$TAG" --target "$target_commit" -t "$TITLE" $DIST_DIR/* --notes-file "$combined_notes_file"
+    gh release create "$TAG" --target "$target_commit" -t "$TITLE" $DIST_DIR/* --notes-file "$combined_notes_file" "${release_args[@]}"
 }
 
 function main()

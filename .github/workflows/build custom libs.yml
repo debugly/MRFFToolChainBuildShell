@@ -29,8 +29,8 @@ on:
         description: 'input libraries for compile'
         required: true
         default: 'xml2'
-      dryrun:
-        description: 'just run workflow,but not deploy'
+      draft:
+        description: 'create a draft release with assets and notes; do not update published dependency tags'
         required: false
         type: choice
         default: 'false'
@@ -68,7 +68,7 @@ jobs:
         link-to-sdk: true
         local-cache: false
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - name: Install cargo-c
       if: contains(inputs.libraries, 'dovi')
       uses: taiki-e/install-action@v2
@@ -77,7 +77,7 @@ jobs:
     - name: One Step
       run: |
         Platform=${{ inputs.platform }}
-        DryRun=${{ inputs.dryrun }}
+        Draft=${{ inputs.draft }}
         Verbose=${{ inputs.verbose }}
         compile_lib() {
           local lib_name=$1
@@ -106,7 +106,7 @@ jobs:
           echo "------compile $platform $lib_name------------------------------------"
           rm -rf build || git reset --hard || git pull origin
           .github/workflows/install-dependencies.sh $lib_name $platform  # 补全依赖安装步骤
-          .github/workflows/onestep.sh $lib_name $platform $DryRun $Verbose
+          .github/workflows/onestep.sh $lib_name $platform $Draft $Verbose
         }
         
         # 将逗号分隔转为循环处理

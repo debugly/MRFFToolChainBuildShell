@@ -29,8 +29,8 @@ on:
           - ios
           - tvos
           - macos
-      dryrun:
-        description: 'just run workflow,but not deploy'
+      draft:
+        description: 'create a draft release with assets and notes; do not update published dependency tags'
         required: false
         type: choice
         default: 'true'
@@ -105,10 +105,10 @@ jobs:
         echo "HarmonyOS native SDK at: $OHOS_NATIVE"
         ls -la "$OHOS_NATIVE/llvm/bin/clang"
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - name: Install dependencies
       run: .github/workflows/install-dependencies.sh test ${{ inputs.platform }}
     - name: One Step
-      run: .github/workflows/onestep.sh test ${{ inputs.platform }} ${{ inputs.dryrun }} ${{ inputs.verbose }}
+      run: .github/workflows/onestep.sh test ${{ inputs.platform }} ${{ inputs.draft }} ${{ inputs.verbose }}
       env:
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
