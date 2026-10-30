@@ -95,6 +95,7 @@ function generate_dependency_notes()
 }
 
 generate_dependency_notes
+zsh .github/workflows/toolchain-notes.sh "$PLAT" >> "$RELEASE_NOTES_FILE"
 
 function init_platform
 {
