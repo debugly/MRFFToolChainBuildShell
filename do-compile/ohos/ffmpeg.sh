@@ -38,6 +38,12 @@ CFG_FLAGS=
 CFG_FLAGS="$CFG_FLAGS $COMMON_FF_CFG_FLAGS"
 CFG_FLAGS="$CFG_FLAGS $THIRD_CFG_FLAGS"
 
+# OHCodec is opt-in in FFmpeg and the shared profile disables all decoders.
+# Older FFmpeg versions do not expose this option; keep their OHOS builds usable.
+if "$MR_BUILD_SOURCE/configure" --help | grep -- '--enable-ohcodec' >/dev/null; then
+    CFG_FLAGS="$CFG_FLAGS --enable-ohcodec --enable-decoder=h264_oh --enable-decoder=hevc_oh"
+fi
+
 # HarmonyOS NEXT / OpenHarmony: use clang as linker driver via lld.
 EXTRA_LDFLAGS="-fuse-ld=lld"
 C_FLAGS="$C_FLAGS $MR_DEFAULT_CFLAGS"
