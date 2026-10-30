@@ -1,0 +1,97 @@
+From f2aefbd41e1fd6d6699c7174a616bd2fe5801b80 Mon Sep 17 00:00:00 2001
+From: qianlongxu <qianlongxu@gmail.com>
+Date: Sat, 31 Oct 2026 00:43:51 +0800
+Subject: [PATCH] avcodec/ohcodec: bound buffer waits and reset pending packets
+ on flush
+
+---
+ libavcodec/ohdec.c | 36 +++++++++++++++++++++++++++++-------
+ 1 file changed, 29 insertions(+), 7 deletions(-)
+
+diff --git a/libavcodec/ohdec.c b/libavcodec/ohdec.c
+index 943b027..aceb825 100644
+--- a/libavcodec/ohdec.c
++++ b/libavcodec/ohdec.c
+@@ -21,6 +21,7 @@
+ #include "config_components.h"
+ 
+ #include <stdbool.h>
++#include <time.h>
+ #include <multimedia/player_framework/native_avcapability.h>
+ #include <multimedia/player_framework/native_avcodec_videodecoder.h>
+ 
+@@ -636,6 +637,12 @@ static int oh_decode_send_pkt(AVCodecContext *avctx, OHBufferQueueItem *input)
+ static int oh_decode_receive_frame(AVCodecContext *avctx, AVFrame *frame)
+ {
+     OHCodecDecContext *s = avctx->priv_data;
++    struct timespec deadline;
++
++    // A stalled codec service must not hold the caller's decoder thread forever.
++    if (clock_gettime(CLOCK_REALTIME, &deadline))
++        return AVERROR(errno);
++    deadline.tv_sec += 5;
+ 
+     while (1) {
+         OHBufferQueueItem buffer = {0};
+@@ -647,9 +654,14 @@ static int oh_decode_receive_frame(AVCodecContext *avctx, AVFrame *frame)
+             if (av_fifo_read(s->output_queue, &buffer, 1) >= 0)
+                 break;
+             // Only wait after send EOF
+-            if (s->eof_sent && !s->decode_status)
+-                ff_cond_wait(&s->output_cond, &s->output_mutex);
+-            else
++            if (s->eof_sent && !s->decode_status) {
++                int err = ff_cond_timedwait(&s->output_cond, &s->output_mutex, &deadline);
++                if (err) {
++                    ff_mutex_unlock(&s->output_mutex);
++                    av_log(avctx, AV_LOG_ERROR, "OHCodec output wait failed: %d\n", err);
++                    return AVERROR(err);
++                }
++            } else
+                 break;
+         }
+ 
+@@ -674,7 +686,12 @@ static int oh_decode_receive_frame(AVCodecContext *avctx, AVFrame *frame)
+         while (!s->decode_status) {
+             if (av_fifo_read(s->input_queue, &buffer, 1) >= 0)
+                 break;
+-            ff_cond_wait(&s->input_cond, &s->input_mutex);
++            int err = ff_cond_timedwait(&s->input_cond, &s->input_mutex, &deadline);
++            if (err) {
++                ff_mutex_unlock(&s->input_mutex);
++                av_log(avctx, AV_LOG_ERROR, "OHCodec input wait failed: %d\n", err);
++                return AVERROR(err);
++            }
+         }
+ 
+         ret = s->decode_status;
+@@ -695,18 +712,23 @@ static void oh_decode_flush(AVCodecContext *avctx)
+ {
+     OHCodecDecContext *s = avctx->priv_data;
+ 
+-    OH_VideoDecoder_Flush(s->dec);
++    OH_AVErrCode err = OH_VideoDecoder_Flush(s->dec);
++    av_packet_unref(&s->pkt);
+ 
+     ff_mutex_lock(&s->input_mutex);
+     ff_mutex_lock(&s->output_mutex);
+     av_fifo_reset2(s->input_queue);
+     av_fifo_reset2(s->output_queue);
+-    s->decode_status = 0;
++    s->decode_status = err == AV_ERR_OK ? 0 : ff_oh_err_to_ff_err(err);
+     s->eof_sent = false;
+     ff_mutex_unlock(&s->output_mutex);
+     ff_mutex_unlock(&s->input_mutex);
+ 
+-    OH_VideoDecoder_Start(s->dec);
++    if (err == AV_ERR_OK) {
++        err = OH_VideoDecoder_Start(s->dec);
++        if (err != AV_ERR_OK)
++            oh_decode_on_err(s->dec, err, avctx);
++    }
+ }
+ 
+ static const AVCodecHWConfigInternal *const oh_hw_configs[] = {
+-- 
+2.54.0 (Apple Git-157)
+
