@@ -34,7 +34,7 @@ Libraries included: `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、f
 - FFmpeg **8.1.2** is ready
 - HarmonyOS support includes pre-built libass and its font/text dependencies
 - Upgraded all libraries to latest, with improved optimizations
-- Built with macOS 15 and Xcode 16.4
+- Built with macOS 26 and Xcode 26.6
 
 ## Download/Install Pre-compiled Libs
 
