@@ -64,18 +64,14 @@ case $LIB_NAME in
         done
     ;;
     bluray)
-        if [[ $PLAT == all ]];then
-            install_dependencies -l 'xml2' -p ios
-            install_dependencies -l 'xml2' -p tvos
-            install_dependencies -l 'xml2' -p macos
-            install_dependencies -l 'xml2' -p android
-        elif [[ $PLAT == apple ]];then
-            install_dependencies -l 'xml2' -p ios
-            install_dependencies -l 'xml2' -p tvos
-            install_dependencies -l 'xml2' -p macos
-        else
-            install_dependencies -l 'xml2' -p $PLAT
-        fi
+        case $PLAT in
+            all) platforms=(ios macos tvos android ohos) ;;
+            apple) platforms=(ios macos tvos) ;;
+            *) platforms=("$PLAT") ;;
+        esac
+        for platform in "${platforms[@]}"; do
+            install_dependencies -l 'xml2' -p "$platform"
+        done
     ;;
     ffmpeg8)
         if [[ $PLAT == all ]];then
@@ -206,37 +202,27 @@ case $LIB_NAME in
         fi
     ;;
     harfbuzz)
-        if [[ $PLAT == all ]];then
-            install_dependencies -l 'freetype' -p ios
-            install_dependencies -l 'freetype' -p tvos
-            install_dependencies -l 'freetype' -p macos
-            install_dependencies -l 'freetype' -p android
-        elif [[ $PLAT == apple ]];then
-            install_dependencies -l 'freetype' -p ios
-            install_dependencies -l 'freetype' -p tvos
-            install_dependencies -l 'freetype' -p macos
-        else
-            install_dependencies -l 'freetype' -p $PLAT
-        fi
+        case $PLAT in
+            all) platforms=(ios macos tvos android ohos) ;;
+            apple) platforms=(ios macos tvos) ;;
+            *) platforms=("$PLAT") ;;
+        esac
+        for platform in "${platforms[@]}"; do
+            install_dependencies -l 'freetype' -p "$platform"
+        done
     ;;
     fontconfig)
-        if [[ $PLAT == all ]];then
-            install_dependencies -l 'xml2' -p ios
-            install_dependencies -l 'xml2' -p tvos
-            install_dependencies -l 'xml2' -p macos
-            install_dependencies -l 'xml2' -p android
-        elif [[ $PLAT == apple ]];then
-            install_dependencies -l 'xml2' -p ios
-            install_dependencies -l 'xml2' -p tvos
-            install_dependencies -l 'xml2' -p macos
-        else
-            install_dependencies -l 'xml2' -p $PLAT
-        fi
-        if [[ $PLAT == android || $PLAT == all ]];then
-            install_dependencies -p android -l 'freetype'
-        elif [[ $PLAT == ohos ]];then
-            install_dependencies -p ohos -l 'freetype'
-        fi
+        case $PLAT in
+            all) platforms=(ios macos tvos android ohos) ;;
+            apple) platforms=(ios macos tvos) ;;
+            *) platforms=("$PLAT") ;;
+        esac
+        for platform in "${platforms[@]}"; do
+            install_dependencies -l 'xml2' -p "$platform"
+            if [[ $platform == android || $platform == ohos ]]; then
+                install_dependencies -l 'freetype' -p "$platform"
+            fi
+        done
     ;;
     dvdnav)
         if [[ $PLAT == all ]];then
