@@ -147,16 +147,26 @@ def scan_zip(path, platform='all'):
     return sorted(found)
 
 
+def platform_of(name, default='all'):
+    """Platform of one archive, from the name the build assigns it."""
+    for platform in ('ios', 'tvos', 'macos', 'android', 'ohos'):
+        if f'-{platform}-' in name:
+            return platform
+    return default
+
+
 def markdown(directory, platform='all'):
-    """Release-note section describing every archive in the distribution directory."""
+    """Release-note bullets describing every archive in the distribution directory."""
     archives = sorted(p for p in Path(directory).glob('*.zip'))
-    lines = ['## Artifacts', '']
     if not archives:
-        lines.append('- none')
-        return '\n'.join(lines) + '\n'
+        return '- Architectures: unknown\n'
+    if len(archives) == 1:
+        archs = scan_zip(archives[0], platform_of(archives[0].name, platform))
+        return '- Architectures: ' + (', '.join(archs) if archs else 'unknown') + '\n'
+    lines = ['- Architectures:']
     for archive in archives:
-        archs = scan_zip(archive, platform)
-        lines.append(f'- `{archive.name}`: ' + (', '.join(archs) if archs else 'unknown'))
+        archs = scan_zip(archive, platform_of(archive.name, platform))
+        lines.append(f'  - `{archive.name}`: ' + (', '.join(archs) if archs else 'unknown'))
     return '\n'.join(lines) + '\n'
 
 

@@ -161,10 +161,40 @@ class Packaging(unittest.TestCase):
             make_zip(tmp, 'ass-ios-universal-0.17.5.zip',
                      {'ass/lib/libass.a': fat_macho([CPU_ARM64, CPU_X86_64])})
             text = notes.markdown(tmp, 'all')
-        self.assertIn('## Artifacts', text)
         self.assertIn('ass-ios-universal-0.17.5.zip', text)
         self.assertIn('ass-ohos-universal-0.17.5.zip', text)
         self.assertIn('arm64', text)
+
+    def test_single_archive_uses_one_bullet(self):
+        notes = module()
+        with tempfile.TemporaryDirectory() as tmp:
+            make_zip(tmp, 'ass-ohos-universal-0.17.5.zip',
+                     {'ass/lib/libass.a': ar_archive([elf(EM_AARCH64), elf(EM_X86_64)])})
+            text = notes.markdown(tmp, 'ohos')
+        self.assertEqual(text, '- Architectures: arm64, x86_64\n')
+
+    def test_no_heading_section(self):
+        notes = module()
+        with tempfile.TemporaryDirectory() as tmp:
+            make_zip(tmp, 'ass-ohos-universal-0.17.5.zip',
+                     {'ass/lib/libass.a': ar_archive([elf(EM_AARCH64)])})
+            text = notes.markdown(tmp, 'ohos')
+        self.assertNotIn('##', text)
+        self.assertNotIn('Artifacts', text)
+
+    def test_platform_is_inferred_per_archive(self):
+        notes = module()
+        self.assertEqual(notes.platform_of('ass-android-universal-0.17.5.zip'), 'android')
+        self.assertEqual(notes.platform_of('ass-ios-universal-simulator-0.17.5.zip'), 'ios')
+        self.assertEqual(notes.platform_of('ass-ohos-universal-0.17.5.zip'), 'ohos')
+        with tempfile.TemporaryDirectory() as tmp:
+            make_zip(tmp, 'ass-android-universal-0.17.5.zip',
+                     {'ass/lib/libass.a': ar_archive([elf(EM_ARM, bits=32)])})
+            make_zip(tmp, 'ass-ohos-universal-0.17.5.zip',
+                     {'ass/lib/libass.a': ar_archive([elf(EM_AARCH64)])})
+            text = notes.markdown(tmp, 'all')
+        self.assertIn('armeabi-v7a', text)
+        self.assertIn('ass-ohos-universal-0.17.5.zip`: arm64', text)
 
     def test_cli_prints_section(self):
         notes = module()
@@ -174,7 +204,6 @@ class Packaging(unittest.TestCase):
             result = subprocess.run(['python3', str(SCRIPT), tmp, 'ohos'],
                                     capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('## Artifacts', result.stdout)
         self.assertIn('arm64, x86_64', result.stdout)
 
 
