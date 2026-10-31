@@ -100,19 +100,30 @@ jobs:
           local lib_name=$1
           local platform=$Platform
           
+          # fontconfig is built for Android and HarmonyOS; the shared "all"
+          # selection still routes it to Android only.
           if [[ "$lib_name" == "fontconfig" ]]; then
             if [[ "$platform" == "all" ]]; then
               echo "force platform to android for fontconfig"
               platform='android'
-            elif [[ "$platform" != "android" ]]; then
+            elif [[ "$platform" != "android" && "$platform" != "ohos" ]]; then
               echo "Skip fontconfig for $platform"
               return
             fi
           fi
 
+          # dvdread/dvdnav belong to the ffmpeg7 chain and are not part of the
+          # HarmonyOS support surface.
+          if [[ "$lib_name" == "dvdread" || "$lib_name" == "dvdnav" ]]; then
+            if [[ "$platform" == "ohos" ]]; then
+              echo "Skip $lib_name for ohos"
+              return
+            fi
+          fi
+
           if [[ "$lib_name" == "webp" ]]; then
-            if [[ "$platform" == "android" ]]; then
-              echo "Skip webp for android"
+            if [[ "$platform" == "android" || "$platform" == "ohos" ]]; then
+              echo "Skip webp for $platform"
               return
             elif [[ "$platform" == "all" ]]; then
               echo "Skip webp for android"
@@ -161,7 +172,7 @@ jobs:
           fi
 
           echo "------compile $platform $lib_name------------------------------------"
-          rm -rf build || git reset --hard || git pull origin
+          rm -rf build || { echo 'cannot clean build directory' >&2; exit 1; }
           .github/workflows/install-dependencies.sh $lib_name $platform  # 补全依赖安装步骤
           .github/workflows/onestep.sh $lib_name $platform $Draft $Verbose
         }
@@ -195,6 +206,16 @@ jobs:
           libs=("${libs[@]:$start_index}")
         else
           echo "Warning: first_library $first not found in the library list."
+        fi
+
+        # ffmpeg8's HarmonyOS dependency set also includes soundtouch.
+        if [[ "$Platform" == "ohos" ]]; then
+          for i in "${!libs[@]}"; do
+            if [[ "${libs[$i]}" == "ffmpeg8" ]]; then
+              libs=("${libs[@]:0:$i}" "soundtouch" "${libs[@]:$i}")
+              break
+            fi
+          done
         fi
 
         # 循环遍历所有库执行编译
