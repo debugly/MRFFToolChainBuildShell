@@ -38,6 +38,14 @@ CFG_FLAGS=
 CFG_FLAGS="$CFG_FLAGS $COMMON_FF_CFG_FLAGS"
 CFG_FLAGS="$CFG_FLAGS $THIRD_CFG_FLAGS"
 
+# HTTPS is part of the OHOS playback contract, not an optional host probe.
+# Fail loudly rather than silently shipping an HTTP-only package.
+if ! pkg-config --exists openssl; then
+    echo "OpenSSL is required for OHOS HTTPS. Run: ./main.sh install -p ohos -l openssl3" >&2
+    exit 1
+fi
+CFG_FLAGS="$CFG_FLAGS --enable-openssl --enable-protocol=https --enable-protocol=tls"
+
 # OHCodec is opt-in in FFmpeg and the shared profile disables all decoders.
 # Older FFmpeg versions do not expose this option; keep their OHOS builds usable.
 if "$MR_BUILD_SOURCE/configure" --help | grep -- '--enable-ohcodec' >/dev/null; then
