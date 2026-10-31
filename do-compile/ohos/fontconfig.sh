@@ -15,5 +15,11 @@
 # limitations under the License.
 #
 
-# call common meson build shell
-./meson-compatible.sh "-Ddoc=disabled -Dtests=disabled -Dtools=disabled"
+set -e
+
+# fontconfig 2.18.3 meson.options declares nls as a feature option. Disable it
+# explicitly: auto can discover the host gettext archive during cross builds.
+./meson-compatible.sh "-Ddoc=disabled -Dtests=disabled -Dtools=disabled -Dnls=disabled"
+
+python3 "$(dirname "$0")/../../tools/check-ohos-fontconfig.py" \
+    --prefix "$MR_BUILD_PREFIX" --nm "$MR_NM"

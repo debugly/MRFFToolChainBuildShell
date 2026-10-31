@@ -117,6 +117,8 @@ brew install libtool
 
 Use `x86_64` instead of `arm64` for the emulator. The build checks required dependencies and cross-links a libass renderer program to verify its static dependencies; it does not run the program on the host.
 
+See [OHOS fontconfig NLS isolation and dual-ABI link validation](tools/portal-site/markdown/ohos-fontconfig-nls.md) for the host-gettext regression checks and verified support boundary.
+
 ## Libraries
 
 Current version and repository URLs of each library:

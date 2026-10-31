@@ -104,6 +104,8 @@ brew install libtool
 
 模拟器构建可将 `arm64` 改为 `x86_64`。构建会检查所需依赖，并交叉链接一个 libass 渲染器程序以验证静态依赖是否完整；该程序不会在宿主机上运行。
 
+宿主 gettext 污染的回归检查及真实双 ABI 编译/链接验收，见 [OHOS fontconfig NLS 隔离说明](tools/portal-site/markdown/ohos-fontconfig-nls.md)。
+
 ## 库明细
 
 每个库的名字、版本、仓库地址，如果克隆较慢可以设置仓库镜像地址。
