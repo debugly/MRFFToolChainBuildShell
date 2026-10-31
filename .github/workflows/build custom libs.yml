@@ -12,6 +12,7 @@ on:
           - macos-13
           - macos-14
           - macos-15
+          - macos-15-intel
           - macos-26
       platform:
         description: 'choose a platform for compile'
@@ -21,12 +22,13 @@ on:
         options:
           - apple
           - android
+          - ohos
           - ios
           - tvos
           - macos
           - all
       libraries:
-        description: 'input libraries for compile'
+        description: 'comma-separated libraries in dependency order'
         required: true
         default: 'xml2'
       draft:
@@ -50,9 +52,12 @@ on:
 
 name: build custom libs
 
+permissions:
+  contents: write
+
 jobs:
   build:
-    name: compile all libs for ${{ inputs.platform }} then deploy
+    name: compile ordered libraries for ${{ inputs.platform }} then deploy
     runs-on: ${{ inputs.os }}
     env:
       GH_TOKEN: ${{ github.token }}
@@ -60,13 +65,35 @@ jobs:
     - uses: nttld/setup-ndk@v1
       id: setup-ndk
       if: |
-        github.event.inputs.platform == 'all' || 
+        github.event.inputs.platform == 'all' ||
         github.event.inputs.platform == 'android'
       with:
         ndk-version: r27c
         add-to-path: true
         link-to-sdk: true
         local-cache: false
+    - name: Setup HarmonyOS native SDK
+      if: inputs.platform == 'ohos' || inputs.platform == 'all'
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [[ "$(uname -m)" != x86_64 ]]; then
+          echo 'The mirrored OHOS SDK requires an Intel runner; select macos-15-intel.' >&2
+          exit 1
+        fi
+        SDK_WORK="$RUNNER_TEMP/ohos-sdk"
+        mkdir -p "$SDK_WORK"
+        curl -fL --retry 3 --retry-delay 5 \
+          'https://github.com/debugly/MRFFToolChainBuildShell/releases/download/ohos-native-sdk-5.0.0.71/native.zip' \
+          -o "$SDK_WORK/native.zip"
+        unzip -q "$SDK_WORK/native.zip" -d "$SDK_WORK/native-sdk"
+        OHOS_NATIVE=$(find "$SDK_WORK/native-sdk" -type d -name native -print -quit)
+        if [[ -z "$OHOS_NATIVE" || ! -x "$OHOS_NATIVE/llvm/bin/clang" ]]; then
+          echo 'OHOS native SDK clang was not found after extraction.' >&2
+          exit 1
+        fi
+        echo "OHOS_SDK_NATIVE=$OHOS_NATIVE" >> "$GITHUB_ENV"
+        "$OHOS_NATIVE/llvm/bin/clang" --version
     - name: Checkout code
       uses: actions/checkout@v5
     - name: Install cargo-c
@@ -76,18 +103,19 @@ jobs:
         tool: cargo-c
     - name: One Step
       run: |
-        Platform=${{ inputs.platform }}
-        Draft=${{ inputs.draft }}
-        Verbose=${{ inputs.verbose }}
+        set -euo pipefail
+        Platform="$BUILD_PLATFORM"
+        Draft="$BUILD_DRAFT"
+        Verbose="$BUILD_VERBOSE"
         compile_lib() {
           local lib_name=$1
           local platform=$Platform
-          
+
           if [[ "$lib_name" == "fontconfig" ]]; then
             if [[ "$platform" == "all" ]]; then
               echo "force platform to android for fontconfig"
               platform='android'
-            elif [[ "$platform" != "android" ]]; then
+            elif [[ "$platform" != "android" && "$platform" != "ohos" ]]; then
               echo "Skip fontconfig for $platform"
               return
             fi
@@ -104,15 +132,26 @@ jobs:
           fi
 
           echo "------compile $platform $lib_name------------------------------------"
-          rm -rf build || git reset --hard || git pull origin
-          .github/workflows/install-dependencies.sh $lib_name $platform  # 补全依赖安装步骤
-          .github/workflows/onestep.sh $lib_name $platform $Draft $Verbose
+          rm -rf -- build
+          .github/workflows/install-dependencies.sh "$lib_name" "$platform"
+          .github/workflows/onestep.sh "$lib_name" "$platform" "$Draft" "$Verbose"
         }
-        
-        # 将逗号分隔转为循环处理
-        IFS=',' read -ra ADDR <<< "${{ inputs.libraries }}"
+
+        [[ -n "$BUILD_LIBRARIES" ]] || { echo 'No libraries specified.' >&2; exit 1; }
+        IFS=',' read -ra ADDR <<< "$BUILD_LIBRARIES"
+        # Validate the complete list before installing or publishing any library.
+        for lib in "${ADDR[@]}"; do
+          if [[ ! "$lib" =~ ^[a-zA-Z0-9_-]+$ || ! -f "configs/libs/$lib.sh" ]]; then
+            echo "Invalid or unknown library: $lib" >&2
+            exit 1
+          fi
+        done
         for lib in "${ADDR[@]}"; do
           compile_lib "$lib"
         done
       env:
+        BUILD_PLATFORM: ${{ inputs.platform }}
+        BUILD_DRAFT: ${{ inputs.draft }}
+        BUILD_VERBOSE: ${{ inputs.verbose }}
+        BUILD_LIBRARIES: ${{ inputs.libraries }}
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
