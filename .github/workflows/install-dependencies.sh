@@ -83,6 +83,7 @@ case $LIB_NAME in
             install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p tvos
             install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p macos
             install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2 soundtouch' -p android
+            install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2 soundtouch' -p ohos
         elif [[ $PLAT == apple ]];then
             install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p ios
             install_dependencies -l 'openssl3 opus bluray dav1d uavs3d smb2 webp' -p tvos
