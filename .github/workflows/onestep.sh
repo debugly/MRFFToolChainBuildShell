@@ -311,6 +311,7 @@ function publish()
     local combined_notes_file="${RELEASE_NOTES_FILE%.md}-with-changelog.md"
     {
         cat "$RELEASE_NOTES_FILE"
+        python3 .github/workflows/artifact-notes.py "$DIST_DIR" "$PLAT"
         printf '\n## Changelog\n\n%s\n' "$changelog"
     } > "$combined_notes_file"
     gh release create "$TAG" --target "$target_commit" -t "$TITLE" $DIST_DIR/* --notes-file "$combined_notes_file" "${release_args[@]}"
