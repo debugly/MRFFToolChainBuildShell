@@ -59,4 +59,3 @@ case $1 in
         note_version 'OHOS SDK' python3 -c 'import json, sys; d=json.load(open(sys.argv[1])); print(d["version"], "API " + str(d["apiVersion"]))' "$native_root/oh-uni-package.json"
         ;;
 esac
-printf '\n'

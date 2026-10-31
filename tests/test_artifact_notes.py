@@ -214,6 +214,14 @@ class ReleaseNotesWiring(unittest.TestCase):
         publish = publish[:publish.index('\n}\n')]
         self.assertIn('artifact-notes.py', publish)
 
+    def test_toolchain_notes_end_without_blank_gap(self):
+        result = subprocess.run(['zsh', str(TOOLCHAIN), 'ohos'],
+                                capture_output=True, text=True,
+                                env={'PATH': '/usr/bin:/bin:/usr/sbin:/sbin'})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(result.stdout.endswith('\n'))
+        self.assertFalse(result.stdout.endswith('\n\n'))
+
     def test_toolchain_notes_drop_host_default_target(self):
         text = TOOLCHAIN.read_text()
         self.assertNotIn('InstalledDir', text)
