@@ -96,7 +96,10 @@ Run deterministic installer, archive-safety and workflow regression tests with:
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-At initial integration all 18 tests passed. Real macOS 26 ARM64/Intel CI
-acceptance is tracked separately; a local macOS host test is not a substitute
-for either runner's result. Test Release runs use `draft=true`, leaving
-published consumer dependency pins unchanged.
+At initial integration all 18 installer/workflow tests passed. The combined
+suite, including fontconfig isolation regressions, contains 24 tests. Actual
+`Test Release` runs on both `macos-26` (ARM64) and `macos-26-intel` succeeded:
+each downloaded the public mirror, verified its SHA256, checked SDK 5.0.3.135 /
+API 15 metadata and native compiler architecture, then built the OHOS test
+package. These test releases used `draft=true`, leaving published consumer
+dependency pins unchanged. This does not establish device runtime compatibility.

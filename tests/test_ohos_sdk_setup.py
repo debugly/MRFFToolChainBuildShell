@@ -201,7 +201,7 @@ class InstallationTests(unittest.TestCase):
                  mock.patch.object(sdk, 'validate_sdk') as validate:
                 self.assertEqual(sdk.main(args), 0)
                 native = validate.call_args.args[0]
-                self.assertTrue(native.is_relative_to(root / 'work'))
+                self.assertTrue(native.is_relative_to((root / 'work').resolve()))
                 self.assertEqual((native / 'NOTICE').read_text(), 'notice')
                 self.assertEqual(env.read_text(), f'OHOS_SDK_NATIVE={native}\n')
             env.unlink()
@@ -214,7 +214,7 @@ class InstallationTests(unittest.TestCase):
                  mock.patch.object(sdk, 'validate_sdk') as validate, \
                  mock.patch.dict(os.environ, {'RUNNER_TEMP': str(root / 'runner'), 'GITHUB_ENV': str(env)}):
                 self.assertEqual(sdk.main(['--manifest', str(manifest), '--archive', str(archive)]), 0)
-                self.assertTrue(validate.call_args.args[0].is_relative_to(root / 'runner'))
+                self.assertTrue(validate.call_args.args[0].is_relative_to((root / 'runner').resolve()))
 
 
 class WorkflowTests(unittest.TestCase):
