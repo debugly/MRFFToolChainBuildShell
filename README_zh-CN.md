@@ -91,6 +91,8 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 
 将 `OHOS_SDK_NATIVE` 指向鸿蒙 SDK 的 `native/` 目录（也支持 `OHOS_NATIVE_HOME`，或通过 `OHOS_SDK_HOME` 查找 SDK 内的 `native/` 目录）。macOS 上的 autotools 构建需要 Homebrew 的 GNU libtool（`glibtool`）。
 
+CI 使用统一的 **5.0.3.135 / API 15** SDK 基线，由共享安装器按宿主 CPU 自动选择 ARM64 或 Intel 镜像。详见 [SDK 来源、兼容性边界与验证方法](configs/ohos-sdk.md)。上表 API 12 为历史构建基线；使用 API 15 SDK 重编后的产物尚未重新验证 API 12 设备运行兼容性。
+
 ```bash
 export OHOS_SDK_NATIVE=/path/to/ohos-sdk/native
 brew install libtool

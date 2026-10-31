@@ -104,6 +104,8 @@ The order of these parameters does not matter; they can be arranged in any seque
 
 Set `OHOS_SDK_NATIVE` to the HarmonyOS SDK's `native/` directory. `OHOS_NATIVE_HOME` is also supported; alternatively, set `OHOS_SDK_HOME` to search for `native/` within the SDK. On macOS, autotools builds require Homebrew's GNU libtool (`glibtool`).
 
+CI uses host-native ARM64 or Intel SDK mirrors pinned to **5.0.3.135 / API 15**, selected automatically by the shared installer. See [SDK provenance, compatibility boundaries and validation](configs/ohos-sdk.md). The API 12 deployment row above describes the historical baseline; API 12 runtime compatibility of newly rebuilt artifacts has not been revalidated with the API 15 SDK.
+
 ```bash
 export OHOS_SDK_NATIVE=/path/to/ohos-sdk/native
 brew install libtool

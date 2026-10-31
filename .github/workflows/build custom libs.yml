@@ -14,6 +14,7 @@ on:
           - macos-15
           - macos-15-intel
           - macos-26
+          - macos-26-intel
       platform:
         description: 'choose a platform for compile'
         required: false
@@ -62,6 +63,12 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+    - name: Setup HarmonyOS native SDK
+      if: inputs.platform == 'ohos' || inputs.platform == 'all'
+      shell: bash
+      run: python3 .github/workflows/setup-ohos-sdk.py
     - uses: nttld/setup-ndk@v1
       id: setup-ndk
       if: |
@@ -72,30 +79,6 @@ jobs:
         add-to-path: true
         link-to-sdk: true
         local-cache: false
-    - name: Setup HarmonyOS native SDK
-      if: inputs.platform == 'ohos' || inputs.platform == 'all'
-      shell: bash
-      run: |
-        set -euo pipefail
-        if [[ "$(uname -m)" != x86_64 ]]; then
-          echo 'The mirrored OHOS SDK requires an Intel runner; select macos-15-intel.' >&2
-          exit 1
-        fi
-        SDK_WORK="$RUNNER_TEMP/ohos-sdk"
-        mkdir -p "$SDK_WORK"
-        curl -fL --retry 3 --retry-delay 5 \
-          'https://github.com/debugly/MRFFToolChainBuildShell/releases/download/ohos-native-sdk-5.0.0.71/native.zip' \
-          -o "$SDK_WORK/native.zip"
-        unzip -q "$SDK_WORK/native.zip" -d "$SDK_WORK/native-sdk"
-        OHOS_NATIVE=$(find "$SDK_WORK/native-sdk" -type d -name native -print -quit)
-        if [[ -z "$OHOS_NATIVE" || ! -x "$OHOS_NATIVE/llvm/bin/clang" ]]; then
-          echo 'OHOS native SDK clang was not found after extraction.' >&2
-          exit 1
-        fi
-        echo "OHOS_SDK_NATIVE=$OHOS_NATIVE" >> "$GITHUB_ENV"
-        "$OHOS_NATIVE/llvm/bin/clang" --version
-    - name: Checkout code
-      uses: actions/checkout@v5
     - name: Install cargo-c
       if: contains(inputs.libraries, 'dovi')
       uses: taiki-e/install-action@v2

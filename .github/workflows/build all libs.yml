@@ -13,6 +13,7 @@ on:
           - macos-14
           - macos-15
           - macos-26
+          - macos-26-intel
       platform:
         description: 'choose a platform for compile'
         required: false
@@ -21,6 +22,7 @@ on:
         options:
           - apple
           - android
+          - ohos
           - ios
           - tvos
           - macos
@@ -92,6 +94,12 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+    - name: Setup HarmonyOS native SDK
+      if: inputs.platform == 'ohos' || inputs.platform == 'all'
+      shell: bash
+      run: python3 .github/workflows/setup-ohos-sdk.py
     - uses: nttld/setup-ndk@v1
       id: setup-ndk
       if: |
@@ -102,8 +110,6 @@ jobs:
         add-to-path: true
         link-to-sdk: true
         local-cache: false
-    - name: Checkout code
-      uses: actions/checkout@v5
     - name: Install cargo-c
       uses: taiki-e/install-action@v2
       with:

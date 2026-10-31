@@ -1,0 +1,20 @@
+{
+  "version": "5.0.3.135",
+  "api_version": "15",
+  "hosts": {
+    "darwin-arm64": {
+      "url": "https://github.com/debugly/MRFFToolChainBuildShell/releases/download/ohos-native-sdk-5.0.3.135/native-darwin-arm64-5.0.3.135.zip",
+      "sha256": "12f7ae19fd9aa1b78e27d5349fc7604a3d30dce91d433047748747ed16f42de2",
+      "source_url": "https://repo.huaweicloud.com/openharmony/os/5.0.3-Release/L2-SDK-MAC-M1-PUBLIC.tar.gz",
+      "source_sha256": "d43e8c69e079076b8b14e3d4dc368c83d47a0cb3187c47aa3d83fa98d9a7928d",
+      "source_member": "sdk/packages/ohos-sdk/darwin/native-darwin-arm64-5.0.3.135-Release.zip"
+    },
+    "darwin-x86_64": {
+      "url": "https://github.com/debugly/MRFFToolChainBuildShell/releases/download/ohos-native-sdk-5.0.3.135/native-darwin-x86_64-5.0.3.135.zip",
+      "sha256": "84c603e21450f013e79dbf9471a708024c8cbb5b21f7ee08f9fa732ed6f2bd02",
+      "source_url": "https://repo.huaweicloud.com/openharmony/os/5.0.3-Release/ohos-sdk-mac-public.tar.gz",
+      "source_sha256": "1fa1c67cc025994f7083d7e8bbe5ed7ad57959ceec56c91d609e30c30e2c00e8",
+      "source_member": "sdk/packages/ohos-sdk/darwin/native-darwin-x64-5.0.3.135-Release.zip"
+    }
+  }
+}
