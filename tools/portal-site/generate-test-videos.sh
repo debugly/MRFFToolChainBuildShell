@@ -337,6 +337,64 @@ build_color_chart() {
     "${cmd[@]}"
 }
 
+# render_counter_frames <out> <fps> <last-frame> <font|empty>
+# Last resort when no ffmpeg on the machine can draw text: Pillow paints the
+# frames and pipes them into ffmpeg as raw RGB. Same layout as the drawtext
+# version, so the published clip does not change appearance.
+render_counter_frames() {
+    local out=$1 fps=$2 total=$3 font=$4 script
+    script=$(mktemp "${TMPDIR:-/tmp}/frame_counter.XXXXXX.py")
+    cat > "$script" <<'PYEOF'
+import subprocess
+import sys
+
+from PIL import Image, ImageDraw, ImageFont
+
+out, w, h, fps, last = sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5])
+font_path, ffmpeg = sys.argv[6], sys.argv[7]
+scale = h / 1080.0
+
+def load(size):
+    try:
+        return ImageFont.truetype(font_path, int(size * scale))
+    except OSError:
+        return ImageFont.load_default()
+
+big, mid, small = load(300), load(72), load(40)
+tints = [(20, 26, 34), (34, 20, 26), (20, 34, 26), (30, 30, 20)]
+
+proc = subprocess.Popen(
+    [ffmpeg, "-y", "-hide_banner", "-loglevel", "error",
+     "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{w}x{h}", "-r", str(fps), "-i", "-",
+     "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p", "-movflags", "+faststart", out],
+    stdin=subprocess.PIPE)
+
+for n in range(last + 1):
+    sec = n // fps
+    img = Image.new("RGB", (w, h), tints[sec % len(tints)])
+    d = ImageDraw.Draw(img)
+    for x in range(0, w, int(60 * scale)):
+        d.line([(x, 0), (x, h)], fill=(38, 44, 52))
+    for y in range(0, h, int(120 * scale)):
+        d.line([(0, y), (w, y)], fill=(38, 44, 52))
+
+    num = str(n)
+    d.text(((w - d.textlength(num, font=big)) / 2, h / 2 - 200 * scale), num, font=big, fill=(255, 255, 255))
+    tc = f"{sec // 3600:02d}:{sec // 60 % 60:02d}:{sec % 60:02d}.{n % fps:02d}"
+    d.text(((w - d.textlength(tc, font=mid)) / 2, h / 2 + 130 * scale), tc, font=mid, fill=(255, 220, 60))
+    d.text((40, 40), f"{fps} fps  frame {n} / {last}", font=small, fill=(150, 150, 150))
+    d.rectangle([0, h - 12, int(w * n / last), h - 1], fill=(255, 60, 60))
+    proc.stdin.write(img.tobytes())
+
+proc.stdin.close()
+proc.wait()
+if proc.returncode != 0:
+    sys.exit(proc.returncode)
+PYEOF
+    python3 "$script" "$out" "$CARD_W" "$CARD_H" "$fps" "$total" "$font" "$FFMPEG_BIN"
+    rm -f "$script"
+}
+
 # build_frame_counter <output>
 # Same layout as the reference clip: a background tint that changes every
 # second, a reference grid, the frame number, its timecode, a "frame N / last"
@@ -372,6 +430,10 @@ build_frame_counter() {
         filters+=("drawtext=fontfile=${font}:text='%{pts\\:hms}':fontcolor=0xffdc3c:fontsize=72:x=(w-tw)/2:y=h-200")
         filters+=("drawtext=fontfile=${font}:text='60 fps  frame %{n} / ${total}':fontcolor=0x969696:fontsize=40:x=40:y=40")
         cmd=("$text_ffmpeg")
+    elif python3 -c "import PIL" >/dev/null 2>&1; then
+        echo -e "\033[34m[*] Frame counter: numbered (Pillow; no ffmpeg here has drawtext)...\033[0m"
+        render_counter_frames "$out" "$fps" "$total" "$font"
+        return
     else
         echo -e "\033[33m[!] No drawtext filter (or font) in any ffmpeg: frame counter shows the frame number in binary instead.\033[0m"
         x0=$(( (CARD_W - (8 * bw + 7 * gap)) / 2 ))

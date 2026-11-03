@@ -41,6 +41,15 @@ jobs:
       - name: Install Homebrew ffmpeg (alpha video encoders)
         run: HOMEBREW_NO_AUTO_UPDATE=1 brew install ffmpeg
 
+      # The frame counter must show digits. Neither the toolchain ffmpeg8-bin nor
+      # Homebrew's ffmpeg enables libfreetype, so the drawtext filter is missing and
+      # generate-test-videos.sh falls back to rendering frames with Pillow. Install
+      # it (and fail here if the import breaks, instead of publishing binary bits).
+      - name: Install Pillow for the frame counter
+        run: |
+          pip3 install pillow --break-system-packages
+          python3 -c "import PIL; print('Pillow', PIL.__version__)"
+
       - name: Build Portal & Feature Matrix (with Test Videos)
         run: |
           chmod +x ./tools/portal-site/*.sh

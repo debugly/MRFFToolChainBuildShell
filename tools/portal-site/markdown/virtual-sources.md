@@ -127,8 +127,10 @@ ffmpeg -f lavfi -i "gradients=s=1920x1080:r=30:c0=black:c1=white:x0=0:y0=0:x1=19
 Every frame is numbered with its timecode over a background that changes tint every second, with a red
 progress bar that fills across the clip. A repeated number or a tint that stops changing is a frozen
 frame, a skipped number is a dropped frame, and after a seek the number must match the timecode.
-Numbers need the `drawtext` filter; builds without it (freetype is optional) show the frame number as
-eight binary boxes instead.
+Numbers need the `drawtext` filter, which requires freetype — the toolchain build and the Homebrew
+ffmpeg both leave it out, so the generator renders the frames with Pillow and pipes them in as raw
+video instead (same layout, `pip3 install pillow` in the workflow). Only when Pillow is missing as well
+does it fall back to eight binary boxes.
 
 ```bash
 ffmpeg -f lavfi -i "color=c=0x141414:s=1920x1080:r=60" \
