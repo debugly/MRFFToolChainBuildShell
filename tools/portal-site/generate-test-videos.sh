@@ -296,9 +296,10 @@ CHART_PATCHES=(
     000000 1a1a1a 333333 666666 999999 cccccc ffffff ffffff
 )
 
-# build_color_chart <output> <with 1 kHz tone: 0|1>
+# build_color_chart <output>
+# Video only: the sync beep pass at the end of the script supplies the audio.
 build_color_chart() {
-    local out=$1 with_tone=$2
+    local out=$1
     local cols=8 rows=6
     local grid_h=$(( CARD_H * 5 / 6 ))
     local pw=$(( CARD_W / cols ))
@@ -331,13 +332,7 @@ build_color_chart() {
     cmd=("$FFMPEG_BIN" -hide_banner -y
         -f lavfi -i "color=c=black:s=${CARD_W}x${CARD_H}:r=${CARD_FPS}"
         -f lavfi -i "gradients=s=${CARD_W}x${ramp_h}:r=${CARD_FPS}:c0=black:c1=white:x0=0:y0=0:x1=$(( CARD_W - 1 )):y1=0:type=linear")
-    if [[ "$with_tone" == 1 ]]; then
-        cmd+=(-f lavfi -i "sine=frequency=1000:sample_rate=48000")
-    fi
     cmd+=(-filter_complex "[0:v]${chain}[patches];[patches][1:v]overlay=0:${grid_h}[cat];[cat]negate=enable='eq(mod(floor(t)\\,2)\\,1)'[out]" -map "[out]")
-    if [[ "$with_tone" == 1 ]]; then
-        cmd+=(-map 2:a -af "volume=0.12,aformat=channel_layouts=stereo" -c:a aac -b:a 160k -shortest)
-    fi
     cmd+=(-t "$CARD_DURATION" -c:v libx264 -crf 16 -pix_fmt yuv420p -movflags +faststart "$out")
     "${cmd[@]}"
 }
@@ -396,16 +391,11 @@ build_frame_counter() {
         -map "[out]" -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart "$out"
 }
 
-echo -e "\033[34m[*] Test card: colour chart + 1 kHz tone (colour / contrast / A/V sync)...\033[0m"
-build_color_chart "$OUTPUT_DIR/card_colorchart.mp4" 1
+echo -e "\033[34m[*] Test card: colour chart, inverted every second (colour / contrast / frozen frame)...\033[0m"
+build_color_chart "$OUTPUT_DIR/card_colorchart.mp4"
 
-echo -e "\033[34m[*] Test card: colour chart, silent (pixel measurement)...\033[0m"
-build_color_chart "$OUTPUT_DIR/card_colorchart_silent.mp4" 0
-
-echo -e "\033[34m[*] Test card: SMPTE HD bars + 1 kHz tone...\033[0m"
+echo -e "\033[34m[*] Test card: SMPTE HD bars...\033[0m"
 "$FFMPEG_BIN" -hide_banner -y -f lavfi -i "smptehdbars=size=${CARD_W}x${CARD_H}:rate=${CARD_FPS}" \
-    -f lavfi -i "sine=frequency=1000:sample_rate=48000" \
-    -af "volume=0.12,aformat=channel_layouts=stereo" -c:a aac -b:a 160k -shortest \
     -t "$CARD_DURATION" \
     -c:v libx264 -crf 16 -pix_fmt yuv420p \
     -y "$OUTPUT_DIR/card_smptebars.mp4"
