@@ -21,6 +21,12 @@ export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-ffprobe"
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-indev=lavfi,testsrc,sine"
 export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-encoder=aac"
 
+# freetype 让 drawtext 滤镜可用（生成测试图卡的帧号/时码）；ffmpeg 8 起 drawtext 的
+# 依赖是 "libfreetype libharfbuzz"，两个都要开，缺一个 configure 就不会启用该滤镜。
+# 依赖由 .github/workflows/install-dependencies.sh 里的 ass 传递安装（ass → harfbuzz → freetype）。
+export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-libfreetype"
+export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-libharfbuzz"
+
 if [[ "$MR_PLAT" == "macos" ]]; then
     export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-indev=avfoundation,openal"
     export COMMON_FF_CFG_FLAGS="$COMMON_FF_CFG_FLAGS --enable-outdev=audiotoolbox"
