@@ -334,7 +334,7 @@ build_color_chart() {
     if [[ "$with_tone" == 1 ]]; then
         cmd+=(-f lavfi -i "sine=frequency=1000:sample_rate=48000")
     fi
-    cmd+=(-filter_complex "[0:v]${chain}[patches];[patches][1:v]overlay=0:${grid_h}[out]" -map "[out]")
+    cmd+=(-filter_complex "[0:v]${chain}[patches];[patches][1:v]overlay=0:${grid_h}[cat];[cat]negate=enable='eq(mod(floor(t)\\,2)\\,1)'[out]" -map "[out]")
     if [[ "$with_tone" == 1 ]]; then
         cmd+=(-map 2:a -af "volume=0.12,aformat=channel_layouts=stereo" -c:a aac -b:a 160k -shortest)
     fi
@@ -343,10 +343,19 @@ build_color_chart() {
 }
 
 # build_frame_counter <output>
+# Same layout as the reference clip: a background tint that changes every
+# second, a reference grid, the frame number, its timecode, a "frame N / last"
+# readout and a progress bar that grows to full width.
+#   frozen frame  -> number and tint stop advancing
+#   dropped frame -> a number is skipped
+#   bad seek      -> number and timecode disagree
 build_frame_counter() {
-    local out=$1 font="" candidate text_ffmpeg
+    local out=$1 font="" candidate text_ffmpeg total chain
     local -a filters=() cmd=()
-    local bit x x0 bw=110 gap=24 chain
+    local bit x x0 bw=110 gap=24
+    local fps=60
+
+    total=$(( CARD_DURATION * fps - 1 ))
 
     for candidate in /System/Library/Fonts/Supplemental/Arial.ttf \
                      /System/Library/Fonts/Supplemental/Helvetica.ttc \
@@ -355,27 +364,36 @@ build_frame_counter() {
     done
     text_ffmpeg=$(ffmpeg_with_filter drawtext || true)
 
+    # shared chrome: per-second background tint + reference grid
+    filters+=("drawbox=x=0:y=0:w=iw:h=ih:color=0x141a22:t=fill:enable='eq(mod(floor(t)\\,4)\\,0)'")
+    filters+=("drawbox=x=0:y=0:w=iw:h=ih:color=0x22141a:t=fill:enable='eq(mod(floor(t)\\,4)\\,1)'")
+    filters+=("drawbox=x=0:y=0:w=iw:h=ih:color=0x14221a:t=fill:enable='eq(mod(floor(t)\\,4)\\,2)'")
+    filters+=("drawbox=x=0:y=0:w=iw:h=ih:color=0x1e1e14:t=fill:enable='eq(mod(floor(t)\\,4)\\,3)'")
+    filters+=("drawgrid=width=60:height=120:thickness=1:color=0x262c34")
+
     if [[ -n "$text_ffmpeg" && -n "$font" ]]; then
         echo -e "\033[34m[*] Frame counter: numbered (drawtext, ${font##*/})...\033[0m"
-        "$text_ffmpeg" -hide_banner -y -f lavfi -i "color=c=0x141414:s=${CARD_W}x${CARD_H}:r=60" \
-            -t "$CARD_DURATION" \
-            -vf "drawtext=fontfile=${font}:text='%{n}':fontcolor=white:fontsize=200:x=(w-tw)/2:y=(h-th)/2,drawtext=fontfile=${font}:text='%{pts\\:hms}':fontcolor=yellow:fontsize=52:x=(w-tw)/2:y=h-150,drawtext=fontfile=${font}:text='60 fps  frame %{n}':fontcolor=gray:fontsize=32:x=40:y=40" \
-            -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart "$out"
-        return
+        filters+=("drawtext=fontfile=${font}:text='%{n}':fontcolor=white:fontsize=300:x=(w-tw)/2:y=(h-th)/2")
+        filters+=("drawtext=fontfile=${font}:text='%{pts\\:hms}':fontcolor=0xffdc3c:fontsize=72:x=(w-tw)/2:y=h-200")
+        filters+=("drawtext=fontfile=${font}:text='60 fps  frame %{n} / ${total}':fontcolor=0x969696:fontsize=40:x=40:y=40")
+        cmd=("$text_ffmpeg")
+    else
+        echo -e "\033[33m[!] No drawtext filter (or font) in any ffmpeg: frame counter shows the frame number in binary instead.\033[0m"
+        x0=$(( (CARD_W - (8 * bw + 7 * gap)) / 2 ))
+        for bit in 0 1 2 3 4 5 6 7; do
+            x=$(( x0 + bit * (bw + gap) ))
+            filters+=("drawbox=x=${x}:y=$(( CARD_H / 2 - bw / 2 )):w=${bw}:h=${bw}:color=0x30e060:t=fill:enable='eq(mod(floor(n/pow(2\\,${bit}))\\,2)\\,1)'")
+        done
+        cmd=("$FFMPEG_BIN")
     fi
 
-    echo -e "\033[33m[!] No drawtext filter (or font) in any ffmpeg: frame counter shows the frame number in binary instead.\033[0m"
-    x0=$(( (CARD_W - (8 * bw + 7 * gap)) / 2 ))
-    for bit in 0 1 2 3 4 5 6 7; do
-        x=$(( x0 + bit * (bw + gap) ))
-        filters+=("drawbox=x=${x}:y=$(( CARD_H / 2 - bw / 2 )):w=${bw}:h=${bw}:color=0x30e060:t=fill:enable='eq(mod(floor(n/pow(2\\,${bit}))\\,2)\\,1)'")
-    done
-    # flash on the first two frames of every second
-    filters+=("drawbox=x=$(( CARD_W / 2 - 40 )):y=$(( CARD_H / 2 + 140 )):w=80:h=80:color=white:t=fill:enable='lt(mod(n\\,60)\\,2)'")
     chain=$(IFS=,; echo "${filters[*]}")
-    "$FFMPEG_BIN" -hide_banner -y -f lavfi -i "color=c=0x141414:s=${CARD_W}x${CARD_H}:r=60" \
-        -t "$CARD_DURATION" -vf "$chain" \
-        -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart "$out"
+    "${cmd[@]}" -hide_banner -y \
+        -f lavfi -i "color=c=0x141414:s=${CARD_W}x${CARD_H}:r=${fps}" \
+        -f lavfi -i "color=c=0xff3c3c:s=${CARD_W}x12:r=${fps}" \
+        -t "$CARD_DURATION" \
+        -filter_complex "[0:v]${chain}[base];[base][1:v]overlay=x='-overlay_w*(1-n/${total})':y=$(( CARD_H - 12 )):shortest=1[out]" \
+        -map "[out]" -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart "$out"
 }
 
 echo -e "\033[34m[*] Test card: colour chart + 1 kHz tone (colour / contrast / A/V sync)...\033[0m"
