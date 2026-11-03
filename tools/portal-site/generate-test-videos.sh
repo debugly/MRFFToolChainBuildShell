@@ -222,20 +222,6 @@ echo -e "\033[34m[*] Generating Showcase: testsrc2 (Modern color bars)...\033[0m
     -c:v libx264 \
     -y "$OUTPUT_DIR/vsrc_testsrc2.mp4"
 
-echo -e "\033[34m[*] Generating Showcase: sine (1000Hz tone with static background)...\033[0m"
-"$FFMPEG_BIN" -t "${DURATION}" -f lavfi -i "color=color=darkblue:size=640x360:rate=30" \
-    -t "${DURATION}" -f lavfi -i "sine=frequency=1000" \
-    -pix_fmt yuv420p \
-    -c:v libx264 \
-    -c:a aac \
-    -y "$OUTPUT_DIR/vsrc_sine.mp4"
-
-echo -e "\033[34m[*] Generating Showcase: color (Solid green background)...\033[0m"
-"$FFMPEG_BIN" -t "${DURATION}" -f lavfi -i "color=color=0x1a823b:size=640x360:rate=30" \
-    -pix_fmt yuv420p \
-    -c:v libx264 \
-    -y "$OUTPUT_DIR/vsrc_color.mp4"
-
 echo -e "\033[34m[*] Generating Showcase: mandelbrot (Mandelbrot fractal zoom)...\033[0m"
 "$FFMPEG_BIN" -t "${DURATION}" -f lavfi -i "mandelbrot=size=640x360:rate=30" \
     -pix_fmt yuv420p \
@@ -265,6 +251,178 @@ echo -e "\033[34m[*] Generating Showcase: colorchart (24-color reference chart).
     -pix_fmt yuv420p \
     -c:v libx264 \
     -y "$OUTPUT_DIR/vsrc_colorchart.mp4"
+
+# ---------------------------------------------------------------------
+# REFERENCE TEST CARDS: colour chart, SMPTE bars, banding ramp, frame counter
+# ---------------------------------------------------------------------
+# Calibration material for a display, TV, capture card or player. Everything
+# is drawn with filters, so no assets ship with the repo.
+#
+# Frame numbers need the drawtext filter, which depends on an optional
+# build-time dependency (freetype) -- the toolchain build may not have it.
+# Probe for the filter and fall back to a pure-filter bit counter: eight
+# boxes show the frame number in binary (LSB left), a white square flashes
+# on every new second.
+CARD_W=${CARD_W:-1920}
+CARD_H=${CARD_H:-1080}
+CARD_FPS=${CARD_FPS:-30}
+CARD_DURATION=${CARD_DURATION:-$DURATION}
+
+echo "=========================================================="
+echo -e "\033[35m[*] Section 7: Generating Reference Test Cards...\033[0m"
+echo "=========================================================="
+
+# echo the first ffmpeg (toolchain build, then the system one) providing $1 as filter
+ffmpeg_with_filter() {
+    local filter=$1 candidate
+    for candidate in "$FFMPEG_BIN" "$(command -v ffmpeg 2>/dev/null)" /opt/homebrew/bin/ffmpeg /usr/local/bin/ffmpeg; do
+        [[ -n "$candidate" && -x "$candidate" ]] || continue
+        if "$candidate" -hide_banner -filters 2>/dev/null | awk '{print $2}' | grep -qx "$filter"; then
+            echo "$candidate"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# 8 x 6 patch matrix, left to right / top to bottom:
+#   primaries, 75 % bars, grayscale ladder, skin tones, saturated ramps, IRE steps
+CHART_PATCHES=(
+    ffffff ffff00 00ffff 00ff00 ff00ff ff0000 0000ff 000000
+    bfbf00 00bfbf 00bf00 bf00bf bf0000 0000bf 101010 ebebeb
+    e6e6e6 cccccc b3b3b3 999999 808080 666666 4d4d4d 333333
+    f2cdb2 e0ac8a b27c5c 784e38 ff8000 8000ff 804020 008080
+    ff4040 40ff40 4040ff ffff40 40ffff ff40ff 181818 f6f6f6
+    000000 1a1a1a 333333 666666 999999 cccccc ffffff ffffff
+)
+
+# build_color_chart <output> <with 1 kHz tone: 0|1>
+build_color_chart() {
+    local out=$1 with_tone=$2
+    local cols=8 rows=6
+    local grid_h=$(( CARD_H * 5 / 6 ))
+    local pw=$(( CARD_W / cols ))
+    local ph=$(( grid_h / rows ))
+    local strip_h=$(( CARD_H - grid_h ))
+    local ramp_h=$(( strip_h * 7 / 10 ))
+    local -a filters=() cmd=()
+    local i c r v hex chain
+
+    for i in "${!CHART_PATCHES[@]}"; do
+        c=$(( i % cols )); r=$(( i / cols ))
+        filters+=("drawbox=x=$(( c * pw )):y=$(( r * ph )):w=$pw:h=$ph:color=0x${CHART_PATCHES[$i]}:t=fill")
+    done
+
+    # 11-step grey strip under the continuous black->white ramp
+    for i in 0 1 2 3 4 5 6 7 8 9 10; do
+        v=$(( i * 255 / 10 )); hex=$(printf '%02x' "$v")
+        filters+=("drawbox=x=$(( i * CARD_W / 11 )):y=$(( grid_h + ramp_h )):w=$(( CARD_W / 11 )):h=$(( strip_h - ramp_h )):color=0x${hex}${hex}${hex}:t=fill")
+    done
+
+    # overscan brackets at the four corners + centre cross.
+    # Draw these last: a mark drawn earlier is overpainted by the patches.
+    filters+=("drawbox=x=12:y=12:w=90:h=6:color=white:t=fill" "drawbox=x=12:y=12:w=6:h=90:color=white:t=fill")
+    filters+=("drawbox=x=$(( CARD_W - 102 )):y=12:w=90:h=6:color=white:t=fill" "drawbox=x=$(( CARD_W - 18 )):y=12:w=6:h=90:color=white:t=fill")
+    filters+=("drawbox=x=12:y=$(( CARD_H - 18 )):w=90:h=6:color=white:t=fill" "drawbox=x=12:y=$(( CARD_H - 102 )):w=6:h=90:color=white:t=fill")
+    filters+=("drawbox=x=$(( CARD_W - 102 )):y=$(( CARD_H - 18 )):w=90:h=6:color=white:t=fill" "drawbox=x=$(( CARD_W - 18 )):y=$(( CARD_H - 102 )):w=6:h=90:color=white:t=fill")
+    filters+=("drawbox=x=$(( CARD_W / 2 - 60 )):y=$(( CARD_H / 2 - 3 )):w=120:h=6:color=white:t=fill" "drawbox=x=$(( CARD_W / 2 - 3 )):y=$(( CARD_H / 2 - 60 )):w=6:h=120:color=white:t=fill")
+
+    chain=$(IFS=,; echo "${filters[*]}")
+    cmd=("$FFMPEG_BIN" -hide_banner -y
+        -f lavfi -i "color=c=black:s=${CARD_W}x${CARD_H}:r=${CARD_FPS}"
+        -f lavfi -i "gradients=s=${CARD_W}x${ramp_h}:r=${CARD_FPS}:c0=black:c1=white:x0=0:y0=0:x1=$(( CARD_W - 1 )):y1=0:type=linear")
+    if [[ "$with_tone" == 1 ]]; then
+        cmd+=(-f lavfi -i "sine=frequency=1000:sample_rate=48000")
+    fi
+    cmd+=(-filter_complex "[0:v]${chain}[patches];[patches][1:v]overlay=0:${grid_h}[out]" -map "[out]")
+    if [[ "$with_tone" == 1 ]]; then
+        cmd+=(-map 2:a -af "volume=0.12,aformat=channel_layouts=stereo" -c:a aac -b:a 160k -shortest)
+    fi
+    cmd+=(-t "$CARD_DURATION" -c:v libx264 -crf 16 -pix_fmt yuv420p -movflags +faststart "$out")
+    "${cmd[@]}"
+}
+
+# build_frame_counter <output>
+build_frame_counter() {
+    local out=$1 font="" candidate text_ffmpeg
+    local -a filters=() cmd=()
+    local bit x x0 bw=110 gap=24 chain
+
+    for candidate in /System/Library/Fonts/Supplemental/Arial.ttf \
+                     /System/Library/Fonts/Supplemental/Helvetica.ttc \
+                     /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf; do
+        [[ -f "$candidate" ]] && { font=$candidate; break; }
+    done
+    text_ffmpeg=$(ffmpeg_with_filter drawtext || true)
+
+    if [[ -n "$text_ffmpeg" && -n "$font" ]]; then
+        echo -e "\033[34m[*] Frame counter: numbered (drawtext, ${font##*/})...\033[0m"
+        "$text_ffmpeg" -hide_banner -y -f lavfi -i "color=c=0x141414:s=${CARD_W}x${CARD_H}:r=60" \
+            -t "$CARD_DURATION" \
+            -vf "drawtext=fontfile=${font}:text='%{n}':fontcolor=white:fontsize=200:x=(w-tw)/2:y=(h-th)/2,drawtext=fontfile=${font}:text='%{pts\\:hms}':fontcolor=yellow:fontsize=52:x=(w-tw)/2:y=h-150,drawtext=fontfile=${font}:text='60 fps  frame %{n}':fontcolor=gray:fontsize=32:x=40:y=40" \
+            -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart "$out"
+        return
+    fi
+
+    echo -e "\033[33m[!] No drawtext filter (or font) in any ffmpeg: frame counter shows the frame number in binary instead.\033[0m"
+    x0=$(( (CARD_W - (8 * bw + 7 * gap)) / 2 ))
+    for bit in 0 1 2 3 4 5 6 7; do
+        x=$(( x0 + bit * (bw + gap) ))
+        filters+=("drawbox=x=${x}:y=$(( CARD_H / 2 - bw / 2 )):w=${bw}:h=${bw}:color=0x30e060:t=fill:enable='eq(mod(floor(n/pow(2\\,${bit}))\\,2)\\,1)'")
+    done
+    # flash on the first two frames of every second
+    filters+=("drawbox=x=$(( CARD_W / 2 - 40 )):y=$(( CARD_H / 2 + 140 )):w=80:h=80:color=white:t=fill:enable='lt(mod(n\\,60)\\,2)'")
+    chain=$(IFS=,; echo "${filters[*]}")
+    "$FFMPEG_BIN" -hide_banner -y -f lavfi -i "color=c=0x141414:s=${CARD_W}x${CARD_H}:r=60" \
+        -t "$CARD_DURATION" -vf "$chain" \
+        -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart "$out"
+}
+
+echo -e "\033[34m[*] Test card: colour chart + 1 kHz tone (colour / contrast / A/V sync)...\033[0m"
+build_color_chart "$OUTPUT_DIR/card_colorchart.mp4" 1
+
+echo -e "\033[34m[*] Test card: colour chart, silent (pixel measurement)...\033[0m"
+build_color_chart "$OUTPUT_DIR/card_colorchart_silent.mp4" 0
+
+echo -e "\033[34m[*] Test card: SMPTE HD bars + 1 kHz tone...\033[0m"
+"$FFMPEG_BIN" -hide_banner -y -f lavfi -i "smptehdbars=size=${CARD_W}x${CARD_H}:rate=${CARD_FPS}" \
+    -f lavfi -i "sine=frequency=1000:sample_rate=48000" \
+    -af "volume=0.12,aformat=channel_layouts=stereo" -c:a aac -b:a 160k -shortest \
+    -t "$CARD_DURATION" \
+    -c:v libx264 -crf 16 -pix_fmt yuv420p \
+    -y "$OUTPUT_DIR/card_smptebars.mp4"
+
+echo -e "\033[34m[*] Test card: black->white ramp (banding / bit depth)...\033[0m"
+"$FFMPEG_BIN" -hide_banner -y -f lavfi -i "gradients=s=${CARD_W}x${CARD_H}:r=${CARD_FPS}:c0=black:c1=white:x0=0:y0=0:x1=$(( CARD_W - 1 )):y1=0:type=linear" \
+    -t "$CARD_DURATION" \
+    -c:v libx264 -crf 16 -pix_fmt yuv420p \
+    -y "$OUTPUT_DIR/card_ramp.mp4"
+
+echo -e "\033[34m[*] Test card: frame counter 60 fps (dropped frames / stutter / seek)...\033[0m"
+build_frame_counter "$OUTPUT_DIR/card_framecounter.mp4"
+
+# ---------------------------------------------------------------------
+# SYNC BEEP: one 1 kHz, 100 ms burst at the start of every second
+# ---------------------------------------------------------------------
+# Added as a second pass so every sample carries the same audio marker: the
+# beep lands on each whole second of the picture, which makes it easy to hear
+# (or measure) an A/V offset, and a missing/duplicated beep exposes dropped
+# audio. 100 ms is short enough to leave the remaining 0.9 s silent.
+BEEP_SRC="aevalsrc=0.125*sin(2*PI*1000*t)*if(lt(mod(t\,1)\,0.12)\,pow(sin(PI*mod(t\,1)/0.12)\,2)\,0):s=48000:c=stereo"
+
+add_sync_beep() {
+    local file=$1
+    local tmp="${file%.*}.beep.${file##*.}"
+    "$FFMPEG_BIN" -hide_banner -loglevel error -y -i "$file" -f lavfi -i "$BEEP_SRC" \
+        -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 128k -shortest \
+        -movflags +faststart "$tmp" && mv "$tmp" "$file"
+}
+
+echo -e "\033[34m[*] Muxing the per-second sync beep into every sample...\033[0m"
+for clip in "$OUTPUT_DIR"/*.mp4; do
+    [[ -f "$clip" ]] || continue
+    add_sync_beep "$clip"
+done
 
 echo "=========================================================="
 echo -e "\033[32m🎉 Success! All test videos generated successfully in $OUTPUT_DIR.\033[0m"
