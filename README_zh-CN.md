@@ -1,5 +1,12 @@
 ## MRFFToolChain 构建工具
 
+![Static Badge](https://img.shields.io/badge/iOS-12.0-blue)
+![Static Badge](https://img.shields.io/badge/macOS-10.14-blue)
+![Static Badge](https://img.shields.io/badge/tvOS-12.0-blue)
+![Static Badge](https://img.shields.io/badge/Android-5.0-blue)
+![Static Badge](https://img.shields.io/badge/HarmonyOS-5.0-blue)
+![GitHub License](https://img.shields.io/github/license/debugly/MRFFToolChainBuildShell)
+
 MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、tvOS、Android、HarmonyOS（鸿蒙）平台的三方库，其构建产物为 [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial) 所用.
 
 目前包含了这些库：`ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp、x264、x265`.
@@ -12,7 +19,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 | iOS           | arm64、arm64\_simulator、x86\_64\_simulator | 12.0           |
 | tvOS          | arm64、arm64\_simulator、x86\_64\_simulator | 12.0           |
 | macOS         | arm64、x86\_64                             | 10.14          |
-| Android       | arm64、armv7a、x86\_64、x86                  | 21             |
+| Android       | arm64、armv7a、x86\_64、x86                  | 5.0 (API 21)            |
 | HarmonyOS（鸿蒙） | arm64、x86\_64                             | 5.0.0 (API 12) |
 
 
@@ -21,7 +28,7 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 - FFmpeg **8.1.2** 已经准备好了
 - 鸿蒙（HarmonyOS）平台已提供 libass 及其字体、文本处理依赖的预编译库
 - 将所有库升级至最新版本，不少库提升了性能
-- 使用 macOS 15，Xcode\_16.4 构建
+- 使用 macOS 26，Xcode\_26 构建
 
 ## 下载 / 安装预编译库
 
@@ -86,25 +93,6 @@ MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、
 ```
 
 这些参数的顺序无关紧要，可以按任意顺序排列。
-
-### 鸿蒙 libass 编译
-
-将 `OHOS_SDK_NATIVE` 指向鸿蒙 SDK 的 `native/` 目录（也支持 `OHOS_NATIVE_HOME`，或通过 `OHOS_SDK_HOME` 查找 SDK 内的 `native/` 目录）。macOS 上的 autotools 构建需要 Homebrew 的 GNU libtool（`glibtool`）。
-
-CI 使用统一的 **5.0.3.135 / API 15** SDK 基线，由共享安装器按宿主 CPU 自动选择 ARM64 或 Intel 镜像。详见 [SDK 来源、兼容性边界与验证方法](configs/ohos-sdk.md)。上表 API 12 为历史构建基线；使用 API 15 SDK 重编后的产物尚未重新验证 API 12 设备运行兼容性。
-
-```bash
-export OHOS_SDK_NATIVE=/path/to/ohos-sdk/native
-brew install libtool
-# 安装预编译依赖（fontconfig 会带入 xml2 和 freetype）
-./main.sh install -p ohos -l "freetype harfbuzz fribidi unibreak fontconfig"
-./main.sh init -p ohos -l ass
-./main.sh compile -p ohos -a arm64 -l ass
-```
-
-模拟器构建可将 `arm64` 改为 `x86_64`。构建会检查所需依赖，并交叉链接一个 libass 渲染器程序以验证静态依赖是否完整；该程序不会在宿主机上运行。
-
-宿主 gettext 污染的回归检查及真实双 ABI 编译/链接验收，见 [OHOS fontconfig NLS 隔离说明](tools/portal-site/markdown/ohos-fontconfig-nls.md)。
 
 ## 库明细
 
