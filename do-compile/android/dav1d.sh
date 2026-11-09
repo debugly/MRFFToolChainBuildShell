@@ -16,4 +16,4 @@
 #
 
 # call common meson build shell
-./meson-compatible.sh
+./meson-compatible.sh "-Denable_tools=false"
