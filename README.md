@@ -30,6 +30,7 @@ Libraries included: `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、f
 - HarmonyOS support includes pre-built libass and its font/text dependencies
 - Upgraded all libraries to latest, with improved optimizations
 - Built with macOS 26 and Xcode 26.6
+- Android supports 16 KB memory page sizes
 
 ## Download/Install Pre-compiled Libs
 
