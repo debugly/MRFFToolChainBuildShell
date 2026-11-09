@@ -1,23 +1,18 @@
 ## MRFFToolChain Build Shell \[[中文版](./README_zh-CN.md)\]
 
+![Static Badge](https://img.shields.io/badge/iOS-12.0-blue)
+![Static Badge](https://img.shields.io/badge/macOS-10.14-blue)
+![Static Badge](https://img.shields.io/badge/tvOS-12.0-blue)
+![Static Badge](https://img.shields.io/badge/Android-5.0-blue)
+![Static Badge](https://img.shields.io/badge/HarmonyOS-5.0-blue)
+![GitHub License](https://img.shields.io/github/license/debugly/MRFFToolChainBuildShell)
+
+
 MRFFToolChain cross-compiles FFmpeg (4.x–8.x) and 25+ third-party libraries — ass, dav1d, x264, x265, openssl, bluray, and more — for **iOS, macOS, tvOS, Android, and HarmonyOS**, then publishes the pre-built binaries to GitHub Releases. Stop fighting cross-compilation: download a ready-made library and link it in one command.
 
 It powers [fsplayer](https://github.com/debugly/fsplayer), [ijkplayer](https://github.com/debugly/ijkplayer), and [FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
 
 Libraries included: `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp、x264、x265`.
-
-## Why MRFFToolChain?
-
-
-| You get                                                      | Instead of                                                |
-| ------------------------------------------------------------ | --------------------------------------------------------- |
-| ✅ Pre-built binaries on GitHub Releases                      | ❌ Setting up each cross-compile toolchain by hand         |
-| ✅ One-command install (`./main.sh install -p ios -l ffmpeg`) | ❌ Running `./configure && make` for every lib, every arch |
-| ✅ 25+ libraries with patches already applied                 | ❌ Hunting down and applying patches yourself              |
-| ✅ 5 platforms (iOS / macOS / tvOS / Android / HarmonyOS)     | ❌ Maintaining a separate build script per platform        |
-| ✅ FFmpeg 4.0.5 → 8.1.2 (five versions)                       | ❌ Only the latest commit                                  |
-| ✅ Self-hostable mirrors (`MR_DOWNLOAD_BASEURL`)              | ❌ Locked to one slow source                               |
-
 
 ## Supported Platforms
 
@@ -26,7 +21,7 @@ Libraries included: `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、f
 | iOS       | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
 | tvOS      | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
 | macOS     | arm64、x86\_64                             | 10.14                     |
-| Android   | arm64、armv7a、x86\_64、x86                  | 21                        |
+| Android   | arm64、armv7a、x86\_64、x86                 | 5.0 (API 21)              |
 | HarmonyOS | arm64、x86\_64                             | 5.0.0 (API 12)            |
 
 ## News
@@ -99,25 +94,6 @@ The following code demonstrates how to compile FFmpeg 7 for the iOS platform：
 ```
 
 The order of these parameters does not matter; they can be arranged in any sequence.
-
-### Build libass for HarmonyOS
-
-Set `OHOS_SDK_NATIVE` to the HarmonyOS SDK's `native/` directory. `OHOS_NATIVE_HOME` is also supported; alternatively, set `OHOS_SDK_HOME` to search for `native/` within the SDK. On macOS, autotools builds require Homebrew's GNU libtool (`glibtool`).
-
-CI uses host-native ARM64 or Intel SDK mirrors pinned to **5.0.3.135 / API 15**, selected automatically by the shared installer. See [SDK provenance, compatibility boundaries and validation](configs/ohos-sdk.md). The API 12 deployment row above describes the historical baseline; API 12 runtime compatibility of newly rebuilt artifacts has not been revalidated with the API 15 SDK.
-
-```bash
-export OHOS_SDK_NATIVE=/path/to/ohos-sdk/native
-brew install libtool
-# Install pre-built dependencies (fontconfig includes xml2 and freetype)
-./main.sh install -p ohos -l "freetype harfbuzz fribidi unibreak fontconfig"
-./main.sh init -p ohos -l ass
-./main.sh compile -p ohos -a arm64 -l ass
-```
-
-Use `x86_64` instead of `arm64` for the emulator. The build checks required dependencies and cross-links a libass renderer program to verify its static dependencies; it does not run the program on the host.
-
-See [OHOS fontconfig NLS isolation and dual-ABI link validation](tools/portal-site/markdown/ohos-fontconfig-nls.md) for the host-gettext regression checks and verified support boundary.
 
 ## Libraries
 
