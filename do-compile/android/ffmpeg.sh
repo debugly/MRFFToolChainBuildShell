@@ -95,7 +95,7 @@ echo "----------------------"
 echo "[*] install"
 
 cp config.* $MR_BUILD_PREFIX
-make install >/dev/null
+make install-libs install-headers >/dev/null
 mkdir -p $MR_BUILD_PREFIX/include/libffmpeg
 cp -f config.h $MR_BUILD_PREFIX/include/libffmpeg/
 [ -e config_components.h ] && cp -f config_components.h $MR_BUILD_PREFIX/include/libffmpeg/
