@@ -1,4 +1,10 @@
-## MRFFToolChain 构建工具
+[简体中文](README_zh-CN.md) · **English**
+
+<div align="center">
+
+<!-- <img src="./doc/banner.jpg" width="480" alt="MRFFToolChainBuildShell"> -->
+
+## MRFFToolChain
 
 ![Static Badge](https://img.shields.io/badge/iOS-12.0-blue)
 ![Static Badge](https://img.shields.io/badge/macOS-10.14-blue)
@@ -7,12 +13,15 @@
 ![Static Badge](https://img.shields.io/badge/HarmonyOS-5.0-blue)
 ![GitHub License](https://img.shields.io/github/license/debugly/MRFFToolChainBuildShell)
 
-MRFFToolChain 是一套成熟的编译工具，专门用来编译 iOS、macOS、tvOS、Android、HarmonyOS（鸿蒙）平台的三方库，其构建产物为 [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial) 所用.
+</div>
 
-目前包含了这些库：`ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp、x264、x265`.
+## 为什么选择 MRFFToolChain
+
+MRFFToolChain 是一套成熟的编译工具，编译了 4-8 代 FFmpeg 以及 ass, dav1d, x264, x265, openssl, bluray 等 5 个平台的 25 个库。已经构建好了预编译版本发布到了 Github，不要浪费时间编译了，直接去下载使用吧。
+
+我的其他作品都使用了 MRFFToolChain，包括 [fsplayer](https://github.com/debugly/fsplayer) 、 [ijkplayer](https://github.com/debugly/ijkplayer) 、[FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
 
 ## 支持的平台
-
 
 | 平台            | 架构                                        | 最低部署目标版本       |
 | ------------- | ----------------------------------------- | -------------- |
