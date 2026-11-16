@@ -93,20 +93,19 @@ apply_patch_smart() {
 
         # 终止失败的 am 进程
         git am --abort
-
+        
         # 尝试使用 --reject 强制应用
-        if git apply --reject "$patch_file"; then
-            echo "----------------------------------------------------"
-            echo "Patch partially applied with --reject."
-            echo "Please check for .rej files and resolve them manually."
-            echo "----------------------------------------------------"
+        git apply --reject "$patch_file"
 
-            # 列出生成的 .rej 文件提醒用户
-            find . -name "*.rej"
-        else
-            echo "Error: [git apply --reject] also failed. Please check the patch file."
-            return 1
-        fi
+        echo "----------------------------------------------------"
+        echo "Patch partially applied with --reject."
+        echo "Please check for .rej files and resolve them manually."
+        echo "----------------------------------------------------"
+
+        # 列出生成的 .rej 文件提醒用户
+        find . -name "*.rej"
+
+        return 1
     fi
 }
 
