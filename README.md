@@ -1,4 +1,10 @@
-## MRFFToolChain Build Shell \[[中文版](./README_zh-CN.md)\]
+[简体中文](README_zh-CN.md) · **English**
+
+<div align="center">
+
+<!-- <img src="./doc/banner.jpg" width="480" alt="MRFFToolChainBuildShell"> -->
+
+## MRFFToolChain
 
 ![Static Badge](https://img.shields.io/badge/iOS-12.0-blue)
 ![Static Badge](https://img.shields.io/badge/macOS-10.14-blue)
@@ -7,12 +13,13 @@
 ![Static Badge](https://img.shields.io/badge/HarmonyOS-5.0-blue)
 ![GitHub License](https://img.shields.io/github/license/debugly/MRFFToolChainBuildShell)
 
+</div>
 
-MRFFToolChain cross-compiles FFmpeg (4.x–8.x) and 25+ third-party libraries — ass, dav1d, x264, x265, openssl, bluray, and more — for **iOS, macOS, tvOS, Android, and HarmonyOS**, then publishes the pre-built binaries to GitHub Releases. Stop fighting cross-compilation: download a ready-made library and link it in one command.
+## Why MRFFToolChain
+
+MRFFToolChain cross-compiles FFmpeg (4.x–8.x) and 25+ third-party libraries — ass, dav1d, x264, x265, openssl, bluray, and more — for five platforms, published the pre-built binaries to GitHub Releases. Stop fighting cross-compilation, just download a ready-made library and link it in one command.
 
 It powers [fsplayer](https://github.com/debugly/fsplayer), [ijkplayer](https://github.com/debugly/ijkplayer), and [FFmpegTutorial](https://github.com/debugly/FFmpegTutorial).
-
-Libraries included: `ass、bluray、dav1d、dovi、dvdread、dvdnav、ffmpeg、freetype、fribidi、harfbuzz、lcms2、placebo、moltenvk、openssl、opus、shaderc、smb2、soundtouch、unibreak、uavs3d、xml2、yuv、webp、x264、x265`.
 
 ## Supported Platforms
 
