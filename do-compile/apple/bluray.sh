@@ -23,6 +23,9 @@ cd "$THIS_DIR"
 # prepare build config
 if [[ -f "$MR_BUILD_SOURCE/meson.build" ]]; then
     CFG_FLAGS="-Denable_docs=false -Denable_tools=false -Denable_devtools=false -Denable_examples=false -Dbdj_jar=disabled -Dfontconfig=disabled -Dfreetype=disabled -Dlibxml2=enabled"
+    if pkg-config --exists 'libudfread >= 1.2.0'; then
+        CFG_FLAGS="$CFG_FLAGS --wrap-mode=nofallback"
+    fi
     ./meson-compatible.sh "$CFG_FLAGS"
     exit 0
 fi

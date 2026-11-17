@@ -70,7 +70,7 @@ case $LIB_NAME in
             *) platforms=("$PLAT") ;;
         esac
         for platform in "${platforms[@]}"; do
-            install_dependencies -l 'xml2' -p "$platform"
+            install_dependencies -l 'xml2 udfread' -p "$platform"
         done
     ;;
     ffmpeg8)

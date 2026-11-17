@@ -23,13 +23,15 @@ It powers [fsplayer](https://github.com/debugly/fsplayer), [ijkplayer](https://g
 
 ## Supported Platforms
 
+
 | platform  | architectures                             | minimum deployment target |
 | --------- | ----------------------------------------- | ------------------------- |
 | iOS       | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
 | tvOS      | arm64、arm64\_simulator、x86\_64\_simulator | 12.0                      |
 | macOS     | arm64、x86\_64                             | 10.14                     |
-| Android   | arm64、armv7a、x86\_64、x86                 | 5.0 (API 21)              |
+| Android   | arm64、armv7a、x86\_64、x86                  | 5.0 (API 21)              |
 | HarmonyOS | arm64、x86\_64                             | 5.0.0 (API 12)            |
+
 
 ## News
 
@@ -117,11 +119,11 @@ Current version and repository URLs of each library:
 | ffmpeg4    | 4.0.5                          | [https://github.com/FFmpeg/FFmpeg.git](https://github.com/FFmpeg/FFmpeg.git)                                         | export GIT\_FFMPEG\_UPSTREAM=git@xx:yy/FFmpeg.git         |
 | ijkffmpeg  | ff4.0--ijk0.8.8--20210426--001 | [https://github.com/bilibili/FFmpeg.git](https://github.com/bilibili/FFmpeg.git)                                     | export GIT\_IJKFFMPEG\_UPSTREAM=git@xx:yy/FFmpeg.git      |
 | ass        | 0.17.5                         | [https://github.com/libass/libass.git](https://github.com/libass/libass.git)                                         | export GIT\_ASS\_UPSTREAM=git@xx:yy/libass.git            |
-| bluray     | 1.3.4                          | [https://code.videolan.org/videolan/libbluray.git](https://code.videolan.org/videolan/libbluray.git)                 | export GIT\_BLURAY\_UPSTREAM=git@xx:yy/libbluray.git      |
+| bluray     | 1.5.0                          | [https://code.videolan.org/videolan/libbluray.git](https://code.videolan.org/videolan/libbluray.git)                 | export GIT\_BLURAY\_UPSTREAM=git@xx:yy/libbluray.git      |
 | dav1d      | 1.5.4                          | [https://code.videolan.org/videolan/dav1d.git](https://code.videolan.org/videolan/dav1d.git)                         | export GIT\_DAV1D\_UPSTREAM=git@xx:yy/dav1d.git           |
 | dvdread    | 7.1.1                          | [https://code.videolan.org/videolan/libdvdread.git](https://code.videolan.org/videolan/libdvdread.git)               | export GIT\_DVDREAD\_UPSTREAM=git@xx:yy/libdvdread.git    |
 | dvdnav     | master-9831fe01                | [https://code.videolan.org/videolan/libdvdnav.git](https://code.videolan.org/videolan/libdvdnav.git)                 | export GIT\_DVDNAV\_UPSTREAM=git@xx:yy/libdvdnav.git      |
-| udfread    | 1.2.0                          | [https://code.videolan.org/videolan/libudfread.git](https://code.videolan.org/videolan/libudfread.git)             | export GIT\_UDFREAD\_UPSTREAM=git@xx:yy/libudfread.git |
+| udfread    | 1.2.0                          | [https://code.videolan.org/videolan/libudfread.git](https://code.videolan.org/videolan/libudfread.git)               | export GIT\_UDFREAD\_UPSTREAM=git@xx:yy/libudfread.git    |
 | fontconfig | 2.18.3                         | [https://gitlab.freedesktop.org/fontconfig/fontconfig.git](https://gitlab.freedesktop.org/fontconfig/fontconfig.git) | export GIT\_FONTCONFIG\_UPSTREAM=git@xx:yy/fontconfig.git |
 | freetype   | 2.14.3                         | [https://gitlab.freedesktop.org/freetype/freetype.git](https://gitlab.freedesktop.org/freetype/freetype.git)         | export GIT\_FREETYPE\_UPSTREAM=git@xx:yy/freetype.git     |
 | fribidi    | 1.0.16                         | [https://github.com/fribidi/fribidi.git](https://github.com/fribidi/fribidi.git)                                     | export GIT\_FRIBIDI\_UPSTREAM=git@xx:yy/fribidi.git       |
@@ -147,26 +149,26 @@ Current version and repository URLs of each library:
 
 ## Dependencies
 
-- Fontconfig: xml2,freetype
-- Bluray: xml2
+- Fontconfig: xml2、freetype
+- Bluray: xml2、udfread
 - Harfbuzz: freetype
 - Dvdnav: dvdread
-- Placebo for macOS: shaderc,moltenvk,dovi,lcms2
-- Ass for Apple:  harfbuzz,fribidi,unibreak
-- Ass for Android: harfbuzz,fribidi,unibreak,fontconfig
-- Ass for HarmonyOS: harfbuzz,fribidi,unibreak,fontconfig
+- Placebo for macOS: shaderc、moltenvk、dovi、lcms2
+- Ass for Apple:  harfbuzz、fribidi、unibreak
+- Ass for Android: harfbuzz、fribidi、unibreak、fontconfig
+- Ass for HarmonyOS: harfbuzz、fribidi、unibreak、fontconfig
 - IJKFFmpeg: openssl
-- FFmpeg4 for Apple: openssl3,opus,bluray
-- FFmpeg5 for Apple: openssl3,opus,bluray,dav1d,dvdread,uavs3d
-- FFmpeg6 for Apple: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2
-- FFmpeg7 for Apple: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,webp
-- FFmpeg8 for Apple: openssl3,opus,bluray,dav1d,uavs3d,smb2,webp
-- FFmpeg4 for Android: openssl3,opus,bluray,soundtouch
-- FFmpeg5 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,soundtouch
-- FFmpeg6 for Android: openssl3,opus,bluray,dav1d,dvdread,uavs3d,smb2,soundtouch
-- FFmpeg7 for Android: openssl3,opus,bluray,dav1d,dvdnav,uavs3d,smb2,soundtouch
-- FFmpeg8 for Android: openssl3,opus,bluray,dav1d,uavs3d,smb2,soundtouch
-- FFmpeg8 for HarmonyOS: openssl3,opus,bluray,dav1d,uavs3d,smb2,soundtouch
+- FFmpeg4 for Apple: openssl3、opus、bluray
+- FFmpeg5 for Apple: openssl3、opus、bluray、dav1d、dvdread、uavs3d
+- FFmpeg6 for Apple: openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2
+- FFmpeg7 for Apple: openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、webp
+- FFmpeg8 for Apple: openssl3、opus、bluray、dav1d、uavs3d、smb2、webp
+- FFmpeg4 for Android: openssl3、opus、bluray、soundtouch
+- FFmpeg5 for Android: openssl3、opus、bluray、dav1d、dvdread、uavs3d、soundtouch
+- FFmpeg6 for Android: openssl3、opus、bluray、dav1d、dvdread、uavs3d、smb2、soundtouch
+- FFmpeg7 for Android: openssl3、opus、bluray、dav1d、dvdnav、uavs3d、smb2、soundtouch
+- FFmpeg8 for Android: openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
+- FFmpeg8 for HarmonyOS: openssl3、opus、bluray、dav1d、uavs3d、smb2、soundtouch
 
 ## Tips
 

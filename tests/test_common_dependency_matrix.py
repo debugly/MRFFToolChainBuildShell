@@ -41,6 +41,8 @@ class CommonDependencyMatrix(unittest.TestCase):
             for platform in PLATFORMS:
                 with self.subTest(library=library, platform=platform):
                     names = {'freetype'} if library == 'harfbuzz' else {'xml2'}
+                    if library == 'bluray':
+                        names.add('udfread')
                     if library == 'fontconfig' and platform in ('android', 'ohos'):
                         names.add('freetype')
                     self.assertSetEqual(dependencies(library, platform),

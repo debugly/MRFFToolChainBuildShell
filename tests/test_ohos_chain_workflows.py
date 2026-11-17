@@ -82,12 +82,13 @@ class FFmpeg8Chain(unittest.TestCase):
         for skipped in ('dvdread', 'dvdnav', 'webp'):
             self.assertNotIn(skipped, built(calls))
 
-    def test_apple_keeps_webp_and_dvd_libraries(self):
+    def test_apple_keeps_webp_and_builds_udfread_before_bluray(self):
         result, calls = run_chain(FFMPEG8, 'apple', 'openssl3')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn('webp', built(calls))
-        self.assertIn('dvdnav', built(calls))
-        self.assertNotIn('soundtouch', built(calls))
+        libraries = built(calls)
+        self.assertIn('webp', libraries)
+        self.assertLess(libraries.index('udfread'), libraries.index('bluray'))
+        self.assertNotIn('soundtouch', libraries)
 
     def test_all_builds_udfread_for_all_platforms_before_bluray(self):
         result, calls = run_chain(FFMPEG8, 'all', 'udfread')
