@@ -50,6 +50,7 @@ on:
           - dav1d
           - dvdread
           - dvdnav
+          - udfread
           - harfbuzz
           - fontconfig
           - freetype
@@ -108,8 +109,7 @@ jobs:
     - uses: nttld/setup-ndk@v1
       id: setup-ndk
       if: |
-        github.event.inputs.platform == 'all' || 
-        github.event.inputs.platform == 'android'
+        inputs.platform == 'all' || inputs.platform == 'android'
       with:
         ndk-version: r27c
         add-to-path: true

@@ -78,7 +78,7 @@ class FFmpeg8Chain(unittest.TestCase):
         result, calls = run_chain(FFMPEG8, 'ohos', 'openssl3')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(built(calls),
-                         ['openssl3', 'opus', 'bluray', 'dav1d', 'uavs3d', 'smb2', 'soundtouch', 'ffmpeg8'])
+                         ['openssl3', 'opus', 'udfread', 'bluray', 'dav1d', 'uavs3d', 'smb2', 'soundtouch', 'ffmpeg8'])
         for skipped in ('dvdread', 'dvdnav', 'webp'):
             self.assertNotIn(skipped, built(calls))
 
@@ -88,6 +88,12 @@ class FFmpeg8Chain(unittest.TestCase):
         self.assertIn('webp', built(calls))
         self.assertIn('dvdnav', built(calls))
         self.assertNotIn('soundtouch', built(calls))
+
+    def test_all_builds_udfread_for_all_platforms_before_bluray(self):
+        result, calls = run_chain(FFMPEG8, 'all', 'udfread')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(calls[:4], ['install udfread all', 'build udfread all false false',
+                                     'install bluray all', 'build bluray all false false'])
 
 
 class Cleanup(unittest.TestCase):

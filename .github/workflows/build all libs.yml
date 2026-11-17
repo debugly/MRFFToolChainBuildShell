@@ -51,6 +51,7 @@ on:
           - placebo
           - dvdread
           - dvdnav
+          - udfread
           - bluray
           - dav1d
           - uavs3d
@@ -203,6 +204,7 @@ jobs:
           "openssl3"
           "dvdread"
           "dvdnav"
+          "udfread"
           "bluray"
           "dav1d"
           "uavs3d"
