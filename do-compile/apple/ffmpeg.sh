@@ -64,6 +64,9 @@ if [[ "$ENABLE_BIN" == "1" ]]; then
     EXTRA_LDFLAGS=
     # Dynamically query pkg-config to link all available third party static libraries
     pkgs="libx264 libx265 libass libbluray dav1d dvdread dvdnav freetype2 fribidi harfbuzz openssl opus libsmb2 uavs3d libunibreak libxml-2.0 libwebp libwebpdecoder libwebpdemux"
+    if [[ "$enable_udfread" ]]; then
+        pkgs="$pkgs libudfread"
+    fi
     enabled_pkgs=""
     for pkg in $pkgs; do
         if pkg-config --exists "$pkg" 2>/dev/null; then
@@ -96,7 +99,16 @@ if [[ ! -d $MR_BUILD_SOURCE ]]; then
 fi
 
 cd $MR_BUILD_SOURCE
-if [[ -f "./config.h" ]]; then
+reuse_config=
+if [[ -f ./config.h ]]; then
+    reuse_config=1
+    if [[ "$enable_udfread" ]] &&
+       ! grep -qx '#define CONFIG_DVDVIDEO_DEMUXER 1' ./config_components.h; then
+        reuse_config=
+    fi
+fi
+
+if [[ "$reuse_config" ]]; then
     echo 'reuse configure'
 else
     echo

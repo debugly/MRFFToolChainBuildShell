@@ -120,9 +120,11 @@ gt_or_equal() {
 
 has_feature() {
     local feature=$1
-    $MR_BUILD_SOURCE/configure --help | grep -q -- "$feature" && enable_feature=1 || enable_feature=0
-    echo $enable_feature
-    return 0
+    if (cd "$MR_BUILD_SOURCE" && ./configure --help) | grep -F -- "$feature" >/dev/null; then
+        echo 1
+    else
+        echo 0
+    fi
 }
 
 echo "----------------------"
@@ -197,9 +199,18 @@ fi
 echo "----------------------"
 
 is_gpl=0
-#不确定7代之前的版本是否支持dvdvideo
+enable_udfread=
 result=$(gt_or_equal "$GIT_REPO_VERSION" "7.1.1")
-if [[ $result ]]; then
+if [[ $(has_feature "--enable-libudfread") == 1 ]]; then
+    if pkg-config --exists "libudfread >= 1.1.2"; then
+        enable_udfread=1
+        echo "[✅] --enable-libudfread --enable-demuxer=fsdvdvideo : $(pkg-config --modversion libudfread)"
+        THIRD_CFG_FLAGS="$THIRD_CFG_FLAGS --enable-libudfread --enable-demuxer=fsdvdvideo"
+    else
+        echo "[❌] fsdvdvideo requires libudfread >= 1.1.2"
+    fi
+    echo "----------------------"
+elif [[ $result ]]; then
     pkg-config --libs dvdread --silence-errors >/dev/null && enable_dvdread=1
     pkg-config --libs dvdnav --silence-errors >/dev/null && enable_dvdnav=1
     if [[ $enable_dvdread && $enable_dvdnav ]];then
