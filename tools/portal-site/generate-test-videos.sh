@@ -78,16 +78,17 @@ echo -e "\033[34m[*] Case 1.2: Generating HEVC with Apple-friendly 'hvc1' tag (Q
 # ---------------------------------------------------------------------
 # PITFALL 2: Web Fast Start (moov atom position)
 # ---------------------------------------------------------------------
-echo -e "\033[34m[*] Case 2.1: Generating MP4 without faststart (Web player lags/buffers)...\033[0m"
-"$FFMPEG_BIN" -f lavfi -i "testsrc=duration=${DURATION}:size=320x240:rate=30" \
+TAIL_MOOV_NAME=test_x264_no_faststart.mp4
+echo -e "\033[34m[*] Case 2.1: Generating MP4 with moov after mdat (HTTP seek test)...\033[0m"
+"$FFMPEG_BIN" -f lavfi -i "testsrc2=duration=${DURATION}:size=640x360:rate=30" \
     -pix_fmt yuv420p \
-    -c:v libx264 \
-    -y "$OUTPUT_DIR/test_x264_no_faststart.mp4"
+    -c:v libx264 -preset fast -crf 16 \
+    -movflags 0 \
+    -y "$OUTPUT_DIR/$TAIL_MOOV_NAME"
 
-echo -e "\033[34m[*] Case 2.2: Generating MP4 with faststart (Web player plays instantly)...\033[0m"
-"$FFMPEG_BIN" -f lavfi -i "testsrc=duration=${DURATION}:size=320x240:rate=30" \
-    -pix_fmt yuv420p \
-    -c:v libx264 \
+echo -e "\033[34m[*] Case 2.2: Moving moov before mdat for the fast-start control...\033[0m"
+"$FFMPEG_BIN" -i "$OUTPUT_DIR/$TAIL_MOOV_NAME" \
+    -c copy \
     -movflags +faststart \
     -y "$OUTPUT_DIR/test_x264_faststart.mp4"
 
@@ -483,9 +484,14 @@ BEEP_SRC="aevalsrc=0.125*sin(2*PI*1000*t)*if(lt(mod(t\,1)\,0.12)\,pow(sin(PI*mod
 add_sync_beep() {
     local file=$1
     local tmp="${file%.*}.beep.${file##*.}"
+    local movflags=+faststart
+    # Keep the final output of the tail-moov test in its original box order.
+    if [[ "${file##*/}" == "$TAIL_MOOV_NAME" ]]; then
+        movflags=0
+    fi
     "$FFMPEG_BIN" -hide_banner -loglevel error -y -i "$file" -f lavfi -i "$BEEP_SRC" \
         -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 128k -shortest \
-        -movflags +faststart "$tmp" && mv "$tmp" "$file"
+        -movflags "$movflags" "$tmp" && mv "$tmp" "$file"
 }
 
 echo -e "\033[34m[*] Muxing the per-second sync beep into every sample...\033[0m"

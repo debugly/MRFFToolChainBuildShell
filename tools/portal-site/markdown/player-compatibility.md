@@ -14,12 +14,23 @@ This test suite presents the most common video/audio encoding pitfalls in player
 | ❌ [test_x265_hev1.mp4](videos/test_x265_hev1.mp4) | `hev1` | **Fails** to play on Safari/QuickTime (black screen / error) | `ffmpeg -i ... -c:v libx265 -tag:v hev1 ...` |
 | 💚 [test_x265_hvc1.mp4](videos/test_x265_hvc1.mp4) | `hvc1` | **Plays perfectly** on all iOS/macOS Safari and QuickTime | `ffmpeg -i ... -c:v libx265 -tag:v hvc1 ...` |
 
-## 2. Web Streaming Optimization (MP4 Fast Start / metadata Pitfall)
+## 2. MP4 Metadata Placement (Tail `moov` and Fast Start)
 
-| Test Sample MP4 | Fast Start Enabled? | Expected Playback Behavior on Web Browsers | FFmpeg Encoding Command |
+| Test Sample MP4 | Top-Level Box Order | What It Tests | FFmpeg Command |
 | :--- | :---: | :--- | :--- |
-| ❌ [test_x264_no_faststart.mp4](videos/test_x264_no_faststart.mp4) | No | **Lags/Buffers**: Browser must download the entire video before playing | `ffmpeg -i ... -c:v libx264 ...` |
-| 💚 [test_x264_faststart.mp4](videos/test_x264_faststart.mp4) | **Yes** | **Instant Playback**: Video streams instantly while downloading in background | `ffmpeg -i ... -c:v libx264 -movflags +faststart ...` |
+| [Tail `moov` MP4](videos/test_x264_no_faststart.mp4) | `mdat` → `moov` | The player must reach the metadata at the end, then read earlier media data. | `ffmpeg -i ... -c:v libx264 -movflags 0 ...` |
+| [Fast-start control](videos/test_x264_faststart.mp4) | `moov` → `mdat` | The same H.264 stream with metadata available before the media data. | `ffmpeg -i test_x264_no_faststart.mp4 -c copy -movflags +faststart test_x264_faststart.mp4` |
+
+For [FSPlayer issue #52](https://github.com/debugly/fsplayer/issues/52), serve the tail-`moov` sample over HTTP. Try a server that honors Range requests and one that ignores them. Check that the first frame plays, then seek forward and back.
+
+Generate a video-only 15-second tail-`moov` sample locally with FFmpeg and libx264.
+
+```sh
+ffmpeg -f lavfi -i "testsrc2=duration=15:size=640x360:rate=30" \
+  -pix_fmt yuv420p -c:v libx264 -preset fast -crf 16 -movflags 0 test_x264_no_faststart.mp4
+```
+
+For a local server that ignores Range, run `python3 -m http.server --bind 127.0.0.1 8000` from the sample directory. Open `http://127.0.0.1:8000/test_x264_no_faststart.mp4` in FSPlayer on the same machine.
 
 ## 3. Chroma Subsampling & Color Depth Compatibility
 
