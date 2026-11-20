@@ -75,3 +75,22 @@ Alpha video composites over the page background — no green-screen keying requi
 <div style="display:inline-block;padding:10px;border-radius:8px;background-color:#808080;background-image:linear-gradient(45deg,#ccc 25%,transparent 25%),linear-gradient(-45deg,#ccc 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ccc 75%),linear-gradient(-45deg,transparent 75%,#ccc 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0;">
   <video width="640" height="480" autoplay loop muted playsinline src="videos/test_transparent.webm"></video>
 </div>
+
+## 8. HDR Subtitle Rendering (BT.2020 HLG and PQ)
+
+The two 10-bit HEVC samples share a fixed gray background and the same default ASS subtitle track. Play both in FSPlayer or AuraPlayer on an HDR-capable display with HDR direct output enabled. Use the white swatch as a reference and compare the gray, warm, and half-transparent gray swatches. See [FSPlayer issue #5](https://github.com/debugly/fsplayer/issues/5).
+
+| Test sample with embedded ASS | Transfer function | FSPlayer display mode |
+| :--- | :--- | :--- |
+| [BT.2020 HLG (MKV)](videos/test_bt2020_hlg_subtitles.mkv) | HLG (ARIB STD-B67) | Linear sRGB |
+| [BT.2020 PQ (MKV)](videos/test_bt2020_pq_subtitles.mkv) | PQ (SMPTE ST 2084) with HDR10 metadata | Linear BT.2020 |
+
+The MP4 previews below have the swatches baked into the picture for browsers that support 10-bit HEVC. From left to right they show white, `#808080` gray, `#C08040` warm color, and gray at 50% opacity. Use the MKV files to exercise the player's subtitle renderer.
+
+**[BT.2020 HLG MP4](videos/previews/test_bt2020_hlg_subtitles.mp4)**
+
+<video style="width:100%;max-width:640px;height:auto" width="640" height="360" controls muted playsinline preload="metadata" aria-label="BT.2020 HLG subtitle swatches" src="videos/previews/test_bt2020_hlg_subtitles.mp4"></video>
+
+**[BT.2020 PQ MP4](videos/previews/test_bt2020_pq_subtitles.mp4)**
+
+<video style="width:100%;max-width:640px;height:auto" width="640" height="360" controls muted playsinline preload="metadata" aria-label="BT.2020 PQ subtitle swatches" src="videos/previews/test_bt2020_pq_subtitles.mp4"></video>

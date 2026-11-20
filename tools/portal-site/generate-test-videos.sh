@@ -500,6 +500,11 @@ for clip in "$OUTPUT_DIR"/*.mp4; do
     add_sync_beep "$clip"
 done
 
+# ---------------------------------------------------------------------
+# PITFALL 8: Embedded ASS subtitle colors in HLG and PQ
+# ---------------------------------------------------------------------
+python3 "$(dirname "$0")/generate-hdr-subtitle-videos.py" "$FFMPEG_BIN" "$DURATION" "$OUTPUT_DIR"
+
 echo "=========================================================="
 echo -e "\033[32m🎉 Success! All test videos generated successfully in $OUTPUT_DIR.\033[0m"
 echo "=========================================================="
